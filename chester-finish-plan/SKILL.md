@@ -1,0 +1,266 @@
+---
+name: chester-finish-plan
+description: Use when implementation is complete, all tests pass, and you need to decide how to integrate the work - guides completion of development work by presenting structured options for merge, PR, or cleanup
+---
+
+# Finishing a Development Branch
+
+## Overview
+
+Guide completion of development work by presenting clear options and handling chosen workflow.
+
+**Core principle:** Verify tests → Verify clean tree → Present options → Execute choice → Clean up.
+
+**Announce at start:** "I'm using the chester-finish-plan skill to complete this work."
+
+## The Process
+
+### Step 1: Verify Tests
+
+**REQUIRED: Invoke the chester-prove-work skill as the first step to run the full test suite and produce verification evidence.** This loads the Iron Law ("no completion claims without fresh verification evidence") and the Gate Function into context.
+
+**Then verify tests pass:**
+
+```bash
+# Run project's FULL test suite
+npm test / cargo test / pytest / go test ./...
+```
+
+Read the complete output. Confirm the pass count and zero failures. Do not summarize or skim.
+
+**If tests fail:**
+```
+Tests failing (<N> failures). Must fix before completing:
+
+[Show failures]
+
+Cannot proceed with merge/PR until tests pass.
+```
+
+Stop. Don't proceed to Step 2.
+
+**If tests pass:** Continue to Step 2.
+
+### Step 2: Verify Clean Tree
+
+After tests pass, check for uncommitted changes:
+
+```bash
+git status --porcelain
+```
+
+**If output shows modified tracked files (lines starting with `M`, `A`, `D`, `R`, `C`, or `U`):**
+
+```
+Uncommitted changes detected:
+
+[Show git status output]
+
+All implementation changes must be committed before proceeding.
+```
+
+Stop. The user must either:
+- Commit the remaining changes
+- Confirm the changes are unrelated to this work
+
+Only proceed after the user responds.
+
+**If output is empty or shows only untracked files (`??`):** Continue to Step 3.
+
+### Step 3: Determine Base Branch
+
+```bash
+# Try common base branches
+git merge-base HEAD main 2>/dev/null || git merge-base HEAD master 2>/dev/null
+```
+
+Or ask: "This branch split from main - is that correct?"
+
+### Step 4: Documentation alignment check
+
+Invoke `chester-doc-sync` to check whether the session's changes have created documentation staleness. This runs automatically — do not skip.
+
+1. Use the Skill tool to invoke `chester-doc-sync`
+2. The skill will dispatch subagents, produce a terminal summary, and write a report file
+3. If findings are reported, the user should be aware of them before making a merge decision
+4. Proceed to the next step regardless of findings (doc sync is advisory, not blocking)
+
+### Step 5: Present Options
+
+Present exactly these 4 options:
+
+```
+Implementation complete. What would you like to do?
+
+1. Merge back to <base-branch> locally
+2. Push and create a Pull Request
+3. Keep the branch as-is (I'll handle it later)
+4. Discard this work
+
+Which option?
+```
+
+**Don't add explanation** - keep options concise.
+
+### Step 6: Execute Choice
+
+#### Option 1: Merge Locally
+
+```bash
+# Switch to base branch
+git checkout <base-branch>
+
+# Pull latest
+git pull
+
+# Merge feature branch
+git merge <feature-branch>
+
+# Verify tests on merged result
+<test command>
+
+# If tests pass
+git branch -d <feature-branch>
+```
+
+Then: Cleanup worktree (Step 7)
+
+#### Option 2: Push and Create PR
+
+```bash
+# Push branch
+git push -u origin <feature-branch>
+
+# Create PR
+gh pr create --title "<title>" --body "$(cat <<'EOF'
+## Summary
+<2-3 bullets of what changed>
+
+## Test Plan
+- [ ] <verification steps>
+EOF
+)"
+```
+
+Then: Cleanup worktree (Step 7)
+
+#### Option 3: Keep As-Is
+
+Report: "Keeping branch <name>. Worktree preserved at <path>."
+
+**Don't cleanup worktree.**
+
+#### Option 4: Discard
+
+**Confirm first:**
+```
+This will permanently delete:
+- Branch <name>
+- All commits: <commit-list>
+- Worktree at <path>
+
+Type 'discard' to confirm.
+```
+
+Wait for exact confirmation.
+
+If confirmed:
+```bash
+git checkout <base-branch>
+git branch -D <feature-branch>
+```
+
+Then: Cleanup worktree (Step 7)
+
+### Step 7: Cleanup Worktree
+
+**For Options 1, 2, 4:**
+
+Check if in worktree:
+```bash
+git worktree list | grep $(git branch --show-current)
+```
+
+If yes:
+```bash
+git worktree remove <worktree-path>
+```
+
+**For Option 3:** Keep worktree.
+
+### Step 8: Session Artifacts (Optional)
+
+After the workflow completes, offer:
+
+```
+Would you like me to produce session artifacts?
+
+1. Session summary (invoke chester-write-summary skill)
+2. Reasoning audit (invoke chester-trace-reasoning skill)
+3. Archive implementation plan (copy to {output_dir}/summary/)
+4. All of the above
+5. Skip
+```
+
+If `output_dir` is not set, archive copies the plan to the effort directory (`docs/chester/YYYY-MM-DD-<topic-slug>/`).
+
+Every artifact produced must be both saved to disk AND written to the terminal. The user should be able to read the full content of each artifact in their terminal output without needing to open the file.
+
+If declined, the skill completes.
+
+## Quick Reference
+
+| Option | Merge | Push | Keep Worktree | Cleanup Branch |
+|--------|-------|------|---------------|----------------|
+| 1. Merge locally | ✓ | - | - | ✓ |
+| 2. Create PR | - | ✓ | ✓ | - |
+| 3. Keep as-is | - | - | ✓ | - |
+| 4. Discard | - | - | - | ✓ (force) |
+
+## Common Mistakes
+
+**Skipping test verification**
+- **Problem:** Merge broken code, create failing PR
+- **Fix:** Always verify tests before offering options
+
+**Open-ended questions**
+- **Problem:** "What should I do next?" → ambiguous
+- **Fix:** Present exactly 4 structured options
+
+**Automatic worktree cleanup**
+- **Problem:** Remove worktree when might need it (Option 2, 3)
+- **Fix:** Only cleanup for Options 1 and 4
+
+**No confirmation for discard**
+- **Problem:** Accidentally delete work
+- **Fix:** Require typed "discard" confirmation
+
+## Red Flags
+
+**Never:**
+- Proceed with failing tests
+- Merge without verifying tests on result
+- Delete work without confirmation
+- Force-push without explicit request
+- Proceed with uncommitted changes to tracked files
+- Skip chester-prove-work invocation
+
+**Always:**
+- Verify tests before offering options
+- Present exactly 4 options
+- Get typed confirmation for Option 4
+- Clean up worktree for Options 1 & 4 only
+
+## Integration
+
+**Called by:**
+- **chester-write-code** - After all tasks complete
+
+**Requires before presenting options:**
+- **chester-prove-work** — Verify tests and clean tree with evidence
+
+**Pairs with:**
+- **chester-make-worktree** - Cleans up worktree created by that skill
+- **chester-doc-sync** — Documentation alignment check (Step 4)
+- **chester-write-summary** — Session summary production (optional, Step 8)
+- **chester-trace-reasoning** — Reasoning audit production (optional, Step 8)
