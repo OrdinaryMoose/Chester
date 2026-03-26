@@ -9,7 +9,7 @@ description: Use when implementation is complete, all tests pass, and you need t
 
 Guide completion of development work by presenting clear options and handling chosen workflow.
 
-**Core principle:** Verify tests → Verify clean tree → Present options → Execute choice → Clean up.
+**Core principle:** Verify tests → Verify clean tree → Present options → Execute choice → Clean up → Artifacts.
 
 **Announce at start:** "I'm using the chester-finish-plan skill to complete this work."
 
@@ -76,16 +76,7 @@ git merge-base HEAD main 2>/dev/null || git merge-base HEAD master 2>/dev/null
 
 Or ask: "This branch split from main - is that correct?"
 
-### Step 4: Documentation alignment check
-
-Invoke `chester-doc-sync` to check whether the session's changes have created documentation staleness. This runs automatically — do not skip.
-
-1. Use the Skill tool to invoke `chester-doc-sync`
-2. The skill will dispatch subagents, produce a terminal summary, and write a report file
-3. If findings are reported, the user should be aware of them before making a merge decision
-4. Proceed to the next step regardless of findings (doc sync is advisory, not blocking)
-
-### Step 5: Present Options
+### Step 4: Present Options
 
 Present exactly these 4 options:
 
@@ -102,7 +93,7 @@ Which option?
 
 **Don't add explanation** - keep options concise.
 
-### Step 6: Execute Choice
+### Step 5: Execute Choice
 
 #### Option 1: Merge Locally
 
@@ -123,7 +114,7 @@ git merge <feature-branch>
 git branch -d <feature-branch>
 ```
 
-Then: Cleanup worktree (Step 7)
+Then: Cleanup worktree (Step 6)
 
 #### Option 2: Push and Create PR
 
@@ -142,7 +133,7 @@ EOF
 )"
 ```
 
-Then: Cleanup worktree (Step 7)
+Then: Cleanup worktree (Step 6)
 
 #### Option 3: Keep As-Is
 
@@ -170,9 +161,9 @@ git checkout <base-branch>
 git branch -D <feature-branch>
 ```
 
-Then: Cleanup worktree (Step 7)
+Then: Cleanup worktree (Step 6)
 
-### Step 7: Cleanup Worktree
+### Step 6: Cleanup Worktree
 
 **For Options 1, 2, 4:**
 
@@ -188,21 +179,21 @@ git worktree remove <worktree-path>
 
 **For Option 3:** Keep worktree.
 
-### Step 8: Session Artifacts (Optional)
+### Step 7: Session Artifacts (Optional)
 
 After the workflow completes, offer:
 
 ```
 Would you like me to produce session artifacts?
 
-1. Session summary (invoke chester-write-summary skill)
-2. Reasoning audit (invoke chester-trace-reasoning skill)
-3. Archive implementation plan (copy to {output_dir}/summary/)
+1. Session summary (invoke chester-write-summary)
+2. Reasoning audit (invoke chester-trace-reasoning)
+3. Documentation update report (invoke chester-doc-sync)
 4. All of the above
 5. Skip
 ```
 
-If `output_dir` is not set, archive copies the plan to the effort directory (`docs/chester/YYYY-MM-DD-<topic-slug>/`).
+**Dependency:** Option 3 (documentation update report) requires the reasoning audit as input. If the user selects only option 3, automatically run the reasoning audit first (option 2), then doc-sync. Inform the user: "Running reasoning audit first — doc-sync needs it as input."
 
 Every artifact produced must be both saved to disk AND written to the terminal. The user should be able to read the full content of each artifact in their terminal output without needing to open the file.
 
@@ -250,6 +241,7 @@ If declined, the skill completes.
 - Present exactly 4 options
 - Get typed confirmation for Option 4
 - Clean up worktree for Options 1 & 4 only
+- Run reasoning audit before doc-sync if user selects only option 3 in Step 7
 
 ## Integration
 
@@ -261,6 +253,6 @@ If declined, the skill completes.
 
 **Pairs with:**
 - **chester-make-worktree** - Cleans up worktree created by that skill
-- **chester-doc-sync** — Documentation alignment check (Step 4)
-- **chester-write-summary** — Session summary production (optional, Step 8)
-- **chester-trace-reasoning** — Reasoning audit production (optional, Step 8)
+- **chester-write-summary** — Session summary production (optional, Step 7)
+- **chester-trace-reasoning** — Reasoning audit production (optional, Step 7)
+- **chester-doc-sync** — Documentation update report (optional, Step 7; requires reasoning audit)
