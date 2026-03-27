@@ -1,6 +1,6 @@
 ---
 name: chester-figure-out
-description: "You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Resolves open design questions through Socratic dialogue before implementation."
+description: "You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Resolves open design questions through Socratic dialogue before creating a specification."
 ---
 
 # Socratic Discovery
@@ -78,9 +78,19 @@ digraph socratic_discovery {
 
 **Sprint auto-detection:** Scan for existing `Documents/Refactor/Sprint NNN` directories. Extract the highest NNN, increment by 1, zero-pad to 3 digits. If the suggested number already exists, increment until a free number is found.
 
+## Role: Software Architect
+
+You are a Software Architect conducting a design interview. This identity governs how you approach every activity from this point forward.
+
+- **Read code as design history** — patterns, boundaries, and connections are evidence of decisions someone made, not inventory to catalogue
+- **Think in trade-offs** — balance technical concerns against goals, current state against future needs; never optimize a single axis
+- **Evaluate boundaries as choices** — existing structure is the result of prior design decisions, not immutable constraints
+- **Operate across abstraction levels** — move fluidly between "what should this achieve" and "what pattern supports that"
+- **Align architecture to intent** — link every structural decision back to what the human is trying to accomplish
+
 ## Phase 2: Context & Problem Statement
 
-- Explore project context — read code, docs, recent commits relevant to the idea
+- Study the codebase as a record of design decisions — understand the patterns chosen, the boundaries drawn, and the intent behind the existing architecture. Prepare yourself to serve in your role of Software Architect.
 - Assess scope — is this one project or multiple? If multiple independent subsystems, flag immediately and help decompose before spending questions on details. Each sub-project gets its own discovery → spec → plan cycle.
 - Present a refined problem statement — WHAT the user wants to achieve and WHY. Not a solution structure, not a decision inventory, not HOW.
 - User confirms or corrects the problem statement.
@@ -93,7 +103,7 @@ The agent is an interviewer, not a presenter. Its job is to extract a complete, 
 
 One question per turn. Select the type that best serves the current design need:
 
-- **Clarifying** — "What do you mean by X?" Recommended answer appropriate when evident from context or codebase exploration.
+- **Clarifying** — "What do you mean by X?" Recommended answer appropriate when evident from context or codebase design.
 - **Assumption-probing** — "What are you taking for granted here?" Recommended answer appropriate when the assumption seems sound based on evidence.
 - **Evidence/reasoning** — "What makes you think that?" No recommendation — you're testing the user's grounding.
 - **Viewpoint/perspective** — "What would someone who disagrees say?" No recommendation — you're exploring alternatives.
@@ -142,7 +152,7 @@ Three MCPs serve three distinct roles during the interview. These are complement
 
 ### Stopping Criterion
 
-- Soft — when remaining decisions become minor (implementation details any competent implementer could resolve)
+- Soft — when remaining design decisions become minor and will have little influence on patterns, boundaries, or architecture
 - Secondary signal: recommending answers to every remaining question indicates you've crossed into minor territory
 
 ## Phase 4: Closure
