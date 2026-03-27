@@ -31,7 +31,8 @@ You MUST create a task for each of these items and complete them in order:
 3. **Write spec document** — synthesize design into structured spec, write to `{output_dir}/spec/{sprint-name}-spec-00.md`, print full content to terminal
 4. **Automated spec review loop** — dispatch spec-document-reviewer subagent, Think Tool gate per issue, fix and re-dispatch (max 3 iterations, then escalate to user)
 5. **User review gate** — present clean spec to user for review; if changes requested, apply and loop back to step 4
-6. **Transition** — invoke chester-build-plan
+6. **Commit spec** — commit the approved spec with message `checkpoint: spec approved`
+7. **Transition** — invoke chester-build-plan
 
 ## Announcement
 
@@ -126,6 +127,17 @@ After the automated review loop passes:
 > "Spec written and reviewed at `{path}`. Please review and let me know if you want changes before we proceed to the implementation plan."
 
 Wait for the user's response. If they request changes, apply them and re-run the automated review loop. Only proceed once the user approves.
+
+## Commit Approved Spec
+
+After the user approves the spec:
+
+```bash
+git add {output_dir}/spec/{sprint-name}-spec-*.md
+git commit -m "checkpoint: spec approved"
+```
+
+This checkpoint marks the transition from specification to planning.
 
 ## MCP Usage
 
