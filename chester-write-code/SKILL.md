@@ -18,9 +18,11 @@ Before executing in either mode, complete these setup steps.
 - Create a TodoWrite with one entry per task, ordered by dependency
 - Mark the first task as IN_PROGRESS, all others as TODO
 
-### 1.2 Set Up Worktree
+### 1.2 Verify Worktree
 
-- Invoke chester-make-worktree to create an isolated worktree for this work
+- Verify that a worktree already exists (created by chester-figure-out earlier in the pipeline)
+- Check: run `git worktree list` and confirm a worktree is active for the current branch
+- If no worktree exists (e.g., chester-write-code invoked standalone without a prior figure-out session), invoke chester-make-worktree to create one as a fallback
 - All implementation happens in the worktree, not the main tree
 
 ### 1.3 Handle Deferred Items
@@ -176,7 +178,7 @@ After all tasks are complete and reviews pass:
 ## Integration
 
 - **Required sub-skills:**
-  - chester-make-worktree — called during setup to create isolated worktree
+  - chester-make-worktree — verifies existing worktree from chester-figure-out; creates one as fallback for standalone invocation
   - chester-finish-plan — called after all tasks complete to finalize work
 - **Referenced sub-skills:**
   - chester-test-first — can be invoked per task when TDD is required by the plan
