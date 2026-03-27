@@ -72,7 +72,7 @@ digraph socratic_discovery {
   - A) Default: `docs/chester/YYYY-MM-DD-word-word-word/`
   - B) New sprint directory: `Documents/Refactor/Sprint NNN word-word-word/` (auto-detect next sprint number by scanning existing sprint directories)
   - C) Custom path: user provides the full path
-- Create the root directory with four subdirectories: `design/`, `spec/`, `plan/`, `summary/`
+- Record the chosen output directory path (directories are created in Phase 4 after the worktree is set up)
 - Establish three-word sprint name for file naming (lowercase, hyphenated)
 - `clear_thinking_history()` to reset structured thinking for the session
 
@@ -148,12 +148,15 @@ Three MCPs serve three distinct roles during the interview. These are complement
 ## Phase 4: Closure
 
 1. `get_thinking_summary()` to produce the consolidated decision history
-2. Reformat the thinking summary into a clean document and write to `{output_dir}/design/{sprint-name}-thinking-00.md` — this captures HOW decisions were made (stages, revisions, confidence scores, cross-references)
+2. Reformat the thinking summary into a clean document — this captures HOW decisions were made (stages, revisions, confidence scores, cross-references). Hold in memory; do not write to disk yet.
 3. Present the completed design brief to the user — each decision with conclusion and rationale
 4. "Does this capture what we're building?"
-5. Write design brief to `{output_dir}/design/{sprint-name}-design-00.md` — this captures WHAT we're building (resolved decisions, architecture, constraints)
-6. Commit both documents to git
-7. Transition to chester-build-spec
+5. Invoke `chester-make-worktree` to create the branch and worktree. The branch name follows the sprint naming convention: `sprint-NNN-descriptive-slug`. Auto-detect NNN by scanning existing branches for the highest sprint number and incrementing.
+6. Create the output directory structure in the worktree: `{output_dir}/design/`, `{output_dir}/spec/`, `{output_dir}/plan/`, `{output_dir}/summary/`
+7. Write thinking summary to `{output_dir}/design/{sprint-name}-thinking-00.md`
+8. Write design brief to `{output_dir}/design/{sprint-name}-design-00.md` — this captures WHAT we're building (resolved decisions, architecture, constraints)
+9. Commit both documents with message: `checkpoint: design complete`
+10. Transition to chester-build-spec
 
 ## Visual Companion
 
