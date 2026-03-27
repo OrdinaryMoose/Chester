@@ -7,7 +7,7 @@ description: Use when you have a spec or requirements for a multi-step task, bef
 
 ## Overview
 
-Write comprehensive implementation plans assuming the engineer has zero context for our codebase and questionable taste. Document everything they need to know: which files to touch for each task, code, testing, docs they might need to check, how to test it. Give them the whole plan as bite-sized tasks. DRY. YAGNI. TDD. Frequent commits.
+Write comprehensive implementation plans assuming the engineer has zero context for our codebase and questionable taste. Document everything they need to know: which files to touch for each task, code, testing, docs they might need to check, how to test it. Give them the whole plan as bite-sized tasks. DRY. YAGNI. TDD.
 
 Assume they are a skilled developer, but know almost nothing about our toolset or problem domain. Assume they don't know good test design very well.
 
@@ -163,7 +163,7 @@ git commit -m "feat: add specific feature"
 - Complete code in plan (not "add validation")
 - Exact commands with expected output
 - Reference relevant skills with @ syntax
-- DRY, YAGNI, TDD, frequent commits
+- DRY, YAGNI, TDD
 
 ## Plan Review Loop
 
@@ -199,6 +199,13 @@ After the plan review loop approves the plan:
 Write the plan to the correct output path (derived from spec frontmatter, or the default `docs/chester/YYYY-MM-DD-<topic-slug>/` effort directory).
 
 After writing the plan to disk, print the full plan content to the terminal so the user can read it without opening the file.
+
+Commit the plan document (and any hardening findings) with:
+
+```bash
+git add {output_dir}/plan/
+git commit -m "checkpoint: plan approved"
+```
 
 ## Execution Handoff
 
