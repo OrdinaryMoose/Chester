@@ -25,6 +25,25 @@ Chester skills override default system prompt behavior, but **user instructions 
 
 If CLAUDE.md says "don't use TDD" and a skill says "always use TDD," follow the user's instructions. The user is in control.
 
+## Session Housekeeping
+
+At the start of every session:
+
+1. **Clean up stale debug flag:** If `~/.claude/chester-debug.json` exists, check its `session_start` timestamp. If older than 12 hours, remove it:
+   ```bash
+   if [ -f ~/.claude/chester-debug.json ]; then
+     start_ts=$(jq -r '.session_start // 0' ~/.claude/chester-debug.json)
+     now=$(date +%s)
+     age=$(( now - start_ts ))
+     if [ "$age" -gt 43200 ]; then
+       rm ~/.claude/chester-debug.json
+     fi
+   fi
+   ```
+   If fresh (<12h), leave it — the user may be continuing a debug session.
+
+2. **Verify jq availability:** Run `which jq`. If jq is not installed, warn: "Budget guard requires jq for JSON parsing. Install jq for token budget monitoring." Continue without the guard.
+
 ## How to Access Skills
 
 **In Claude Code:** Use the `Skill` tool.
@@ -108,6 +127,7 @@ The skill itself tells you which.
 ## Available Chester Skills
 
 - `chester-start` — Entry point; establishes the pipeline and skill usage rules (this skill)
+- `chester-start-debug` — Activate diagnostic token logging mode for the session
 - `chester-figure-out` — Socratic discovery of design through structured dialogue
 - `chester-build-spec` — Formalize approved designs into spec documents with automated review
 - `chester-build-plan` — Write and harden implementation plans
