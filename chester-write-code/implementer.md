@@ -32,7 +32,12 @@ Task tool (general-purpose):
     1. Implement exactly what the task specifies
     2. Write tests (following TDD if task says to)
     3. Verify implementation works
-    4. Commit your work, then run 'git status' to verify all your changes are in the commit. If any modified files remain uncommitted, stage and commit them before proceeding to self-review.
+    4. Commit your work using a conventional commit message format:
+       - Format: `<type>: <description>` (lowercase description)
+       - Types: `feat` (new functionality), `fix` (bug fix), `test` (test changes), `refactor` (restructuring), `docs` (documentation), `chore` (build/tooling)
+       - Examples: `feat: add validation schema`, `fix: correct null check in handler`, `test: add edge case for empty input`
+       - Do NOT include sprint names or task numbers in the commit message — the branch provides that context
+       Then run 'git status' to verify all your changes are in the commit. If any modified files remain uncommitted, stage and commit them before proceeding to self-review.
     5. Self-review (see below)
     6. Report back
 
