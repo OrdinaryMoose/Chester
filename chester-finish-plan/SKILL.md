@@ -65,7 +65,17 @@ Stop. The user must either:
 
 Only proceed after the user responds.
 
-**If output is empty or shows only untracked files (`??`):** Continue to Step 3.
+**If output is empty or shows only untracked files (`??`):** Continue to Step 2.5.
+
+### Step 2.5: Checkpoint — Execution Complete
+
+Commit a checkpoint marking execution as complete:
+
+```bash
+git commit --allow-empty -m "checkpoint: execution complete"
+```
+
+This checkpoint uses `--allow-empty` because all implementation work is already committed — the checkpoint is a marker, not a content commit.
 
 ### Step 3: Determine Base Branch
 
@@ -104,8 +114,8 @@ git checkout <base-branch>
 # Pull latest
 git pull
 
-# Merge feature branch
-git merge <feature-branch>
+# Merge feature branch (--no-ff preserves the branch rail in commit history)
+git merge --no-ff <feature-branch>
 
 # Verify tests on merged result
 <test command>
@@ -197,7 +207,14 @@ Would you like me to produce session artifacts?
 
 Every artifact produced must be both saved to disk AND written to the terminal. The user should be able to read the full content of each artifact in their terminal output without needing to open the file.
 
-If declined, the skill completes.
+If artifacts were produced (options 1-4), commit them:
+
+```bash
+git add {output_dir}/summary/ {output_dir}/plan/
+git commit -m "checkpoint: artifacts saved"
+```
+
+If declined, the skill completes without the artifacts checkpoint.
 
 ## Quick Reference
 
