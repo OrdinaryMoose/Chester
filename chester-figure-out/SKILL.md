@@ -27,6 +27,13 @@ Before proceeding with this skill, check the token budget:
 >
 > **Options:** (1) Continue anyway, (2) Stop here, (3) Other
 
+## Diagnostic Logging
+
+At skill entry, run: `~/.claude/chester-log-usage.sh before "figure-out" "skill-entry" "{sprint-dir}/summary/token-usage-log.md"`
+At skill exit (before transitioning to build-spec), run: `~/.claude/chester-log-usage.sh after "figure-out" "skill-entry" "{sprint-dir}/summary/token-usage-log.md"`
+
+Replace `{sprint-dir}` with the actual sprint directory path. If no sprint directory exists yet, omit the fourth argument (defaults to `~/.claude/chester-usage.log`). The script handles debug flag detection internally — it does nothing if debug mode is not active.
+
 # Socratic Discovery
 
 Resolve open design questions through structured Socratic dialogue. The agent is an interviewer, not a presenter — its job is to extract a complete, resolved design through questioning.

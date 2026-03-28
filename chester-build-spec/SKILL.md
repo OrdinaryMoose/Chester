@@ -27,6 +27,13 @@ Before proceeding with this skill, check the token budget:
 >
 > **Options:** (1) Continue anyway, (2) Stop here, (3) Other
 
+## Diagnostic Logging
+
+At skill entry, run: `~/.claude/chester-log-usage.sh before "build-spec" "skill-entry" "{sprint-dir}/summary/token-usage-log.md"`
+At skill exit (before transitioning to build-plan), run: `~/.claude/chester-log-usage.sh after "build-spec" "skill-entry" "{sprint-dir}/summary/token-usage-log.md"`
+
+Replace `{sprint-dir}` with the actual sprint directory path. The script handles debug flag detection internally — it does nothing if debug mode is not active.
+
 # Build Spec
 
 Formalize an approved design into a durable spec document, validate it through automated and human review.

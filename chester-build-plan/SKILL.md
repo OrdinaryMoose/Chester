@@ -31,6 +31,17 @@ Before proceeding with this skill, check the token budget:
 
 **Additional check point:** Also run this budget guard check before dispatching chester-attack-plan and chester-smell-code during the Plan Hardening phase. These are expensive parallel subagent calls — checking before them catches mid-skill budget breaches.
 
+## Diagnostic Logging
+
+At skill entry, run: `~/.claude/chester-log-usage.sh before "build-plan" "skill-entry" "{sprint-dir}/summary/token-usage-log.md"`
+Before attack-plan dispatch, run: `~/.claude/chester-log-usage.sh before "build-plan" "attack-plan dispatch" "{sprint-dir}/summary/token-usage-log.md"`
+After attack-plan completes, run: `~/.claude/chester-log-usage.sh after "build-plan" "attack-plan dispatch" "{sprint-dir}/summary/token-usage-log.md"`
+Before smell-code dispatch, run: `~/.claude/chester-log-usage.sh before "build-plan" "smell-code dispatch" "{sprint-dir}/summary/token-usage-log.md"`
+After smell-code completes, run: `~/.claude/chester-log-usage.sh after "build-plan" "smell-code dispatch" "{sprint-dir}/summary/token-usage-log.md"`
+At skill exit, run: `~/.claude/chester-log-usage.sh after "build-plan" "skill-entry" "{sprint-dir}/summary/token-usage-log.md"`
+
+Replace `{sprint-dir}` with the actual sprint directory path. The script handles debug flag detection internally — it does nothing if debug mode is not active.
+
 ## Overview
 
 Write comprehensive implementation plans assuming the engineer has zero context for our codebase and questionable taste. Document everything they need to know: which files to touch for each task, code, testing, docs they might need to check, how to test it. Give them the whole plan as bite-sized tasks. DRY. YAGNI. TDD.

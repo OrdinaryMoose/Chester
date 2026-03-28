@@ -135,35 +135,33 @@ Each implementer subagent should be fresh — do not reuse a subagent across tas
 
 ### 2.4 Diagnostic Logging (Debug Mode Only)
 
-If `~/.claude/chester-debug.json` exists and its `session_start` is less than 12 hours old, activate diagnostic logging for this execution run.
+Use the `~/.claude/chester-log-usage.sh` script to log token usage deltas. The script handles debug flag detection internally — it does nothing if debug mode is not active.
 
-**At each logging point** (before/after implementer dispatch, before/after spec reviewer, before/after quality reviewer):
+Determine the log path once at skill entry:
+- If a sprint directory exists: `LOG="{sprint-dir}/summary/token-usage-log.md"`
+- Otherwise: `LOG="$HOME/.claude/chester-usage.log"`
 
-1. Read current usage: `cat ~/.claude/usage.json 2>/dev/null | jq -r '.five_hour_used_pct // "N/A"'`
-2. Record the value with a label
+**For each task, run these commands around each dispatch:**
 
-**After each task completes all reviews**, append one summary row per sub-step to the log:
+```bash
+# Before implementer dispatch
+~/.claude/chester-log-usage.sh before "write-code" "task-{N} implementer" "$LOG"
+# ... dispatch implementer ...
+# After implementer returns
+~/.claude/chester-log-usage.sh after "write-code" "task-{N} implementer" "$LOG"
 
-- Determine log path:
-  - If a sprint directory exists (check for `docs/chester/` or spec frontmatter `output_dir`): `{sprint-dir}/summary/token-usage-log.md`
-  - Otherwise: `~/.claude/chester-usage.log`
+# Before spec review
+~/.claude/chester-log-usage.sh before "write-code" "task-{N} spec-review" "$LOG"
+# ... dispatch spec reviewer ...
+~/.claude/chester-log-usage.sh after "write-code" "task-{N} spec-review" "$LOG"
 
-- If the log file doesn't exist yet, create it with the header:
-  ```markdown
-  # Token Usage Log
+# Before quality review
+~/.claude/chester-log-usage.sh before "write-code" "task-{N} quality-review" "$LOG"
+# ... dispatch quality reviewer ...
+~/.claude/chester-log-usage.sh after "write-code" "task-{N} quality-review" "$LOG"
+```
 
-  | Timestamp | Section | Step | Before % | After % | Delta |
-  |-----------|---------|------|----------|---------|-------|
-  ```
-
-- Append rows:
-  ```
-  | {HH:MM:SS} | write-code | task-{N} implementer | {before} | {after} | +{delta} |
-  | {HH:MM:SS} | write-code | task-{N} spec-review | {before} | {after} | +{delta} |
-  | {HH:MM:SS} | write-code | task-{N} quality-review | {before} | {after} | +{delta} |
-  ```
-
-If debug mode is not active, skip all logging — no reads, no writes.
+Replace `{N}` with the task number and `{sprint-dir}` with the actual path.
 
 ## Section 3: Execution Mode — Inline
 
