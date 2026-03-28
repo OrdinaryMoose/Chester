@@ -44,6 +44,57 @@ At the start of every session:
 
 2. **Verify jq availability:** Run `which jq`. If jq is not installed, warn: "Budget guard requires jq for JSON parsing. Install jq for token budget monitoring." Continue without the guard.
 
+3. **First-run project configuration:** Check for project-scoped Chester config:
+   ```bash
+   eval "$(~/.claude/skills/chester-hooks/chester-config-read.sh)"
+   ```
+   If `CHESTER_CONFIG_PATH` is `none`, this is a new project. Run the first-run setup:
+
+   a. Announce: "This looks like a new project for Chester. Let's set up your output directories."
+
+   b. Present defaults and ask for confirmation or customization:
+   ```
+   Chester needs two directories for this project:
+
+   Work directory (committed artifacts): docs/chester/
+   Planning directory (gitignored, for reading active docs): docs/chester-planning/
+
+   Accept defaults? Or enter custom paths.
+   ```
+
+   c. User accepts defaults or provides custom paths for either or both.
+
+   d. Create the planning directory: `mkdir -p "$CHESTER_PLANNING_DIR"`
+
+   e. Ensure planning directory is in `.gitignore`:
+   ```bash
+   if ! git check-ignore -q "$CHESTER_PLANNING_DIR" 2>/dev/null; then
+     echo "$CHESTER_PLANNING_DIR/" >> .gitignore
+     git add .gitignore
+     git commit -m "chore: add chester planning directory to .gitignore"
+   fi
+   ```
+
+   f. Determine the project config path and write the config:
+   ```bash
+   PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+   PROJECT_HASH="$(echo "$PROJECT_ROOT" | sed 's|/|-|g; s|^-||')"
+   PROJECT_CONFIG_DIR="$HOME/.claude/projects/-${PROJECT_HASH}"
+   mkdir -p "$PROJECT_CONFIG_DIR"
+   ```
+   Write to `$PROJECT_CONFIG_DIR/chester-config.json`:
+   ```json
+   {
+     "work_dir": "<user's chosen work directory>",
+     "planning_dir": "<user's chosen planning directory>"
+   }
+   ```
+   Merge with any existing keys from `~/.claude/chester-config.json` (e.g., `budget_guard`).
+
+   g. Announce: "Chester configured. Artifacts will be written to `{work_dir}`, planning docs at `{planning_dir}`."
+
+   If `CHESTER_CONFIG_PATH` is not `none`, read silently and proceed. No announcement unless there's a problem (e.g., planning directory missing from .gitignore — fix and warn).
+
 ## How to Access Skills
 
 **In Claude Code:** Use the `Skill` tool.
