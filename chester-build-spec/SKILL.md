@@ -110,27 +110,25 @@ digraph build_spec {
 
 When invoked without a prior chester-figure-out session:
 
-1. Ask for the output directory (same three options as figure-out: docs/chester default, sprint directory, custom path)
-2. Create the root directory with four subdirectories: `design/`, `spec/`, `plan/`, `summary/`
-3. Derive the three-word sprint name from the directory name (e.g., `navigation-tree-refactor` from `2026-03-25-navigation-tree-refactor/`). If the directory name does not follow the convention, ask for the sprint name explicitly.
+1. Read project config:
+   ```bash
+   eval "$(~/.claude/skills/chester-hooks/chester-config-read.sh)"
+   ```
+2. If `CHESTER_CONFIG_PATH` is `none`, warn: "No Chester config found. Run chester-start first or accept defaults." Use defaults.
+3. Ask for the sprint name (three words, hyphenated) if not derivable from context
+4. Construct sprint subdirectory: `YYYY-MM-DD-word-word-word`
+5. Create `{CHESTER_WORK_DIR}/{sprint-subdir}/` with four subdirectories: `design/`, `spec/`, `plan/`, `summary/`
+6. Create matching `{CHESTER_PLANNING_DIR}/{sprint-subdir}/` with same subdirectories
 
 ## Writing the Spec
 
 - Read the design brief from disk (if it exists) and conversation context
 - Synthesize into a structured spec document covering: architecture, components, data flow, error handling, testing strategy, constraints, non-goals
 - Scale each section to its complexity — a few sentences if straightforward, detailed if nuanced
-- When the output directory was chosen as option B (sprint directory) or C (custom path), include YAML frontmatter in the spec document with `output_dir` and `sprint_prefix` so downstream skills (chester-build-plan, chester-write-code, chester-write-summary, chester-trace-reasoning) can inherit the output path:
-
-```yaml
----
-output_dir: Documents/Refactor/Sprint 032 Core Validation
-sprint_prefix: Sprint032
----
-```
-
-When option A (default docs/chester/) was chosen, no frontmatter is added.
+- No YAML frontmatter is needed in spec documents. All skills read output paths from the project config via `chester-config-read.sh`, not from document frontmatter.
 
 - Write to `{output_dir}/spec/{sprint-name}-spec-00.md`
+- Copy the spec file to the planning directory: `{CHESTER_PLANNING_DIR}/{sprint-subdir}/spec/{sprint-name}-spec-00.md`
 - Print the full document content to the terminal so the user can read it without opening the file
 
 ## Automated Spec Review Loop
