@@ -127,10 +127,16 @@ Populate it with:
 - For each CLAUDE.md finding, include the `[sprint-caused]` or `[pre-existing]` tag
 - Agent execution notes (any failures, skips, or degradation)
 
-Write the report to the session's output directory:
-- If using a `docs/chester/YYYY-MM-DD-<slug>/` directory: `<slug>-doc-sync-00.md`
-- If using a `Documents/Refactor/Sprint NNN .../` directory: `<sprint-prefix>-doc-sync-report.md` in `summary/`
-- If no output directory is determinable: skip the file and note in terminal that only the terminal summary was produced
+Read project config:
+```bash
+eval "$(~/.claude/skills/chester-hooks/chester-config-read.sh)"
+```
+
+Determine the sprint subdirectory from context (reasoning audit path, conversation, or most recent sprint directory under `{CHESTER_WORK_DIR}/`).
+
+Write report to: `{CHESTER_WORK_DIR}/{sprint-subdir}/summary/{sprint-name}-doc-sync-00.md`
+Copy to: `{CHESTER_PLANNING_DIR}/{sprint-subdir}/summary/{sprint-name}-doc-sync-00.md`
+If no output directory is determinable: skip the file and note in terminal that only the terminal summary was produced
 
 Verify the file was written successfully before printing the "Full report:" path in the terminal summary.
 

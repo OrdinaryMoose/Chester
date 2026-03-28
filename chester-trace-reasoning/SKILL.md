@@ -49,32 +49,17 @@ complete in the raw transcript than in the rendered conversation.
 
 ## Step 1: Determine Output Directory
 
-**Priority order:**
+Read project config:
+```bash
+eval "$(~/.claude/skills/chester-hooks/chester-config-read.sh)"
+```
 
-1. Use the working directory specified by the user.
-2. If chester-write-summary has already run this session, use the same output directory.
-3. If a spec or plan document was written or referenced this session, read its YAML frontmatter for `output_dir` and `sprint_prefix`. If present, write to `<output_dir>/summary/`.
-4. If the default chester effort directory already exists for this session (e.g., `docs/chester/YYYY-MM-DD-<topic-slug>/` containing a spec or plan), write the audit there using the naming convention `<topic-slug>-audit-NN.md`. Glob `docs/chester/*/` for directories matching today's date.
-5. Infer from context: look for a sprint folder reference in the conversation or JSONL.
-6. If genuinely ambiguous, ask:
+Determine the sprint subdirectory from context (plan file path, conversation, or most recent sprint directory under `{CHESTER_WORK_DIR}/`).
 
-> "Where should I save this reasoning audit?"
-> - **A)** Default: `docs/chester/YYYY-MM-DD-<topic-slug>/` (I'll derive the topic slug)
-> - **B)** Custom directory — provide the path
+Write audit to: `{CHESTER_WORK_DIR}/{sprint-subdir}/summary/{sprint-name}-audit-00.md`
+Copy to: `{CHESTER_PLANNING_DIR}/{sprint-subdir}/summary/{sprint-name}-audit-00.md`
 
-When writing to a custom directory with `sprint_prefix`, prepend the prefix to the filename: `<sprint_prefix>-<topic-slug>-audit-00.md`.
-
-**Default file naming convention:** `<topic-slug>-audit-NN.md` where `-00` is the first audit, `-01` the next session's audit, etc.
-
----
-
-## Step 2: Determine File Name
-
-Follow the same prefix logic as chester-write-summary:
-- Check whether `Reasoning-Audit.md` already exists in the output directory
-- If base file exists, use a suffixed name matching the session suffix
-  (e.g., `Sprint-025d-Reasoning-Audit.md`)
-- If no base file exists, use `Reasoning-Audit.md`
+If the sprint subdirectory cannot be determined, ask the user.
 
 ---
 

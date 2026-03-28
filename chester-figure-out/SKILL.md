@@ -52,7 +52,7 @@ If there are open design questions, you MUST resolve them through this skill bef
 
 You MUST create a task for each of these items and complete them in order. You may add new tasks if complexity demands it, but never delete or remove tasks — once created, a task must reach `completed`:
 
-1. **Output directory choice** — offer default docs/chester/, sprint directory, or custom path. Create root directory with four subdirectories: design/, spec/, plan/, summary/. Establish three-word sprint name.
+1. **Sprint setup** — read project config, establish three-word sprint name, construct sprint subdirectory name
 2. **Explore project context** — check files, docs, recent commits relevant to the idea
 3. **Present refined problem statement** — WHAT and WHY, not HOW. User confirms or corrects.
 4. **Socratic interview** — one question per turn using six question types, with stream-of-consciousness output, emergent tree tracking, and checkpoints every 4-6 questions
@@ -66,7 +66,7 @@ When this skill activates, announce: "I'm using the chester-figure-out skill to 
 
 ```dot
 digraph socratic_discovery {
-    "Output directory choice" [shape=box];
+    "Sprint setup" [shape=box];
     "Explore project context" [shape=box];
     "Present problem statement" [shape=box];
     "User confirms?" [shape=diamond];
@@ -78,7 +78,7 @@ digraph socratic_discovery {
     "Write design brief\nand thinking summary" [shape=box];
     "Invoke chester-build-spec" [shape=doublecircle];
 
-    "Output directory choice" -> "Explore project context";
+    "Sprint setup" -> "Explore project context";
     "Explore project context" -> "Present problem statement";
     "Present problem statement" -> "User confirms?";
     "User confirms?" -> "Socratic interview\n(one question per turn)" [label="yes"];
@@ -99,15 +99,14 @@ digraph socratic_discovery {
 
 ## Phase 1: Administrative Setup
 
-- Output directory choice — offer three alternatives:
-  - A) Default: `docs/chester/YYYY-MM-DD-word-word-word/`
-  - B) New sprint directory: `Documents/Refactor/Sprint NNN word-word-word/` (auto-detect next sprint number by scanning existing sprint directories)
-  - C) Custom path: user provides the full path
-- Record the chosen output directory path (directories are created in Phase 4 after the worktree is set up)
-- Establish three-word sprint name for file naming (lowercase, hyphenated)
+- Read project config:
+  ```bash
+  eval "$(~/.claude/skills/chester-hooks/chester-config-read.sh)"
+  ```
+- Establish three-word sprint name (lowercase, hyphenated) for file naming
+- Construct sprint subdirectory name: `YYYY-MM-DD-word-word-word`
+- Record the sprint subdirectory name for use in Phase 4
 - `clear_thinking_history()` to reset structured thinking for the session
-
-**Sprint auto-detection:** Scan for existing `Documents/Refactor/Sprint NNN` directories. Extract the highest NNN, increment by 1, zero-pad to 3 digits. If the suggested number already exists, increment until a free number is found.
 
 ## Role: Software Architect
 
@@ -193,11 +192,19 @@ Three MCPs serve three distinct roles during the interview. These are complement
 3. Present the completed design brief to the user — each decision with conclusion and rationale
 4. "Does this capture what we're building?"
 5. Invoke `chester-make-worktree` to create the branch and worktree. The branch name follows the sprint naming convention: `sprint-NNN-descriptive-slug`. Auto-detect NNN by scanning existing branches for the highest sprint number and incrementing.
-6. Create the output directory structure in the worktree: `{output_dir}/design/`, `{output_dir}/spec/`, `{output_dir}/plan/`, `{output_dir}/summary/`
-7. Write thinking summary to `{output_dir}/design/{sprint-name}-thinking-00.md`
-8. Write design brief to `{output_dir}/design/{sprint-name}-design-00.md` — this captures WHAT we're building (resolved decisions, architecture, constraints)
-9. Commit both documents with message: `checkpoint: design complete`
-10. Transition to chester-build-spec
+6. Read project config in the worktree context:
+   ```bash
+   eval "$(~/.claude/skills/chester-hooks/chester-config-read.sh)"
+   ```
+7. Create the output directory structure in the worktree: `{CHESTER_WORK_DIR}/{sprint-subdir}/design/`, `spec/`, `plan/`, `summary/`
+8. Create matching structure in main tree planning directory: `{CHESTER_PLANNING_DIR}/{sprint-subdir}/design/`, `spec/`, `plan/`, `summary/`
+9. Inform user: "Sprint docs at `{CHESTER_PLANNING_DIR}/{sprint-subdir}/`"
+10. Write thinking summary to `{CHESTER_WORK_DIR}/{sprint-subdir}/design/{sprint-name}-thinking-00.md` (worktree)
+11. Copy thinking summary to `{CHESTER_PLANNING_DIR}/{sprint-subdir}/design/{sprint-name}-thinking-00.md` (main tree)
+12. Write design brief to `{CHESTER_WORK_DIR}/{sprint-subdir}/design/{sprint-name}-design-00.md` (worktree)
+13. Copy design brief to `{CHESTER_PLANNING_DIR}/{sprint-subdir}/design/{sprint-name}-design-00.md` (main tree)
+14. Commit both documents in worktree with message: `checkpoint: design complete`
+15. Transition to chester-build-spec
 
 ## Visual Companion
 

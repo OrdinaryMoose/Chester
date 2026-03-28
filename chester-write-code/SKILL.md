@@ -60,14 +60,23 @@ When implementing a task, if something comes up that is:
 - A question for the user that doesn't block current work
 
 **Do not act on it.** Instead:
-1. Write it to a deferred items file at `docs/chester/deferred/<plan-name>-deferred.md`
-2. Use this format:
+
+Read project config:
+```bash
+eval "$(~/.claude/skills/chester-hooks/chester-config-read.sh)"
+```
+
+Determine the sprint subdirectory from the plan file's parent path.
+
+1. Write it to a deferred items file at `{CHESTER_WORK_DIR}/{sprint-subdir}/plan/{sprint-name}-deferred.md`
+2. Copy to `{CHESTER_PLANNING_DIR}/{sprint-subdir}/plan/{sprint-name}-deferred.md`
+3. Use this format:
    - Date
    - Source task
    - Description of the deferred item
    - Why it was deferred (out of scope / not in plan / needs user input)
-3. Continue with the current task
-4. Print the deferred item to terminal output so the user can see it immediately
+4. Continue with the current task
+5. Print the deferred item to terminal output so the user can see it immediately
 
 Deferred items are reviewed during chester-finish-plan.
 
