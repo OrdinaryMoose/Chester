@@ -5,6 +5,32 @@ description: Use when you have a written implementation plan to execute — prov
 
 # chester-write-code
 
+## Budget Guard Check
+
+Before proceeding with this skill, check the token budget:
+
+1. Run: `cat ~/.claude/usage.json 2>/dev/null | jq -r '.five_hour_used_pct // empty'`
+2. If the file is missing or the command fails: log "Budget guard: usage data unavailable" and continue
+3. If the file exists, check staleness via `.timestamp` — if more than 60 seconds old, log "Budget guard: usage data stale" and continue
+4. Read threshold: `cat ~/.claude/chester-config.json 2>/dev/null | jq -r '.budget_guard.threshold_percent // 85'`
+5. If `five_hour_used_pct >= threshold`: **STOP** and display the pause-and-report, then wait for user response
+6. If below threshold: continue normally
+
+**Pause-and-report format:**
+
+> **Budget Guard — Pausing**
+>
+> **5-hour usage:** {pct}% (threshold: {threshold}%)
+> **Resets in:** {countdown from five_hour_resets_at}
+>
+> **Completed tasks:** {list}
+> **Current task:** {current}
+> **Remaining tasks:** {list}
+>
+> **Options:** (1) Continue anyway, (2) Stop here, (3) Other
+
+**Per-task check:** Also run this budget guard check before dispatching each task's implementer subagent (see Section 2.1 step 0 below). This catches budget breaches between tasks during long implementation runs.
+
 Announce: "I'm using the chester-write-code skill to implement this plan."
 
 ## Section 1: Common Setup
@@ -52,6 +78,8 @@ This is the recommended execution mode. Each task is dispatched to a fresh subag
 ### 2.1 Dispatch Pattern
 
 For each task in order:
+
+0. **Budget guard check** — Before dispatching this task's implementer, run the budget guard check (see Budget Guard Check section above). If PAUSE is triggered, report progress using the current task list and wait for user decision. If CONTINUE, proceed to dispatch.
 
 1. **Dispatch implementer subagent** using the template at `chester-write-code/implementer.md`
    - Paste the FULL task text into the prompt — do not make the subagent read a file
@@ -104,6 +132,38 @@ Each implementer subagent should be fresh — do not reuse a subagent across tas
 - Clean context without accumulated confusion
 - Independent verification of each task
 - Clear separation of concerns
+
+### 2.4 Diagnostic Logging (Debug Mode Only)
+
+If `~/.claude/chester-debug.json` exists and its `session_start` is less than 12 hours old, activate diagnostic logging for this execution run.
+
+**At each logging point** (before/after implementer dispatch, before/after spec reviewer, before/after quality reviewer):
+
+1. Read current usage: `cat ~/.claude/usage.json 2>/dev/null | jq -r '.five_hour_used_pct // "N/A"'`
+2. Record the value with a label
+
+**After each task completes all reviews**, append one summary row per sub-step to the log:
+
+- Determine log path:
+  - If a sprint directory exists (check for `docs/chester/` or spec frontmatter `output_dir`): `{sprint-dir}/summary/token-usage-log.md`
+  - Otherwise: `~/.claude/chester-usage.log`
+
+- If the log file doesn't exist yet, create it with the header:
+  ```markdown
+  # Token Usage Log
+
+  | Timestamp | Section | Step | Before % | After % | Delta |
+  |-----------|---------|------|----------|---------|-------|
+  ```
+
+- Append rows:
+  ```
+  | {HH:MM:SS} | write-code | task-{N} implementer | {before} | {after} | +{delta} |
+  | {HH:MM:SS} | write-code | task-{N} spec-review | {before} | {after} | +{delta} |
+  | {HH:MM:SS} | write-code | task-{N} quality-review | {before} | {after} | +{delta} |
+  ```
+
+If debug mode is not active, skip all logging — no reads, no writes.
 
 ## Section 3: Execution Mode — Inline
 
