@@ -32,21 +32,17 @@ reflected in conversation.
 
 ## Step 0: Determine Output Directory
 
-**Priority order:**
+Read project config:
+```bash
+eval "$(~/.claude/skills/chester-hooks/chester-config-read.sh)"
+```
 
-1. If a directory was given in the prompt, use it.
-2. If a spec or plan document was written or referenced this session, read its YAML frontmatter for `output_dir` and `sprint_prefix`. If present, write to `<output_dir>/summary/`.
-3. If the default chester effort directory already exists for this session (e.g., `docs/chester/YYYY-MM-DD-<topic-slug>/` containing a spec or plan), write the summary there using the naming convention `<topic-slug>-summary-NN.md`. Glob `docs/chester/*/` for directories matching today's date.
-4. Infer from context: look for a sprint folder reference in the conversation (e.g., "sprint 017 folder", a path mentioned when the plan was created). If a sprint folder is evident, use it.
-5. If no effort directory, no spec/plan frontmatter, and no sprint folder is evident, ask:
+Determine the sprint subdirectory from context (plan file path, conversation, or most recent sprint directory under `{CHESTER_WORK_DIR}/`).
 
-> "Where should I save this summary?"
-> - **A)** Default: `docs/chester/YYYY-MM-DD-<topic-slug>/` (I'll derive the topic slug)
-> - **B)** Custom directory — provide the path
+Write summary to: `{CHESTER_WORK_DIR}/{sprint-subdir}/summary/{sprint-name}-summary-00.md`
+Copy to: `{CHESTER_PLANNING_DIR}/{sprint-subdir}/summary/{sprint-name}-summary-00.md`
 
-When writing to a custom directory with `sprint_prefix`, prepend the prefix to the filename: `<sprint_prefix>-<topic-slug>-summary-00.md`.
-
-**Default file naming convention:** `<topic-slug>-summary-NN.md` where `-00` is the first summary, `-01` the next session's summary, etc.
+If the sprint subdirectory cannot be determined, ask the user.
 
 ---
 
