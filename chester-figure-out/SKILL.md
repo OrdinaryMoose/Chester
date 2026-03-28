@@ -3,6 +3,30 @@ name: chester-figure-out
 description: "You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Resolves open design questions through Socratic dialogue before creating a specification."
 ---
 
+## Budget Guard Check
+
+Before proceeding with this skill, check the token budget:
+
+1. Run: `cat ~/.claude/usage.json 2>/dev/null | jq -r '.five_hour_used_pct // empty'`
+2. If the file is missing or the command fails: log "Budget guard: usage data unavailable" and continue
+3. If the file exists, check staleness via `.timestamp` — if more than 60 seconds old, log "Budget guard: usage data stale" and continue
+4. Read threshold: `cat ~/.claude/chester-config.json 2>/dev/null | jq -r '.budget_guard.threshold_percent // 85'`
+5. If `five_hour_used_pct >= threshold`: **STOP** and display the pause-and-report, then wait for user response
+6. If below threshold: continue normally
+
+**Pause-and-report format:**
+
+> **Budget Guard — Pausing**
+>
+> **5-hour usage:** {pct}% (threshold: {threshold}%)
+> **Resets in:** {countdown from five_hour_resets_at}
+>
+> **Completed tasks:** {list}
+> **Current task:** {current}
+> **Remaining tasks:** {list}
+>
+> **Options:** (1) Continue anyway, (2) Stop here, (3) Other
+
 # Socratic Discovery
 
 Resolve open design questions through structured Socratic dialogue. The agent is an interviewer, not a presenter — its job is to extract a complete, resolved design through questioning.
