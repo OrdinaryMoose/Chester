@@ -29,6 +29,14 @@ Before proceeding with this skill, check the token budget:
 >
 > **Options:** (1) Continue anyway, (2) Stop here, (3) Other
 
+## Read Project Config
+
+```bash
+eval "$(~/.claude/skills/chester-hooks/chester-config-read.sh)"
+```
+
+Determine the sprint subdirectory from the plan file's parent path.
+
 ## Diagnostic Logging
 
 At skill entry, run: `~/.claude/chester-log-usage.sh before "finish-plan" "skill-entry" "{sprint-dir}/summary/token-usage-log.md"`
@@ -220,6 +228,18 @@ git worktree remove <worktree-path>
 
 **For Option 3:** Keep worktree.
 
+### Step 6.5: Planning Directory Cleanup
+
+After the sprint resolves (merge, PR, or discard):
+
+```bash
+rm -rf "{CHESTER_PLANNING_DIR}/{sprint-subdir}/"
+```
+
+Only remove the resolved sprint's folder. Other active sprint folders are untouched. If the planning directory is now empty, leave it in place for future sprints.
+
+Announce: "Cleaned up planning copy at `{CHESTER_PLANNING_DIR}/{sprint-subdir}/`"
+
 ### Step 7: Session Artifacts (Optional)
 
 After the workflow completes, offer:
@@ -241,7 +261,7 @@ Every artifact produced must be both saved to disk AND written to the terminal. 
 If artifacts were produced (options 1-4), commit them:
 
 ```bash
-git add {output_dir}/summary/ {output_dir}/plan/
+git add {CHESTER_WORK_DIR}/{sprint-subdir}/summary/ {CHESTER_WORK_DIR}/{sprint-subdir}/plan/
 git commit -m "checkpoint: artifacts saved"
 ```
 
