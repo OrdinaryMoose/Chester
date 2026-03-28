@@ -56,14 +56,14 @@ Use TaskCreate/TaskUpdate to give the user real-time visibility into your progre
 
 **Starting tasks:** After the reset, create one task for each of these phases via TaskCreate:
 
-1. **Read spec and extract metadata** — read the spec document, extract output_dir/sprint_prefix from frontmatter
+1. **Read spec and extract metadata** — read the spec document, read project config via chester-config-read.sh
 2. **Scope check** — verify single-plan scope; flag for decomposition if multiple independent subsystems
 3. **Explore existing codebase** — read files referenced in spec to understand current state
 4. **Map file structure** — design which files get created, modified, and tested; lock in decomposition
 5. **Write plan tasks** — write each task with TDD steps, file paths, code, and commands
 6. **Plan review loop** — dispatch plan-reviewer subagent; iterate until approved (max 3)
 7. **Plan hardening** — run chester-attack-plan + chester-smell-code reviews, incorporate findings
-8. **Save plan document** — write to correct output path based on spec frontmatter
+8. **Save plan document** — write to correct output path based on project config
 
 **As you work:**
 - Mark each task `in_progress` when you begin it, `completed` when you finish
@@ -79,12 +79,14 @@ Use TaskCreate/TaskUpdate to give the user real-time visibility into your progre
 
 **Context:** This should be run in a dedicated worktree (created by chester-figure-out skill).
 
-**Save plans to:**
-- If the spec document contains `output_dir` frontmatter: `<output_dir>/plan/<sprint_prefix>-YYYY-MM-DD-<feature-name>.md`
-- Otherwise: write to the same `docs/chester/YYYY-MM-DD-<topic-slug>/` directory as the spec, using the naming convention `<topic-slug>-plan-00.md`. If no spec directory exists yet, create it.
-- (User preferences for plan location override both defaults)
+**Save plans to:** Read project config:
+```bash
+eval "$(~/.claude/skills/chester-hooks/chester-config-read.sh)"
+```
+Write the plan to `{CHESTER_WORK_DIR}/{sprint-subdir}/plan/{sprint-name}-plan-00.md`.
+Copy to `{CHESTER_PLANNING_DIR}/{sprint-subdir}/plan/{sprint-name}-plan-00.md`.
 
-**Inheriting output directory:** When this skill is invoked from chester-figure-out, read the spec document's YAML frontmatter for `output_dir` and `sprint_prefix`. If present, use them for plan output location and include them in the plan document's own frontmatter so downstream skills (chester-write-code, chester-write-summary, chester-trace-reasoning) can inherit the path without needing the spec.
+The sprint subdirectory name is inherited from the spec's directory path (e.g., if the spec is at `docs/chester/2026-03-28-output-directory-config/spec/...`, the sprint subdir is `2026-03-28-output-directory-config`).
 
 ## Scope Check
 
@@ -126,17 +128,6 @@ and note the skip to the user.
 ## Plan Document Header
 
 **Every plan MUST start with this header:**
-
-If the spec has `output_dir` frontmatter, include it in the plan:
-
-```yaml
----
-output_dir: Documents/Refactor/Sprint 032 Core Validation
-sprint_prefix: Sprint032
----
-```
-
-Then the standard header:
 
 ```markdown
 # [Feature Name] Implementation Plan
@@ -233,7 +224,7 @@ After the plan review loop approves the plan:
 
 ## Save Plan Document
 
-Write the plan to the correct output path (derived from spec frontmatter, or the default `docs/chester/YYYY-MM-DD-<topic-slug>/` effort directory).
+Write the plan to the correct output path (derived from project config via chester-config-read.sh).
 
 After writing the plan to disk, print the full plan content to the terminal so the user can read it without opening the file.
 
