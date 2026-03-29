@@ -73,10 +73,15 @@ Prompt the agent with:
 >
 > Output format:
 > ## Structural Integrity Findings
-> ### Critical
-> ### Serious
-> ### Minor
-> ### Assumptions Verified
+>
+> ### Findings
+> - **[Critical|Serious|Minor]** | `location` | finding | evidence
+>   > Optional detail block for complex findings
+>
+> ### Verified
+> - `location` | assertion verified | TRUE
+>
+> Omit empty sections. Omit detail blocks unless the finding cannot be understood without them.
 
 **Agent 2 -- Execution Risk**
 
@@ -105,10 +110,15 @@ Prompt the agent with:
 >
 > Output format:
 > ## Execution Risk Findings
-> ### Critical
-> ### Serious
-> ### Minor
-> ### Risks Acknowledged
+>
+> ### Findings
+> - **[Critical|Serious|Minor]** | `location` | finding | evidence
+>   > Optional detail block for complex findings
+>
+> ### Acknowledged
+> - `location` | risk the plan addresses
+>
+> Omit empty sections. Omit detail blocks unless the finding cannot be understood without them.
 
 **Agent 3 -- Assumptions & Edge Cases**
 
@@ -136,11 +146,15 @@ Prompt the agent with:
 >
 > Output format:
 > ## Assumptions & Edge Case Findings
-> ### Critical
-> ### Serious
-> ### Minor
+>
+> ### Findings
+> - **[Critical|Serious|Minor]** | `location` | finding | evidence
+>   > Optional detail block for complex findings
+>
 > ### Assumptions Register
-> | Assumption | Status | Evidence |
+> - `location` | assumption | TRUE/FALSE/UNVERIFIABLE | evidence
+>
+> Omit empty sections. Omit detail blocks unless the finding cannot be understood without them.
 
 **Agent 4 -- Migration Completeness**
 
@@ -176,10 +190,15 @@ Prompt the agent with:
 >
 > Output format:
 > ## Migration Completeness Findings
-> ### Critical
-> ### Serious
-> ### Minor
-> ### Migration Coverage Verified
+>
+> ### Findings
+> - **[Critical|Serious|Minor]** | `location` | finding | evidence
+>   > Optional detail block for complex findings
+>
+> ### Verified
+> - `location` | migration path verified
+>
+> Omit empty sections. Omit detail blocks unless the finding cannot be understood without them.
 
 **Agent 5 -- API Surface Compatibility**
 
@@ -218,10 +237,15 @@ Prompt the agent with:
 >
 > Output format:
 > ## API Surface Compatibility Findings
-> ### Critical
-> ### Serious
-> ### Minor
-> ### Compatibility Changes Addressed
+>
+> ### Findings
+> - **[Critical|Serious|Minor]** | `location` | finding | evidence
+>   > Optional detail block for complex findings
+>
+> ### Addressed
+> - `location` | compatibility change the plan handles
+>
+> Omit empty sections. Omit detail blocks unless the finding cannot be understood without them.
 
 **Agent 6 -- Concurrency & Thread Safety**
 
@@ -261,10 +285,15 @@ Prompt the agent with:
 >
 > Output format:
 > ## Concurrency & Thread Safety Findings
-> ### Critical
-> ### Serious
-> ### Minor
-> ### Concurrency Risks Acknowledged
+>
+> ### Findings
+> - **[Critical|Serious|Minor]** | `location` | finding | evidence
+>   > Optional detail block for complex findings
+>
+> ### Acknowledged
+> - `location` | concurrency risk the plan addresses
+>
+> Omit empty sections. Omit detail blocks unless the finding cannot be understood without them.
 
 ### Step 3 -- Synthesize the threat report
 
