@@ -30,9 +30,9 @@ rm -f "$USAGE_FILE"
 [ -f "$BACKUP_FILE" ] && mv "$BACKUP_FILE" "$USAGE_FILE"
 
 # 2. Test config file
-echo "--- Test: chester-config.json ---"
-if [ -f "$HOME/.claude/chester-config.json" ]; then
-  T=$(jq -r '.budget_guard.threshold_percent' "$HOME/.claude/chester-config.json")
+echo "--- Test: .settings.chester.json ---"
+if [ -f "$HOME/.claude/.chester/.settings.chester.json" ]; then
+  T=$(jq -r '.budget_guard.threshold_percent' "$HOME/.claude/.chester/.settings.chester.json")
   if [ "$T" = "85" ]; then
     echo "  PASS: config has correct default threshold"
   else
@@ -40,7 +40,7 @@ if [ -f "$HOME/.claude/chester-config.json" ]; then
     ERRORS=$((ERRORS + 1))
   fi
 else
-  echo "  FAIL: chester-config.json missing"
+  echo "  FAIL: .settings.chester.json missing"
   ERRORS=$((ERRORS + 1))
 fi
 
