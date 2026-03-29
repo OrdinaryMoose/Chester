@@ -67,8 +67,17 @@ Task tool (general-purpose):
 
     Verify by checking git, not by trusting the report.
 
-    Report:
-    - Pass: Spec compliant, commit complete (if everything matches after code inspection AND all changes are committed)
-    - Fail — Spec issues: [list specifically what's missing or extra, with file:line references]
-    - Fail — Commit issues: [list files claimed but not committed, or uncommitted changes found]
+    Report format:
+
+    ## Spec Review
+
+    **Verdict:** Pass | Fail
+
+    ### Issues
+    - **[Spec|Commit]** | `location` | finding | evidence
+
+    ### Verified
+    - `location` | requirement met
+
+    Omit Issues section if Verdict is Pass. Omit Verified section if empty.
 ```
