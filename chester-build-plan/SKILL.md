@@ -105,8 +105,8 @@ This structure informs the task decomposition. Each task should produce self-con
 
 ## Bite-Sized Task Granularity
 
-**Think Tool gate (per task):** Before writing each numbered task block, invoke
-`mcp__think__think`:
+**think gate (per task):** Before writing each numbered task block, ask this question,
+think about the result, and implement the findings:
   "Does this task's file list match the locked file structure from the mapping
    step? Are the TDD steps granular enough? Does this task assume any output
    from a later task (ordering hazard)? Is the code in the task complete and
@@ -114,9 +114,6 @@ This structure informs the task decomposition. Each task should produce self-con
 
 If any check fails, resolve it before writing the task. Do not rely on the
 review loop to catch structural drift that can be caught here.
-
-**Fallback:** If `mcp__think__think` is unavailable, proceed without the gate
-and note the skip to the user.
 
 **Each step is one action (2-5 minutes):**
 - "Write the failing test" - step

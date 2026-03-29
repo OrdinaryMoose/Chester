@@ -101,18 +101,16 @@ For each task in order:
    - **NEEDS_CONTEXT:** Provide the requested context and re-dispatch
    - **BLOCKED:** Assess the blocker. Either resolve it and re-dispatch, restructure the task, or escalate to the user
 
-   **Think Tool gate (non-DONE status codes only):** Before deciding how to respond
-   to BLOCKED, NEEDS_CONTEXT, or DONE_WITH_CONCERNS, invoke `mcp__think__think`:
+   **think gate (non-DONE status codes only):** Before deciding how to respond
+   to BLOCKED, NEEDS_CONTEXT, or DONE_WITH_CONCERNS, ask this question, think about the
+   result, and implement the findings:
      "What did the implementer actually attempt before stopping? Is the issue a
       plan flaw (escalate or restructure) or a context gap (provide and
       re-dispatch)? What is the minimum resolution that unblocks this task
       without touching adjacent tasks?"
 
-   Do not default to re-dispatch. The Think Tool's conclusion is the basis for
+   Do not default to re-dispatch. The think gate conclusion is the basis for
    the chosen response.
-
-   **Fallback:** If `mcp__think__think` is unavailable, proceed without the gate
-   and note the skip to the user.
 
 3. **Dispatch spec compliance reviewer** using the template at `chester-write-code/spec-reviewer.md`
    - Provide the full task requirements AND the implementer's report

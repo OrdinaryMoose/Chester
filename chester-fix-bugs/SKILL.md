@@ -51,17 +51,10 @@ You MUST complete each phase before proceeding to the next.
 
 **BEFORE attempting ANY fix:**
 
-**Think Tool gate:** After each diagnostic tool call in steps 1–5, invoke
-`mcp__think__think` before deciding the next action:
+**thinking gate gate:** After each diagnostic tool call in steps 1–5, ask this question,
+think about the answer, and implement the findings:
   "What does this result change about the root cause hypothesis? What evidence
    is still missing? What is the single next diagnostic step?"
-
-This gate fires BEFORE proceeding to any fix or pattern analysis. If you cannot
-clearly articulate what the current result means for the hypothesis, you have not
-yet found the root cause. Do not proceed.
-
-**Fallback:** If `mcp__think__think` is unavailable, proceed without the gate
-and note the skip to the user.
 
 1. **Read Error Messages Carefully**
    - Don't skip past errors or warnings

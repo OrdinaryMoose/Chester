@@ -93,10 +93,6 @@ Specified in the existing plan at `plan/agent-call-consolidation.md`. Included h
 - `chester-smell-code`: 4 agents → 2 agents
 - `chester-doc-sync`: 3 agents → 2 agents
 
-### 2.3 Think Tool References
-
-Think tool gate calls in `chester-write-code/SKILL.md` (Section 2.1 step 2) already have a fallback clause: "If `mcp__think__think` is unavailable, proceed without the gate." No spec change needed — the skill already handles the disabled state.
-
 ## 3. Token Impact Summary
 
 | Phase | Current agents | New agents | Baseline saved |

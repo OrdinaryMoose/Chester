@@ -161,7 +161,7 @@ When multiple skills could apply, use this order:
 1. **Gate skills first** (`chester-figure-out`, `chester-build-spec`, `chester-build-plan`, `chester-write-code`, `chester-finish-plan`) — these define the overall pipeline stage and determine HOW to approach the task
 2. **Review skills second** (`chester-attack-plan`, `chester-smell-code`) — these harden and validate the work
 3. **Behavioral skills third** (`chester-test-first`, `chester-fix-bugs`, `chester-prove-work`, `chester-review-code`) — these guide specific execution disciplines
-4. **Utility skills fourth** (`chester-make-worktree`, `chester-dispatch-agents`, `chester-doc-sync`) — these support workflow mechanics
+4. **Utility skills fourth** (`chester-make-worktree`, `chester-dispatch-agents`) — these support workflow mechanics
 
 "Let's build X" → `chester-figure-out` first, then `chester-build-spec`, then `chester-build-plan`.
 "Write a spec for this" → `chester-build-spec` directly.
@@ -192,7 +192,6 @@ The skill itself tells you which.
 - `chester-review-code` — Receiving and acting on code review feedback
 - `chester-make-worktree` — Git worktree workflow for parallel branches
 - `chester-dispatch-agents` — Dispatching parallel subagents
-- `chester-doc-sync` — Documentation staleness detection after implementation sessions; cross-references reasoning audit against CLAUDE.md files and approved docs (TDRs, ADRs, GPRs, concept index)
 - `chester-write-summary` — Session summary after completing work
 - `chester-trace-reasoning` — Reasoning audit for decisions
 

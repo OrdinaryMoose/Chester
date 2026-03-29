@@ -138,13 +138,12 @@ After writing the spec:
 1. Dispatch spec-document-reviewer subagent (see spec-reviewer.md in this skill directory)
 2. The reviewer checks: completeness, consistency, clarity, scope, YAGNI
 
-**Think Tool gate (per issue):** When the spec reviewer returns issues, invoke `mcp__think__think` for each issue before applying a fix:
+**think gate (per issue):** When the spec reviewer returns issues, ask this question, think
+about the results, and implement the findings:
   "Is this issue valid given the spec's stated intent? What is the minimal fix?
    Does this fix affect any adjacent section of the spec?"
 
 Apply the fix, then move to the next issue. Re-dispatch the reviewer after all issues from the current round are addressed.
-
-**Fallback:** If `mcp__think__think` is unavailable, proceed without the gate and note the skip to the user.
 
 3. If loop exceeds 3 iterations, escalate to user for guidance
 4. On subsequent iterations, write revised spec as `{sprint-name}-spec-01.md`, `02`, etc.

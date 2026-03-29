@@ -158,11 +158,9 @@ Example:
 
 ### MCP Integration
 
-Three MCPs serve three distinct roles during the interview. These are complementary tools, not alternative modes — no user consent step is needed.
+One MCP supports the socratic interview process to provide deeper analysis of the decision tree being explored
 
-- **Think** (discretionary): before formulating questions that need directional reasoning. "What did that answer change? What's the highest-leverage question now?" Not every turn — only when the agent needs to reason about direction. Prevents pattern-matching to the next obvious question.
 - **Sequential Thinking** (rare, 2-4 per session): when a decision node is genuinely complex — 3+ viable options, non-obvious tradeoffs. Deep multi-step exploration to converge on a recommendation. Prevents shallow analysis of complex decisions.
-- **Structured Thinking** (per resolved decision): `capture_thought` with stage, tags, confidence score after each decision is resolved. `retrieve_relevant_thoughts` when a new question touches a previous decision. `revise_thought` when a user answer contradicts a prior decision. The emergent decision tree lives here.
 
 ### Emergent Tree Tracking
 
