@@ -337,26 +337,20 @@ Output format:
 
 **Implementation Risk: [Low | Moderate | Significant | High]**
 
-Reviewed by six independent attack agents: Structural Integrity, Execution Risk,
-Assumptions & Edge Cases, Migration Completeness, API Surface Compatibility,
-Concurrency & Thread Safety.
+Agents: Structural Integrity, Execution Risk, Assumptions & Edge Cases, Migration Completeness, API Surface Compatibility, Concurrency & Thread Safety.
 
-### Critical Findings
-[numbered list -- each with source agent, evidence, and impact]
+### Findings
+- **Critical** | `location` | finding | evidence | source: [agent(s)]
+- **Serious** | `location` | finding | evidence | source: [agent(s)]
+- **Minor** | `location` | finding | evidence | source: [agent(s)]
 
-### Serious Findings
-[numbered list -- each with source agent, evidence, and impact]
-
-### Minor Findings
-[numbered list -- each with source agent, evidence, and impact]
-
-### Assumptions Register
+### Assumptions
 | # | Assumption | Status | Evidence |
-[merged from all agents, deduplicated]
 
 ### Risk Rationale
-[3-5 statements explaining why this risk level was chosen, citing specific
-finding interactions or compounding effects]
+- rationale statement
+- rationale statement
+- rationale statement
 ```
 
 **Implementation risk criteria:**
@@ -375,7 +369,7 @@ worse than the same findings in isolation.
   contain. Deep structural problems will propagate beyond the plan's stated scope.
 
 
-Omit empty severity sections. If there are no findings at a severity level, skip that heading.
+Omit empty sections. If there are no findings, omit the Findings heading entirely.
 
 #### Step 3.1
 Output the threat report to the terminal to the user
