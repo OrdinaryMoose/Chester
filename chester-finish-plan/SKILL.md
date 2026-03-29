@@ -249,16 +249,54 @@ Would you like me to produce session artifacts?
 
 1. Session summary (invoke chester-write-summary)
 2. Reasoning audit (invoke chester-trace-reasoning)
-3. Documentation update report (invoke chester-doc-sync)
-4. All of the above
-5. Skip
+3. Cache analysis (parse session JSONL for cache hit rates)
+4. Documentation update report (invoke chester-doc-sync)
+5. All of the above
+6. Skip
 ```
 
-**Dependency:** Option 3 (documentation update report) requires the reasoning audit as input. If the user selects only option 3, automatically run the reasoning audit first (option 2), then doc-sync. Inform the user: "Running reasoning audit first — doc-sync needs it as input."
+**Dependency:** Option 4 (documentation update report) requires the reasoning audit as input. If the user selects only option 4, automatically run the reasoning audit first (option 2), then doc-sync. Inform the user: "Running reasoning audit first — doc-sync needs it as input."
 
 Every artifact produced must be both saved to disk AND written to the terminal. The user should be able to read the full content of each artifact in their terminal output without needing to open the file.
 
-If artifacts were produced (options 1-4), commit them:
+#### Cache Analysis (Option 3)
+
+Parse the current session's JSONL file for cache hit metrics:
+
+1. Find the session JSONL:
+   ```bash
+   SESSION_DIR="$HOME/.claude/projects/$(echo "$PWD" | sed 's|/|-|g; s|^-||')"
+   LATEST_JSONL=$(ls -t "$SESSION_DIR"/*.jsonl 2>/dev/null | head -1)
+   ```
+
+2. If no JSONL found, report: "No session JSONL found at $SESSION_DIR. Skipping cache analysis."
+
+3. Extract cache metrics per API call:
+   ```bash
+   jq -r 'select(.type == "assistant" and .message.usage) |
+     [.message.usage.input_tokens // 0,
+      .message.usage.cache_creation_input_tokens // 0,
+      .message.usage.cache_read_input_tokens // 0] |
+     @csv' "$LATEST_JSONL"
+   ```
+
+4. Compute and display summary:
+   ```
+   ## Cache Analysis
+
+   | Call # | Input | Cache Write | Cache Read | Hit Rate |
+   |--------|-------|-------------|------------|----------|
+   | ...    | ...   | ...         | ...        | ...      |
+
+   **Overall:** X% of input tokens served from cache
+   **Subagent average:** Y% cache hit rate
+   ```
+
+5. Write report to `{sprint-dir}/summary/cache-analysis.md`
+
+This is best-effort. If jq parsing fails or the JSONL structure is unexpected, report the error and skip gracefully. Do not block the finish-plan workflow.
+
+If artifacts were produced (options 1-5), commit them:
 
 ```bash
 git add {CHESTER_WORK_DIR}/{sprint-subdir}/summary/ {CHESTER_WORK_DIR}/{sprint-subdir}/plan/
