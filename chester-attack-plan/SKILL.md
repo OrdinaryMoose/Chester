@@ -73,10 +73,15 @@ Prompt the agent with:
 >
 > Output format:
 > ## Structural Integrity Findings
-> ### Critical
-> ### Serious
-> ### Minor
-> ### Assumptions Verified
+>
+> ### Findings
+> - **[Critical|Serious|Minor]** | `location` | finding | evidence
+>   > Optional detail block for complex findings
+>
+> ### Verified
+> - `location` | assertion verified | TRUE
+>
+> Omit empty sections. Omit detail blocks unless the finding cannot be understood without them.
 
 **Agent 2 -- Execution Risk**
 
@@ -105,10 +110,15 @@ Prompt the agent with:
 >
 > Output format:
 > ## Execution Risk Findings
-> ### Critical
-> ### Serious
-> ### Minor
-> ### Risks Acknowledged
+>
+> ### Findings
+> - **[Critical|Serious|Minor]** | `location` | finding | evidence
+>   > Optional detail block for complex findings
+>
+> ### Acknowledged
+> - `location` | risk the plan addresses
+>
+> Omit empty sections. Omit detail blocks unless the finding cannot be understood without them.
 
 **Agent 3 -- Assumptions & Edge Cases**
 
@@ -136,11 +146,17 @@ Prompt the agent with:
 >
 > Output format:
 > ## Assumptions & Edge Case Findings
-> ### Critical
-> ### Serious
-> ### Minor
+>
+> ### Findings
+> - **[Critical|Serious|Minor]** | `location` | finding | evidence
+>   > Optional detail block for complex findings
+>
 > ### Assumptions Register
 > | Assumption | Status | Evidence |
+> |------------|--------|----------|
+> | assumption text | TRUE/FALSE/UNVERIFIABLE | evidence |
+>
+> Omit empty sections. Omit detail blocks unless the finding cannot be understood without them.
 
 **Agent 4 -- Migration Completeness**
 
@@ -176,10 +192,15 @@ Prompt the agent with:
 >
 > Output format:
 > ## Migration Completeness Findings
-> ### Critical
-> ### Serious
-> ### Minor
-> ### Migration Coverage Verified
+>
+> ### Findings
+> - **[Critical|Serious|Minor]** | `location` | finding | evidence
+>   > Optional detail block for complex findings
+>
+> ### Verified
+> - `location` | migration path verified
+>
+> Omit empty sections. Omit detail blocks unless the finding cannot be understood without them.
 
 **Agent 5 -- API Surface Compatibility**
 
@@ -218,10 +239,15 @@ Prompt the agent with:
 >
 > Output format:
 > ## API Surface Compatibility Findings
-> ### Critical
-> ### Serious
-> ### Minor
-> ### Compatibility Changes Addressed
+>
+> ### Findings
+> - **[Critical|Serious|Minor]** | `location` | finding | evidence
+>   > Optional detail block for complex findings
+>
+> ### Addressed
+> - `location` | compatibility change the plan handles
+>
+> Omit empty sections. Omit detail blocks unless the finding cannot be understood without them.
 
 **Agent 6 -- Concurrency & Thread Safety**
 
@@ -261,10 +287,15 @@ Prompt the agent with:
 >
 > Output format:
 > ## Concurrency & Thread Safety Findings
-> ### Critical
-> ### Serious
-> ### Minor
-> ### Concurrency Risks Acknowledged
+>
+> ### Findings
+> - **[Critical|Serious|Minor]** | `location` | finding | evidence
+>   > Optional detail block for complex findings
+>
+> ### Acknowledged
+> - `location` | concurrency risk the plan addresses
+>
+> Omit empty sections. Omit detail blocks unless the finding cannot be understood without them.
 
 ### Step 3 -- Synthesize the threat report
 
@@ -308,26 +339,20 @@ Output format:
 
 **Implementation Risk: [Low | Moderate | Significant | High]**
 
-Reviewed by six independent attack agents: Structural Integrity, Execution Risk,
-Assumptions & Edge Cases, Migration Completeness, API Surface Compatibility,
-Concurrency & Thread Safety.
+Agents: Structural Integrity, Execution Risk, Assumptions & Edge Cases, Migration Completeness, API Surface Compatibility, Concurrency & Thread Safety.
 
-### Critical Findings
-[numbered list -- each with source agent, evidence, and impact]
+### Findings
+- **Critical** | `location` | finding | evidence | source: [agent(s)]
+- **Serious** | `location` | finding | evidence | source: [agent(s)]
+- **Minor** | `location` | finding | evidence | source: [agent(s)]
 
-### Serious Findings
-[numbered list -- each with source agent, evidence, and impact]
-
-### Minor Findings
-[numbered list -- each with source agent, evidence, and impact]
-
-### Assumptions Register
+### Assumptions
 | # | Assumption | Status | Evidence |
-[merged from all agents, deduplicated]
 
 ### Risk Rationale
-[3-5 statements explaining why this risk level was chosen, citing specific
-finding interactions or compounding effects]
+- rationale statement
+- rationale statement
+- rationale statement
 ```
 
 **Implementation risk criteria:**
@@ -346,7 +371,7 @@ worse than the same findings in isolation.
   contain. Deep structural problems will propagate beyond the plan's stated scope.
 
 
-Omit empty severity sections. If there are no findings at a severity level, skip that heading.
+Omit empty sections. If there are no findings, omit the Findings heading entirely.
 
 #### Step 3.1
 Output the threat report to the terminal to the user

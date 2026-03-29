@@ -100,10 +100,15 @@ Prompt the agent with:
 >
 > Output format:
 > ## Bloaters & Dispensables Findings
-> ### Critical
-> ### Serious
-> ### Minor
-> ### Risks Acknowledged
+>
+> ### Findings
+> - **[Critical|Serious|Minor]** | `location` | finding | evidence
+>   > Optional detail block for complex findings
+>
+> ### Acknowledged
+> - `location` | smell the plan accounts for
+>
+> Omit empty sections. Omit detail blocks unless the finding cannot be understood without them.
 
 ---
 
@@ -145,10 +150,15 @@ Prompt the agent with:
 >
 > Output format:
 > ## Couplers & OO Abusers Findings
-> ### Critical
-> ### Serious
-> ### Minor
-> ### Risks Acknowledged
+>
+> ### Findings
+> - **[Critical|Serious|Minor]** | `location` | finding | evidence
+>   > Optional detail block for complex findings
+>
+> ### Acknowledged
+> - `location` | smell the plan accounts for
+>
+> Omit empty sections. Omit detail blocks unless the finding cannot be understood without them.
 
 ---
 
@@ -182,10 +192,15 @@ Prompt the agent with:
 >
 > Output format:
 > ## Change Preventers Findings
-> ### Critical
-> ### Serious
-> ### Minor
-> ### Risks Acknowledged
+>
+> ### Findings
+> - **[Critical|Serious|Minor]** | `location` | finding | evidence
+>   > Optional detail block for complex findings
+>
+> ### Acknowledged
+> - `location` | smell the plan accounts for
+>
+> Omit empty sections. Omit detail blocks unless the finding cannot be understood without them.
 
 ---
 
@@ -223,10 +238,15 @@ Prompt the agent with:
 >
 > Output format:
 > ## SOLID Violations Findings
-> ### Critical
-> ### Serious
-> ### Minor
-> ### Risks Acknowledged
+>
+> ### Findings
+> - **[Critical|Serious|Minor]** | `location` | finding | evidence
+>   > Optional detail block for complex findings
+>
+> ### Acknowledged
+> - `location` | smell the plan accounts for
+>
+> Omit empty sections. Omit detail blocks unless the finding cannot be understood without them.
 
 ---
 
@@ -274,24 +294,20 @@ Output format:
 
 **Implementation Risk: [Low | Moderate | Significant | High]**
 
-Reviewed by four independent agents: Bloaters & Dispensables, Couplers & OO Abusers,
-Change Preventers, SOLID Violations.
+Agents: Bloaters & Dispensables, Couplers & OO Abusers, Change Preventers, SOLID Violations.
 
-### Critical Findings
-[numbered list — each with source agent(s), smell category, evidence, and projected impact]
+### Findings
+- **Critical** | `location` | finding | evidence | smell: [category] | source: [agent(s)]
+- **Serious** | `location` | finding | evidence | smell: [category] | source: [agent(s)]
+- **Minor** | `location` | finding | evidence | smell: [category] | source: [agent(s)]
 
-### Serious Findings
-[numbered list — each with source agent(s), smell category, evidence, and projected impact]
-
-### Minor Findings
-[numbered list — each with source agent(s), smell category, evidence, and projected impact]
-
-### Risks Acknowledged
-[smells the plan already accounts for — listed without severity]
+### Acknowledged
+- `location` | smell the plan accounts for
 
 ### Risk Rationale
-[3-5 statements explaining why this risk level was chosen, citing specific
-finding interactions or compounding effects]
+- rationale statement
+- rationale statement
+- rationale statement
 ```
 
 **Implementation risk criteria:**
@@ -309,7 +325,7 @@ worse than the same findings in isolation.
 - **High Risk** — Findings are systemic with shared root causes the plan's structure can't
   contain. Deep structural problems will propagate beyond the plan's stated scope.
 
-Omit empty severity sections. If there are no findings at a severity level, skip that heading.
+Omit empty sections. If there are no findings, omit the Findings heading entirely.
 
 ### Step 4 — Stop
 

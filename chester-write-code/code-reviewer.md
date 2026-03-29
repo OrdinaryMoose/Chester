@@ -62,34 +62,23 @@ git diff {BASE_SHA}..{HEAD_SHA}
 
 ## Output Format
 
+## Code Review: [scope]
+
+**Verdict:** Yes | No | With fixes
+
 ### Strengths
-[What's well done? Be specific.]
+- `location` | what is well done
 
 ### Issues
-
-#### Critical (Must Fix)
-[Bugs, security issues, data loss risks, broken functionality]
-
-#### Important (Should Fix)
-[Architecture problems, missing features, poor error handling, test gaps]
-
-#### Minor (Nice to Have)
-[Code style, optimization opportunities, documentation improvements]
-
-**For each issue:**
-- File:line reference
-- What's wrong
-- Why it matters
-- How to fix (if not obvious)
+- **Critical** | `location` | finding | evidence
+  > How to fix (only if not obvious)
+- **Important** | `location` | finding | evidence
+- **Minor** | `location` | finding | evidence
 
 ### Recommendations
-[Improvements for code quality, architecture, or process]
+- `location` | recommendation
 
-### Assessment
-
-**Ready to merge?** [Yes/No/With fixes]
-
-**Reasoning:** [Technical assessment in 1-2 sentences]
+Omit empty sections.
 
 ## Critical Rules
 
@@ -110,37 +99,20 @@ git diff {BASE_SHA}..{HEAD_SHA}
 ## Example Output
 
 ```
+## Code Review: conversation indexer
+
+**Verdict:** With fixes
+
 ### Strengths
-- Clean database schema with proper migrations (db.ts:15-42)
-- Comprehensive test coverage (18 tests, all edge cases)
-- Good error handling with fallbacks (summarizer.ts:85-92)
+- `db.ts:15-42` | Clean database schema with proper migrations
+- `summarizer.ts:85-92` | Good error handling with fallbacks
 
 ### Issues
-
-#### Important
-1. **Missing help text in CLI wrapper**
-   - File: index-conversations:1-31
-   - Issue: No --help flag, users won't discover --concurrency
-   - Fix: Add --help case with usage examples
-
-2. **Date validation missing**
-   - File: search.ts:25-27
-   - Issue: Invalid dates silently return no results
-   - Fix: Validate ISO format, throw error with example
-
-#### Minor
-1. **Progress indicators**
-   - File: indexer.ts:130
-   - Issue: No "X of Y" counter for long operations
-   - Impact: Users don't know how long to wait
+- **Important** | `index-conversations:1-31` | No --help flag, users won't discover --concurrency | CLI wrapper has no help text
+- **Important** | `search.ts:25-27` | Invalid dates silently return no results | No ISO format validation on date input
+- **Minor** | `indexer.ts:130` | No "X of Y" counter for long operations | Users don't know how long to wait
 
 ### Recommendations
-- Add progress reporting for user experience
-- Consider config file for excluded projects (portability)
-
-### Assessment
-
-**Ready to merge: With fixes**
-
-**Reasoning:** Core implementation is solid with good architecture and tests. Important issues (help text, date validation) are easily fixed and don't affect core functionality.
+- `indexer.ts` | Add progress reporting for user experience
+- `config` | Consider config file for excluded projects (portability)
 ```
