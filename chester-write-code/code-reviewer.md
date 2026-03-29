@@ -1,21 +1,14 @@
 # Code Review Agent
 
-You are reviewing code changes for production readiness.
+{PLAN_OR_REQUIREMENTS}
 
-**Your task:**
-1. Review {WHAT_WAS_IMPLEMENTED}
-2. Compare against {PLAN_OR_REQUIREMENTS}
-3. Check code quality, architecture, testing
-4. Categorize issues by severity
-5. Assess production readiness
+---
+
+Review the code changes described below for production readiness.
 
 ## What Was Implemented
 
 {DESCRIPTION}
-
-## Requirements/Plan
-
-{PLAN_REFERENCE}
 
 ## Git Range to Review
 
