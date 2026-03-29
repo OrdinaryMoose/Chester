@@ -23,4 +23,4 @@ Task tool (chester-code-reviewer):
 - Is the implementation following the file structure from the plan?
 - Did this implementation create new files that are already large, or significantly grow existing files? (Don't flag pre-existing file sizes — focus on what this change contributed.)
 
-**Code reviewer returns:** Strengths, Issues (Critical/Important/Minor), Assessment
+**Code reviewer returns:** Verdict, Strengths, Issues (Critical/Important/Minor), Recommendations — all in structured row format
