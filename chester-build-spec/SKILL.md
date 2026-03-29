@@ -10,7 +10,7 @@ Before proceeding with this skill, check the token budget:
 1. Run: `cat ~/.claude/usage.json 2>/dev/null | jq -r '.five_hour_used_pct // empty'`
 2. If the file is missing or the command fails: log "Budget guard: usage data unavailable" and continue
 3. If the file exists, check staleness via `.timestamp` — if more than 60 seconds old, log "Budget guard: usage data stale" and continue
-4. Read threshold: `cat ~/.claude/chester-config.json 2>/dev/null | jq -r '.budget_guard.threshold_percent // 85'`
+4. Read threshold: `cat ~/.claude/.chester/.settings.chester.json 2>/dev/null | jq -r '.budget_guard.threshold_percent // 85'`
 5. If `five_hour_used_pct >= threshold`: **STOP** and display the pause-and-report, then wait for user response
 6. If below threshold: continue normally
 
@@ -117,8 +117,8 @@ When invoked without a prior chester-figure-out session:
 2. If `CHESTER_CONFIG_PATH` is `none`, warn: "No Chester config found. Run chester-start first or accept defaults." Use defaults.
 3. Ask for the sprint name (three words, hyphenated) if not derivable from context
 4. Construct sprint subdirectory: `YYYY-MM-DD-word-word-word`
-5. Create `{CHESTER_WORK_DIR}/{sprint-subdir}/` with four subdirectories: `design/`, `spec/`, `plan/`, `summary/`
-6. Create matching `{CHESTER_PLANNING_DIR}/{sprint-subdir}/` with same subdirectories
+5. Create `{CHESTER_PLANS_DIR}/{sprint-subdir}/` with four subdirectories: `design/`, `spec/`, `plan/`, `summary/`
+6. Create matching `{CHESTER_WORK_DIR}/{sprint-subdir}/` with same subdirectories
 
 ## Writing the Spec
 
@@ -128,7 +128,7 @@ When invoked without a prior chester-figure-out session:
 - No YAML frontmatter is needed in spec documents. All skills read output paths from the project config via `chester-config-read.sh`, not from document frontmatter.
 
 - Write to `{output_dir}/spec/{sprint-name}-spec-00.md`
-- Copy the spec file to the planning directory: `{CHESTER_PLANNING_DIR}/{sprint-subdir}/spec/{sprint-name}-spec-00.md`
+- Copy the spec file to the planning directory: `{CHESTER_WORK_DIR}/{sprint-subdir}/spec/{sprint-name}-spec-00.md`
 - Print the full document content to the terminal so the user can read it without opening the file
 
 ## Automated Spec Review Loop

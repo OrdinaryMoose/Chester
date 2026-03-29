@@ -12,7 +12,7 @@ Before proceeding with this skill, check the token budget:
 1. Run: `cat ~/.claude/usage.json 2>/dev/null | jq -r '.five_hour_used_pct // empty'`
 2. If the file is missing or the command fails: log "Budget guard: usage data unavailable" and continue
 3. If the file exists, check staleness via `.timestamp` — if more than 60 seconds old, log "Budget guard: usage data stale" and continue
-4. Read threshold: `cat ~/.claude/chester-config.json 2>/dev/null | jq -r '.budget_guard.threshold_percent // 85'`
+4. Read threshold: `cat ~/.claude/.chester/.settings.chester.json 2>/dev/null | jq -r '.budget_guard.threshold_percent // 85'`
 5. If `five_hour_used_pct >= threshold`: **STOP** and display the pause-and-report, then wait for user response
 6. If below threshold: continue normally
 
@@ -83,8 +83,8 @@ Use TaskCreate/TaskUpdate to give the user real-time visibility into your progre
 ```bash
 eval "$(~/.claude/skills/chester-hooks/chester-config-read.sh)"
 ```
-Write the plan to `{CHESTER_WORK_DIR}/{sprint-subdir}/plan/{sprint-name}-plan-00.md`.
-Copy to `{CHESTER_PLANNING_DIR}/{sprint-subdir}/plan/{sprint-name}-plan-00.md`.
+Write the plan to `{CHESTER_PLANS_DIR}/{sprint-subdir}/plan/{sprint-name}-plan-00.md`.
+Copy to `{CHESTER_WORK_DIR}/{sprint-subdir}/plan/{sprint-name}-plan-00.md`.
 
 The sprint subdirectory name is inherited from the spec's directory path (e.g., if the spec is at `docs/chester/2026-03-28-output-directory-config/spec/...`, the sprint subdir is `2026-03-28-output-directory-config`).
 

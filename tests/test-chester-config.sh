@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-CONFIG="$HOME/.claude/chester-config.json"
+CONFIG="$HOME/.claude/.chester/.settings.chester.json"
 
 if [ ! -f "$CONFIG" ]; then
-  echo "FAIL: chester-config.json does not exist"
+  echo "FAIL: .settings.chester.json does not exist"
   exit 1
 fi
 
@@ -28,5 +28,5 @@ if [ "$ERRORS" -gt 0 ]; then
   exit 1
 fi
 
-echo "PASS: chester-config.json valid"
+echo "PASS: .settings.chester.json valid"
 exit 0

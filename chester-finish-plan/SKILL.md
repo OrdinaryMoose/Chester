@@ -12,7 +12,7 @@ Before proceeding with this skill, check the token budget:
 1. Run: `cat ~/.claude/usage.json 2>/dev/null | jq -r '.five_hour_used_pct // empty'`
 2. If the file is missing or the command fails: log "Budget guard: usage data unavailable" and continue
 3. If the file exists, check staleness via `.timestamp` — if more than 60 seconds old, log "Budget guard: usage data stale" and continue
-4. Read threshold: `cat ~/.claude/chester-config.json 2>/dev/null | jq -r '.budget_guard.threshold_percent // 85'`
+4. Read threshold: `cat ~/.claude/.chester/.settings.chester.json 2>/dev/null | jq -r '.budget_guard.threshold_percent // 85'`
 5. If `five_hour_used_pct >= threshold`: **STOP** and display the pause-and-report, then wait for user response
 6. If below threshold: continue normally
 
@@ -233,12 +233,12 @@ git worktree remove <worktree-path>
 After the sprint resolves (merge, PR, or discard):
 
 ```bash
-rm -rf "{CHESTER_PLANNING_DIR}/{sprint-subdir}/"
+rm -rf "{CHESTER_WORK_DIR}/{sprint-subdir}/"
 ```
 
 Only remove the resolved sprint's folder. Other active sprint folders are untouched. If the planning directory is now empty, leave it in place for future sprints.
 
-Announce: "Cleaned up planning copy at `{CHESTER_PLANNING_DIR}/{sprint-subdir}/`"
+Announce: "Cleaned up working copy at `{CHESTER_WORK_DIR}/{sprint-subdir}/`"
 
 ### Step 7: Session Artifacts (Optional)
 
@@ -296,7 +296,7 @@ This is best-effort. If jq parsing fails or the JSONL structure is unexpected, r
 If artifacts were produced (options 1-4), commit them:
 
 ```bash
-git add {CHESTER_WORK_DIR}/{sprint-subdir}/summary/ {CHESTER_WORK_DIR}/{sprint-subdir}/plan/
+git add {CHESTER_PLANS_DIR}/{sprint-subdir}/summary/ {CHESTER_PLANS_DIR}/{sprint-subdir}/plan/
 git commit -m "checkpoint: artifacts saved"
 ```
 
