@@ -68,8 +68,8 @@ eval "$(~/.claude/skills/chester-hooks/chester-config-read.sh)"
 
 Determine the sprint subdirectory from the plan file's parent path.
 
-1. Write it to a deferred items file at `{CHESTER_WORK_DIR}/{sprint-subdir}/plan/{sprint-name}-deferred.md`
-2. Copy to `{CHESTER_PLANNING_DIR}/{sprint-subdir}/plan/{sprint-name}-deferred.md`
+1. Write it to a deferred items file at `{CHESTER_PLANS_DIR}/{sprint-subdir}/plan/{sprint-name}-deferred.md`
+2. Copy to `{CHESTER_WORK_DIR}/{sprint-subdir}/plan/{sprint-name}-deferred.md`
 3. Use this format:
    - Date
    - Source task

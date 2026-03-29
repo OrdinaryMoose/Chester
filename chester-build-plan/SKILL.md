@@ -83,8 +83,8 @@ Use TaskCreate/TaskUpdate to give the user real-time visibility into your progre
 ```bash
 eval "$(~/.claude/skills/chester-hooks/chester-config-read.sh)"
 ```
-Write the plan to `{CHESTER_WORK_DIR}/{sprint-subdir}/plan/{sprint-name}-plan-00.md`.
-Copy to `{CHESTER_PLANNING_DIR}/{sprint-subdir}/plan/{sprint-name}-plan-00.md`.
+Write the plan to `{CHESTER_PLANS_DIR}/{sprint-subdir}/plan/{sprint-name}-plan-00.md`.
+Copy to `{CHESTER_WORK_DIR}/{sprint-subdir}/plan/{sprint-name}-plan-00.md`.
 
 The sprint subdirectory name is inherited from the spec's directory path (e.g., if the spec is at `docs/chester/2026-03-28-output-directory-config/spec/...`, the sprint subdir is `2026-03-28-output-directory-config`).
 

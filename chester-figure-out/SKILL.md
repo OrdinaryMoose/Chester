@@ -194,13 +194,13 @@ One MCP supports the socratic interview process to provide deeper analysis of th
    ```bash
    eval "$(~/.claude/skills/chester-hooks/chester-config-read.sh)"
    ```
-7. Create the output directory structure in the worktree: `{CHESTER_WORK_DIR}/{sprint-subdir}/design/`, `spec/`, `plan/`, `summary/`
-8. Create matching structure in main tree planning directory: `{CHESTER_PLANNING_DIR}/{sprint-subdir}/design/`, `spec/`, `plan/`, `summary/`
-9. Inform user: "Sprint docs at `{CHESTER_PLANNING_DIR}/{sprint-subdir}/`"
-10. Write thinking summary to `{CHESTER_WORK_DIR}/{sprint-subdir}/design/{sprint-name}-thinking-00.md` (worktree)
-11. Copy thinking summary to `{CHESTER_PLANNING_DIR}/{sprint-subdir}/design/{sprint-name}-thinking-00.md` (main tree)
-12. Write design brief to `{CHESTER_WORK_DIR}/{sprint-subdir}/design/{sprint-name}-design-00.md` (worktree)
-13. Copy design brief to `{CHESTER_PLANNING_DIR}/{sprint-subdir}/design/{sprint-name}-design-00.md` (main tree)
+7. Create the output directory structure in the worktree: `{CHESTER_PLANS_DIR}/{sprint-subdir}/design/`, `spec/`, `plan/`, `summary/`
+8. Create matching structure in main tree planning directory: `{CHESTER_WORK_DIR}/{sprint-subdir}/design/`, `spec/`, `plan/`, `summary/`
+9. Inform user: "Sprint docs at `{CHESTER_WORK_DIR}/{sprint-subdir}/`"
+10. Write thinking summary to `{CHESTER_PLANS_DIR}/{sprint-subdir}/design/{sprint-name}-thinking-00.md` (worktree)
+11. Copy thinking summary to `{CHESTER_WORK_DIR}/{sprint-subdir}/design/{sprint-name}-thinking-00.md` (main tree)
+12. Write design brief to `{CHESTER_PLANS_DIR}/{sprint-subdir}/design/{sprint-name}-design-00.md` (worktree)
+13. Copy design brief to `{CHESTER_WORK_DIR}/{sprint-subdir}/design/{sprint-name}-design-00.md` (main tree)
 14. Commit both documents in worktree with message: `checkpoint: design complete`
 15. Transition to chester-build-spec
 
