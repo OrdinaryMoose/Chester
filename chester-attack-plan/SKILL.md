@@ -152,7 +152,9 @@ Prompt the agent with:
 >   > Optional detail block for complex findings
 >
 > ### Assumptions Register
-> - `location` | assumption | TRUE/FALSE/UNVERIFIABLE | evidence
+> | Assumption | Status | Evidence |
+> |------------|--------|----------|
+> | assumption text | TRUE/FALSE/UNVERIFIABLE | evidence |
 >
 > Omit empty sections. Omit detail blocks unless the finding cannot be understood without them.
 

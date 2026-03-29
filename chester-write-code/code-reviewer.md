@@ -62,7 +62,7 @@ git diff {BASE_SHA}..{HEAD_SHA}
 
 ## Output Format
 
-## Code Review
+## Code Review: [scope]
 
 **Verdict:** Yes | No | With fixes
 
@@ -99,7 +99,7 @@ Omit empty sections.
 ## Example Output
 
 ```
-## Code Review
+## Code Review: conversation indexer
 
 **Verdict:** With fixes
 

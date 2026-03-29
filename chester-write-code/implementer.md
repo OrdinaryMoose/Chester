@@ -109,9 +109,9 @@ Task tool (general-purpose):
 
     ## Report Format
 
-    When done, report:
+    When done, report using this format:
 
-    ## Implementation Report
+    ### Implementation Report
 
     **Status:** DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT
 

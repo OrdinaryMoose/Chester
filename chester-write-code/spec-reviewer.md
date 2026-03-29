@@ -69,7 +69,7 @@ Task tool (general-purpose):
 
     Report format:
 
-    ## Spec Review
+    ## Spec Review: [task name]
 
     **Verdict:** Pass | Fail
 
