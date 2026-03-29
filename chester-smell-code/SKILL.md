@@ -58,8 +58,9 @@ Read the full plan before launching agents. Identify:
 ### Step 2 — Launch four agents in parallel
 
 Launch all four agents in a single message using the Agent tool. Each agent receives the
-full plan text and a specific smell mission. Each agent has subagent_type "Explore" so it
-can read the codebase but cannot modify files.
+full plan text as the first content in the prompt (no header, no framing before it),
+followed by a `---` delimiter, then agent-specific analysis instructions. Each agent has
+subagent_type "Explore" so it can read the codebase but cannot modify files.
 
 ---
 
@@ -67,11 +68,11 @@ can read the codebase but cannot modify files.
 
 Prompt the agent with:
 
-> You are a code smell analyst. Your job is to identify Bloater and Dispensable smells
-> that this implementation plan would introduce into the codebase.
->
-> The plan to review:
 > [full plan text]
+>
+> ---
+>
+> Analyze the plan above for Bloater and Dispensable code smells it would introduce into the codebase. Focus on these areas:
 >
 > Bloater smells to look for:
 > - Long Method: does the plan propose logic that should be split but won't be?
@@ -116,11 +117,11 @@ Prompt the agent with:
 
 Prompt the agent with:
 
-> You are a code smell analyst. Your job is to identify Coupler and OO Abuser smells
-> that this implementation plan would introduce into the codebase.
->
-> The plan to review:
 > [full plan text]
+>
+> ---
+>
+> Analyze the plan above for Coupler and OO Abuser code smells it would introduce into the codebase. Focus on these areas:
 >
 > Coupler smells to look for:
 > - Feature Envy: does a proposed method seem more interested in another class's data
@@ -166,12 +167,11 @@ Prompt the agent with:
 
 Prompt the agent with:
 
-> You are a code smell analyst specializing in Change Preventer smells. Your job is to
-> identify structural decisions in this implementation plan that will make the codebase
-> harder to change in the future.
->
-> The plan to review:
 > [full plan text]
+>
+> ---
+>
+> Analyze the plan above for Change Preventer code smells — structural decisions that will make the codebase harder to change in the future. Focus on these areas:
 >
 > Change Preventer smells to look for:
 > - Divergent Change: does the plan put multiple unrelated responsibilities into one
@@ -208,11 +208,11 @@ Prompt the agent with:
 
 Prompt the agent with:
 
-> You are a code smell analyst specializing in SOLID principle violations. Your job is
-> to identify SOLID violations that this implementation plan would introduce.
->
-> The plan to review:
 > [full plan text]
+>
+> ---
+>
+> Analyze the plan above for SOLID principle violations it would introduce. Focus on these areas:
 >
 > SOLID violations to look for:
 > - SRP (Single Responsibility): does any proposed class or module take on more than one
