@@ -7,8 +7,8 @@ This repo contains Chester — a skill-based development workflow framework for 
 - `chester-*/SKILL.md` — Skill definitions. Each directory is one skill.
 - `chester-hooks/` — Claude Code session hooks and config scripts.
 - `tests/` — Bash test scripts for Chester components.
-- `docs/chester/` — Committed session artifacts (specs, plans, summaries, audits).
-- `docs/chester-planning/` — Gitignored active planning docs.
+- `docs/chester/plans/` — Committed session artifacts (specs, plans, summaries, audits).
+- `docs/chester/working/` — Gitignored active planning docs.
 
 ## Skill File Conventions
 
@@ -56,7 +56,7 @@ Tests are self-contained bash scripts. They validate hooks, config resolution, b
 
 ## Key Scripts
 
-- `chester-hooks/chester-config-read.sh` — Resolves project-scoped config. Exports `CHESTER_WORK_DIR`, `CHESTER_PLANNING_DIR`, `CHESTER_CONFIG_PATH`.
+- `chester-hooks/chester-config-read.sh` — Resolves project-scoped config. Exports `CHESTER_WORK_DIR`, `CHESTER_PLANS_DIR`, `CHESTER_CONFIG_PATH`.
 - `chester-hooks/session-start` — Hook that injects `chester-start` into system prompt at session startup.
 
 ## Working on Skills
