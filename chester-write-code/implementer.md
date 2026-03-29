@@ -110,13 +110,25 @@ Task tool (general-purpose):
     ## Report Format
 
     When done, report:
-    - **Status:** DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT
-    - What you implemented (or what you attempted, if blocked)
-    - What you tested and test results
-    - Files changed
-    - Self-review findings (if any)
-    - Any issues or concerns
-    - **Commit verification:** `git status` output after commit (must show clean tree for files related to this task)
+
+    ## Implementation Report
+
+    **Status:** DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT
+
+    ### Files Changed
+    - `path` | what changed
+
+    ### Tests
+    - `test name or path` | Pass/Fail | description
+
+    ### Self-Review Issues
+    - **[Critical|Important|Minor]** | `location` | finding | evidence
+
+    ### Concerns
+    - concern (only if Status is DONE_WITH_CONCERNS or BLOCKED or NEEDS_CONTEXT)
+
+    ### Commit Verification
+    [paste git status output]
 
     Use DONE_WITH_CONCERNS if you completed the work but have doubts about correctness.
     Use BLOCKED if you cannot complete the task. Use NEEDS_CONTEXT if you need
