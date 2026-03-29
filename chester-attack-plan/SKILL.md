@@ -43,18 +43,19 @@ Read the full plan document before launching agents. Identify:
 ### Step 2 -- Launch six attack agents in parallel
 
 Launch all six agents in a single message using the Agent tool. Each agent receives the
-full plan text and a specific attack mission. Each agent has subagent_type "Explore" so it
-can search and read the codebase but cannot modify files.
+full plan text as the first content in the prompt (no header, no framing before it),
+followed by a `---` delimiter, then agent-specific analysis instructions. Each agent has
+subagent_type "Explore" so it can search and read the codebase but cannot modify files.
 
 **Agent 1 -- Structural Integrity**
 
 Prompt the agent with:
 
-> You are a structural integrity auditor attacking an implementation plan. Your job is to
-> find gaps between what the plan says and what the code actually contains.
->
-> The plan to attack:
 > [full plan text]
+>
+> ---
+>
+> Analyze the plan above for structural integrity gaps — mismatches between what the plan says and what the code actually contains. Focus on these areas:
 >
 > Your attack vectors:
 > 1. Verify every file path, class name, and namespace the plan references actually exists
@@ -87,12 +88,11 @@ Prompt the agent with:
 
 Prompt the agent with:
 
-> You are an execution risk analyst attacking an implementation plan. Your job is to find
-> things that will go wrong during implementation -- not design concerns, but practical
-> execution hazards.
->
-> The plan to attack:
 > [full plan text]
+>
+> ---
+>
+> Analyze the plan above for execution risks — practical hazards that will cause problems during implementation, not design concerns. Focus on these areas:
 >
 > Your attack vectors:
 > 1. Blast radius -- what breaks if a step fails partway through? Are there partial-state dangers?
@@ -124,11 +124,11 @@ Prompt the agent with:
 
 Prompt the agent with:
 
-> You are an assumptions analyst attacking an implementation plan. Your job is to surface
-> unstated preconditions and unaddressed edge cases that could derail implementation.
->
-> The plan to attack:
 > [full plan text]
+>
+> ---
+>
+> Analyze the plan above for unstated assumptions and unaddressed edge cases that could derail implementation. Focus on these areas:
 >
 > Your attack vectors:
 > 1. Implicit assumptions -- what does the plan take for granted without stating it?
@@ -162,12 +162,11 @@ Prompt the agent with:
 
 Prompt the agent with:
 
-> You are a migration completeness auditor attacking an implementation plan. Your job is to find
-> call sites, usages, and references that the plan intends to migrate but fails to explicitly
-> address -- leaving the codebase in a partially-migrated, inconsistent state.
->
-> The plan to attack:
 > [full plan text]
+>
+> ---
+>
+> Analyze the plan above for migration completeness — find call sites, usages, and references the plan intends to migrate but fails to explicitly address, leaving the codebase in a partially-migrated state. Focus on these areas:
 >
 > Your attack vectors:
 > 1. Call site coverage -- for every type, method, or interface the plan renames or replaces,
@@ -206,12 +205,11 @@ Prompt the agent with:
 
 Prompt the agent with:
 
-> You are an API surface compatibility auditor attacking an implementation plan. Your job is to
-> find places where the plan changes the public contract of a type or member without acknowledging
-> the downstream impact on callers -- including callers outside the files the plan lists.
->
-> The plan to attack:
 > [full plan text]
+>
+> ---
+>
+> Analyze the plan above for API surface compatibility issues — find places where the plan changes the public contract of a type or member without acknowledging downstream impact on callers, including callers outside the files the plan lists. Focus on these areas:
 >
 > Your attack vectors:
 > 1. Signature changes -- does the plan alter method signatures, return types, or parameter types
@@ -253,12 +251,11 @@ Prompt the agent with:
 
 Prompt the agent with:
 
-> You are a concurrency and thread safety auditor attacking an implementation plan. Your job is
-> to find threading hazards the plan introduces or ignores -- race conditions, async/await
-> misuse, shared mutable state, and UI-thread violations.
->
-> The plan to attack:
 > [full plan text]
+>
+> ---
+>
+> Analyze the plan above for concurrency and thread safety hazards — race conditions, async/await misuse, shared mutable state, and UI-thread violations. Focus on these areas:
 >
 > Your attack vectors:
 > 1. Shared mutable state -- does the plan introduce or modify state that can be accessed from

@@ -10,11 +10,11 @@ Task tool (general-purpose):
   BASE_SHA: [commit before task]
   HEAD_SHA: [current commit]
   prompt: |
-    You are reviewing whether an implementation matches its specification.
-
-    ## What Was Requested
-
     [FULL TEXT of task requirements]
+
+    ---
+
+    Review whether the implementation matches the task requirements above.
 
     ## What Implementer Claims They Built
 
