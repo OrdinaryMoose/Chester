@@ -250,12 +250,9 @@ Would you like me to produce session artifacts?
 1. Session summary (invoke chester-write-summary)
 2. Reasoning audit (invoke chester-trace-reasoning)
 3. Cache analysis (parse session JSONL for cache hit rates)
-4. Documentation update report (invoke chester-doc-sync)
-5. All of the above
-6. Skip
+4. All of the above
+5. Skip
 ```
-
-**Dependency:** Option 4 (documentation update report) requires the reasoning audit as input. If the user selects only option 4, automatically run the reasoning audit first (option 2), then doc-sync. Inform the user: "Running reasoning audit first — doc-sync needs it as input."
 
 Every artifact produced must be both saved to disk AND written to the terminal. The user should be able to read the full content of each artifact in their terminal output without needing to open the file.
 
@@ -296,7 +293,7 @@ Parse the current session's JSONL file for cache hit metrics:
 
 This is best-effort. If jq parsing fails or the JSONL structure is unexpected, report the error and skip gracefully. Do not block the finish-plan workflow.
 
-If artifacts were produced (options 1-5), commit them:
+If artifacts were produced (options 1-4), commit them:
 
 ```bash
 git add {CHESTER_WORK_DIR}/{sprint-subdir}/summary/ {CHESTER_WORK_DIR}/{sprint-subdir}/plan/
@@ -347,7 +344,6 @@ If declined, the skill completes without the artifacts checkpoint.
 - Present exactly 4 options
 - Get typed confirmation for Option 4
 - Clean up worktree for Options 1 & 4 only
-- Run reasoning audit before doc-sync if user selects only option 3 in Step 7
 
 ## Integration
 
@@ -361,4 +357,3 @@ If declined, the skill completes without the artifacts checkpoint.
 - **chester-make-worktree** - Cleans up worktree created by that skill
 - **chester-write-summary** — Session summary production (optional, Step 7)
 - **chester-trace-reasoning** — Reasoning audit production (optional, Step 7)
-- **chester-doc-sync** — Documentation update report (optional, Step 7; requires reasoning audit)
