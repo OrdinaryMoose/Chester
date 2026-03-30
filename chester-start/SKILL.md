@@ -70,29 +70,21 @@ At the start of every session:
    mkdir -p "$CHESTER_PLANS_DIR"
    ```
 
-   e. Ensure working directory and .chester/ are in `.gitignore`:
+   e. Ensure working directory is in `.gitignore`:
    ```bash
-   NEEDS_IGNORE=false
    if ! git check-ignore -q "$CHESTER_WORK_DIR" 2>/dev/null; then
      echo "$CHESTER_WORK_DIR/" >> .gitignore
-     NEEDS_IGNORE=true
-   fi
-   if ! git check-ignore -q ".chester" 2>/dev/null; then
-     echo ".chester/" >> .gitignore
-     NEEDS_IGNORE=true
-   fi
-   if [ "$NEEDS_IGNORE" = true ]; then
      git add .gitignore
-     git commit -m "chore: add chester directories to .gitignore"
+     git commit -m "chore: add chester working directory to .gitignore"
    fi
    ```
 
-   f. Create the project config directory and write config:
+   f. Write project config:
    ```bash
    PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-   mkdir -p "$PROJECT_ROOT/.chester"
+   mkdir -p "$PROJECT_ROOT/.claude"
    ```
-   Write to `$PROJECT_ROOT/.chester/.settings.chester.local.json`:
+   Write to `$PROJECT_ROOT/.claude/settings.chester.local.json`:
    ```json
    {
      "working_dir": "<user's chosen working directory>",
@@ -101,9 +93,8 @@ At the start of every session:
    ```
    Create user-level config if it doesn't exist:
    ```bash
-   if [ ! -f "$HOME/.claude/.chester/.settings.chester.json" ]; then
-     mkdir -p "$HOME/.claude/.chester"
-     echo '{}' > "$HOME/.claude/.chester/.settings.chester.json"
+   if [ ! -f "$HOME/.claude/settings.chester.json" ]; then
+     echo '{}' > "$HOME/.claude/settings.chester.json"
    fi
    ```
 
