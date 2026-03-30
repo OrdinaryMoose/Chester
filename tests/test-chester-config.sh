@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-CONFIG="$HOME/.claude/.chester/.settings.chester.json"
+CONFIG="$HOME/.claude/settings.chester.json"
 
 if [ ! -f "$CONFIG" ]; then
   echo "FAIL: .settings.chester.json does not exist"
