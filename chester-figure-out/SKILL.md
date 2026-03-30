@@ -204,10 +204,6 @@ One MCP supports the socratic interview process to provide deeper analysis of th
 14. Commit both documents in worktree with message: `checkpoint: design complete`
 15. Transition to chester-build-spec
 
-## Visual Companion
-
-Not offered proactively. The user can request it explicitly if needed during the interview. If requested, read the detailed guide: `~/.claude/skills/chester-figure-out/visual-companion.md`
-
 ## File Naming Convention
 
 Directory naming: `YYYY-MM-DD-word-word-word`
