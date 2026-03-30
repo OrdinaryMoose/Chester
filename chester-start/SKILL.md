@@ -29,7 +29,22 @@ If CLAUDE.md says "don't use TDD" and a skill says "always use TDD," follow the 
 
 At the start of every session:
 
-1. **First-run project configuration:** Check for project-scoped Chester config:
+1. **Clean up stale debug flag:** If `~/.claude/chester-debug.json` exists, check its `session_start` timestamp. If older than 12 hours, remove it:
+   ```bash
+   if [ -f ~/.claude/chester-debug.json ]; then
+     start_ts=$(jq -r '.session_start // 0' ~/.claude/chester-debug.json)
+     now=$(date +%s)
+     age=$(( now - start_ts ))
+     if [ "$age" -gt 43200 ]; then
+       rm ~/.claude/chester-debug.json
+     fi
+   fi
+   ```
+   If fresh (<12h), leave it — the user may be continuing a debug session.
+
+2. **Verify jq availability:** Run `which jq`. If jq is not installed, warn: "Budget guard requires jq for JSON parsing. Install jq for token budget monitoring." Continue without the guard.
+
+3. **First-run project configuration:** Check for project-scoped Chester config:
    ```bash
    eval "$(~/.claude/skills/chester-hooks/chester-config-read.sh)"
    ```
