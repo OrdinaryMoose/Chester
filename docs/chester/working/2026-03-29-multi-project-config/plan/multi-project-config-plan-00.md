@@ -348,7 +348,122 @@ Config now at .claude/settings.chester.local.json (project) and
 
 ---
 
-### Task 5: End-to-end verification
+### Task 5: Update budget guard paths in 5 skills
+
+**Files:**
+- Modify: `chester-figure-out/SKILL.md:13`
+- Modify: `chester-build-spec/SKILL.md:13`
+- Modify: `chester-build-plan/SKILL.md:15`
+- Modify: `chester-write-code/SKILL.md:15`
+- Modify: `chester-finish-plan/SKILL.md:15`
+
+- [ ] **Step 1: Update all 5 budget guard paths**
+
+In each file, replace:
+```
+cat ~/.claude/.chester/.settings.chester.json 2>/dev/null | jq -r '.budget_guard.threshold_percent // 85'
+```
+With:
+```
+cat ~/.claude/settings.chester.json 2>/dev/null | jq -r '.budget_guard.threshold_percent // 85'
+```
+
+- [ ] **Step 2: Verify the changes**
+
+```bash
+grep -r '\.claude/.chester/.settings' chester-figure-out/ chester-build-spec/ chester-build-plan/ chester-write-code/ chester-finish-plan/ && echo "OLD REFS FOUND" || echo "Clean"
+```
+
+Expected: "Clean"
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add chester-figure-out/SKILL.md chester-build-spec/SKILL.md chester-build-plan/SKILL.md chester-write-code/SKILL.md chester-finish-plan/SKILL.md
+git commit -m "fix: update budget guard config path in 5 pipeline skills"
+```
+
+---
+
+### Task 6: Update test files for new config paths
+
+**Files:**
+- Modify: `tests/test-chester-config.sh`
+- Modify: `tests/test-integration.sh`
+
+- [ ] **Step 1: Update test-chester-config.sh**
+
+Replace line 4:
+```bash
+CONFIG="$HOME/.claude/.chester/.settings.chester.json"
+```
+With:
+```bash
+CONFIG="$HOME/.claude/settings.chester.json"
+```
+
+- [ ] **Step 2: Update test-integration.sh**
+
+Replace lines 34-35:
+```bash
+if [ -f "$HOME/.claude/.chester/.settings.chester.json" ]; then
+  T=$(jq -r '.budget_guard.threshold_percent' "$HOME/.claude/.chester/.settings.chester.json")
+```
+With:
+```bash
+if [ -f "$HOME/.claude/settings.chester.json" ]; then
+  T=$(jq -r '.budget_guard.threshold_percent' "$HOME/.claude/settings.chester.json")
+```
+
+Also update line 43:
+```bash
+  echo "  FAIL: .settings.chester.json missing"
+```
+With:
+```bash
+  echo "  FAIL: settings.chester.json missing"
+```
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add tests/test-chester-config.sh tests/test-integration.sh
+git commit -m "fix: update test files for new config paths"
+```
+
+---
+
+### Task 7: Remove visual-companion
+
+**Files:**
+- Delete: `chester-figure-out/visual-companion.md`
+- Modify: `chester-figure-out/SKILL.md:209`
+
+- [ ] **Step 1: Delete visual-companion.md**
+
+```bash
+git rm chester-figure-out/visual-companion.md
+```
+
+- [ ] **Step 2: Remove reference in chester-figure-out/SKILL.md**
+
+Delete lines 207-209 (the "Visual Companion" section):
+```markdown
+## Visual Companion
+
+Not offered proactively. The user can request it explicitly if needed during the interview. If requested, read the detailed guide: `~/.claude/skills/chester-figure-out/visual-companion.md`
+```
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add chester-figure-out/SKILL.md
+git commit -m "chore: remove visual-companion (unused)"
+```
+
+---
+
+### Task 8: End-to-end verification
 
 **Files:** None (verification only)
 
@@ -357,9 +472,10 @@ Config now at .claude/settings.chester.local.json (project) and
 ```bash
 bash tests/test-config-read-new.sh
 bash tests/test-chester-config.sh
+bash tests/test-integration.sh
 ```
 
-Expected: Both pass.
+Expected: All pass.
 
 - [ ] **Step 2: Manual smoke test**
 
@@ -371,10 +487,10 @@ echo "WORK=$CHESTER_WORK_DIR PLANS=$CHESTER_PLANS_DIR CONFIG=$CHESTER_CONFIG_PAT
 # Expected: WORK=docs/chester/working PLANS=docs/chester/plans CONFIG=none
 ```
 
-- [ ] **Step 3: Verify no old path references remain**
+- [ ] **Step 3: Verify no old path references remain in source files**
 
 ```bash
-grep -r '\.chester/\.settings\|\.chester/.settings\|chester-config\.json\|migrate_user\|migrate_project' chester-hooks/ chester-start/ tests/ || echo "Clean — no old references"
+grep -r '\.claude/.chester/.settings\|\.chester/.settings\|chester-config\.json\|migrate_user\|migrate_project' chester-hooks/ chester-start/ chester-figure-out/ chester-build-spec/ chester-build-plan/ chester-write-code/ chester-finish-plan/ tests/ || echo "Clean — no old references"
 ```
 
 Expected: "Clean — no old references"
