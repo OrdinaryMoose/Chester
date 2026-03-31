@@ -72,6 +72,11 @@ Prompt the agent with:
 >
 > ---
 >
+> ## Progress Reporting
+> Emit a short status line at each major phase. Format: Bloaters:{label}-{one sentence}
+> Your phases: Reading, Scanning, Reporting
+> Emit one line per phase transition. No additional analysis — just announce what you're doing.
+>
 > Analyze the plan above for Bloater and Dispensable code smells it would introduce into the codebase. Focus on these areas:
 >
 > Bloater smells to look for:
@@ -120,6 +125,11 @@ Prompt the agent with:
 > [full plan text]
 >
 > ---
+>
+> ## Progress Reporting
+> Emit a short status line at each major phase. Format: Couplers:{label}-{one sentence}
+> Your phases: Reading, Scanning, Reporting
+> Emit one line per phase transition. No additional analysis — just announce what you're doing.
 >
 > Analyze the plan above for Coupler and OO Abuser code smells it would introduce into the codebase. Focus on these areas:
 >
@@ -171,6 +181,11 @@ Prompt the agent with:
 >
 > ---
 >
+> ## Progress Reporting
+> Emit a short status line at each major phase. Format: Preventers:{label}-{one sentence}
+> Your phases: Reading, Scanning, Reporting
+> Emit one line per phase transition. No additional analysis — just announce what you're doing.
+>
 > Analyze the plan above for Change Preventer code smells — structural decisions that will make the codebase harder to change in the future. Focus on these areas:
 >
 > Change Preventer smells to look for:
@@ -211,6 +226,11 @@ Prompt the agent with:
 > [full plan text]
 >
 > ---
+>
+> ## Progress Reporting
+> Emit a short status line at each major phase. Format: SOLID:{label}-{one sentence}
+> Your phases: Reading, Scanning, Reporting
+> Emit one line per phase transition. No additional analysis — just announce what you're doing.
 >
 > Analyze the plan above for SOLID principle violations it would introduce. Focus on these areas:
 >
