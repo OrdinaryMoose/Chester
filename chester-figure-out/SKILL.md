@@ -130,6 +130,41 @@ You are a Software Architect conducting a design interview. This identity govern
 
 The agent is an interviewer, not a presenter. Its job is to extract a complete, resolved design through questioning.
 
+### Interview Transcript
+
+Capture the interview as a readable transcript, appended incrementally.
+
+**At Phase 3 entry** (after problem statement is confirmed):
+1. Create the transcript file at `{CHESTER_WORK_DIR}/{sprint-subdir}/design/{sprint-name}-interview-00.md` with this header:
+
+   ```markdown
+   # Interview Transcript — {Sprint Name}
+
+   **Date:** {YYYY-MM-DD}
+   **Sprint:** {sprint-NNN-slug}
+
+   ---
+   ```
+
+2. Append the confirmed problem statement as the first entry (bold text).
+
+**After each interview turn:**
+1. Append your stream-of-consciousness thinking (italic lines) and question (bold) to the transcript
+2. After receiving the user's response, append it as a blockquote (`> response text`)
+3. Append a horizontal rule (`---`) to separate exchanges
+
+**At checkpoints** (every 4-6 questions):
+- Append a checkpoint marker: `### Checkpoint — {N} questions`
+
+**Content to capture:** Only interview interactions — thinking, questions, user responses.
+**Content to exclude:** Tool calls, MCP outputs, task management, budget guard checks.
+
+**Formatting:**
+- *Italic lines* — agent stream-of-consciousness thinking
+- **Bold text** — agent questions
+- `> Blockquote` — user responses
+- `---` — exchange separator
+
 ### Six Question Types
 
 One question per turn. Select the type that best serves the current design need:
@@ -203,8 +238,10 @@ One MCP supports the socratic interview process to provide deeper analysis of th
 11. Copy thinking summary to `{CHESTER_WORK_DIR}/{sprint-subdir}/design/{sprint-name}-thinking-00.md` (main tree)
 12. Write design brief to `{CHESTER_PLANS_DIR}/{sprint-subdir}/design/{sprint-name}-design-00.md` (worktree)
 13. Copy design brief to `{CHESTER_WORK_DIR}/{sprint-subdir}/design/{sprint-name}-design-00.md` (main tree)
-14. Commit both documents in worktree with message: `checkpoint: design complete`
-15. Update `~/.chester/thinking.md` — read the Key Reasoning Shifts from the thinking summary just written. For each shift, determine whether it matches an existing lesson (increment score by 1) or is a new lesson (add as a new row with score 1, category `—` unless two or more existing lessons share the same category of error). If the table would exceed 20 rows, drop the lowest-scoring entry. Present proposed changes to the user and confirm before writing. If the file does not exist, create it with the table header and the first entries.
+14. Copy transcript from `{CHESTER_WORK_DIR}/{sprint-subdir}/design/{sprint-name}-interview-00.md` to `{CHESTER_PLANS_DIR}/{sprint-subdir}/design/{sprint-name}-interview-00.md` (worktree)
+15. Include transcript in the commit alongside thinking summary and design brief
+16. Commit all three documents in worktree with message: `checkpoint: design complete`
+17. Update `~/.chester/thinking.md` — read the Key Reasoning Shifts from the thinking summary just written. For each shift, determine whether it matches an existing lesson (increment score by 1) or is a new lesson (add as a new row with score 1, category `—` unless two or more existing lessons share the same category of error). If the table would exceed 20 rows, drop the lowest-scoring entry. Present proposed changes to the user and confirm before writing. If the file does not exist, create it with the table header and the first entries.
 
 The table format:
 
@@ -216,7 +253,7 @@ The table format:
 - **Lesson** — one sentence, specific enough to be actionable
 - **Context** — when this lesson applies; prevents it becoming a standing rule everywhere
 
-16. Transition to chester-build-spec
+18. Transition to chester-build-spec
 
 ## File Naming Convention
 
@@ -230,6 +267,7 @@ File naming: `{word-word-word}-{artifact}-{nn}.md`
 This skill writes to `design/`:
 - `{sprint-name}-design-00.md` — the design brief (WHAT)
 - `{sprint-name}-thinking-00.md` — the reformatted thinking summary (HOW)
+- `{sprint-name}-interview-00.md` — the interview transcript (dialogue)
 
 ## Integration
 

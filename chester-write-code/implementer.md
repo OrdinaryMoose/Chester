@@ -10,6 +10,12 @@ Task tool (general-purpose):
 
     ---
 
+    ## Progress Reporting
+    Emit a short status line at each major phase. Format: Implementer Task N:{label}-{one sentence}
+    Replace N with the task number from the task description.
+    Your phases: Reading, Writing tests, Implementing, Testing, Self-reviewing, Committing
+    Emit one line per phase transition. No additional analysis — just announce what you're doing.
+
     Implement the task described above.
 
     ## Context
