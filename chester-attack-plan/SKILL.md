@@ -55,6 +55,11 @@ Prompt the agent with:
 >
 > ---
 >
+> ## Progress Reporting
+> Emit a short status line at each major phase. Format: Structural:{label}-{one sentence}
+> Your phases: Reading, Verifying, Reporting
+> Emit one line per phase transition. No additional analysis — just announce what you're doing.
+>
 > Analyze the plan above for structural integrity gaps — mismatches between what the plan says and what the code actually contains. Focus on these areas:
 >
 > Your attack vectors:
@@ -92,6 +97,11 @@ Prompt the agent with:
 >
 > ---
 >
+> ## Progress Reporting
+> Emit a short status line at each major phase. Format: Execution:{label}-{one sentence}
+> Your phases: Reading, Analyzing, Reporting
+> Emit one line per phase transition. No additional analysis — just announce what you're doing.
+>
 > Analyze the plan above for execution risks — practical hazards that will cause problems during implementation, not design concerns. Focus on these areas:
 >
 > Your attack vectors:
@@ -127,6 +137,11 @@ Prompt the agent with:
 > [full plan text]
 >
 > ---
+>
+> ## Progress Reporting
+> Emit a short status line at each major phase. Format: Assumptions:{label}-{one sentence}
+> Your phases: Reading, Probing, Reporting
+> Emit one line per phase transition. No additional analysis — just announce what you're doing.
 >
 > Analyze the plan above for unstated assumptions and unaddressed edge cases that could derail implementation. Focus on these areas:
 >
@@ -165,6 +180,11 @@ Prompt the agent with:
 > [full plan text]
 >
 > ---
+>
+> ## Progress Reporting
+> Emit a short status line at each major phase. Format: Migration:{label}-{one sentence}
+> Your phases: Reading, Tracing, Reporting
+> Emit one line per phase transition. No additional analysis — just announce what you're doing.
 >
 > Analyze the plan above for migration completeness — find call sites, usages, and references the plan intends to migrate but fails to explicitly address, leaving the codebase in a partially-migrated state. Focus on these areas:
 >
@@ -208,6 +228,11 @@ Prompt the agent with:
 > [full plan text]
 >
 > ---
+>
+> ## Progress Reporting
+> Emit a short status line at each major phase. Format: API Surface:{label}-{one sentence}
+> Your phases: Reading, Checking, Reporting
+> Emit one line per phase transition. No additional analysis — just announce what you're doing.
 >
 > Analyze the plan above for API surface compatibility issues — find places where the plan changes the public contract of a type or member without acknowledging downstream impact on callers, including callers outside the files the plan lists. Focus on these areas:
 >
@@ -254,6 +279,11 @@ Prompt the agent with:
 > [full plan text]
 >
 > ---
+>
+> ## Progress Reporting
+> Emit a short status line at each major phase. Format: Concurrency:{label}-{one sentence}
+> Your phases: Reading, Analyzing, Reporting
+> Emit one line per phase transition. No additional analysis — just announce what you're doing.
 >
 > Analyze the plan above for concurrency and thread safety hazards — race conditions, async/await misuse, shared mutable state, and UI-thread violations. Focus on these areas:
 >
