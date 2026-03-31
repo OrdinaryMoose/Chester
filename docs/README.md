@@ -1,55 +1,31 @@
 # Chester
 
-Chester is a complete development workflow for Claude Code, built on a set of skills that load automatically and trigger based on context. It was inspired by [Superpowers](https://github.com/obra/superpowers) and the decision-tree interview approach from [Grill-Me](link).
+Chester is a Claude Code skill set that walks the designer through a structured development workflow: identify the problem, socratic interview to create the design → build and test the specification → write an implementation plan → plan adversarial review → TDD code writing and checking → close out and document what we did. It was built to create a shared vision between the developer and agent; to close the gap between what a developer intends and what an agent builds.
 
-The problem it solves is building a shared understanding of the proposed code revisions or refactoring. Before Chester, I'd have something in mind, Claude would have an interpretation, and we'd only discover the gap once there was code to look at.
+Chester takes inspiration from Obra/Superpowers and Mattpocock/grill-me
 
-Chester starts by reviewing the current codebase and your initial prompt to come up with a baseline problem statement.  Once that is agreed up, Chester asks a series of questions one at a time walking through the entire decision tree to really understand what is going on and what needs to be build.  Think of it as the digital equivalent to a whiteboard session. This iterative question and answer process organically filters past what you think you wanted to build, and gets down to what you really need. This conversation is then distilled to become the design specification for your sprint (or whatever you call it).
+## The problem
 
-From the specification, Chester builds an implementation plan and then immediately tries to break it. A set of parallel review agents picks it apart for flawed assumptions, execution risks, and structural problems. The plan gets revised, the risks get assessed, and you decide whether to proceed. Nothing runs until you say so.
+AI-assisted development fails most often not because the agent can't write code, but because it's working from an incomplete or misread problem statement. Chester front-loads the work of building shared understanding before any code is written.
 
-When you do, Chester works through the plan task by task — writing a failing test first, then the code to pass it, then committing and moving on. Each task gets reviewed before the next one starts. It's a slow way to go fast.
+## How it works
 
-Along the way, Chester writes everything down. The problem definition, a record of the interview and key insights, the specification, the imlementation plan along with the adversarial analysis findings, and afterwards a summary of what the agent actually did, the reasons why they did it, and any deferments from the plan are all saved as readable documents. 
+Chester starts every sprint with a structured design interview. It reviews the codebase and 
+your prompt, establishes a baseline problem statement, then asks targeted questions one at a 
+time to surface assumptions and constraints. The result is a design brief that accurately 
+reflects what needs to be built — not just what was asked for.
 
-When you come back to this code in six months, or someone else does, there's a record of why it works the way it does.
+From the brief, Chester generates a specification, then an implementation plan. Six parallel 
+review agents immediately stress-test the plan for flawed assumptions, execution risks, and 
+structural problems. The plan is revised, risks are assessed, and nothing runs until you 
+approve it.
 
-## Installation
+Implementation is task-by-task: failing test first, code to pass it, commit, repeat. Each 
+task is reviewed before the next begins.
 
-Clone this repo into your Claude Code skills directory:
-
-```bash
-git clone https://github.com/OrdinaryMoose/Chester.git ~/.claude/skills
-```
-
-Add the session-start hook to `~/.claude/settings.json`:
-
-```json
-{
-  "hooks": {
-    "SessionStart": [
-      {
-        "type": "command",
-        "command": "~/.claude/skills/chester-hooks/session-start"
-      }
-    ]
-  }
-}
-```
-
-Start a new Claude Code session. Chester loads automatically.
-
-### Verify installation
-
-Ask Claude to build something. Instead of writing code, it should ask what you're trying to do and announce it's using the `chester-figure-out` skill.
-
-### MCP server (optional)
-
-Chester works best with one MCP server:
-
-- **Structured Thinking** — captures decision trees during design and planning
-
-This is optional. Without it the full pipeline still runs — the reasoning checkpoints are just less granular.
+Every session produces a full paper trail: the problem statement, interview record, design 
+specification, implementation plan, adversarial findings, session summary, and a decision 
+audit explaining why the code works the way it does.
 
 ## Skills
 
@@ -90,13 +66,40 @@ This is optional. Without it the full pipeline still runs — the reasoning chec
 | `chester-write-summary` | Session summary with plan archival |
 | `chester-trace-reasoning` | Decision audit from session transcript |
 
+## Installation
+```bash
+git clone https://github.com/OrdinaryMoose/Chester.git ~/.claude/skills
+```
+
+Add the session-start hook to `~/.claude/settings.json`:
+```json
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "~/.claude/skills/chester-hooks/session-start"
+      }
+    ]
+  }
+}
+```
+
+Start a new Claude Code session. Chester loads automatically.
+
+**Verify installation:** Ask Claude to build something. It should initiate a design interview 
+rather than writing code immediately.
+
+### MCP server (optional)
+
+Chester works with the **Structured Thinking** MCP server, which captures decision trees 
+during design and planning. The full pipeline runs without it — reasoning checkpoints are 
+less granular.
+
 ## Contributing
 
-Each skill is a folder with a `SKILL.md` and optional subagent templates.
-
-1. Fork the repository
-2. Create or modify a skill
-3. Submit a PR
+Each skill is a folder with a `SKILL.md` and optional subagent templates. Fork the repo, 
+create or modify a skill, submit a PR.
 
 ## License
 
