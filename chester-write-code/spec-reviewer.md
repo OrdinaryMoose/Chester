@@ -14,6 +14,11 @@ Task tool (general-purpose):
 
     ---
 
+    ## Progress Reporting
+    Emit a short status line at each major phase. Format: Spec Review:{label}-{one sentence}
+    Your phases: Reading, Diffing, Comparing, Reporting
+    Emit one line per phase transition. No additional analysis — just announce what you're doing.
+
     Review whether the implementation matches the task requirements above.
 
     ## What Implementer Claims They Built
