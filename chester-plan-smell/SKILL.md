@@ -1,5 +1,5 @@
 ---
-name: chester-smell-code
+name: chester-plan-smell
 description: >
   Forward-looking code smell analysis of an implementation plan. Spawns four parallel agents —
   Bloaters & Dispensables, Couplers & OO Abusers, Change Preventers, and SOLID Violations — to

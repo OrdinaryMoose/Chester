@@ -1,5 +1,5 @@
 ---
-name: chester-write-summary
+name: chester-finish-write-session-summary
 description: >
   Produces a concise executive summary at the end of any Chester work session and
   archives the implementation plan alongside it. Use this skill whenever the user wants

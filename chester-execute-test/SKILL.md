@@ -1,5 +1,5 @@
 ---
-name: chester-test-first
+name: chester-execute-test
 description: Use when implementing any feature or bugfix, before writing implementation code
 ---
 

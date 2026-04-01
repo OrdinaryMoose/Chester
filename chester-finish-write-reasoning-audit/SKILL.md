@@ -1,5 +1,5 @@
 ---
-name: chester-trace-reasoning
+name: chester-finish-write-reasoning-audit
 description: >
   Produces a structured audit of how the agent reasoned through an implementation session —
   capturing how the plan developed, what information shaped each decision, what alternatives

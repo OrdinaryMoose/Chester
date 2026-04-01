@@ -1,5 +1,5 @@
 ---
-name: chester-build-spec
+name: chester-design-specify
 description: "Formalize an approved design into a durable spec document. Use when a design brief exists (from chester-figure-out, a whiteboard, a previous session, or a human-written brief) and needs to be written as a formal spec with automated review."
 ---
 

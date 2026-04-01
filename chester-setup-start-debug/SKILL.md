@@ -1,5 +1,5 @@
 ---
-name: chester-start-debug
+name: chester-setup-start-debug
 description: "Activate diagnostic token logging mode. Use instead of chester-start when you want per-section and per-subagent token usage tracking."
 ---
 

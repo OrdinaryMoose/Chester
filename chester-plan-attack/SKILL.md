@@ -1,5 +1,5 @@
 ---
-name: chester-attack-plan
+name: chester-plan-attack
 description: >
   Adversarial review of implementation plans. Spawns six parallel attack agents to find
   logical contradictions, unstated assumptions, execution risks, migration gaps, API contract
