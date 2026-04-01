@@ -42,6 +42,16 @@ Read the full plan document before launching agents. Identify:
 
 ### Step 2 -- Launch six attack agents in parallel
 
+**Progress visibility:** Before launching the six agents, print all dispatch lines:
+```
+Dispatched: Structural:plan review-verifying file paths, dependencies, and internal consistency
+Dispatched: Execution:plan review-analyzing blast radius, ordering, and reversibility
+Dispatched: Assumptions:plan review-probing unstated assumptions and edge cases
+Dispatched: Migration:plan review-tracing call sites and migration completeness
+Dispatched: API Surface:plan review-checking contract changes and caller impact
+Dispatched: Concurrency:plan review-analyzing thread safety and async hazards
+```
+
 Launch all six agents in a single message using the Agent tool. Each agent receives the
 full plan text as the first content in the prompt (no header, no framing before it),
 followed by a `---` delimiter, then agent-specific analysis instructions. Each agent has
@@ -54,11 +64,6 @@ Prompt the agent with:
 > [full plan text]
 >
 > ---
->
-> ## Progress Reporting
-> Emit a short status line at each major phase. Format: Structural:{label}-{one sentence}
-> Your phases: Reading, Verifying, Reporting
-> Emit one line per phase transition. No additional analysis — just announce what you're doing.
 >
 > Analyze the plan above for structural integrity gaps — mismatches between what the plan says and what the code actually contains. Focus on these areas:
 >
@@ -97,11 +102,6 @@ Prompt the agent with:
 >
 > ---
 >
-> ## Progress Reporting
-> Emit a short status line at each major phase. Format: Execution:{label}-{one sentence}
-> Your phases: Reading, Analyzing, Reporting
-> Emit one line per phase transition. No additional analysis — just announce what you're doing.
->
 > Analyze the plan above for execution risks — practical hazards that will cause problems during implementation, not design concerns. Focus on these areas:
 >
 > Your attack vectors:
@@ -137,11 +137,6 @@ Prompt the agent with:
 > [full plan text]
 >
 > ---
->
-> ## Progress Reporting
-> Emit a short status line at each major phase. Format: Assumptions:{label}-{one sentence}
-> Your phases: Reading, Probing, Reporting
-> Emit one line per phase transition. No additional analysis — just announce what you're doing.
 >
 > Analyze the plan above for unstated assumptions and unaddressed edge cases that could derail implementation. Focus on these areas:
 >
@@ -180,11 +175,6 @@ Prompt the agent with:
 > [full plan text]
 >
 > ---
->
-> ## Progress Reporting
-> Emit a short status line at each major phase. Format: Migration:{label}-{one sentence}
-> Your phases: Reading, Tracing, Reporting
-> Emit one line per phase transition. No additional analysis — just announce what you're doing.
 >
 > Analyze the plan above for migration completeness — find call sites, usages, and references the plan intends to migrate but fails to explicitly address, leaving the codebase in a partially-migrated state. Focus on these areas:
 >
@@ -228,11 +218,6 @@ Prompt the agent with:
 > [full plan text]
 >
 > ---
->
-> ## Progress Reporting
-> Emit a short status line at each major phase. Format: API Surface:{label}-{one sentence}
-> Your phases: Reading, Checking, Reporting
-> Emit one line per phase transition. No additional analysis — just announce what you're doing.
 >
 > Analyze the plan above for API surface compatibility issues — find places where the plan changes the public contract of a type or member without acknowledging downstream impact on callers, including callers outside the files the plan lists. Focus on these areas:
 >
@@ -280,11 +265,6 @@ Prompt the agent with:
 >
 > ---
 >
-> ## Progress Reporting
-> Emit a short status line at each major phase. Format: Concurrency:{label}-{one sentence}
-> Your phases: Reading, Analyzing, Reporting
-> Emit one line per phase transition. No additional analysis — just announce what you're doing.
->
 > Analyze the plan above for concurrency and thread safety hazards — race conditions, async/await misuse, shared mutable state, and UI-thread violations. Focus on these areas:
 >
 > Your attack vectors:
@@ -325,6 +305,10 @@ Prompt the agent with:
 > Omit empty sections. Omit detail blocks unless the finding cannot be understood without them.
 
 ### Step 3 -- Synthesize the threat report
+
+**Progress visibility:** As each agent's results are processed, print a completion line:
+`Completed: {agent name}:{plan review}-{one-line summary of findings or "no issues found"}`
+Print all six completion lines before proceeding to synthesis.
 
 **Before synthesis:** Print each agent's raw findings to the terminal. This
 preserves all evidence if the Structured Thinking MCP fails during synthesis.

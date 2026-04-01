@@ -57,6 +57,14 @@ Read the full plan before launching agents. Identify:
 
 ### Step 2 — Launch four agents in parallel
 
+**Progress visibility:** Before launching the four agents, print all dispatch lines:
+```
+Dispatched: Bloaters:plan review-scanning for bloater and dispensable smells
+Dispatched: Couplers:plan review-scanning for coupler and OO abuser smells
+Dispatched: Preventers:plan review-scanning for change preventer smells
+Dispatched: SOLID:plan review-scanning for SOLID violations
+```
+
 Launch all four agents in a single message using the Agent tool. Each agent receives the
 full plan text as the first content in the prompt (no header, no framing before it),
 followed by a `---` delimiter, then agent-specific analysis instructions. Each agent has
@@ -71,11 +79,6 @@ Prompt the agent with:
 > [full plan text]
 >
 > ---
->
-> ## Progress Reporting
-> Emit a short status line at each major phase. Format: Bloaters:{label}-{one sentence}
-> Your phases: Reading, Scanning, Reporting
-> Emit one line per phase transition. No additional analysis — just announce what you're doing.
 >
 > Analyze the plan above for Bloater and Dispensable code smells it would introduce into the codebase. Focus on these areas:
 >
@@ -125,11 +128,6 @@ Prompt the agent with:
 > [full plan text]
 >
 > ---
->
-> ## Progress Reporting
-> Emit a short status line at each major phase. Format: Couplers:{label}-{one sentence}
-> Your phases: Reading, Scanning, Reporting
-> Emit one line per phase transition. No additional analysis — just announce what you're doing.
 >
 > Analyze the plan above for Coupler and OO Abuser code smells it would introduce into the codebase. Focus on these areas:
 >
@@ -181,11 +179,6 @@ Prompt the agent with:
 >
 > ---
 >
-> ## Progress Reporting
-> Emit a short status line at each major phase. Format: Preventers:{label}-{one sentence}
-> Your phases: Reading, Scanning, Reporting
-> Emit one line per phase transition. No additional analysis — just announce what you're doing.
->
 > Analyze the plan above for Change Preventer code smells — structural decisions that will make the codebase harder to change in the future. Focus on these areas:
 >
 > Change Preventer smells to look for:
@@ -227,11 +220,6 @@ Prompt the agent with:
 >
 > ---
 >
-> ## Progress Reporting
-> Emit a short status line at each major phase. Format: SOLID:{label}-{one sentence}
-> Your phases: Reading, Scanning, Reporting
-> Emit one line per phase transition. No additional analysis — just announce what you're doing.
->
 > Analyze the plan above for SOLID principle violations it would introduce. Focus on these areas:
 >
 > SOLID violations to look for:
@@ -271,6 +259,10 @@ Prompt the agent with:
 ---
 
 ### Step 3 — Synthesize the smell report
+
+**Progress visibility:** As each agent's results are processed, print a completion line:
+`Completed: {agent name}:{plan review}-{one-line summary of findings or "no issues found"}`
+Print all four completion lines before proceeding to synthesis.
 
 **Before synthesis:** Print each agent's raw findings to the terminal. This
 preserves all evidence if the Structured Thinking MCP fails during synthesis.

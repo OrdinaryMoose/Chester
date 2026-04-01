@@ -17,14 +17,6 @@ Task tool (chester-code-reviewer):
   DESCRIPTION: [task summary]
 ```
 
-**Progress Reporting — include in the dispatch prompt:**
-```
-    ## Progress Reporting
-    Emit a short status line at each major phase. Format: Quality Review:{label}-{one sentence}
-    Your phases: Reading, Analyzing, Reporting
-    Emit one line per phase transition. No additional analysis — just announce what you're doing.
-```
-
 **In addition to standard code quality concerns, the reviewer should check:**
 - Does each file have one clear responsibility with a well-defined interface?
 - Are units decomposed so they can be understood and tested independently?
