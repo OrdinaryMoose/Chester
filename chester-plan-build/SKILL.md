@@ -29,7 +29,7 @@ Before proceeding with this skill, check the token budget:
 >
 > **Options:** (1) Continue anyway, (2) Stop here, (3) Other
 
-**Additional check point:** Also run this budget guard check before dispatching chester-attack-plan and chester-smell-code during the Plan Hardening phase. These are expensive parallel subagent calls — checking before them catches mid-skill budget breaches.
+**Additional check point:** Also run this budget guard check before dispatching chester-plan-attack and chester-plan-smell during the Plan Hardening phase. These are expensive parallel subagent calls — checking before them catches mid-skill budget breaches.
 
 ## Diagnostic Logging
 
@@ -52,7 +52,7 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 
 Use TaskCreate/TaskUpdate to give the user real-time visibility into your progress. This is for user awareness only — it does not constrain your workflow.
 
-**Task reset (do first, do not track):** Before creating any tasks, call TaskList. If any tasks exist from a previous skill (e.g., chester-figure-out), delete them all via TaskUpdate with status: `deleted`. This is housekeeping — do not create a tracked task for it.
+**Task reset (do first, do not track):** Before creating any tasks, call TaskList. If any tasks exist from a previous skill (e.g., chester-design-figure-out), delete them all via TaskUpdate with status: `deleted`. This is housekeeping — do not create a tracked task for it.
 
 **Starting tasks:** After the reset, create one task for each of these phases via TaskCreate:
 
@@ -62,7 +62,7 @@ Use TaskCreate/TaskUpdate to give the user real-time visibility into your progre
 4. **Map file structure** — design which files get created, modified, and tested; lock in decomposition
 5. **Write plan tasks** — write each task with TDD steps, file paths, code, and commands
 6. **Plan review loop** — dispatch plan-reviewer subagent; iterate until approved (max 3)
-7. **Plan hardening** — run chester-attack-plan + chester-smell-code reviews, incorporate findings
+7. **Plan hardening** — run chester-plan-attack + chester-plan-smell reviews, incorporate findings
 8. **Save plan document** — write to correct output path based on project config
 
 **As you work:**
@@ -75,13 +75,13 @@ Use TaskCreate/TaskUpdate to give the user real-time visibility into your progre
 - The 8 starting tasks are the baseline
 - When writing plan tasks, you may optionally create one sub-task per plan task if the plan has many tasks, to give finer-grained progress — use your judgment based on plan size
 
-**Announce at start:** "I'm using the chester-build-plan skill to create the implementation plan."
+**Announce at start:** "I'm using the chester-plan-build skill to create the implementation plan."
 
-**Context:** This should be run in a dedicated worktree (created by chester-figure-out skill).
+**Context:** This should be run in a dedicated worktree (created by chester-design-figure-out skill).
 
 **Save plans to:** Read project config:
 ```bash
-eval "$(~/.claude/skills/chester-hooks/chester-config-read.sh)"
+eval "$(~/.claude/skills/chester-util-config/chester-config-read.sh)"
 ```
 Write the plan to `{CHESTER_PLANS_DIR}/{sprint-subdir}/plan/{sprint-name}-plan-00.md`.
 Copy to `{CHESTER_WORK_DIR}/{sprint-subdir}/plan/{sprint-name}-plan-00.md`.
@@ -90,7 +90,7 @@ The sprint subdirectory name is inherited from the spec's directory path (e.g., 
 
 ## Scope Check
 
-If the spec covers multiple independent subsystems, it should have been broken into sub-project specs during chester-figure-out. If it wasn't, suggest breaking this into separate plans — one per subsystem. Each plan should produce working, testable software on its own.
+If the spec covers multiple independent subsystems, it should have been broken into sub-project specs during chester-design-figure-out. If it wasn't, suggest breaking this into separate plans — one per subsystem. Each plan should produce working, testable software on its own.
 
 ## File Structure
 
@@ -129,7 +129,7 @@ review loop to catch structural drift that can be caught here.
 ```markdown
 # [Feature Name] Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use chester-write-code (recommended) or chester-write-code in inline mode to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use chester-execute-write (recommended) or chester-execute-write in inline mode to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** [One sentence describing what this builds]
 
@@ -210,7 +210,7 @@ After writing the complete plan:
 
 After the plan review loop approves the plan:
 
-1. Launch chester-attack-plan and chester-smell-code in parallel against the plan
+1. Launch chester-plan-attack and chester-plan-smell in parallel against the plan
 2. Wait for both to complete
 3. Read both reports and synthesize a single combined implementation risk level — this is a judgment call, not a formula. Consider how findings from both reports interact and compound.
 4. Present to the human:
@@ -236,8 +236,8 @@ git commit -m "checkpoint: plan approved"
 
 Plan complete and hardened. Two execution options:
 
-**1. Subagent-Driven (recommended)** - I dispatch a fresh subagent per task, review between tasks, fast iteration. Uses chester-write-code.
+**1. Subagent-Driven (recommended)** - I dispatch a fresh subagent per task, review between tasks, fast iteration. Uses chester-execute-write.
 
-**2. Inline Execution** - Execute tasks in this session with checkpoints. Uses chester-write-code in inline mode.
+**2. Inline Execution** - Execute tasks in this session with checkpoints. Uses chester-execute-write in inline mode.
 
 Which approach?

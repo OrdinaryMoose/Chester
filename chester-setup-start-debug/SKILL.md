@@ -1,9 +1,9 @@
 ---
 name: chester-setup-start-debug
-description: "Activate diagnostic token logging mode. Use instead of chester-start when you want per-section and per-subagent token usage tracking."
+description: "Activate diagnostic token logging mode. Use instead of chester-setup-start when you want per-section and per-subagent token usage tracking."
 ---
 
-# chester-start-debug
+# chester-setup-start-debug
 
 Announce: "Diagnostic mode active — token usage will be logged per section and subagent."
 
@@ -26,7 +26,7 @@ FLAG_EOF
 cat ~/.claude/chester-debug.json
 ```
 
-3. After creating the flag, follow all standard chester-start behavior — invoke the `chester-start` skill via the Skill tool for session setup. The debug flag will persist because chester-start only removes flags older than 12 hours.
+3. After creating the flag, follow all standard chester-setup-start behavior — invoke the `chester-setup-start` skill via the Skill tool for session setup. The debug flag will persist because chester-setup-start only removes flags older than 12 hours.
 
 ## What Diagnostic Mode Does
 
@@ -39,7 +39,7 @@ The budget guard (pause at threshold) is always active regardless of diagnostic 
 
 ## Deactivating
 
-Start a new session normally (without invoking chester-start-debug). The flag will be treated as stale after 12 hours, or you can remove it manually:
+Start a new session normally (without invoking chester-setup-start-debug). The flag will be treated as stale after 12 hours, or you can remove it manually:
 
 ```bash
 rm ~/.claude/chester-debug.json

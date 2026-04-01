@@ -56,11 +56,11 @@ You MUST create a task for each of these items and complete them in order. You m
 2. **Explore project context** — check files, docs, recent commits relevant to the idea
 3. **Present refined problem statement** — WHAT and WHY, not HOW. User confirms or corrects.
 4. **Socratic interview** — one question per turn using six question types, with stream-of-consciousness output, emergent tree tracking, and checkpoints every 4-6 questions
-5. **Closure** — consolidate design brief, write thinking summary and design brief to design/ subdirectory, commit, transition to chester-build-spec
+5. **Closure** — consolidate design brief, write thinking summary and design brief to design/ subdirectory, commit, transition to chester-design-specify
 
 ## Announcement
 
-When this skill activates, announce: "I'm using the chester-figure-out skill to design this."
+When this skill activates, announce: "I'm using the chester-design-figure-out skill to design this."
 
 ## Process Flow
 
@@ -76,7 +76,7 @@ digraph socratic_discovery {
     "Consolidate design brief" [shape=box];
     "User approves design?" [shape=diamond];
     "Write design brief\nand thinking summary" [shape=box];
-    "Invoke chester-build-spec" [shape=doublecircle];
+    "Invoke chester-design-specify" [shape=doublecircle];
 
     "Sprint setup" -> "Explore project context";
     "Explore project context" -> "Present problem statement";
@@ -91,17 +91,17 @@ digraph socratic_discovery {
     "Consolidate design brief" -> "User approves design?";
     "User approves design?" -> "Socratic interview\n(one question per turn)" [label="no, more questions"];
     "User approves design?" -> "Write design brief\nand thinking summary" [label="yes"];
-    "Write design brief\nand thinking summary" -> "Invoke chester-build-spec";
+    "Write design brief\nand thinking summary" -> "Invoke chester-design-specify";
 }
 ```
 
-**The terminal state is invoking chester-build-spec.** Do NOT invoke chester-build-plan or any other implementation skill directly. The ONLY skill you invoke after chester-figure-out is chester-build-spec.
+**The terminal state is invoking chester-design-specify.** Do NOT invoke chester-plan-build or any other implementation skill directly. The ONLY skill you invoke after chester-design-figure-out is chester-design-specify.
 
 ## Phase 1: Administrative Setup
 
 - Read project config:
   ```bash
-  eval "$(~/.claude/skills/chester-hooks/chester-config-read.sh)"
+  eval "$(~/.claude/skills/chester-util-config/chester-config-read.sh)"
   ```
 - Establish three-word sprint name (lowercase, hyphenated) for file naming
 - Construct sprint subdirectory name: `YYYY-MM-DD-word-word-word`
@@ -227,10 +227,10 @@ One MCP supports the socratic interview process to provide deeper analysis of th
 2. Reformat the thinking summary into a clean document — this captures HOW decisions were made (stages, revisions, confidence scores, cross-references). Hold in memory; do not write to disk yet.
 3. Present the completed design brief to the user — each decision with conclusion and rationale
 4. "Does this capture what we're building?"
-5. Invoke `chester-make-worktree` to create the branch and worktree. The branch name follows the sprint naming convention: `sprint-NNN-descriptive-slug`. Auto-detect NNN by scanning existing branches for the highest sprint number and incrementing.
+5. Invoke `chester-util-worktree` to create the branch and worktree. The branch name follows the sprint naming convention: `sprint-NNN-descriptive-slug`. Auto-detect NNN by scanning existing branches for the highest sprint number and incrementing.
 6. Read project config in the worktree context:
    ```bash
-   eval "$(~/.claude/skills/chester-hooks/chester-config-read.sh)"
+   eval "$(~/.claude/skills/chester-util-config/chester-config-read.sh)"
    ```
 7. Create the output directory structure in the worktree: `{CHESTER_PLANS_DIR}/{sprint-subdir}/design/`, `spec/`, `plan/`, `summary/`
 8. Create matching structure in main tree planning directory: `{CHESTER_WORK_DIR}/{sprint-subdir}/design/`, `spec/`, `plan/`, `summary/`
@@ -254,7 +254,7 @@ The table format:
 - **Lesson** — one sentence, specific enough to be actionable
 - **Context** — when this lesson applies; prevents it becoming a standing rule everywhere
 
-18. Transition to chester-build-spec
+18. Transition to chester-design-specify
 
 ## File Naming Convention
 
@@ -272,6 +272,6 @@ This skill writes to `design/`:
 
 ## Integration
 
-- Transitions to: chester-build-spec (always — specifications are always produced)
-- May use: chester-attack-plan (adversarial review of design), chester-smell-code (code smell review)
-- Does NOT transition to: chester-build-plan (must go through build-spec first)
+- Transitions to: chester-design-specify (always — specifications are always produced)
+- May use: chester-plan-attack (adversarial review of design), chester-plan-smell (code smell review)
+- Does NOT transition to: chester-plan-build (must go through build-spec first)

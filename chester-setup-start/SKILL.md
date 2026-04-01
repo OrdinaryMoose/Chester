@@ -46,7 +46,7 @@ At the start of every session:
 
 3. **First-run project configuration:** Check for project-scoped Chester config:
    ```bash
-   eval "$(~/.claude/skills/chester-hooks/chester-config-read.sh)"
+   eval "$(~/.claude/skills/chester-util-config/chester-config-read.sh)"
    ```
    If `CHESTER_CONFIG_PATH` is `none`, this is a new project. Run the first-run setup:
 
@@ -165,18 +165,18 @@ These thoughts mean STOP — you're rationalizing:
 
 When multiple skills could apply, use this order:
 
-1. **Gate skills first** (`chester-figure-out`, `chester-build-spec`, `chester-build-plan`, `chester-write-code`, `chester-finish-plan`) — these define the overall pipeline stage and determine HOW to approach the task
-2. **Review skills second** (`chester-attack-plan`, `chester-smell-code`) — these harden and validate the work
-3. **Behavioral skills third** (`chester-test-first`, `chester-fix-bugs`, `chester-prove-work`, `chester-review-code`) — these guide specific execution disciplines
-4. **Utility skills fourth** (`chester-make-worktree`, `chester-dispatch-agents`) — these support workflow mechanics
+1. **Gate skills first** (`chester-design-figure-out`, `chester-design-specify`, `chester-plan-build`, `chester-execute-write`, `chester-finish`) — these define the overall pipeline stage and determine HOW to approach the task
+2. **Review skills second** (`chester-plan-attack`, `chester-plan-smell`) — these harden and validate the work
+3. **Behavioral skills third** (`chester-execute-test`, `chester-execute-debug`, `chester-execute-prove`, `chester-execute-review`) — these guide specific execution disciplines
+4. **Utility skills fourth** (`chester-util-worktree`, `chester-util-dispatch`) — these support workflow mechanics
 
-"Let's build X" → `chester-figure-out` first, then `chester-build-spec`, then `chester-build-plan`.
-"Write a spec for this" → `chester-build-spec` directly.
-"Fix this bug" → `chester-fix-bugs` first, then domain-specific skills.
+"Let's build X" → `chester-design-figure-out` first, then `chester-design-specify`, then `chester-plan-build`.
+"Write a spec for this" → `chester-design-specify` directly.
+"Fix this bug" → `chester-execute-debug` first, then domain-specific skills.
 
 ## Skill Types
 
-**Rigid** (`chester-test-first`, `chester-fix-bugs`): Follow exactly. Don't adapt away discipline.
+**Rigid** (`chester-execute-test`, `chester-execute-debug`): Follow exactly. Don't adapt away discipline.
 
 **Flexible** (patterns): Adapt principles to context.
 
@@ -184,23 +184,23 @@ The skill itself tells you which.
 
 ## Available Chester Skills
 
-- `chester-start` — Entry point; establishes the pipeline and skill usage rules (this skill)
-- `chester-start-debug` — Activate diagnostic token logging mode for the session
-- `chester-figure-out` — Socratic discovery of design through structured dialogue
-- `chester-build-spec` — Formalize approved designs into spec documents with automated review
-- `chester-build-plan` — Write and harden implementation plans
-- `chester-write-code` — Execute plans, request code review, and perform subagent-driven development
-- `chester-finish-plan` — Finish a development branch and prepare for merge
-- `chester-attack-plan` — Adversarial review of plans to find weaknesses
-- `chester-smell-code` — Code smell review of implementation
-- `chester-test-first` — Test-driven development discipline
-- `chester-fix-bugs` — Systematic debugging workflow
-- `chester-prove-work` — Verification before completion
-- `chester-review-code` — Receiving and acting on code review feedback
-- `chester-make-worktree` — Git worktree workflow for parallel branches
-- `chester-dispatch-agents` — Dispatching parallel subagents
-- `chester-write-summary` — Session summary after completing work
-- `chester-trace-reasoning` — Reasoning audit for decisions
+- `chester-setup-start` — Entry point; establishes the pipeline and skill usage rules (this skill)
+- `chester-setup-start-debug` — Activate diagnostic token logging mode for the session
+- `chester-design-figure-out` — Socratic discovery of design through structured dialogue
+- `chester-design-specify` — Formalize approved designs into spec documents with automated review
+- `chester-plan-build` — Write and harden implementation plans
+- `chester-execute-write` — Execute plans, request code review, and perform subagent-driven development
+- `chester-finish` — Finish a development branch and prepare for merge
+- `chester-plan-attack` — Adversarial review of plans to find weaknesses
+- `chester-plan-smell` — Code smell review of implementation
+- `chester-execute-test` — Test-driven development discipline
+- `chester-execute-debug` — Systematic debugging workflow
+- `chester-execute-prove` — Verification before completion
+- `chester-execute-review` — Receiving and acting on code review feedback
+- `chester-util-worktree` — Git worktree workflow for parallel branches
+- `chester-util-dispatch` — Dispatching parallel subagents
+- `chester-finish-write-session-summary` — Session summary after completing work
+- `chester-finish-write-reasoning-audit` — Reasoning audit for decisions
 
 ## User Instructions
 

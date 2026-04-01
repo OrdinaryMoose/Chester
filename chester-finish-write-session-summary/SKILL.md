@@ -34,7 +34,7 @@ reflected in conversation.
 
 Read project config:
 ```bash
-eval "$(~/.claude/skills/chester-hooks/chester-config-read.sh)"
+eval "$(~/.claude/skills/chester-util-config/chester-config-read.sh)"
 ```
 
 Determine the sprint subdirectory from context (plan file path, conversation, or most recent sprint directory under `{CHESTER_PLANS_DIR}/`).

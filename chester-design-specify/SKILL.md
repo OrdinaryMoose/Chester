@@ -1,6 +1,6 @@
 ---
 name: chester-design-specify
-description: "Formalize an approved design into a durable spec document. Use when a design brief exists (from chester-figure-out, a whiteboard, a previous session, or a human-written brief) and needs to be written as a formal spec with automated review."
+description: "Formalize an approved design into a durable spec document. Use when a design brief exists (from chester-design-figure-out, a whiteboard, a previous session, or a human-written brief) and needs to be written as a formal spec with automated review."
 ---
 
 ## Budget Guard Check
@@ -39,13 +39,13 @@ Replace `{sprint-dir}` with the actual sprint directory path. The script handles
 Formalize an approved design into a durable spec document, validate it through automated and human review.
 
 <HARD-GATE>
-Do NOT invoke chester-build-plan or any implementation skill until the spec has passed automated review AND the user has approved it. Only then proceed to invoke chester-build-plan.
+Do NOT invoke chester-plan-build or any implementation skill until the spec has passed automated review AND the user has approved it. Only then proceed to invoke chester-plan-build.
 </HARD-GATE>
 
 ## Entry Condition
 
 A design exists — either:
-- A design brief from chester-figure-out at `{output_dir}/design/{sprint-name}-design-00.md`
+- A design brief from chester-design-figure-out at `{output_dir}/design/{sprint-name}-design-00.md`
 - A human-written brief or design from an external source
 - A design described in conversation context
 
@@ -63,11 +63,11 @@ You MUST create a task for each of these items and complete them in order:
 4. **Automated spec review loop** — dispatch spec-document-reviewer subagent, Think Tool gate per issue, fix and re-dispatch (max 3 iterations, then escalate to user)
 5. **User review gate** — present clean spec to user for review; if changes requested, apply and loop back to step 4
 6. **Commit spec** — commit the approved spec with message `checkpoint: spec approved`
-7. **Transition** — invoke chester-build-plan
+7. **Transition** — invoke chester-plan-build
 
 ## Announcement
 
-When this skill activates, announce: "I'm using the chester-build-spec skill to write the formal spec."
+When this skill activates, announce: "I'm using the chester-design-specify skill to write the formal spec."
 
 ## Process Flow
 
@@ -84,7 +84,7 @@ digraph build_spec {
     "Escalate to user" [shape=box];
     "Present to user" [shape=box];
     "User approves?" [shape=diamond];
-    "Invoke chester-build-plan" [shape=doublecircle];
+    "Invoke chester-plan-build" [shape=doublecircle];
 
     "Standalone?" -> "Ask output directory\nCreate subdirectories" [label="yes"];
     "Standalone?" -> "Read design brief" [label="no"];
@@ -99,22 +99,22 @@ digraph build_spec {
     "Iteration < 3?" -> "Escalate to user" [label="no"];
     "Escalate to user" -> "Present to user";
     "Present to user" -> "User approves?";
-    "User approves?" -> "Invoke chester-build-plan" [label="yes"];
+    "User approves?" -> "Invoke chester-plan-build" [label="yes"];
     "User approves?" -> "Write spec document" [label="changes requested"];
 }
 ```
 
-**The terminal state is invoking chester-build-plan.** Do NOT invoke any other implementation skill.
+**The terminal state is invoking chester-plan-build.** Do NOT invoke any other implementation skill.
 
 ## Standalone Invocation
 
-When invoked without a prior chester-figure-out session:
+When invoked without a prior chester-design-figure-out session:
 
 1. Read project config:
    ```bash
-   eval "$(~/.claude/skills/chester-hooks/chester-config-read.sh)"
+   eval "$(~/.claude/skills/chester-util-config/chester-config-read.sh)"
    ```
-2. If `CHESTER_CONFIG_PATH` is `none`, warn: "No Chester config found. Run chester-start first or accept defaults." Use defaults.
+2. If `CHESTER_CONFIG_PATH` is `none`, warn: "No Chester config found. Run chester-setup-start first or accept defaults." Use defaults.
 3. Ask for the sprint name (three words, hyphenated) if not derivable from context
 4. Construct sprint subdirectory: `YYYY-MM-DD-word-word-word`
 5. Create `{CHESTER_PLANS_DIR}/{sprint-subdir}/` with four subdirectories: `design/`, `spec/`, `plan/`, `summary/`
@@ -185,6 +185,6 @@ Files follow the convention: `{sprint-name}-{artifact}-{nn}.md`
 
 ## Integration
 
-- Invoked by: chester-figure-out (primary), or user directly (standalone)
-- Transitions to: chester-build-plan
-- Does NOT invoke: chester-attack-plan, chester-smell-code, or any implementation skill
+- Invoked by: chester-design-figure-out (primary), or user directly (standalone)
+- Transitions to: chester-plan-build
+- Does NOT invoke: chester-plan-attack, chester-plan-smell, or any implementation skill

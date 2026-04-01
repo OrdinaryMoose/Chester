@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # chester-config-read.sh — Resolve layered Chester config
-# Usage: eval "$(~/.claude/skills/chester-hooks/chester-config-read.sh)"
+# Usage: eval "$(~/.claude/skills/chester-util-config/chester-config-read.sh)"
 # Exports: CHESTER_WORK_DIR, CHESTER_PLANS_DIR, CHESTER_CONFIG_PATH
 
 set -euo pipefail

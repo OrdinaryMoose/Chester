@@ -4,9 +4,9 @@ description: >
   Adversarial review of implementation plans. Spawns six parallel attack agents to find
   logical contradictions, unstated assumptions, execution risks, migration gaps, API contract
   breakage, concurrency hazards, and gaps between what a plan claims and what the code actually
-  requires. Auto-triggers as part of chester-build-plan's plan hardening gate. Can also be
+  requires. Auto-triggers as part of chester-plan-build's plan hardening gate. Can also be
   invoked manually via: "attack this plan", "adversarial review", "red-team this",
-  "find the weaknesses", "stress test the plan", "what could go wrong", "/chester-attack-plan".
+  "find the weaknesses", "stress test the plan", "what could go wrong", "/chester-plan-attack".
 ---
 
 # Adversarial Review

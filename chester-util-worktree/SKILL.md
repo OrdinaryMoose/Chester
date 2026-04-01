@@ -11,7 +11,7 @@ Git worktrees create isolated workspaces sharing the same repository, allowing w
 
 **Core principle:** Systematic directory selection + safety verification = reliable isolation.
 
-**Announce at start:** "I'm using the chester-make-worktree skill to set up an isolated workspace."
+**Announce at start:** "I'm using the chester-util-worktree skill to set up an isolated workspace."
 
 ## Directory Selection Process
 
@@ -178,7 +178,7 @@ Ready to implement <feature-name>
 ## Example Workflow
 
 ```
-You: I'm using the chester-make-worktree skill to set up an isolated workspace.
+You: I'm using the chester-util-worktree skill to set up an isolated workspace.
 
 [Check .worktrees/ - exists]
 [Verify ignored - git check-ignore confirms .worktrees/ is ignored]
@@ -209,9 +209,9 @@ Ready to implement auth feature
 ## Integration
 
 **Called by:**
-- **chester-figure-out** (Phase 4) - REQUIRED when design is approved and implementation follows
-- **chester-write-code** - REQUIRED before executing any tasks
+- **chester-design-figure-out** (Phase 4) - REQUIRED when design is approved and implementation follows
+- **chester-execute-write** - REQUIRED before executing any tasks
 - Any skill needing isolated workspace
 
 **Pairs with:**
-- **chester-finish-plan** - REQUIRED for cleanup after work complete
+- **chester-finish** - REQUIRED for cleanup after work complete

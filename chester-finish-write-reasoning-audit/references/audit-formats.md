@@ -116,7 +116,7 @@ Repeat the entry block for each decision point. Horizontal rules (`---`) separat
 
 ## Formatting Conventions
 
-Inherit all conventions from `chester-write-summary/references/summary-formats.md`:
+Inherit all conventions from `chester-finish-write-session-summary/references/summary-formats.md`:
 - **File paths:** relative from solution root
 - **Line references:** `(line 101)` or `lines 101–105`
 - **Dates:** YYYY-MM-DD (ISO 8601)

@@ -5,9 +5,9 @@ description: >
   Bloaters & Dispensables, Couplers & OO Abusers, Change Preventers, and SOLID Violations — to
   identify code smells the plan would introduce into the codebase. Based on the five smell
   categories from refactoring.guru/refactoring/smells plus SOLID principles. Auto-triggers as
-  part of chester-build-plan's plan hardening gate. Can also be invoked manually via:
+  part of chester-plan-build's plan hardening gate. Can also be invoked manually via:
   "smell review", "code smell check", "will this introduce smells", "smell analysis",
-  "check the plan for smells", "/chester-smell-code".
+  "check the plan for smells", "/chester-plan-smell".
 ---
 
 # Smell Review
@@ -18,9 +18,9 @@ plan touches. Speculation without evidence is not a finding.
 
 ## Relationship to other review skills
 
-Independent and complementary to `chester-attack-plan` and `plan-doc-review`.
+Independent and complementary to `chester-plan-attack` and `plan-doc-review`.
 
-- `chester-attack-plan` attacks internal logic and execution feasibility
+- `chester-plan-attack` attacks internal logic and execution feasibility
 - `plan-doc-review` checks TDR compliance
 - This skill asks: will the plan introduce structural code quality problems?
 
@@ -350,6 +350,6 @@ unless the user asks. The user decides how to respond to the findings.
 - This skill does not write files. All output is inline in the conversation.
 - This skill does not modify plans. It reports findings and the user decides.
 - This skill does not check TDR compliance — that is `plan-doc-review`'s job.
-- This skill does not attack plan logic or execution feasibility — that is `chester-attack-plan`'s job.
+- This skill does not attack plan logic or execution feasibility — that is `chester-plan-attack`'s job.
 - Each finding must have plan or codebase evidence. Drop any finding that cannot cite
   a real proposed construct or file. This is the single most important rule.

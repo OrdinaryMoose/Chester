@@ -3,7 +3,7 @@ name: chester-execute-write
 description: Use when you have a written implementation plan to execute — provides subagent-driven (recommended) or inline execution with review checkpoints
 ---
 
-# chester-write-code
+# chester-execute-write
 
 ## Budget Guard Check
 
@@ -31,7 +31,7 @@ Before proceeding with this skill, check the token budget:
 
 **Per-task check:** Also run this budget guard check before dispatching each task's implementer subagent (see Section 2.1 step 0 below). This catches budget breaches between tasks during long implementation runs.
 
-Announce: "I'm using the chester-write-code skill to implement this plan."
+Announce: "I'm using the chester-execute-write skill to implement this plan."
 
 ## Section 1: Common Setup
 
@@ -46,9 +46,9 @@ Before executing in either mode, complete these setup steps.
 
 ### 1.2 Verify Worktree
 
-- Verify that a worktree already exists (created by chester-figure-out earlier in the pipeline)
+- Verify that a worktree already exists (created by chester-design-figure-out earlier in the pipeline)
 - Check: run `git worktree list` and confirm a worktree is active for the current branch
-- If no worktree exists (e.g., chester-write-code invoked standalone without a prior figure-out session), invoke chester-make-worktree to create one as a fallback
+- If no worktree exists (e.g., chester-execute-write invoked standalone without a prior figure-out session), invoke chester-util-worktree to create one as a fallback
 - All implementation happens in the worktree, not the main tree
 
 ### 1.3 Handle Deferred Items
@@ -63,7 +63,7 @@ When implementing a task, if something comes up that is:
 
 Read project config:
 ```bash
-eval "$(~/.claude/skills/chester-hooks/chester-config-read.sh)"
+eval "$(~/.claude/skills/chester-util-config/chester-config-read.sh)"
 ```
 
 Determine the sprint subdirectory from the plan file's parent path.
@@ -78,7 +78,7 @@ Determine the sprint subdirectory from the plan file's parent path.
 4. Continue with the current task
 5. Print the deferred item to terminal output so the user can see it immediately
 
-Deferred items are reviewed during chester-finish-plan.
+Deferred items are reviewed during chester-finish.
 
 ## Section 2: Execution Mode — Subagent-Driven (Recommended)
 
@@ -90,7 +90,7 @@ For each task in order:
 
 0. **Budget guard check** — Before dispatching this task's implementer, run the budget guard check (see Budget Guard Check section above). If PAUSE is triggered, report progress using the current task list and wait for user decision. If CONTINUE, proceed to dispatch.
 
-1. **Dispatch implementer subagent** using the template at `chester-write-code/implementer.md`
+1. **Dispatch implementer subagent** using the template at `chester-execute-write/implementer.md`
    - Paste the FULL task text into the prompt — do not make the subagent read a file
    - Include all context: where this fits, dependencies, architectural constraints
    - Record BASE_SHA before dispatch (the commit before the task starts)
@@ -117,7 +117,7 @@ For each task in order:
    Do not default to re-dispatch. The think gate conclusion is the basis for
    the chosen response.
 
-3. **Dispatch spec compliance reviewer** using the template at `chester-write-code/spec-reviewer.md`
+3. **Dispatch spec compliance reviewer** using the template at `chester-execute-write/spec-reviewer.md`
    - Provide the full task requirements AND the implementer's report
    - Include BASE_SHA and HEAD_SHA for commit verification
    - If reviewer finds issues: fix them (re-dispatch implementer or fix inline) and re-review
@@ -127,7 +127,7 @@ For each task in order:
    After reading the reviewer's verdict, print:
    `Completed: Spec Review:Task N-{Pass/Fail and one-line summary}`
 
-4. **Dispatch code quality reviewer** using the template at `chester-write-code/quality-reviewer.md`
+4. **Dispatch code quality reviewer** using the template at `chester-execute-write/quality-reviewer.md`
    - Only dispatch after spec compliance passes
    - Handle severity-based results:
      - **Critical:** Must fix before proceeding
@@ -234,7 +234,7 @@ git log --oneline BASE_SHA..HEAD_SHA
 
 ### 4.2 Dispatch Code Reviewer
 
-Use the template at `chester-write-code/code-reviewer.md` with:
+Use the template at `chester-execute-write/code-reviewer.md` with:
 - WHAT_WAS_IMPLEMENTED: summary of all completed tasks
 - PLAN_OR_REQUIREMENTS: reference to the plan file
 - BASE_SHA: commit before first task
@@ -252,17 +252,17 @@ Handle code reviewer findings by severity:
 
 After all tasks are complete and reviews pass:
 
-- Invoke chester-finish-plan to finalize the work
-- chester-finish-plan handles: final verification, branch cleanup, summary generation
+- Invoke chester-finish to finalize the work
+- chester-finish handles: final verification, branch cleanup, summary generation
 
 ## Integration
 
 - **Required sub-skills:**
-  - chester-make-worktree — verifies existing worktree from chester-figure-out; creates one as fallback for standalone invocation
-  - chester-finish-plan — called after all tasks complete to finalize work
+  - chester-util-worktree — verifies existing worktree from chester-design-figure-out; creates one as fallback for standalone invocation
+  - chester-finish — called after all tasks complete to finalize work
 - **Referenced sub-skills:**
-  - chester-test-first — can be invoked per task when TDD is required by the plan
-  - chester-prove-work — can be invoked per task for verification checkpoints
+  - chester-execute-test — can be invoked per task when TDD is required by the plan
+  - chester-execute-prove — can be invoked per task for verification checkpoints
 - **Template files (in this skill directory):**
   - implementer.md — prompt template for implementer subagents
   - spec-reviewer.md — prompt template for spec compliance review subagents

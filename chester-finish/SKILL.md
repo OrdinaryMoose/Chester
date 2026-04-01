@@ -32,7 +32,7 @@ Before proceeding with this skill, check the token budget:
 ## Read Project Config
 
 ```bash
-eval "$(~/.claude/skills/chester-hooks/chester-config-read.sh)"
+eval "$(~/.claude/skills/chester-util-config/chester-config-read.sh)"
 ```
 
 Determine the sprint subdirectory from the plan file's parent path.
@@ -50,13 +50,13 @@ Guide completion of development work by presenting clear options and handling ch
 
 **Core principle:** Verify tests → Verify clean tree → Present options → Execute choice → Clean up → Artifacts.
 
-**Announce at start:** "I'm using the chester-finish-plan skill to complete this work."
+**Announce at start:** "I'm using the chester-finish skill to complete this work."
 
 ## The Process
 
 ### Step 1: Verify Tests
 
-**REQUIRED: Invoke the chester-prove-work skill as the first step to run the full test suite and produce verification evidence.** This loads the Iron Law ("no completion claims without fresh verification evidence") and the Gate Function into context.
+**REQUIRED: Invoke the chester-execute-prove skill as the first step to run the full test suite and produce verification evidence.** This loads the Iron Law ("no completion claims without fresh verification evidence") and the Gate Function into context.
 
 **Then verify tests pass:**
 
@@ -247,8 +247,8 @@ After the workflow completes, offer:
 ```
 Would you like me to produce session artifacts?
 
-1. Session summary (invoke chester-write-summary)
-2. Reasoning audit (invoke chester-trace-reasoning)
+1. Session summary (invoke chester-finish-write-session-summary)
+2. Reasoning audit (invoke chester-finish-write-reasoning-audit)
 3. Cache analysis (parse session JSONL for cache hit rates)
 4. All of the above
 5. Skip
@@ -337,7 +337,7 @@ If declined, the skill completes without the artifacts checkpoint.
 - Delete work without confirmation
 - Force-push without explicit request
 - Proceed with uncommitted changes to tracked files
-- Skip chester-prove-work invocation
+- Skip chester-execute-prove invocation
 
 **Always:**
 - Verify tests before offering options
@@ -348,12 +348,12 @@ If declined, the skill completes without the artifacts checkpoint.
 ## Integration
 
 **Called by:**
-- **chester-write-code** - After all tasks complete
+- **chester-execute-write** - After all tasks complete
 
 **Requires before presenting options:**
-- **chester-prove-work** — Verify tests and clean tree with evidence
+- **chester-execute-prove** — Verify tests and clean tree with evidence
 
 **Pairs with:**
-- **chester-make-worktree** - Cleans up worktree created by that skill
-- **chester-write-summary** — Session summary production (optional, Step 7)
-- **chester-trace-reasoning** — Reasoning audit production (optional, Step 7)
+- **chester-util-worktree** - Cleans up worktree created by that skill
+- **chester-finish-write-session-summary** — Session summary production (optional, Step 7)
+- **chester-finish-write-reasoning-audit** — Reasoning audit production (optional, Step 7)
