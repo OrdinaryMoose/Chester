@@ -102,11 +102,11 @@ fi
 
 # --- Test 4: Pipeline skills reference the script ---
 SKILLS=(
-  "chester-figure-out/SKILL.md"
-  "chester-build-spec/SKILL.md"
-  "chester-build-plan/SKILL.md"
-  "chester-finish-plan/SKILL.md"
-  "chester-write-code/SKILL.md"
+  "chester-design-figure-out/SKILL.md"
+  "chester-design-specify/SKILL.md"
+  "chester-plan-build/SKILL.md"
+  "chester-finish/SKILL.md"
+  "chester-execute-write/SKILL.md"
 )
 
 for skill in "${SKILLS[@]}"; do

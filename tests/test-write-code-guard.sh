@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SKILL="chester-write-code/SKILL.md"
+SKILL="chester-execute-write/SKILL.md"
 ERRORS=0
 
 # Must have budget guard
@@ -39,5 +39,5 @@ if [ "$ERRORS" -gt 0 ]; then
   exit 1
 fi
 
-echo "PASS: chester-write-code has budget guard and diagnostic logging"
+echo "PASS: chester-execute-write has budget guard and diagnostic logging"
 exit 0

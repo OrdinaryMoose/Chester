@@ -3,7 +3,7 @@ set -euo pipefail
 echo "=== Config Read Test ==="
 ERRORS=0
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SCRIPT="$SCRIPT_DIR/chester-hooks/chester-config-read.sh"
+SCRIPT="$SCRIPT_DIR/chester-util-config/chester-config-read.sh"
 
 # Isolate from real HOME to avoid touching user's actual config
 TMPDIR=$(mktemp -d)

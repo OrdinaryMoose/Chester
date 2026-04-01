@@ -47,11 +47,11 @@ fi
 # 3. Test skill files exist and have guard sections
 echo "--- Test: skill modifications ---"
 GUARD_SKILLS=(
-  "chester-figure-out/SKILL.md"
-  "chester-build-spec/SKILL.md"
-  "chester-build-plan/SKILL.md"
-  "chester-finish-plan/SKILL.md"
-  "chester-write-code/SKILL.md"
+  "chester-design-figure-out/SKILL.md"
+  "chester-design-specify/SKILL.md"
+  "chester-plan-build/SKILL.md"
+  "chester-finish/SKILL.md"
+  "chester-execute-write/SKILL.md"
 )
 
 for skill in "${GUARD_SKILLS[@]}"; do
@@ -63,27 +63,27 @@ for skill in "${GUARD_SKILLS[@]}"; do
   fi
 done
 
-# 4. Test chester-start-debug exists
-echo "--- Test: chester-start-debug ---"
-if [ -f "chester-start-debug/SKILL.md" ]; then
+# 4. Test chester-setup-start-debug exists
+echo "--- Test: chester-setup-start-debug ---"
+if [ -f "chester-setup-start-debug/SKILL.md" ]; then
   echo "  PASS: debug skill exists"
 else
-  echo "  FAIL: chester-start-debug/SKILL.md missing"
+  echo "  FAIL: chester-setup-start-debug/SKILL.md missing"
   ERRORS=$((ERRORS + 1))
 fi
 
-# 5. Test chester-start references debug cleanup
-echo "--- Test: chester-start debug cleanup ---"
-if grep -q "chester-debug.json" "chester-start/SKILL.md" 2>/dev/null; then
-  echo "  PASS: chester-start has debug cleanup"
+# 5. Test chester-setup-start references debug cleanup
+echo "--- Test: chester-setup-start debug cleanup ---"
+if grep -q "chester-debug.json" "chester-setup-start/SKILL.md" 2>/dev/null; then
+  echo "  PASS: chester-setup-start has debug cleanup"
 else
-  echo "  FAIL: chester-start missing debug cleanup"
+  echo "  FAIL: chester-setup-start missing debug cleanup"
   ERRORS=$((ERRORS + 1))
 fi
 
 # 6. Test write-code has diagnostic logging
 echo "--- Test: write-code diagnostic logging ---"
-if grep -q "Diagnostic Logging" "chester-write-code/SKILL.md" 2>/dev/null; then
+if grep -q "Diagnostic Logging" "chester-execute-write/SKILL.md" 2>/dev/null; then
   echo "  PASS: write-code has diagnostic logging"
 else
   echo "  FAIL: write-code missing diagnostic logging"

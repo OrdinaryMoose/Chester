@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SKILL="chester-start-debug/SKILL.md"
+SKILL="chester-setup-start-debug/SKILL.md"
 
 if [ ! -f "$SKILL" ]; then
-  echo "FAIL: chester-start-debug/SKILL.md does not exist"
+  echo "FAIL: chester-setup-start-debug/SKILL.md does not exist"
   exit 1
 fi
 
@@ -20,10 +20,10 @@ if ! grep -q "diagnostic" "$SKILL"; then
 fi
 
 # Verify YAML frontmatter has name field
-if ! head -5 "$SKILL" | grep -q "name: chester-start-debug"; then
+if ! head -5 "$SKILL" | grep -q "name: chester-setup-start-debug"; then
   echo "FAIL: SKILL.md frontmatter missing or incorrect name"
   exit 1
 fi
 
-echo "PASS: chester-start-debug skill exists with correct structure"
+echo "PASS: chester-setup-start-debug skill exists with correct structure"
 exit 0
