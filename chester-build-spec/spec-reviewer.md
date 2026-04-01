@@ -12,11 +12,6 @@ Task tool (general-purpose):
   prompt: |
     You are a spec document reviewer. Verify this spec is complete and ready for planning.
 
-    ## Progress Reporting
-    Emit a short status line at each major phase. Format: Spec Review:{label}-{one sentence}
-    Your phases: Reading, Checking, Reporting
-    Emit one line per phase transition. No additional analysis — just announce what you're doing.
-
     **Spec to review:** [SPEC_FILE_PATH]
 
     ## What to Check

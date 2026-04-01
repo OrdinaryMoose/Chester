@@ -123,25 +123,21 @@ Return: Summary of what you found and what you fixed.
 **❌ Vague output:** "Fix it" - you don't know what changed
 **✅ Specific:** "Return summary of root cause and changes"
 
-## Progress Reporting in Dispatched Agents
+## Progress Visibility for Dispatched Agents
 
-When constructing subagent prompts, include a progress reporting block so the user can monitor agent activity and interrupt if needed.
+When dispatching agents, the **orchestrator** (not the agent) prints progress lines to the main conversation screen:
 
-**Template to include in each agent prompt:**
+**Before dispatching each agent**, print:
+`Dispatched: {agent role}:{task}-{short description}`
 
-```
-## Progress Reporting
-Emit a short status line at each major phase. Format: {who}:{label}-{one sentence}
-Your phases: {comma-separated list of phase labels}
-Emit one line per phase transition. No additional analysis — just announce what you're doing.
-```
+**After each agent returns**, print:
+`Completed: {agent role}:{task}-{one-line summary of result}`
 
-**Choosing values:**
-- **{who}** — the agent's role name, short and recognizable (e.g., "Auth", "Parser", "Migration")
-- **{label}** — fixed phase label, identical every run (e.g., "Reading", "Implementing", "Testing")
-- **{freetext}** — one sentence describing the specific context
+For parallel dispatches, print all dispatch lines before launching, then print completion lines as agents return.
 
-**Constraint:** Reports must require zero additional analysis — they announce what the agent is already doing, nothing more.
+The orchestrator extracts the completion summary from the agent's report using judgment — there is no rigid extraction rule.
+
+**Do NOT include `## Progress Reporting` blocks in agent prompts.** Agents ignore soft formatting instructions under cognitive load. Progress visibility is the orchestrator's responsibility.
 
 ## When NOT to Use
 
