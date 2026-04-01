@@ -33,38 +33,37 @@ audit explaining why the code works the way it does.
 
 | Skill | What it does |
 |-------|-------------|
-| `chester-start` | Loads Chester into every session via the startup hook |
-| `chester-figure-out` | Socratic design interview with live visual companion |
-| `chester-build-spec` | Turns the design brief into a reviewed, approvable spec |
-| `chester-build-plan` | Breaks the spec into TDD tasks and stress-tests the plan |
-| `chester-write-code` | Subagent-driven implementation with per-task review |
-| `chester-finish-plan` | Final verification, doc-sync, and merge/PR options |
+| `chester-setup-start` | Loads Chester into every session via the startup hook |
+| `chester-design-figure-out` | Socratic design interview with live visual companion |
+| `chester-design-specify` | Turns the design brief into a reviewed, approvable spec |
+| `chester-plan-build` | Breaks the spec into TDD tasks and stress-tests the plan |
+| `chester-execute-write` | Subagent-driven implementation with per-task review |
+| `chester-finish` | Final verification, doc-sync, and merge/PR options |
 
 ### Review
 
 | Skill | What it does |
 |-------|-------------|
-| `chester-attack-plan` | Six parallel agents that try to break your plan |
-| `chester-smell-code` | Four parallel agents that predict code smells |
+| `chester-plan-attack` | Six parallel agents that try to break your plan |
+| `chester-plan-smell` | Four parallel agents that predict code smells |
 
 ### Development discipline
 
 | Skill | What it does |
 |-------|-------------|
-| `chester-test-first` | Enforces TDD: failing test before any code |
-| `chester-fix-bugs` | Root cause investigation before any fix attempt |
-| `chester-prove-work` | Runs verification fresh before claiming it works |
-| `chester-review-code` | Handles code review feedback with technical rigor |
+| `chester-execute-test` | Enforces TDD: failing test before any code |
+| `chester-execute-debug` | Root cause investigation before any fix attempt |
+| `chester-execute-prove` | Runs verification fresh before claiming it works |
+| `chester-execute-review` | Handles code review feedback with technical rigor |
 
 ### Utilities
 
 | Skill | What it does |
 |-------|-------------|
-| `chester-make-worktree` | Sets up isolated git worktrees for feature work |
-| `chester-dispatch-agents` | Coordinates parallel subagents |
-| `chester-doc-sync` | Detects stale documentation after implementation |
-| `chester-write-summary` | Session summary with plan archival |
-| `chester-trace-reasoning` | Decision audit from session transcript |
+| `chester-util-worktree` | Sets up isolated git worktrees for feature work |
+| `chester-util-dispatch` | Coordinates parallel subagents |
+| `chester-finish-write-session-summary` | Session summary with plan archival |
+| `chester-finish-write-reasoning-audit` | Decision audit from session transcript |
 
 ## Installation
 ```bash
@@ -78,7 +77,7 @@ Add the session-start hook to `~/.claude/settings.json`:
     "SessionStart": [
       {
         "type": "command",
-        "command": "~/.claude/skills/chester-hooks/session-start"
+        "command": "~/.claude/skills/chester-util-config/session-start"
       }
     ]
   }
