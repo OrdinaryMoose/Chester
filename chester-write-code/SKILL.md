@@ -95,6 +95,11 @@ For each task in order:
    - Include all context: where this fits, dependencies, architectural constraints
    - Record BASE_SHA before dispatch (the commit before the task starts)
 
+   **Progress visibility:** Before dispatching, print to the conversation:
+   `Dispatched: Implementer:Task N-{short description of what this task implements}`
+   After reading the implementer's report, print:
+   `Completed: Implementer:Task N-{one-line summary from status code and key finding}`
+
 2. **Handle implementer status codes:**
    - **DONE:** Proceed to spec review (step 3)
    - **DONE_WITH_CONCERNS:** Read concerns, decide whether to proceed to review or re-dispatch
@@ -117,12 +122,22 @@ For each task in order:
    - Include BASE_SHA and HEAD_SHA for commit verification
    - If reviewer finds issues: fix them (re-dispatch implementer or fix inline) and re-review
 
+   **Progress visibility:** Before dispatching, print:
+   `Dispatched: Spec Review:Task N-checking implementation matches requirements`
+   After reading the reviewer's verdict, print:
+   `Completed: Spec Review:Task N-{Pass/Fail and one-line summary}`
+
 4. **Dispatch code quality reviewer** using the template at `chester-write-code/quality-reviewer.md`
    - Only dispatch after spec compliance passes
    - Handle severity-based results:
      - **Critical:** Must fix before proceeding
      - **Important:** Should fix; use judgment on whether to fix now or defer
      - **Minor:** Note and move on
+
+   **Progress visibility:** Before dispatching, print:
+   `Dispatched: Quality Review:Task N-reviewing code quality`
+   After reading the reviewer's verdict, print:
+   `Completed: Quality Review:Task N-{verdict and key finding count}`
 
 5. **Record HEAD_SHA** after task is complete and all reviews pass
 6. **Update TodoWrite** — mark task DONE, move next task to IN_PROGRESS
