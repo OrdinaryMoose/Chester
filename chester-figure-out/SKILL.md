@@ -149,8 +149,9 @@ Capture the interview as a readable transcript, appended incrementally.
 2. Append the confirmed problem statement as the first entry (bold text).
 
 **After each interview turn:**
-1. Append your stream-of-consciousness thinking (italic lines) and question (bold) to the transcript
-2. After receiving the user's response, append it as a blockquote (`> response text`)
+1. Append your stream-of-consciousness thinking (italic lines) and question (bold) verbatim to the 
+   transcript
+2. After receiving the user's response, append it verbatim as a blockquote (`> response text`)
 3. Append a horizontal rule (`---`) to separate exchanges
 
 **At checkpoints** (every 4-6 questions):
