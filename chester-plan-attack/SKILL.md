@@ -42,15 +42,7 @@ Read the full plan document before launching agents. Identify:
 
 ### Step 2 -- Launch six attack agents in parallel
 
-**Progress visibility:** Before launching the six agents, print all dispatch lines:
-```
-Dispatched: Structural:plan review-verifying file paths, dependencies, and internal consistency
-Dispatched: Execution:plan review-analyzing blast radius, ordering, and reversibility
-Dispatched: Assumptions:plan review-probing unstated assumptions and edge cases
-Dispatched: Migration:plan review-tracing call sites and migration completeness
-Dispatched: API Surface:plan review-checking contract changes and caller impact
-Dispatched: Concurrency:plan review-analyzing thread safety and async hazards
-```
+**Progress visibility:** Before launching the six agents, `/report` for each agent (Structural, Execution, Assumptions, Migration, API Surface, Concurrency) as dispatching plan review with a short description of their focus.
 
 Launch all six agents in a single message using the Agent tool. Each agent receives the
 full plan text as the first content in the prompt (no header, no framing before it),
@@ -306,9 +298,7 @@ Prompt the agent with:
 
 ### Step 3 -- Synthesize the threat report
 
-**Progress visibility:** As each agent's results are processed, print a completion line:
-`Completed: {agent name}:{plan review}-{one-line summary of findings or "no issues found"}`
-Print all six completion lines before proceeding to synthesis.
+**Progress visibility:** As each agent's results are processed, `/report` as that agent with plan review complete and a one-line summary of findings or "no issues found". Report all six completions before proceeding to synthesis.
 
 **Before synthesis:** Print each agent's raw findings to the terminal. This
 preserves all evidence if the Structured Thinking MCP fails during synthesis.

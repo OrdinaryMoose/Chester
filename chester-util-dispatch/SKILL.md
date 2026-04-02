@@ -125,15 +125,13 @@ Return: Summary of what you found and what you fixed.
 
 ## Progress Visibility for Dispatched Agents
 
-When dispatching agents, the **orchestrator** (not the agent) prints progress lines to the main conversation screen:
+When dispatching agents, the **orchestrator** (not the agent) reports progress using `/report`.
 
-**Before dispatching each agent**, print:
-`Dispatched: {agent role}:{task}-{short description}`
+**Before dispatching each agent**, `/report` as the agent role, with "Dispatching {task}" as the action and a short description.
 
-**After each agent returns**, print:
-`Completed: {agent role}:{task}-{one-line summary of result}`
+**After each agent returns**, `/report` as the agent role, with "{task} Complete" as the action and a one-line summary of the result.
 
-For parallel dispatches, print all dispatch lines before launching, then print completion lines as agents return.
+For parallel dispatches, report all dispatches before launching, then report completions as agents return.
 
 The orchestrator extracts the completion summary from the agent's report using judgment — there is no rigid extraction rule.
 

@@ -134,8 +134,24 @@ The agent is an interviewer, not a presenter. Its job is to extract a complete, 
 
 Capture the interview as a readable transcript, appended incrementally.
 
+**Tool choice:** ALL transcript writes (create and every append) MUST use `Bash` with `cat >> file` heredoc — never Edit or Write. Edit renders as a diff in the designer's terminal, cluttering the interview with line numbers and `+` prefixes. Bash appends are near-invisible.
+
+Example append:
+```bash
+cat >> "$TRANSCRIPT" << 'ENTRY'
+
+*Thinking line one.*
+
+*Thinking line two.*
+
+**The question?**
+
+---
+ENTRY
+```
+
 **At Phase 3 entry** (after problem statement is confirmed):
-1. Create the transcript file at `{CHESTER_WORK_DIR}/{sprint-subdir}/design/{sprint-name}-interview-00.md` with this header:
+1. Create the transcript file at `{CHESTER_WORK_DIR}/{sprint-subdir}/design/{sprint-name}-interview-00.md` using `cat >` (not Write) with this header:
 
    ```markdown
    # Interview Transcript — {Sprint Name}
@@ -148,17 +164,17 @@ Capture the interview as a readable transcript, appended incrementally.
 
 2. Append the confirmed problem statement as the first entry (bold text).
 
-**After each interview turn:**
-1. Append your stream-of-consciousness thinking (italic lines) and question (bold) verbatim to the 
-   transcript
-2. After receiving the user's response, append it verbatim as a blockquote (`> response text`)
-3. Append a horizontal rule (`---`) to separate exchanges
+**Write-through rule:** Every line you output to the designer gets written to the transcript at the same time — not reconstructed afterward. The sequence for each turn is:
+
+1. Compose your thinking (italic) and question (bold) as a single block
+2. `cat >>` that block to the transcript AND output it to the designer in the same turn — the text is identical in both places
+3. After receiving the user's response, `cat >>` their response as a blockquote (`> response text`) and append `---`
 
 **At checkpoints** (every 4-6 questions):
 - Append a checkpoint marker: `### Checkpoint — {N} questions`
 
-**Content to capture:** Only interview interactions — thinking, questions, user responses.
-**Content to exclude:** Tool calls, MCP outputs, task management, budget guard checks.
+**Content to capture:** Only what appears in the conversation — thinking, questions, user responses.
+**Content to exclude:** Everything else. If it wasn't printed to the designer, it doesn't go in the transcript.
 
 **Formatting:**
 - *Italic lines* — agent stream-of-consciousness thinking
@@ -179,11 +195,29 @@ One question per turn. Select the type that best serves the current design need:
 
 ### Stream-of-Consciousness Output
 
-Before each question, print your thinking as italic single-sentence lines — what the user's answer changed, what it connects to, where the interview should go next. This is user-facing thinking that provides shared understanding of the agent's reasoning as it progresses.
+Before each question, print your thinking as italic single-sentence lines.  
+
+First:
+
+- Write a one or two sentence summarizing your understanding of the current state of the interview and the design concepts being discussed.  
+The purpose of this statement is to make sure that you and the designer are aligned and have a shared understanding of the issues in
+relation to the problem we are solving.
+
+Then, chose three of the five questions below that are the most relevant to our design interview to present to the designer: 
+
+- What did this answer change about the Design, and why does that change matter?
+- What existing boundary, pattern, or decision in the Architecture does this touch or silently depend on?
+- What is the most fragile assumption in the current thinking right now?
+- Where does this sit uncomfortably against the current state of the Code?
+- What is the single most important thing this interview still needs to resolve?
+ 
+This is user-facing thinking that provides shared understanding of the agent's reasoning as it progresses.
 
 Format: each thought is a single italic sentence, separated by a blank line. The question follows in bold after the thinking block.
 
 Example:
+
+*'Here are the implications of what we are discussing....', or 'My understanding of these ideas are.....', or 'Our design is starting to look like ....'
 
 *The user wants errors surfaced early, before they've invested effort downstream.*
 

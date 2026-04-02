@@ -136,10 +136,7 @@ When invoked without a prior chester-design-figure-out session:
 After writing the spec:
 
 1. Dispatch spec-document-reviewer subagent (see spec-reviewer.md in this skill directory)
-   **Progress visibility:** Before dispatching, print:
-   `Dispatched: Spec Reviewer:spec review-checking completeness, consistency, and YAGNI`
-   After reading the reviewer's report, print:
-   `Completed: Spec Reviewer:spec review-{Approved/Issues Found and summary}`
+   **Progress visibility:** Before dispatching, `/report` as Spec Reviewer dispatching spec review. After reading the reviewer's report, `/report` as Spec Reviewer with spec review complete and approved/issues found summary.
 2. The reviewer checks: completeness, consistency, clarity, scope, YAGNI
 
 **think gate (per issue):** When the spec reviewer returns issues, ask this question, think

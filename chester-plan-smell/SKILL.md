@@ -57,13 +57,7 @@ Read the full plan before launching agents. Identify:
 
 ### Step 2 — Launch four agents in parallel
 
-**Progress visibility:** Before launching the four agents, print all dispatch lines:
-```
-Dispatched: Bloaters:plan review-scanning for bloater and dispensable smells
-Dispatched: Couplers:plan review-scanning for coupler and OO abuser smells
-Dispatched: Preventers:plan review-scanning for change preventer smells
-Dispatched: SOLID:plan review-scanning for SOLID violations
-```
+**Progress visibility:** Before launching the four agents, `/report` for each agent (Bloaters, Couplers, Preventers, SOLID) as dispatching plan review with a short description of their smell focus.
 
 Launch all four agents in a single message using the Agent tool. Each agent receives the
 full plan text as the first content in the prompt (no header, no framing before it),
@@ -260,9 +254,7 @@ Prompt the agent with:
 
 ### Step 3 — Synthesize the smell report
 
-**Progress visibility:** As each agent's results are processed, print a completion line:
-`Completed: {agent name}:{plan review}-{one-line summary of findings or "no issues found"}`
-Print all four completion lines before proceeding to synthesis.
+**Progress visibility:** As each agent's results are processed, `/report` as that agent with plan review complete and a one-line summary of findings or "no issues found". Report all four completions before proceeding to synthesis.
 
 **Before synthesis:** Print each agent's raw findings to the terminal. This
 preserves all evidence if the Structured Thinking MCP fails during synthesis.
