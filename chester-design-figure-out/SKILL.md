@@ -45,7 +45,7 @@ If there are open design questions, you MUST resolve them through this skill bef
 
 You MUST create a task for each of these items and complete them in order. You may add new tasks if complexity demands it, but never delete or remove tasks — once created, a task must reach `completed`:
 
-1. **Sprint setup** — read project config, establish three-word sprint name, construct sprint subdirectory name
+1. **Sprint setup** — read project config, establish four-word sprint name, construct sprint subdirectory name
 2. **Explore project context** — check files, docs, recent commits relevant to the idea
 3. **Present refined problem statement** — WHAT and WHY, not HOW. User confirms or corrects.
 4. **Socratic interview** — one question per turn using six question types, with stream-of-consciousness output, emergent tree tracking, and checkpoints every 4-6 questions
@@ -92,8 +92,10 @@ digraph socratic_discovery {
   ```bash
   eval "$(~/.claude/skills/chester-util-config/chester-config-read.sh)"
   ```
-- Establish three-word sprint name (lowercase, hyphenated) for file naming
-- Construct sprint subdirectory name: `YYYY-MM-DD-word-word-word`
+- Establish four-word sprint name (lowercase, hyphenated) for file naming
+- Construct sprint subdirectory name: `YYYYMMDD-##-word-word-word-word`
+- Where YYYYMMDD is the current date and ## is the next available sprint number.
+- The sprint name word-word-word-word is derived from the intent in the problem statement. 
 - Record the sprint subdirectory name for use in Phase 4
 - `clear_thinking_history()` to reset structured thinking for the session
 
@@ -112,7 +114,10 @@ You are a Software Architect conducting a design interview. This identity govern
 - Read `~/.chester/thinking.md` if it exists. Scan the lessons table top to bottom — highest-scoring lessons first. Do not treat any lesson as a rule; treat them as signals to hold your initial assumptions more loosely in those categories. If the file does not exist, continue without it.
 - Study the codebase as a record of design decisions — understand the patterns chosen, the boundaries drawn, and the intent behind the existing architecture. Prepare yourself to serve in your role of Software Architect.
 - Assess scope — is this one project or multiple? If multiple independent subsystems, flag immediately and help decompose before spending questions on details. Each sub-project gets its own discovery → spec → plan cycle.
-- Present a refined problem statement — WHAT the user wants to achieve and WHY. Not a solution structure, not a decision inventory, not HOW.
+- Present a refined problem statement in two parts
+  - WHAT the user wants to achieve and 
+  - WHY this is relevant to our current architecture and desin
+  - It is **NOT** a HOW, not a solution structure, not a decision inventory, and not a not HOW.
 - User confirms or corrects the problem statement.
 
 ## Phase 3: Socratic Interview
@@ -198,7 +203,7 @@ One MCP supports the socratic interview process to provide deeper analysis of th
 2. Reformat the thinking summary into a clean document — this captures HOW decisions were made (stages, revisions, confidence scores, cross-references). Hold in memory; do not write to disk yet.
 3. Present the completed design brief to the user — each decision with conclusion and rationale
 4. "Does this capture what we're building?"
-5. Invoke `chester-util-worktree` to create the branch and worktree. The branch name follows the sprint naming convention: `sprint-NNN-descriptive-slug`. Auto-detect NNN by scanning existing branches for the highest sprint number and incrementing.
+5. Invoke `chester-util-worktree` to create the branch and worktree. The branch name is the sprint subdirectory name established in Phase 1 (`YYYYMMDD-##-word-word-word-word`).
 6. Read project config in the worktree context:
    ```bash
    eval "$(~/.claude/skills/chester-util-config/chester-config-read.sh)"
@@ -226,10 +231,10 @@ The table format:
 
 ## File Naming Convention
 
-Directory naming: `YYYY-MM-DD-word-word-word`
+Sprint name: `YYYYMMDD-##-word-word-word-word` — used for both the branch name and the directory name.
 
-File naming: `{word-word-word}-{artifact}-{nn}.md`
-- Sprint name matches the directory's three words
+File naming: `{word-word-word-word}-{artifact}-{nn}.md`
+- Sprint name matches the directory's four words
 - Artifact type identifies the document's purpose
 - nn: `00` is the original, `01`, `02`, `03` for subsequent versions
 

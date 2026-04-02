@@ -30,15 +30,15 @@ Supporting files (reviewer templates, reference docs, scripts) go in the same di
 Work artifacts follow the pattern:
 
 ```
-docs/chester/YYYY-MM-DD-<topic-slug>/
-├── <topic-slug>-spec-NN.md
-├── <topic-slug>-plan-NN.md
-├── <topic-slug>-summary-NN.md
-├── <topic-slug>-audit-NN.md
-└── <topic-slug>-plan-threat-report-NN.md
+docs/chester/YYYYMMDD-##-word-word-word-word/
+├── <sprint-name>-spec-NN.md
+├── <sprint-name>-plan-NN.md
+├── <sprint-name>-summary-NN.md
+├── <sprint-name>-audit-NN.md
+└── <sprint-name>-plan-threat-report-NN.md
 ```
 
-`NN` is a zero-padded sequence number (00, 01, ...). Planning-phase docs go under `docs/chester-planning/` with the same structure.
+Sprint name format: `YYYYMMDD-##-word-word-word-word` where `##` is the next available sprint number. This name is used for both the directory and the branch. `NN` is a zero-padded sequence number (00, 01, ...). Planning-phase docs go under `docs/chester-planning/` with the same structure.
 
 ## Commit Style
 

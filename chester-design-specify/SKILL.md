@@ -50,7 +50,7 @@ The output directory and subdirectories should already exist (created by figure-
 
 You MUST create a task for each of these items and complete them in order:
 
-1. **Setup** — if invoked standalone (no figure-out), ask for output directory and create subdirectories; derive three-word sprint name from directory name or ask explicitly
+1. **Setup** — if invoked standalone (no figure-out), ask for output directory and create subdirectories; derive four-word sprint name from directory name or ask explicitly
 2. **Read design brief** — read the design brief from disk or gather design from conversation context
 3. **Write spec document** — synthesize design into structured spec, write to `{output_dir}/spec/{sprint-name}-spec-00.md`
 4. **Automated spec review loop** — dispatch spec-document-reviewer subagent, Think Tool gate per issue, fix and re-dispatch (max 3 iterations, then escalate to user)
@@ -104,8 +104,8 @@ When invoked without a prior chester-design-figure-out session:
    eval "$(~/.claude/skills/chester-util-config/chester-config-read.sh)"
    ```
 2. If `CHESTER_CONFIG_PATH` is `none`, warn: "No Chester config found. Run chester-setup-start first or accept defaults." Use defaults.
-3. Ask for the sprint name (three words, hyphenated) if not derivable from context
-4. Construct sprint subdirectory: `YYYY-MM-DD-word-word-word`
+3. Ask for the sprint name (four words, hyphenated) if not derivable from context
+4. Construct sprint subdirectory: `YYYYMMDD-##-word-word-word-word` (## is the next available sprint number)
 5. Create `{CHESTER_PLANS_DIR}/{sprint-subdir}/` with four subdirectories: `design/`, `spec/`, `plan/`, `summary/`
 6. Create matching `{CHESTER_WORK_DIR}/{sprint-subdir}/` with same subdirectories
 
@@ -163,7 +163,7 @@ This checkpoint marks the transition from specification to planning.
 ## File Naming
 
 Files follow the convention: `{sprint-name}-{artifact}-{nn}.md`
-- `{sprint-name}` is the three-word hyphenated name (e.g., `figure-out-decomposition`)
+- `{sprint-name}` is the four-word hyphenated name (e.g., `strip-console-report-output`)
 - `{artifact}` is `spec`
 - `{nn}` is `00` for the original, `01`, `02` for subsequent versions
 
