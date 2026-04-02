@@ -37,20 +37,11 @@ eval "$(~/.claude/skills/chester-util-config/chester-config-read.sh)"
 
 Determine the sprint subdirectory from the plan file's parent path.
 
-## Diagnostic Logging
-
-At skill entry, run: `~/.claude/chester-log-usage.sh before "finish-plan" "skill-entry" "{sprint-dir}/summary/token-usage-log.md"`
-At skill exit, run: `~/.claude/chester-log-usage.sh after "finish-plan" "skill-entry" "{sprint-dir}/summary/token-usage-log.md"`
-
-Replace `{sprint-dir}` with the actual sprint directory path. The script handles debug flag detection internally — it does nothing if debug mode is not active.
-
 ## Overview
 
 Guide completion of development work by presenting clear options and handling chosen workflow.
 
 **Core principle:** Verify tests → Verify clean tree → Present options → Execute choice → Clean up → Artifacts.
-
-**Announce at start:** "I'm using the chester-finish skill to complete this work."
 
 ## The Process
 
@@ -238,8 +229,6 @@ rm -rf "{CHESTER_WORK_DIR}/{sprint-subdir}/"
 
 Only remove the resolved sprint's folder. Other active sprint folders are untouched. If the planning directory is now empty, leave it in place for future sprints.
 
-Announce: "Cleaned up working copy at `{CHESTER_WORK_DIR}/{sprint-subdir}/`"
-
 ### Step 7: Session Artifacts (Optional)
 
 After the workflow completes, offer:
@@ -253,8 +242,6 @@ Would you like me to produce session artifacts?
 4. All of the above
 5. Skip
 ```
-
-Every artifact produced must be both saved to disk AND written to the terminal. The user should be able to read the full content of each artifact in their terminal output without needing to open the file.
 
 #### Cache Analysis (Option 3)
 
