@@ -31,17 +31,6 @@ Before proceeding with this skill, check the token budget:
 
 **Additional check point:** Also run this budget guard check before dispatching chester-plan-attack and chester-plan-smell during the Plan Hardening phase. These are expensive parallel subagent calls — checking before them catches mid-skill budget breaches.
 
-## Diagnostic Logging
-
-At skill entry, run: `~/.claude/chester-log-usage.sh before "build-plan" "skill-entry" "{sprint-dir}/summary/token-usage-log.md"`
-Before attack-plan dispatch, run: `~/.claude/chester-log-usage.sh before "build-plan" "attack-plan dispatch" "{sprint-dir}/summary/token-usage-log.md"`
-After attack-plan completes, run: `~/.claude/chester-log-usage.sh after "build-plan" "attack-plan dispatch" "{sprint-dir}/summary/token-usage-log.md"`
-Before smell-code dispatch, run: `~/.claude/chester-log-usage.sh before "build-plan" "smell-code dispatch" "{sprint-dir}/summary/token-usage-log.md"`
-After smell-code completes, run: `~/.claude/chester-log-usage.sh after "build-plan" "smell-code dispatch" "{sprint-dir}/summary/token-usage-log.md"`
-At skill exit, run: `~/.claude/chester-log-usage.sh after "build-plan" "skill-entry" "{sprint-dir}/summary/token-usage-log.md"`
-
-Replace `{sprint-dir}` with the actual sprint directory path. The script handles debug flag detection internally — it does nothing if debug mode is not active.
-
 ## Overview
 
 Write comprehensive implementation plans assuming the engineer has zero context for our codebase and questionable taste. Document everything they need to know: which files to touch for each task, code, testing, docs they might need to check, how to test it. Give them the whole plan as bite-sized tasks. DRY. YAGNI. TDD.
@@ -74,8 +63,6 @@ Use TaskCreate/TaskUpdate to give the user real-time visibility into your progre
 **Granularity guidance:**
 - The 8 starting tasks are the baseline
 - When writing plan tasks, you may optionally create one sub-task per plan task if the plan has many tasks, to give finer-grained progress — use your judgment based on plan size
-
-**Announce at start:** "I'm using the chester-plan-build skill to create the implementation plan."
 
 **Context:** This should be run in a dedicated worktree (created by chester-design-figure-out skill).
 
@@ -222,8 +209,6 @@ After the plan review loop approves the plan:
 ## Save Plan Document
 
 Write the plan to the correct output path (derived from project config via chester-config-read.sh).
-
-After writing the plan to disk, print the full plan content to the terminal so the user can read it without opening the file.
 
 Commit the plan document (and any hardening findings) with:
 

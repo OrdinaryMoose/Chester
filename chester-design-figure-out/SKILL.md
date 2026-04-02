@@ -27,13 +27,6 @@ Before proceeding with this skill, check the token budget:
 >
 > **Options:** (1) Continue anyway, (2) Stop here, (3) Other
 
-## Diagnostic Logging
-
-At skill entry, run: `~/.claude/chester-log-usage.sh before "figure-out" "skill-entry" "{sprint-dir}/summary/token-usage-log.md"`
-At skill exit (before transitioning to build-spec), run: `~/.claude/chester-log-usage.sh after "figure-out" "skill-entry" "{sprint-dir}/summary/token-usage-log.md"`
-
-Replace `{sprint-dir}` with the actual sprint directory path. If no sprint directory exists yet, omit the fourth argument (defaults to `~/.claude/chester-usage.log`). The script handles debug flag detection internally — it does nothing if debug mode is not active.
-
 # Socratic Discovery
 
 Resolve open design questions through structured Socratic dialogue. The agent is an interviewer, not a presenter — its job is to extract a complete, resolved design through questioning.
@@ -57,10 +50,6 @@ You MUST create a task for each of these items and complete them in order. You m
 3. **Present refined problem statement** — WHAT and WHY, not HOW. User confirms or corrects.
 4. **Socratic interview** — one question per turn using six question types, with stream-of-consciousness output, emergent tree tracking, and checkpoints every 4-6 questions
 5. **Closure** — consolidate design brief, write thinking summary and design brief to design/ subdirectory, commit, transition to chester-design-specify
-
-## Announcement
-
-When this skill activates, announce: "I'm using the chester-design-figure-out skill to design this."
 
 ## Process Flow
 
@@ -129,58 +118,6 @@ You are a Software Architect conducting a design interview. This identity govern
 ## Phase 3: Socratic Interview
 
 The agent is an interviewer, not a presenter. Its job is to extract a complete, resolved design through questioning.
-
-### Interview Transcript
-
-Capture the interview as a readable transcript, appended incrementally.
-
-**Tool choice:** ALL transcript writes (create and every append) MUST use `Bash` with `cat >> file` heredoc — never Edit or Write. Edit renders as a diff in the designer's terminal, cluttering the interview with line numbers and `+` prefixes. Bash appends are near-invisible.
-
-Example append:
-```bash
-cat >> "$TRANSCRIPT" << 'ENTRY'
-
-*Thinking line one.*
-
-*Thinking line two.*
-
-**The question?**
-
----
-ENTRY
-```
-
-**At Phase 3 entry** (after problem statement is confirmed):
-1. Create the transcript file at `{CHESTER_WORK_DIR}/{sprint-subdir}/design/{sprint-name}-interview-00.md` using `cat >` (not Write) with this header:
-
-   ```markdown
-   # Interview Transcript — {Sprint Name}
-
-   **Date:** {YYYY-MM-DD}
-   **Sprint:** {sprint-NNN-slug}
-
-   ---
-   ```
-
-2. Append the confirmed problem statement as the first entry (bold text).
-
-**Write-through rule:** Every line you output to the designer gets written to the transcript at the same time — not reconstructed afterward. The sequence for each turn is:
-
-1. Compose your thinking (italic) and question (bold) as a single block
-2. `cat >>` that block to the transcript AND output it to the designer in the same turn — the text is identical in both places
-3. After receiving the user's response, `cat >>` their response as a blockquote (`> response text`) and append `---`
-
-**At checkpoints** (every 4-6 questions):
-- Append a checkpoint marker: `### Checkpoint — {N} questions`
-
-**Content to capture:** Only what appears in the conversation — thinking, questions, user responses.
-**Content to exclude:** Everything else. If it wasn't printed to the designer, it doesn't go in the transcript.
-
-**Formatting:**
-- *Italic lines* — agent stream-of-consciousness thinking
-- **Bold text** — agent questions
-- `> Blockquote` — user responses
-- `---` — exchange separator
 
 ### Six Question Types
 
@@ -268,15 +205,12 @@ One MCP supports the socratic interview process to provide deeper analysis of th
    ```
 7. Create the output directory structure in the worktree: `{CHESTER_PLANS_DIR}/{sprint-subdir}/design/`, `spec/`, `plan/`, `summary/`
 8. Create matching structure in main tree planning directory: `{CHESTER_WORK_DIR}/{sprint-subdir}/design/`, `spec/`, `plan/`, `summary/`
-9. Inform user: "Sprint docs at `{CHESTER_WORK_DIR}/{sprint-subdir}/`"
-10. Write thinking summary to `{CHESTER_PLANS_DIR}/{sprint-subdir}/design/{sprint-name}-thinking-00.md` (worktree)
-11. Copy thinking summary to `{CHESTER_WORK_DIR}/{sprint-subdir}/design/{sprint-name}-thinking-00.md` (main tree)
-12. Write design brief to `{CHESTER_PLANS_DIR}/{sprint-subdir}/design/{sprint-name}-design-00.md` (worktree)
-13. Copy design brief to `{CHESTER_WORK_DIR}/{sprint-subdir}/design/{sprint-name}-design-00.md` (main tree)
-14. Copy transcript from `{CHESTER_WORK_DIR}/{sprint-subdir}/design/{sprint-name}-interview-00.md` to `{CHESTER_PLANS_DIR}/{sprint-subdir}/design/{sprint-name}-interview-00.md` (worktree)
-15. Include transcript in the commit alongside thinking summary and design brief
-16. Commit all three documents in worktree with message: `checkpoint: design complete`
-17. Update `~/.chester/thinking.md` — read the Key Reasoning Shifts from the thinking summary just written. For each shift, determine whether it matches an existing lesson (increment score by 1) or is a new lesson (add as a new row with score 1, category `—` unless two or more existing lessons share the same category of error). If the table would exceed 20 rows, drop the lowest-scoring entry. Present proposed changes to the user and confirm before writing. If the file does not exist, create it with the table header and the first entries.
+9. Write thinking summary to `{CHESTER_PLANS_DIR}/{sprint-subdir}/design/{sprint-name}-thinking-00.md` (worktree)
+10. Copy thinking summary to `{CHESTER_WORK_DIR}/{sprint-subdir}/design/{sprint-name}-thinking-00.md` (main tree)
+11. Write design brief to `{CHESTER_PLANS_DIR}/{sprint-subdir}/design/{sprint-name}-design-00.md` (worktree)
+12. Copy design brief to `{CHESTER_WORK_DIR}/{sprint-subdir}/design/{sprint-name}-design-00.md` (main tree)
+13. Commit thinking summary and design brief in worktree with message: `checkpoint: design complete`
+14. Update `~/.chester/thinking.md` — read the Key Reasoning Shifts from the thinking summary just written. For each shift, determine whether it matches an existing lesson (increment score by 1) or is a new lesson (add as a new row with score 1, category `—` unless two or more existing lessons share the same category of error). If the table would exceed 20 rows, drop the lowest-scoring entry. Present proposed changes to the user and confirm before writing. If the file does not exist, create it with the table header and the first entries.
 
 The table format:
 
@@ -288,7 +222,7 @@ The table format:
 - **Lesson** — one sentence, specific enough to be actionable
 - **Context** — when this lesson applies; prevents it becoming a standing rule everywhere
 
-18. Transition to chester-design-specify
+15. Transition to chester-design-specify
 
 ## File Naming Convention
 
@@ -302,7 +236,6 @@ File naming: `{word-word-word}-{artifact}-{nn}.md`
 This skill writes to `design/`:
 - `{sprint-name}-design-00.md` — the design brief (WHAT)
 - `{sprint-name}-thinking-00.md` — the reformatted thinking summary (HOW)
-- `{sprint-name}-interview-00.md` — the interview transcript (dialogue)
 
 ## Integration
 

@@ -134,8 +134,6 @@ Write the output file using the format in `references/audit-formats.md`. Do not 
 confirmation first. If a decision point is ambiguous, note the ambiguity inside the entry
 rather than omitting it.
 
-After writing the reasoning audit to disk, print the full document content to the terminal so the user can read it without opening the file.
-
 ---
 
 ## Core Principles

@@ -27,13 +27,6 @@ Before proceeding with this skill, check the token budget:
 >
 > **Options:** (1) Continue anyway, (2) Stop here, (3) Other
 
-## Diagnostic Logging
-
-At skill entry, run: `~/.claude/chester-log-usage.sh before "build-spec" "skill-entry" "{sprint-dir}/summary/token-usage-log.md"`
-At skill exit (before transitioning to build-plan), run: `~/.claude/chester-log-usage.sh after "build-spec" "skill-entry" "{sprint-dir}/summary/token-usage-log.md"`
-
-Replace `{sprint-dir}` with the actual sprint directory path. The script handles debug flag detection internally — it does nothing if debug mode is not active.
-
 # Build Spec
 
 Formalize an approved design into a durable spec document, validate it through automated and human review.
@@ -59,15 +52,11 @@ You MUST create a task for each of these items and complete them in order:
 
 1. **Setup** — if invoked standalone (no figure-out), ask for output directory and create subdirectories; derive three-word sprint name from directory name or ask explicitly
 2. **Read design brief** — read the design brief from disk or gather design from conversation context
-3. **Write spec document** — synthesize design into structured spec, write to `{output_dir}/spec/{sprint-name}-spec-00.md`, print full content to terminal
+3. **Write spec document** — synthesize design into structured spec, write to `{output_dir}/spec/{sprint-name}-spec-00.md`
 4. **Automated spec review loop** — dispatch spec-document-reviewer subagent, Think Tool gate per issue, fix and re-dispatch (max 3 iterations, then escalate to user)
 5. **User review gate** — present clean spec to user for review; if changes requested, apply and loop back to step 4
 6. **Commit spec** — commit the approved spec with message `checkpoint: spec approved`
 7. **Transition** — invoke chester-plan-build
-
-## Announcement
-
-When this skill activates, announce: "I'm using the chester-design-specify skill to write the formal spec."
 
 ## Process Flow
 
@@ -129,14 +118,12 @@ When invoked without a prior chester-design-figure-out session:
 
 - Write to `{output_dir}/spec/{sprint-name}-spec-00.md`
 - Copy the spec file to the planning directory: `{CHESTER_WORK_DIR}/{sprint-subdir}/spec/{sprint-name}-spec-00.md`
-- Print the full document content to the terminal so the user can read it without opening the file
 
 ## Automated Spec Review Loop
 
 After writing the spec:
 
 1. Dispatch spec-document-reviewer subagent (see spec-reviewer.md in this skill directory)
-   **Progress visibility:** Before dispatching, `/report` as Spec Reviewer dispatching spec review. After reading the reviewer's report, `/report` as Spec Reviewer with spec review complete and approved/issues found summary.
 2. The reviewer checks: completeness, consistency, clarity, scope, YAGNI
 
 **think gate (per issue):** When the spec reviewer returns issues, ask this question, think

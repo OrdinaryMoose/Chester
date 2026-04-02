@@ -63,30 +63,12 @@ for skill in "${GUARD_SKILLS[@]}"; do
   fi
 done
 
-# 4. Test chester-setup-start-debug exists
-echo "--- Test: chester-setup-start-debug ---"
-if [ -f "chester-setup-start-debug/SKILL.md" ]; then
-  echo "  PASS: debug skill exists"
+# 4. Test chester-setup-start has session housekeeping
+echo "--- Test: chester-setup-start session housekeeping ---"
+if grep -q "Session Housekeeping" "chester-setup-start/SKILL.md" 2>/dev/null; then
+  echo "  PASS: chester-setup-start has session housekeeping"
 else
-  echo "  FAIL: chester-setup-start-debug/SKILL.md missing"
-  ERRORS=$((ERRORS + 1))
-fi
-
-# 5. Test chester-setup-start references debug cleanup
-echo "--- Test: chester-setup-start debug cleanup ---"
-if grep -q "chester-debug.json" "chester-setup-start/SKILL.md" 2>/dev/null; then
-  echo "  PASS: chester-setup-start has debug cleanup"
-else
-  echo "  FAIL: chester-setup-start missing debug cleanup"
-  ERRORS=$((ERRORS + 1))
-fi
-
-# 6. Test write-code has diagnostic logging
-echo "--- Test: write-code diagnostic logging ---"
-if grep -q "Diagnostic Logging" "chester-execute-write/SKILL.md" 2>/dev/null; then
-  echo "  PASS: write-code has diagnostic logging"
-else
-  echo "  FAIL: write-code missing diagnostic logging"
+  echo "  FAIL: chester-setup-start missing session housekeeping"
   ERRORS=$((ERRORS + 1))
 fi
 

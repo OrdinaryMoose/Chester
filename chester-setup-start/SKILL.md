@@ -29,22 +29,9 @@ If CLAUDE.md says "don't use TDD" and a skill says "always use TDD," follow the 
 
 At the start of every session:
 
-1. **Clean up stale debug flag:** If `~/.claude/chester-debug.json` exists, check its `session_start` timestamp. If older than 12 hours, remove it:
-   ```bash
-   if [ -f ~/.claude/chester-debug.json ]; then
-     start_ts=$(jq -r '.session_start // 0' ~/.claude/chester-debug.json)
-     now=$(date +%s)
-     age=$(( now - start_ts ))
-     if [ "$age" -gt 43200 ]; then
-       rm ~/.claude/chester-debug.json
-     fi
-   fi
-   ```
-   If fresh (<12h), leave it — the user may be continuing a debug session.
+1. **Verify jq availability:** Run `which jq`. If jq is not installed, warn: "Budget guard requires jq for JSON parsing. Install jq for token budget monitoring." Continue without the guard.
 
-2. **Verify jq availability:** Run `which jq`. If jq is not installed, warn: "Budget guard requires jq for JSON parsing. Install jq for token budget monitoring." Continue without the guard.
-
-3. **First-run project configuration:** Check for project-scoped Chester config:
+2. **First-run project configuration:** Check for project-scoped Chester config:
    ```bash
    eval "$(~/.claude/skills/chester-util-config/chester-config-read.sh)"
    ```
@@ -120,7 +107,6 @@ digraph skill_flow {
     "Invoke brainstorming skill" [shape=box];
     "Might any skill apply?" [shape=diamond];
     "Invoke Skill tool" [shape=box];
-    "Announce: 'Using [skill] to [purpose]'" [shape=box];
     "Has checklist?" [shape=diamond];
     "Create TodoWrite todo per item" [shape=box];
     "Follow skill exactly" [shape=box];
@@ -134,8 +120,7 @@ digraph skill_flow {
     "User message received" -> "Might any skill apply?";
     "Might any skill apply?" -> "Invoke Skill tool" [label="yes, even 1%"];
     "Might any skill apply?" -> "Respond (including clarifications)" [label="definitely not"];
-    "Invoke Skill tool" -> "Announce: 'Using [skill] to [purpose]'";
-    "Announce: 'Using [skill] to [purpose]'" -> "Has checklist?";
+    "Invoke Skill tool" -> "Has checklist?";
     "Has checklist?" -> "Create TodoWrite todo per item" [label="yes"];
     "Has checklist?" -> "Follow skill exactly" [label="no"];
     "Create TodoWrite todo per item" -> "Follow skill exactly";
@@ -185,7 +170,6 @@ The skill itself tells you which.
 ## Available Chester Skills
 
 - `chester-setup-start` — Entry point; establishes the pipeline and skill usage rules (this skill)
-- `chester-setup-start-debug` — Activate diagnostic token logging mode for the session
 - `chester-design-figure-out` — Socratic discovery of design through structured dialogue
 - `chester-design-specify` — Formalize approved designs into spec documents with automated review
 - `chester-plan-build` — Write and harden implementation plans

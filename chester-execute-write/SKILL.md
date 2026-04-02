@@ -31,8 +31,6 @@ Before proceeding with this skill, check the token budget:
 
 **Per-task check:** Also run this budget guard check before dispatching each task's implementer subagent (see Section 2.1 step 0 below). This catches budget breaches between tasks during long implementation runs.
 
-Announce: "I'm using the chester-execute-write skill to implement this plan."
-
 ## Section 1: Common Setup
 
 Before executing in either mode, complete these setup steps.
@@ -76,7 +74,6 @@ Determine the sprint subdirectory from the plan file's parent path.
    - Description of the deferred item
    - Why it was deferred (out of scope / not in plan / needs user input)
 4. Continue with the current task
-5. Print the deferred item to terminal output so the user can see it immediately
 
 Deferred items are reviewed during chester-finish.
 
@@ -94,8 +91,6 @@ For each task in order:
    - Paste the FULL task text into the prompt — do not make the subagent read a file
    - Include all context: where this fits, dependencies, architectural constraints
    - Record BASE_SHA before dispatch (the commit before the task starts)
-
-   **Progress visibility:** Before dispatching, `/report` as the Implementer dispatching Task N. After reading the implementer's report, `/report` as the Implementer with Task N complete and a one-line summary.
 
 2. **Handle implementer status codes:**
    - **DONE:** Proceed to spec review (step 3)
@@ -119,16 +114,12 @@ For each task in order:
    - Include BASE_SHA and HEAD_SHA for commit verification
    - If reviewer finds issues: fix them (re-dispatch implementer or fix inline) and re-review
 
-   **Progress visibility:** Before dispatching, `/report` as Spec Review dispatching Task N. After reading the reviewer's verdict, `/report` as Spec Review with Task N complete, pass/fail, and a one-line summary.
-
 4. **Dispatch code quality reviewer** using the template at `chester-execute-write/quality-reviewer.md`
    - Only dispatch after spec compliance passes
    - Handle severity-based results:
      - **Critical:** Must fix before proceeding
      - **Important:** Should fix; use judgment on whether to fix now or defer
      - **Minor:** Note and move on
-
-   **Progress visibility:** Before dispatching, `/report` as Quality Review dispatching Task N. After reading the reviewer's verdict, `/report` as Quality Review with Task N complete, verdict, and key finding count.
 
 5. **Record HEAD_SHA** after task is complete and all reviews pass
 6. **Update TodoWrite** — mark task DONE, move next task to IN_PROGRESS
@@ -145,36 +136,6 @@ Each implementer subagent should be fresh — do not reuse a subagent across tas
 - Clean context without accumulated confusion
 - Independent verification of each task
 - Clear separation of concerns
-
-### 2.4 Diagnostic Logging (Debug Mode Only)
-
-Use the `~/.claude/chester-log-usage.sh` script to log token usage deltas. The script handles debug flag detection internally — it does nothing if debug mode is not active.
-
-Determine the log path once at skill entry:
-- If a sprint directory exists: `LOG="{sprint-dir}/summary/token-usage-log.md"`
-- Otherwise: `LOG="$HOME/.claude/chester-usage.log"`
-
-**For each task, run these commands around each dispatch:**
-
-```bash
-# Before implementer dispatch
-~/.claude/chester-log-usage.sh before "write-code" "task-{N} implementer" "$LOG"
-# ... dispatch implementer ...
-# After implementer returns
-~/.claude/chester-log-usage.sh after "write-code" "task-{N} implementer" "$LOG"
-
-# Before spec review
-~/.claude/chester-log-usage.sh before "write-code" "task-{N} spec-review" "$LOG"
-# ... dispatch spec reviewer ...
-~/.claude/chester-log-usage.sh after "write-code" "task-{N} spec-review" "$LOG"
-
-# Before quality review
-~/.claude/chester-log-usage.sh before "write-code" "task-{N} quality-review" "$LOG"
-# ... dispatch quality reviewer ...
-~/.claude/chester-log-usage.sh after "write-code" "task-{N} quality-review" "$LOG"
-```
-
-Replace `{N}` with the task number and `{sprint-dir}` with the actual path.
 
 ## Section 3: Execution Mode — Inline
 

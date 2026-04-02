@@ -42,8 +42,6 @@ Read the full plan document before launching agents. Identify:
 
 ### Step 2 -- Launch six attack agents in parallel
 
-**Progress visibility:** Before launching the six agents, `/report` for each agent (Structural, Execution, Assumptions, Migration, API Surface, Concurrency) as dispatching plan review with a short description of their focus.
-
 Launch all six agents in a single message using the Agent tool. Each agent receives the
 full plan text as the first content in the prompt (no header, no framing before it),
 followed by a `---` delimiter, then agent-specific analysis instructions. Each agent has
@@ -298,11 +296,6 @@ Prompt the agent with:
 
 ### Step 3 -- Synthesize the threat report
 
-**Progress visibility:** As each agent's results are processed, `/report` as that agent with plan review complete and a one-line summary of findings or "no issues found". Report all six completions before proceeding to synthesis.
-
-**Before synthesis:** Print each agent's raw findings to the terminal. This
-preserves all evidence if the Structured Thinking MCP fails during synthesis.
-
 **Structured Thinking gate:** Before merging, use Structured Thinking to
 cross-check findings across agents:
 
@@ -328,7 +321,7 @@ threat report.
 
 **Fallback:** If the Structured Thinking MCP is unavailable, stop and notify
 the user. The synthesis step requires this tool for reliable cross-agent
-deduplication. Raw findings have already been printed to the terminal.
+deduplication.
 
 After all six agents return, merge their findings into a single threat report. Deduplicate
 findings that multiple agents discovered independently -- keep the version with stronger evidence.
@@ -373,9 +366,6 @@ worse than the same findings in isolation.
 
 
 Omit empty sections. If there are no findings, omit the Findings heading entirely.
-
-#### Step 3.1
-Output the threat report to the terminal to the user
 
 #### Step 3.1
 Output the threat report as a markdown file titled "SprintXXX-Threat Report-XXX.md"

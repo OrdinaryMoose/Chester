@@ -119,8 +119,6 @@ Write the `Session-Summary` file using the format in `references/summary-formats
 Do not ask a confirmation question first. If context is ambiguous, note the ambiguity
 inside the summary rather than blocking on it.
 
-After writing the summary to disk, print the full document content to the terminal so the user can read it without opening the file.
-
 ---
 
 ## Core Principles
