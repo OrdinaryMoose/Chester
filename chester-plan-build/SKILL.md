@@ -64,8 +64,6 @@ Use TaskCreate/TaskUpdate to give the user real-time visibility into your progre
 - The 8 starting tasks are the baseline
 - When writing plan tasks, you may optionally create one sub-task per plan task if the plan has many tasks, to give finer-grained progress — use your judgment based on plan size
 
-**Announce at start:** "I'm using the chester-plan-build skill to create the implementation plan."
-
 **Context:** This should be run in a dedicated worktree (created by chester-design-figure-out skill).
 
 **Save plans to:** Read project config:
