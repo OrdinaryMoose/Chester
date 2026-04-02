@@ -11,8 +11,6 @@ Git worktrees create isolated workspaces sharing the same repository, allowing w
 
 **Core principle:** Systematic directory selection + safety verification = reliable isolation.
 
-**Announce at start:** "I'm using the chester-util-worktree skill to set up an isolated workspace."
-
 ## Directory Selection Process
 
 Follow this priority order:
@@ -133,13 +131,7 @@ go test ./...
 
 **If tests pass:** Report ready.
 
-### 5. Report Location
-
-```
-Worktree ready at <full-path>
-Tests passing (<N> tests, 0 failures)
-Ready to implement <feature-name>
-```
+### 5. Verify Baseline
 
 ## Quick Reference
 
@@ -178,17 +170,11 @@ Ready to implement <feature-name>
 ## Example Workflow
 
 ```
-You: I'm using the chester-util-worktree skill to set up an isolated workspace.
-
 [Check .worktrees/ - exists]
 [Verify ignored - git check-ignore confirms .worktrees/ is ignored]
 [Create worktree: git worktree add .worktrees/auth -b feature/auth]
 [Run npm install]
 [Run npm test - 47 passing]
-
-Worktree ready at /Users/jesse/myproject/.worktrees/auth
-Tests passing (47 tests, 0 failures)
-Ready to implement auth feature
 ```
 
 ## Red Flags
