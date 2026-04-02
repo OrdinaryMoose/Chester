@@ -123,20 +123,6 @@ Return: Summary of what you found and what you fixed.
 **❌ Vague output:** "Fix it" - you don't know what changed
 **✅ Specific:** "Return summary of root cause and changes"
 
-## Progress Visibility for Dispatched Agents
-
-When dispatching agents, the **orchestrator** (not the agent) reports progress using `/report`.
-
-**Before dispatching each agent**, `/report` as the agent role, with "Dispatching {task}" as the action and a short description.
-
-**After each agent returns**, `/report` as the agent role, with "{task} Complete" as the action and a one-line summary of the result.
-
-For parallel dispatches, report all dispatches before launching, then report completions as agents return.
-
-The orchestrator extracts the completion summary from the agent's report using judgment — there is no rigid extraction rule.
-
-**Do NOT include `## Progress Reporting` blocks in agent prompts.** Agents ignore soft formatting instructions under cognitive load. Progress visibility is the orchestrator's responsibility.
-
 ## When NOT to Use
 
 **Related failures:** Fixing one might fix others - investigate together first
