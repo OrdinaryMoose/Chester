@@ -1,10 +1,11 @@
 ---
 name: chester-plan-smell
 description: >
-  Forward-looking code smell analysis of an implementation plan. Spawns four parallel agents —
-  Bloaters & Dispensables, Couplers & OO Abusers, Change Preventers, and SOLID Violations — to
-  identify code smells the plan would introduce into the codebase. Based on the five smell
-  categories from refactoring.guru/refactoring/smells plus SOLID principles. Auto-triggers as
+  Forward-looking code smell analysis of an implementation plan. Spawns three parallel agents —
+  Bloaters & Dispensables, Couplers & OO Abusers, and Change Preventers (each augmented with
+  mapped SOLID checks) — to identify code smells the plan would introduce into the codebase.
+  Based on the five smell categories from refactoring.guru/refactoring/smells plus SOLID
+  principles distributed across the smell agents. Auto-triggers as
   part of chester-plan-build's plan hardening gate. Can also be invoked manually via:
   "smell review", "code smell check", "will this introduce smells", "smell analysis",
   "check the plan for smells", "/chester-plan-smell".
@@ -55,9 +56,9 @@ Read the full plan before launching agents. Identify:
 - Structural decisions it makes (inheritance, delegation, composition choices)
 - Any abstractions it defers, leaves partial, or marks "for later"
 
-### Step 2 — Launch four agents in parallel
+### Step 2 — Launch three agents in parallel
 
-Launch all four agents in a single message using the Agent tool. Each agent receives the
+Launch all three agents in a single message using the Agent tool. Each agent receives the
 full plan text as the first content in the prompt (no header, no framing before it),
 followed by a `---` delimiter, then agent-specific analysis instructions. Each agent has
 subagent_type "Explore" so it can read the codebase but cannot modify files.
@@ -90,6 +91,11 @@ Prompt the agent with:
 >   current consumer?
 > - Comments as Crutch: does the plan rely on comments to explain logic that should be
 >   self-evident from the code structure?
+>
+> SOLID-mapped smells to also check:
+> - Does any proposed class take on more than one reason to change? (SRP as Large Class)
+> - Does the plan introduce fat interfaces that force implementors to depend on methods
+>   they don't use? (ISP as Long Parameter List / fat interface bloat)
 >
 > Rules:
 > - Every finding MUST cite the specific plan section, proposed construct name, or
@@ -142,6 +148,12 @@ Prompt the agent with:
 > - Alternative Classes with Different Interfaces: does the plan introduce two classes
 >   that do the same thing under different method names or signatures?
 >
+> SOLID-mapped smells to also check:
+> - Does any proposed subclass behave in a way that would break code written against the
+>   base class contract? (LSP as Refused Bequest)
+> - Does the plan make high-level modules depend directly on low-level modules rather
+>   than on abstractions? (DIP as Feature Envy / Inappropriate Intimacy)
+>
 > Rules:
 > - Every finding MUST cite the specific plan section, proposed construct, or existing
 >   file that is the evidence
@@ -181,6 +193,12 @@ Prompt the agent with:
 > - Parallel Inheritance Hierarchies: does the plan introduce a new class hierarchy that
 >   mirrors an existing one, such that adding to one always requires adding to the other?
 >
+> SOLID-mapped smells to also check:
+> - Does the plan put multiple unrelated responsibilities into one class such that future
+>   changes to different concerns will all require touching it? (SRP as Divergent Change)
+> - Does the plan require modifying existing closed classes to accommodate new behavior
+>   rather than extending them? (OCP as Shotgun Surgery)
+>
 > For each smell found, assess the projected blast radius: roughly how many files would
 > need to change if the affected concern were modified in the future?
 >
@@ -204,72 +222,24 @@ Prompt the agent with:
 
 ---
 
-**Agent 4 — SOLID Violations**
-
-Prompt the agent with:
-
-> [full plan text]
->
-> ---
->
-> Analyze the plan above for SOLID principle violations it would introduce. Focus on these areas:
->
-> SOLID violations to look for:
-> - SRP (Single Responsibility): does any proposed class or module take on more than one
->   reason to change?
-> - OCP (Open/Closed): does the plan require modifying existing closed classes to
->   accommodate new behavior rather than extending them?
-> - LSP (Liskov Substitution): does any proposed subclass behave in a way that would
->   break code written against the base class contract?
-> - ISP (Interface Segregation): does the plan introduce fat interfaces that force
->   implementors to depend on methods they don't use?
-> - DIP (Dependency Inversion): does the plan make high-level modules depend directly
->   on low-level modules rather than on abstractions?
->
-> Rules:
-> - Every finding MUST cite the specific proposed class, interface, method, or plan
->   section that is the evidence
-> - If you cannot find concrete evidence in the plan or codebase, drop the finding
-> - Classify each finding as Critical, Serious, or Minor
-> - Note any SOLID risks the plan explicitly addresses in "Risks Acknowledged"
-> - Where a SOLID violation clearly overlaps with a smell from another category
->   (e.g., Refused Bequest and LSP), note the overlap but still report the finding —
->   deduplication happens at synthesis
->
-> Output format:
-> ## SOLID Violations Findings
->
-> ### Findings
-> - **[Critical|Serious|Minor]** | `location` | finding | evidence
->   > Optional detail block for complex findings
->
-> ### Acknowledged
-> - `location` | smell the plan accounts for
->
-> Omit empty sections. Omit detail blocks unless the finding cannot be understood without them.
-
----
-
 ### Step 3 — Synthesize the smell report
 
 **Structured Thinking gate:** Before merging, use Structured Thinking to
 resolve cross-category overlaps:
 
 1. Call `mcp__structured-thinking__clear_thinking_history` to reset state
-2. For each of the four agents' findings, call
+2. For each of the three agents' findings, call
    `mcp__structured-thinking__capture_thought` with a distinct `branch_id`
-   per agent (e.g., "bloaters-dispensables", "couplers-oo-abusers")
-3. For each finding in the Couplers/OO Abusers category, call
+   per agent (e.g., "bloaters-dispensables", "couplers-oo-abusers",
+   "change-preventers")
+3. For each Critical finding, call
    `mcp__structured-thinking__retrieve_relevant_thoughts` to check whether
-   Agent 4 (SOLID) has a finding on the same class or method — Refused
-   Bequest and LSP violations, Feature Envy and SRP violations, frequently
-   co-locate
-4. For overlapping findings, use `mcp__structured-thinking__revise_thought`
-   to collapse to a single entry attributed to both agents; do not report
-   the same structural problem twice under different smell names
-5. For Change Preventer findings (Divergent Change, Shotgun Surgery), check
-   Agent 4 for a matching SRP or OCP finding on the same file
-6. Call `mcp__structured-thinking__get_thinking_summary` to produce the
+   other agents found supporting or conflicting evidence for the same
+   underlying issue
+4. Where two agents report the same issue at different severities, use
+   `mcp__structured-thinking__revise_thought` to collapse to the more
+   conservative rating
+5. Call `mcp__structured-thinking__get_thinking_summary` to produce the
    collapsed view
 
 Proceed to write the merged report from the summary. The Structured Thinking
@@ -280,7 +250,7 @@ smell report.
 the user. The synthesis step requires this tool for reliable cross-category
 deduplication.
 
-After all four agents return, merge their findings into a single report. Deduplicate
+After all three agents return, merge their findings into a single report. Deduplicate
 findings that multiple agents independently identified — keep the version with stronger
 evidence and note which agents both flagged it.
 
@@ -291,7 +261,7 @@ Output format:
 
 **Implementation Risk: [Low | Moderate | Significant | High]**
 
-Agents: Bloaters & Dispensables, Couplers & OO Abusers, Change Preventers, SOLID Violations.
+Agents: Bloaters & Dispensables, Couplers & OO Abusers, Change Preventers.
 
 ### Findings
 - **Critical** | `location` | finding | evidence | smell: [category] | source: [agent(s)]
