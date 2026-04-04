@@ -171,7 +171,7 @@ The skill itself tells you which.
 
 - `chester-setup-start` — Entry point; establishes the pipeline and skill usage rules (this skill)
 - `chester-design-figure-out` — Socratic discovery of design through structured dialogue
-- `chester-design-architect` — Quantitatively-disciplined Socratic discovery with pipeline-based peer analysis, adversarial gating, and problem-validity checking
+- `chester-design-architect` — Quantitatively-disciplined Socratic discovery with objective scoring, enforcement gating, and challenge modes
 - `chester-design-specify` — Formalize approved designs into spec documents with automated review
 - `chester-plan-build` — Write and harden implementation plans
 - `chester-execute-write` — Execute plans, request code review, and perform subagent-driven development
