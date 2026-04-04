@@ -53,7 +53,7 @@ You MUST create a task for each of these items and complete them in order:
 1. **Setup** — if invoked standalone (no figure-out), ask for output directory and create subdirectories; derive four-word sprint name from directory name or ask explicitly
 2. **Read design brief** — read the design brief from disk or gather design from conversation context
 3. **Write spec document** — synthesize design into structured spec, write to `{output_dir}/spec/{sprint-name}-spec-00.md`
-4. **Automated spec review loop** — dispatch spec-document-reviewer subagent, Think Tool gate per issue, fix and re-dispatch (max 3 iterations, then escalate to user)
+4. **Automated spec review loop** — dispatch spec-document-reviewer subagent with design brief, Think Tool gate per issue, fix and re-dispatch (max 2 iterations, then escalate to user)
 5. **User review gate** — present clean spec to user for review; if changes requested, apply and loop back to step 4
 6. **Commit spec** — commit the approved spec with message `checkpoint: spec approved`
 7. **Transition** — invoke chester-plan-build
@@ -69,7 +69,7 @@ digraph build_spec {
     "Dispatch spec reviewer" [shape=box];
     "Issues found?" [shape=diamond];
     "Think Tool per issue\nFix issues" [shape=box];
-    "Iteration < 3?" [shape=diamond];
+    "Iteration < 2?" [shape=diamond];
     "Escalate to user" [shape=box];
     "Present to user" [shape=box];
     "User approves?" [shape=diamond];
@@ -83,9 +83,9 @@ digraph build_spec {
     "Dispatch spec reviewer" -> "Issues found?";
     "Issues found?" -> "Present to user" [label="no — approved"];
     "Issues found?" -> "Think Tool per issue\nFix issues" [label="yes"];
-    "Think Tool per issue\nFix issues" -> "Iteration < 3?";
-    "Iteration < 3?" -> "Dispatch spec reviewer" [label="yes"];
-    "Iteration < 3?" -> "Escalate to user" [label="no"];
+    "Think Tool per issue\nFix issues" -> "Iteration < 2?";
+    "Iteration < 2?" -> "Dispatch spec reviewer" [label="yes"];
+    "Iteration < 2?" -> "Escalate to user" [label="no"];
     "Escalate to user" -> "Present to user";
     "Present to user" -> "User approves?";
     "User approves?" -> "Invoke chester-plan-build" [label="yes"];
@@ -121,10 +121,14 @@ When invoked without a prior chester-design-figure-out session:
 
 ## Automated Spec Review Loop
 
+**Review purpose: Design Alignment** — does the spec faithfully address the design brief's goals, constraints, and decisions?
+
 After writing the spec:
 
 1. Dispatch spec-document-reviewer subagent (see spec-reviewer.md in this skill directory)
-2. The reviewer checks: completeness, consistency, clarity, scope, YAGNI
+   - Provide both the spec path AND the design brief path
+   - If no design brief exists (standalone invocation), dispatch with spec only — the reviewer falls back to internal-consistency checking
+2. The reviewer checks: goals coverage, constraints respected, no untraceable additions, internal consistency
 
 **think gate (per issue):** When the spec reviewer returns issues, ask this question, think
 about the results, and implement the findings:
@@ -133,7 +137,7 @@ about the results, and implement the findings:
 
 Apply the fix, then move to the next issue. Re-dispatch the reviewer after all issues from the current round are addressed.
 
-3. If loop exceeds 3 iterations, escalate to user for guidance
+3. If loop exceeds 2 iterations, escalate to user for guidance
 4. On subsequent iterations, write revised spec as `{sprint-name}-spec-01.md`, `02`, etc.
 
 ## User Review Gate
