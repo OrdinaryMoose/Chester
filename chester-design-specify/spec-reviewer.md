@@ -2,36 +2,39 @@
 
 Use this template when dispatching a spec document reviewer subagent.
 
-**Purpose:** Verify the spec is complete, consistent, and ready for implementation planning.
+**Purpose:** Verify the spec faithfully addresses the design brief's goals, constraints, and decisions.
 
-**Dispatch after:** Spec document is written to its output directory (default: `docs/chester/YYYY-MM-DD-<topic-slug>/`, or custom directory if chosen)
+**Dispatch after:** Spec document is written to its output directory.
 
 ```
 Task tool (general-purpose):
   description: "Review spec document"
   prompt: |
-    You are a spec document reviewer. Verify this spec is complete and ready for planning.
+    You are a spec document reviewer. Verify this spec faithfully addresses the design brief.
 
     **Spec to review:** [SPEC_FILE_PATH]
+    **Design brief for reference:** [DESIGN_BRIEF_PATH]
 
     ## What to Check
 
     | Category | What to Look For |
     |----------|------------------|
-    | Completeness | TODOs, placeholders, "TBD", incomplete sections |
-    | Consistency | Internal contradictions, conflicting requirements |
-    | Clarity | Requirements ambiguous enough to cause someone to build the wrong thing |
-    | Scope | Focused enough for a single plan — not covering multiple independent subsystems |
-    | YAGNI | Unrequested features, over-engineering |
+    | Goals Coverage | Every goal in the design brief is addressed by the spec |
+    | Constraints Respected | Spec honors constraints and non-goals from the design brief |
+    | No Untraceable Additions | Spec does not introduce requirements not traceable to the design |
+    | Internal Consistency | No contradictions within the spec itself |
 
     ## Calibration
 
-    **Only flag issues that would cause real problems during implementation planning.**
-    A missing section, a contradiction, or a requirement so ambiguous it could be
-    interpreted two different ways — those are issues. Minor wording improvements,
-    stylistic preferences, and "sections less detailed than others" are not.
+    **Only flag issues where the spec fails to address or contradicts the design brief.**
+    A missing goal, a violated constraint, or an untraceable requirement — those are
+    issues. Minor wording, stylistic preferences, and sections with varying detail
+    levels are not.
 
-    Approve unless there are serious gaps that would lead to a flawed plan.
+    If no design brief was provided, review for internal consistency only — skip
+    goals coverage, constraints, and traceability checks.
+
+    Approve unless there are serious gaps between the spec and the design brief.
 
     ## Output Format
 
@@ -40,7 +43,7 @@ Task tool (general-purpose):
     **Status:** Approved | Issues Found
 
     **Issues (if any):**
-    - [Section X]: [specific issue] - [why it matters for planning]
+    - [Section X]: [specific issue] - [how it misaligns with the design brief]
 
     **Recommendations (advisory, do not block approval):**
     - [suggestions for improvement]
