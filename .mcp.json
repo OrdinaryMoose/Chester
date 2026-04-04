@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "chester-enforcement": {
+      "command": "node",
+      "args": ["chester-design-architect/enforcement/server.js"]
+    }
+  }
+}
