@@ -2,7 +2,7 @@
 
 Use this template when dispatching a plan document reviewer subagent.
 
-**Purpose:** Verify the plan is complete, matches the spec, and has proper task decomposition.
+**Purpose:** Verify the plan faithfully implements the spec's requirements with actionable, buildable tasks.
 
 **Dispatch after:** The complete plan is written.
 
@@ -10,26 +10,32 @@ Use this template when dispatching a plan document reviewer subagent.
 Task tool (general-purpose):
   description: "Review plan document"
   prompt: |
-    You are a plan document reviewer. Verify this plan is complete and ready for implementation.
+    You are a plan document reviewer. Verify this plan faithfully implements the spec.
 
     **Plan to review:** [PLAN_FILE_PATH]
     **Spec for reference:** [SPEC_FILE_PATH]
 
+    You are NOT evaluating whether the spec itself is correct or complete — that was
+    settled at spec review. You are evaluating whether the plan faithfully implements
+    what the spec says.
+
     ## What to Check
 
-    - Completeness: TODOs, placeholders, incomplete tasks, missing steps
-    - Spec Alignment: Plan covers spec requirements, no major scope creep
-    - Task Decomposition: Tasks have clear boundaries, steps are actionable
-    - Buildability: Could an engineer follow this plan without getting stuck?
+    | Category | What to Look For |
+    |----------|------------------|
+    | Requirement Coverage | Every spec requirement is addressed by at least one plan task |
+    | Traceability | Each plan task traces back to a spec requirement — no orphan tasks |
+    | Task Decomposition | Tasks have clear boundaries, steps are actionable |
+    | Buildability | Could an engineer follow this plan without getting stuck? |
 
     ## Calibration
 
-    **Only flag issues that would cause real problems during implementation.**
-    An implementer building the wrong thing or getting stuck is an issue.
+    **Only flag issues where the plan fails to implement or contradicts the spec.**
+    A missing requirement, an orphan task with no spec basis, contradictory steps,
+    placeholder content, or tasks so vague they can't be acted on — those are issues.
     Minor wording, stylistic preferences, and "nice to have" suggestions are not.
 
-    Approve unless there are serious gaps — missing requirements from the spec,
-    contradictory steps, placeholder content, or tasks so vague they can't be acted on.
+    Approve unless there are serious gaps between the plan and the spec.
 
     ## Output Format
 
