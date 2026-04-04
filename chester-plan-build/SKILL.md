@@ -179,6 +179,8 @@ git commit -m "feat: add specific feature"
 
 ## Plan Review Loop
 
+**Review purpose: Spec Fidelity** — does the plan faithfully implement the spec's requirements?
+
 After writing the complete plan:
 
 1. Dispatch a single plan-reviewer subagent (see plan-reviewer.md) with precisely crafted review context — never your session history. This keeps the reviewer focused on the plan, not your thought process.
