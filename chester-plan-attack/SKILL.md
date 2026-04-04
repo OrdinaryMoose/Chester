@@ -1,17 +1,17 @@
 ---
 name: chester-plan-attack
 description: >
-  Adversarial review of implementation plans. Spawns six parallel attack agents to find
-  logical contradictions, unstated assumptions, execution risks, migration gaps, API contract
-  breakage, concurrency hazards, and gaps between what a plan claims and what the code actually
+  Adversarial review of implementation plans. Spawns five parallel attack agents to find
+  logical contradictions, unstated assumptions, execution risks, contract and migration gaps,
+  concurrency hazards, and gaps between what a plan claims and what the code actually
   requires. Auto-triggers as part of chester-plan-build's plan hardening gate. Can also be
   invoked manually via: "attack this plan", "adversarial review", "red-team this",
   "find the weaknesses", "stress test the plan", "what could go wrong", "/chester-plan-attack".
 ---
 
 # Adversarial Review
-
-Attacks an implementation plan from six independent angles to surface weaknesses before
+ 
+Attacks an implementation plan from five independent angles to surface weaknesses before
 implementation begins. Every finding must cite real evidence from the codebase -- file paths,
 line numbers, dependency chains, or concrete code. Unsubstantiated concerns are not findings.
 
@@ -40,9 +40,9 @@ Read the full plan document before launching agents. Identify:
 - Ordering or sequencing assumptions
 - Dependencies on existing behavior
 
-### Step 2 -- Launch six attack agents in parallel
+### Step 2 -- Launch five attack agents in parallel
 
-Launch all six agents in a single message using the Agent tool. Each agent receives the
+Launch all five agents in a single message using the Agent tool. Each agent receives the
 full plan text as the first content in the prompt (no header, no framing before it),
 followed by a `---` delimiter, then agent-specific analysis instructions. Each agent has
 subagent_type "Explore" so it can search and read the codebase but cannot modify files.
@@ -158,7 +158,7 @@ Prompt the agent with:
 >
 > Omit empty sections. Omit detail blocks unless the finding cannot be understood without them.
 
-**Agent 4 -- Migration Completeness**
+**Agent 4 -- Contract & Migration**
 
 Prompt the agent with:
 
@@ -166,7 +166,7 @@ Prompt the agent with:
 >
 > ---
 >
-> Analyze the plan above for migration completeness — find call sites, usages, and references the plan intends to migrate but fails to explicitly address, leaving the codebase in a partially-migrated state. Focus on these areas:
+> Analyze the plan above for contract and migration completeness — find places where the plan changes a public contract or migrates a type without accounting for all downstream consumers, leaving the codebase in a partially-migrated or silently-broken state. Focus on these areas:
 >
 > Your attack vectors:
 > 1. Call site coverage -- for every type, method, or interface the plan renames or replaces,
@@ -176,78 +176,41 @@ Prompt the agent with:
 >    or source generators that reference the old name in ways that won't surface as compile errors
 > 3. Cross-assembly leakage -- does the plan migrate the type in one assembly but leave consumers
 >    in other assemblies using the old version?
-> 4. Test coverage of migrated paths -- are there tests that reference the old type/method that
+> 4. Contract compatibility -- does the plan alter method signatures, return types, or parameter
+>    types on public or internal members? Are all callers updated?
+> 5. Interface contract changes -- if the plan modifies an interface, does every implementor
+>    in the codebase still satisfy the new contract?
+> 6. Constructor and DI changes -- does the plan change constructors in ways that break object
+>    initialization in DI configuration, factories, or test setup?
+> 7. Implicit contracts -- XML doc, attribute-driven behavior (e.g. [DataMember], source
+>    generators), or serialization contracts that the plan changes silently
+> 8. Test coverage of migrated paths -- are there tests that reference the old type/method that
 >    the plan doesn't mention updating?
-> 5. "Find all usages" completeness -- if the plan says "update all usages of X", verify whether
->    that is actually all of them, not just the ones in the files it lists
 >
 > Rules:
 > - Every finding MUST cite a specific file path and line number or a concrete code reference
 > - Use grep/search to enumerate actual usages -- do not rely on the plan's claim that it covers them all
-> - Classify each finding as Critical (broken build or silent runtime failure), Serious
->   (inconsistent state, dual-path confusion), or Minor (non-breaking redundancy)
-> - Note any migration paths the plan explicitly enumerates and verifies -- these go in
->   "Migration Coverage Verified"
+> - Distinguish between breaking changes (callers fail to compile or behave differently at
+>   runtime) and additive changes (new members, default parameters that preserve compat)
+> - Classify each finding as Critical (broken build, silent runtime failure, or compile break),
+>   Serious (inconsistent state, requires caller updates not listed in the plan), or Minor
+>   (non-breaking redundancy, additive or low-risk)
+> - Note any migration paths or contract changes the plan explicitly addresses -- these go in
+>   "Migration & Contract Changes Verified"
 >
 > Output format:
-> ## Migration Completeness Findings
+> ## Contract & Migration Findings
 >
 > ### Findings
 > - **[Critical|Serious|Minor]** | `location` | finding | evidence
 >   > Optional detail block for complex findings
 >
 > ### Verified
-> - `location` | migration path verified
+> - `location` | migration path or contract change verified
 >
 > Omit empty sections. Omit detail blocks unless the finding cannot be understood without them.
 
-**Agent 5 -- API Surface Compatibility**
-
-Prompt the agent with:
-
-> [full plan text]
->
-> ---
->
-> Analyze the plan above for API surface compatibility issues — find places where the plan changes the public contract of a type or member without acknowledging downstream impact on callers, including callers outside the files the plan lists. Focus on these areas:
->
-> Your attack vectors:
-> 1. Signature changes -- does the plan alter method signatures, return types, or parameter types
->    on public or internal members? Are all callers updated?
-> 2. Removed members -- does the plan delete or rename public members that callers depend on?
->    Check for callers across all assemblies, not just the assembly being changed.
-> 3. Interface contract changes -- if the plan modifies an interface, does every implementor
->    in the codebase still satisfy the new contract?
-> 4. Constructor changes -- does the plan change constructors in ways that break object
->    initialization in DI configuration, factories, or test setup?
-> 5. Implicit contracts -- XML doc, attribute-driven behavior (e.g. [DataMember], source
->    generators), or serialization contracts that the plan changes silently
-> 6. Versioning exposure -- are any of the changed APIs exposed across a stability boundary
->    (e.g., a plugin interface, a public NuGet package surface)?
->
-> Rules:
-> - Every finding MUST cite the specific member whose contract changes and at least one affected
->   caller, with file paths and line numbers
-> - Distinguish between breaking changes (callers fail to compile or behave differently at
->   runtime) and additive changes (new members, default parameters that preserve compat)
-> - Classify each finding as Critical (compile break or silent behavioral change), Serious
->   (requires caller updates not listed in the plan), or Minor (additive or low-risk)
-> - Note any contract changes the plan explicitly handles -- these go in "Compatibility
->   Changes Addressed"
->
-> Output format:
-> ## API Surface Compatibility Findings
->
-> ### Findings
-> - **[Critical|Serious|Minor]** | `location` | finding | evidence
->   > Optional detail block for complex findings
->
-> ### Addressed
-> - `location` | compatibility change the plan handles
->
-> Omit empty sections. Omit detail blocks unless the finding cannot be understood without them.
-
-**Agent 6 -- Concurrency & Thread Safety**
+**Agent 5 -- Concurrency & Thread Safety**
 
 Prompt the agent with:
 
@@ -300,7 +263,7 @@ Prompt the agent with:
 cross-check findings across agents:
 
 1. Call `mcp__structured-thinking__clear_thinking_history` to reset state
-2. For each of the six agents' findings, call
+2. For each of the five agents' findings, call
    `mcp__structured-thinking__capture_thought` with a distinct `branch_id`
    per agent (e.g., "structural-integrity", "execution-risk")
 3. For each Critical finding, call
@@ -323,7 +286,7 @@ threat report.
 the user. The synthesis step requires this tool for reliable cross-agent
 deduplication.
 
-After all six agents return, merge their findings into a single threat report. Deduplicate
+After all five agents return, merge their findings into a single threat report. Deduplicate
 findings that multiple agents discovered independently -- keep the version with stronger evidence.
 
 Output format:
@@ -333,7 +296,7 @@ Output format:
 
 **Implementation Risk: [Low | Moderate | Significant | High]**
 
-Agents: Structural Integrity, Execution Risk, Assumptions & Edge Cases, Migration Completeness, API Surface Compatibility, Concurrency & Thread Safety.
+Agents: Structural Integrity, Execution Risk, Assumptions & Edge Cases, Contract & Migration, Concurrency & Thread Safety.
 
 ### Findings
 - **Critical** | `location` | finding | evidence | source: [agent(s)]
