@@ -177,7 +177,7 @@ The skill itself tells you which.
 - `chester-execute-write` — Execute plans, request code review, and perform subagent-driven development
 - `chester-finish` — Finish a development branch and prepare for merge
 - `chester-plan-attack` — Adversarial review of plans with five parallel attack agents
-- `chester-plan-smell` — Code smell review with three parallel agents plus mapped SOLID checks
+- `chester-plan-smell` — Forward-looking code smell analysis of an implementation plan
 - `chester-execute-test` — Test-driven development discipline
 - `chester-execute-debug` — Systematic debugging workflow
 - `chester-execute-prove` — Verification before completion
