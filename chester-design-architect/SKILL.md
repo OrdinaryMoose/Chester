@@ -1,6 +1,6 @@
 ---
 name: chester-design-architect
-description: "Quantitatively-disciplined Socratic discovery with objective scoring, enforcement gating, and challenge modes. Parallel alternative to chester-design-figure-out."
+description: "Use when the user says 'architect' or requests the architect skill. Quantitatively-disciplined Socratic discovery with objective scoring, understanding MCP (Phase 1), enforcement gating (Phase 2), and challenge modes. Parallel alternative to chester-design-figure-out — if the user says 'architect', use this skill, not figure-out."
 ---
 
 ## Budget Guard Check
