@@ -29,9 +29,9 @@ Before proceeding with this skill, check the token budget:
 
 # Socratic Discovery with Quantitative Discipline
 
-A two-phase Socratic interview with objective scoring discipline. The interview separates **Problem Definition** from **Design Creation** — two formally distinct phases within a single session. You ask questions. An enforcement mechanism tracks clarity scores, detects stalls, triggers challenges, and gates closure — all deterministically, in code, not in your head.
+A two-phase Socratic interview with objective scoring discipline. The interview separates **Understand** from **Solve** — two formally distinct phases within a single session, each governed by its own MCP mechanism. You ask questions. The machinery is invisible. The phase structure channels the agent's energy toward breadth-first understanding before narrowing to design.
 
-The user experiences one thoughtful architect asking good questions. The scoring machinery is invisible. The phase structure prevents technical drift from contaminating the problem statement.
+Understanding means correlating broadly — sweeping across the problem surface, mapping relationships between parts, discovering constraints, identifying where action is safe. Solving means thinking narrowly — following specific chains, working out process, figuring out the mechanics of change. The boundary between these two modes is the phase transition.
 
 Parallel alternative to `chester-design-figure-out`. Same pipeline position, same downstream transition, compatible artifacts plus a third (process evidence).
 
@@ -51,10 +51,10 @@ You MUST create a task for each of these items and complete them in order:
 
 1. **Sprint setup** — read project config, establish four-word sprint name, construct sprint subdirectory name, `clear_thinking_history()`
 2. **Explore project context** — check files, docs, recent commits relevant to the idea
-3. **Round one** — present initial facts, ask clarifying question, initialize enforcement mechanism, announce Phase 1
-4. **Problem Definition phase** — per-turn scoring cycle focused on understanding what's wrong; no solutions
-5. **Phase transition** — present problem statement artifact, user confirms, `capture_thought()` with tag `problem-statement-confirmed`
-6. **Design Creation phase** — per-turn scoring cycle exploring solutions until design resolves
+3. **Round one** — explore codebase, initialize understanding MCP, present gap map, ask first question, announce Phase 1
+4. **Understand phase** — per-turn understanding scoring cycle focused on breadth-first problem exploration; no solutions, no problem statements
+5. **Phase transition** — understanding dimensions broadly saturated, user confirms shared understanding, `capture_thought()` with tag `understanding-confirmed`
+6. **Solve phase** — write problem statement, initialize enforcement MCP, per-turn enforcement scoring cycle exploring solutions until design resolves
 7. **Closure** — multi-confirmation, write three artifacts, update lessons table, transition to chester-design-specify
 
 ## Role: Software Architect
@@ -88,22 +88,24 @@ You are a Software Architect conducting a design interview. This identity govern
 
 ## Phase 2: Round One
 
-Round one is setup. No enforcement calls yet.
+Round one establishes the understanding baseline. The agent explores, initializes the understanding MCP, and presents what it knows alongside what it doesn't.
 
 1. Explore codebase for relevant context. Classify **brownfield** (existing codebase target) vs **greenfield**.
-2. For brownfield, collect relevant codebase context before questioning.
-3. Present an initial set of facts relevant to the user's prompt or question. These are neutral, domain-language observations — not a problem statement, not a solution structure, and not a decision inventory.
-4. Ask a **Clarifying** question after presenting the facts. Do not try to frame the problem statement yet — this is the opening move, not a summary.
-5. `capture_thought()` with tag `problem-statement`, stage `Problem Definition`.
-6. Initialize the enforcement mechanism:
+2. Initialize the understanding MCP:
 
-   Call `initialize_interview` with:
-   - `type`: greenfield or brownfield (from step 1)
-   - `problem_statement`: the user's initial prompt (not a refined statement — that comes at the Phase Transition Gate)
-   - `state_file`: `{CHESTER_WORK_DIR}/{sprint-subdir}/design/{sprint-name}-enforcement-state.json`
+   Call `initialize_understanding` with:
+   - `user_prompt`: the user's initial request
+   - `context_type`: greenfield or brownfield (from step 1)
+   - `state_file`: `{CHESTER_WORK_DIR}/{sprint-subdir}/design/{sprint-name}-understanding-state.json`
 
-7. Announce: **Phase 1 (Problem Definition) begins.** The conversation will focus on understanding the problem deeply before exploring solutions.
-8. Full interview loop starts with the user's first response.
+3. Score the nine understanding dimensions based on what the codebase exploration revealed and what remains unknown. Call `submit_understanding`. Most dimensions — especially stakeholder impact, prior art, temporal context — will score near 0 because they require human input.
+4. Present the gap map to the user:
+   - **What the codebase reveals** — observations mapped to dimensions the agent can partially score (surface coverage, relationship mapping, some constraint discovery). These are observations, not conclusions — not a problem statement, not a solution structure, and not a comprehensive analysis.
+   - **What the agent can't determine from code alone** — explicit gaps from the understanding MCP's gap fields, grouped by dimension group (human context, foundations).
+5. Ask a **Clarifying** question targeting the weakest dimension from the least-saturated group (as reported by the understanding MCP).
+6. Announce: **Phase 1 (Understand) begins.** The conversation will focus on building shared understanding of the problem before exploring solutions.
+7. `capture_thought()` with tag `understanding-baseline`, stage `Understand`.
+8. Interview loop starts with the user's response.
 
 ---
 
@@ -111,27 +113,30 @@ Round one is setup. No enforcement calls yet.
 
 ### Two-Phase Interview Model
 
-The interview splits into two sequential phases within a single session. The enforcement mechanism runs across both — it does not reset at the phase boundary.
+The interview splits into two sequential phases within a single session. Each phase is governed by its own MCP — the understanding MCP runs Phase 1, the enforcement MCP runs Phase 2. They do not overlap.
 
 ```
-Phase 1: Problem Definition
-├── Goal: Deep shared understanding of what's wrong
-├── Turn structure: Thinking → Information package → conceptual question
-├── Stopping criterion: Remaining questions are about what to build, not what's wrong
-└── Constraint: No solutions, no options, no design thinking
+Phase 1: Understand
+├── Goal: Deep shared understanding of the problem
+├── Turn structure: Thinking → Information package → understanding question
+├── Stopping criterion: Understanding dimensions broadly saturated, conversation pulling vertical
+├── Governed by: Understanding MCP (nine dimensions)
+└── Constraint: No solutions, no problem statements, no design thinking
 
-    ↓ Transition gate: Problem statement artifact confirmed by user
+    ↓ Transition: Understanding confirmed by user
 
-Phase 2: Design Creation
+Phase 2: Solve
 ├── Goal: Resolved design direction
+├── Opens with: Problem statement (crystallization of Phase 1 understanding)
 ├── Turn structure: Thinking → Information package → design question
 ├── Stopping criterion: Remaining questions are about how to implement, not what to build
+├── Governed by: Enforcement MCP (design clarity dimensions)
 └── Property: Naturally shorter because problem understanding constrains the space
 ```
 
-Track which phase you are in based on whether `capture_thought()` with tag `problem-statement-confirmed` has been called. Before that thought is captured, you are in Phase 1. After, Phase 2.
+Track which phase you are in based on whether `capture_thought()` with tag `understanding-confirmed` has been called. Before that thought is captured, you are in Phase 1. After, Phase 2.
 
-### Per-Turn Flow
+### Phase 1 Per-Turn Flow (Understand)
 
 One cycle runs per user response. You are a single agent performing all roles: researcher, analyst, pessimist, and interviewer.
 
@@ -139,7 +144,95 @@ After each user response:
 
 **Step 1: Capture thinking.**
 If a trigger point is met, call `capture_thought`:
-- Problem statement confirmed → tag: `problem-statement`, stage: `Problem Definition`
+- New understanding emerges → tag: `understanding-[topic]`, stage: `Understand`
+- Line of thinking shifts → tag by new topic, stage: `Analysis`
+- User rejects or corrects → tag: `constraint` + topic, stage: `Constraint`
+- Complex area with multiple facets → tag by topic, stage: `Analysis`
+
+**Step 2: Score understanding dimensions.**
+Assess each of the nine understanding dimensions on a 0.0–1.0 scale. For each dimension, determine:
+- **Score**: how well understood this dimension is right now (0 = unknown, 1 = fully mapped)
+- **Justification**: why this score — what evidence supports it (cannot be empty)
+- **Gap**: what's still missing (cannot be empty if score < 0.9)
+
+Call `submit_understanding` with:
+- `state_file`: path to the understanding state file
+- `scores`: all nine dimension scores with justifications and gaps
+
+**Step 3: Read understanding response.**
+The understanding MCP returns:
+- `overall_saturation` — weighted average across all dimension groups
+- `group_saturation` — per-group averages (landscape, human_context, foundations)
+- `weakest_group` — the least-saturated group
+- `weakest_dimension` — name and score of the dimension needing most attention
+- `gaps_summary` — dimensions with the most substantive gaps
+- `transition_ready` — whether all transition conditions are met
+- `warnings` — any score jump flags
+
+**Step 4: Apply priority rule.**
+Choose your next question target using this priority (not discretionary):
+
+1. **Score-jump warning** — if the understanding MCP flagged a score jump, re-examine that dimension
+2. **Weakest dimension in least-saturated group** — the understanding MCP's reported target
+3. **Largest gap** — the dimension with the most substantive gap description
+4. **Coverage rotation** — next untouched dimension
+
+**Step 5: Compose information package.**
+Build the Phase 1 information package (see Information Package below). This is the primary deliverable of each turn — curated, altitude-appropriate material that fuels the designer's reasoning.
+
+**Step 6: Formulate question.**
+Select from the six question types (see Visible Surface). Apply the Translation Gate. The question must NOT propose, imply, or evaluate solutions. The question targets understanding — what's wrong, who's affected, what's been tried, what constrains us.
+
+**Step 7: Present to user.**
+Output thinking block, then information package, then bold question.
+
+### Phase 1: Understand
+
+**Goal:** Correlate broadly across the problem surface. Map relationships between parts, discover what's movable and what's fixed, identify where action is safe. Build deep shared understanding of the problem without jumping to solutions.
+
+**Prohibited in Phase 1:**
+- Solution proposals or option enumeration
+- Design alternatives or trade-off analysis
+- Architecture suggestions or structural recommendations
+- "How might we..." framing (this is design thinking)
+- Evaluative language about potential approaches
+- Problem statements or problem framing artifacts
+- Complete analyses or comprehensive summaries of the problem
+
+**Stopping criterion:** Understanding dimensions are broadly saturated (understanding MCP reports `transition_ready: true`) and the conversation is pulling vertical — remaining questions are about specifics and implementation rather than understanding.
+
+### Phase Transition
+
+The boundary between Understand and Solve is marked by a **transition checkpoint** — not a problem statement. The transition confirms shared understanding.
+
+**Transition process:**
+1. Understanding MCP reports `transition_ready: true`
+2. Recognize that the conversation is pulling vertical (questions shifting from understanding to implementation detail)
+3. Present a transition checkpoint to the user:
+   - Summary of what has been understood (in domain language)
+   - Note any dimensions still below 0.5 as areas of residual uncertainty
+   - "Are we ready to move from understanding to solving?"
+4. User confirms
+5. `capture_thought()` with tag `understanding-confirmed`, stage `Transition`
+6. Announce phase transition: understanding is established, the conversation now shifts to solving
+
+### Phase 2 Opening (Solve)
+
+Phase 2 opens with two steps before the enforcement-governed interview loop begins:
+
+1. **Write problem statement** — crystallize Phase 1's understanding into a concise problem statement (2-4 paragraphs) capturing: what's wrong, why it matters, what's been tried, what constrains a solution. Present to user for confirmation. This is the first artifact of Phase 2 — the crystallization of earned understanding, not a pre-exploration conclusion.
+2. **Initialize enforcement MCP** — call `initialize_interview` with:
+   - `type`: greenfield or brownfield
+   - `problem_statement`: the confirmed problem statement
+   - `state_file`: `{CHESTER_WORK_DIR}/{sprint-subdir}/design/{sprint-name}-enforcement-state.json`
+
+### Phase 2 Per-Turn Flow (Solve)
+
+After each user response during Phase 2:
+
+**Step 1: Capture thinking.**
+If a trigger point is met, call `capture_thought`:
+- Design direction established → tag by topic, stage: `Synthesis`
 - Line of thinking shifts → tag by new topic, stage: `Analysis`
 - User rejects or corrects → tag: `constraint` + topic, stage: `Constraint`
 - Complex decision node (3+ viable options) → tag by topic, stage: `Analysis` or `Synthesis`
@@ -149,8 +242,6 @@ Assess each clarity dimension on a 0.0–1.0 scale. For each dimension, determin
 - **Score**: how clear this dimension is right now (0 = unknown, 1 = fully resolved)
 - **Justification**: why this score — what evidence supports it (cannot be empty)
 - **Gap**: what's still missing (cannot be empty if score < 0.9)
-
-Apply **phase-aware scoring guidance** (see below) when assessing.
 
 Call `submit_scores` with:
 - `state_file`: path to the enforcement state file
@@ -179,68 +270,25 @@ Choose your next question target using this hardcoded priority (not discretionar
 5. **Coverage rotation** — next unaddressed dimension
 
 **Step 5: Compose information package.**
-Build the phase-appropriate information package (see Information Package below). This is the primary deliverable of each turn — curated, altitude-appropriate material that fuels the designer's reasoning.
+Build the Phase 2 information package (see Information Package below).
 
 **Step 6: Formulate question.**
-Select from the six question types (see Visible Surface). Apply the Translation Gate. In Phase 1, the question must NOT propose, imply, or evaluate solutions. In Phase 2, the question may evaluate trade-offs and explore alternatives.
+Select from the six question types (see Visible Surface). Apply the Translation Gate. In Phase 2, the question may evaluate trade-offs and explore alternatives.
 
 **Step 7: Present to user.**
 Output thinking block, then information package, then bold question.
 
-### Phase 1: Problem Definition
-
-**Goal:** Establish a deep, shared understanding of what's wrong, why it matters, what's been tried, and what the constraints are. No solutions.
-
-**Prohibited in Phase 1:**
-- Solution proposals or option enumeration
-- Design alternatives or trade-off analysis
-- Architecture suggestions or structural recommendations
-- "How might we..." framing (this is design thinking)
-- Evaluative language about potential approaches
-
-**Stopping criterion:** The remaining questions the interviewer wants to ask are about *what to build* rather than *what's wrong*. When your question queue shifts from problem-understanding to solution-exploring, Phase 1 is complete.
-
-**Phase 1 scoring guidance:**
-- Intent Clarity and Constraint Clarity are the primary targets
-- Outcome Clarity scores reflect understanding of the *desired end-state* (what "fixed" looks like), not solution design
-- Scope Clarity may legitimately remain low — it's a Phase 2 concern
-- Success Criteria may remain low — measurability often depends on the solution shape
-
-### Phase Transition Gate
-
-The boundary between Problem Definition and Design Creation is marked by a **problem statement artifact** — a concise statement (2-4 paragraphs) written inline in the conversation that captures:
-
-1. **What's wrong** — the pain, dysfunction, or gap in concrete terms
-2. **Why it matters** — the consequences of the current state
-3. **What's been tried** — prior attempts and why they didn't resolve it
-4. **What constrains a solution** — immovable boundaries, not design preferences
-
-**Gate process:**
-1. Recognize Phase 1 completion (your question queue has shifted to solution-exploring)
-2. Present the problem statement to the user
-3. User confirms, corrects, or requests deeper exploration on a specific aspect
-4. If corrected, revise and re-present. If deeper exploration requested, continue Phase 1.
-5. Once confirmed, `capture_thought()` with tag `problem-statement-confirmed`, stage `Transition`
-6. Announce phase transition: brief note that problem understanding is established and the conversation now shifts to design
-
-The problem statement artifact lives in the conversation and is captured via structured thinking. It appears in the design brief's problem section at closure.
-
-### Phase 2: Design Creation
+### Phase 2: Solve
 
 **Goal:** Given the deeply understood problem, explore the solution space and arrive at a resolved design direction.
 
 **Stopping criterion:** Remaining questions are about *how to implement* rather than *what to build*. When the question queue shifts from design-level to implementation-level, the design is resolved.
 
-**Phase 2 scoring guidance:**
-- All dimensions are active
-- Scope Clarity becomes a primary target
-- Success Criteria becomes achievable to score as the design takes shape
-
 **Length check:** Phase 2 is naturally shorter than Phase 1 because the deep problem understanding constrains the solution space. If Phase 2 is running long (approaching Phase 1 length), it signals the problem wasn't well-enough understood — consider whether Phase 1 was exited prematurely.
 
 ### Challenge Modes
 
-Three modes, each fires once per interview. Triggered mechanically by the enforcement mechanism.
+Three modes, each fires once per interview. Triggered mechanically by the enforcement mechanism during Phase 2.
 
 | Mode | Trigger | Effect |
 |------|---------|--------|
@@ -253,7 +301,7 @@ When triggered, your next question MUST be the challenge — it overrides normal
 ### Checkpoints (Every 5 Rounds)
 
 Pause and summarize:
-- What has been resolved so far
+- What has been understood or resolved so far
 - What remains open
 - Where the conversation seems to be heading
 
@@ -261,7 +309,7 @@ All in domain language — no scores, gates, or dimension names.
 
 Offer the user an exit opportunity, noting in domain terms which topics haven't been addressed and what that means for downstream work.
 
-**Drift check:** Compare the conversation trajectory against the confirmed problem statement. If the conversation has wandered, reorient the next question. If the problem statement itself was wrong, surface it to the user.
+**Drift check (Phase 2):** Compare the conversation trajectory against the confirmed problem statement. If the conversation has wandered, reorient the next question. If the problem statement itself was wrong, surface it to the user.
 
 ---
 
@@ -271,10 +319,10 @@ Offer the user an exit opportunity, noting in domain terms which topics haven't 
 
 Three components, all italic single-sentence lines:
 
-1. **Alignment check** (1-2 sentences) — summarize your understanding of the current design state so the user can correct drift immediately.
+1. **Alignment check** (1-2 sentences) — summarize your understanding of the current state so the user can correct drift immediately.
 
 2. **Metacognitive reflection** (1-2 sentences) — selected from rotating angles:
-   - What did this answer change about the design, and why does that matter?
+   - What did this answer change about our understanding, and why does that matter?
    - What existing decision in the architecture does this touch or silently depend on?
    - What is the most fragile assumption in the current thinking?
    - Where does this sit uncomfortably against the current state of the system?
@@ -288,7 +336,7 @@ Each turn presents a curated information package between the thinking block and 
 
 Each component should be **2-4 sentences** — concise, not paragraphs.
 
-**Phase 1 (Problem Definition) components:**
+**Phase 1 (Understand) components:**
 
 | Component | Purpose | Altitude |
 |-----------|---------|----------|
@@ -296,7 +344,7 @@ Each component should be **2-4 sentences** — concise, not paragraphs.
 | **Surface analysis** | What's changing or under pressure in this area | Light touch, not exhaustive |
 | **Uncomfortable truths** | What's fragile, contradictory, or historically painful | Pessimist stance — name what others avoid |
 
-**Phase 2 (Design Creation) components:**
+**Phase 2 (Solve) components:**
 
 | Component | Purpose | Altitude |
 |-----------|---------|----------|
@@ -309,10 +357,10 @@ The information package serves a dual purpose: **content delivery** (giving the 
 
 ### Prohibited Content in Thinking Block
 
-- Dimension names or scores (intent clarity, outcome clarity, etc.)
+- Dimension names or scores (intent clarity, outcome clarity, saturation levels, etc.)
 - Gate names or gate status (non-goals explicit, decision boundaries, pressure pass)
 - Challenge mode names (Contrarian, Simplifier, Ontologist)
-- Enforcement mechanism references (submit_scores, composite ambiguity, etc.)
+- MCP mechanism references (submit_scores, submit_understanding, composite ambiguity, etc.)
 - Priority rule references
 
 ### Six Question Types
@@ -351,11 +399,12 @@ If the user needs a code-specific term to answer a question, you have failed to 
 Use `capture_thought` / `get_thinking_summary` for positional retrieval against the U-shaped context attention curve.
 
 **Capture triggers:**
-1. Problem statement established → tag: `problem-statement`, stage: `Problem Definition`
-2. Line of thinking changes → tag by new topic, stage: `Analysis`
-3. User rejects or corrects → tag: `constraint` + topic, stage: `Constraint`
-4. Complex decision node (3+ viable options) → tag by topic, stage: `Analysis` or `Synthesis`
-5. Phase transition confirmed → tag: `problem-statement-confirmed`, stage: `Transition`
+1. Understanding baseline established → tag: `understanding-baseline`, stage: `Understand`
+2. New understanding emerges → tag: `understanding-[topic]`, stage: `Understand`
+3. Line of thinking changes → tag by new topic, stage: `Analysis`
+4. User rejects or corrects → tag: `constraint` + topic, stage: `Constraint`
+5. Complex decision node (3+ viable options) → tag by topic, stage: `Analysis` or `Synthesis`
+6. Phase transition confirmed → tag: `understanding-confirmed`, stage: `Transition`
 
 **Retrieval triggers — call `get_thinking_summary` before:**
 - The user asks for a recap or summary
@@ -371,7 +420,7 @@ Use `capture_thought` / `get_thinking_summary` for positional retrieval against 
 - Use the codebase to answer questions you can discover yourself — don't ask the user what you can look up
 - **Implementation drift** — if your question involves where something should live, how it should be structured, or what pattern to use, you have drifted. Apply the Research Boundary and Translation Gate. Reframe toward intent.
 - **Pessimist stance** — continuously evaluate whether the design has uncomfortable truths, unstated assumptions, or hidden complexity. Surface these through questions, not declarations.
-- **Phase discipline** — in Phase 1, if you catch yourself forming a solution or evaluating options, stop. You are still understanding the problem. Redirect to what's wrong, not what to build.
+- **Phase discipline** — in Phase 1, if you catch yourself forming a solution, evaluating options, or composing a problem statement, stop. You are still understanding. Redirect to breadth: what facets haven't been explored? What relationships haven't been mapped? What has the user not told you yet?
 
 ---
 
@@ -404,7 +453,7 @@ After the first assumption probe and at least one persistent follow-up (ensuring
 
 ### Phase 2 Length Check
 
-If Phase 2 has consumed more rounds than Phase 1, note this in the process evidence as a signal that problem definition may have been insufficient.
+If Phase 2 has consumed more rounds than Phase 1, note this in the process evidence as a signal that understanding may have been insufficient.
 
 ---
 
@@ -412,10 +461,11 @@ If Phase 2 has consumed more rounds than Phase 1, note this in the process evide
 
 If interrupted:
 1. Retrieve thinking summary via `get_thinking_summary()`
-2. Call `get_state` with the state file path to reload enforcement state
-3. Determine which phase was active — check for `problem-statement-confirmed` thought
-4. Pick up from the last completed round in the correct phase
-5. User does not re-answer questions
+2. Determine which phase was active — check for `understanding-confirmed` thought
+3. If Phase 1: call `get_understanding_state` with the understanding state file path to reload
+4. If Phase 2: call `get_state` with the enforcement state file path to reload
+5. Pick up from the last completed round in the correct phase
+6. User does not re-answer questions
 
 ---
 
@@ -423,7 +473,7 @@ If interrupted:
 
 1. `get_thinking_summary()` to produce the consolidated decision history
 2. Reformat the thinking summary into a clean document. Hold in memory.
-3. Present the completed design brief to the user — each decision with conclusion and rationale. The problem section should contain the confirmed problem statement from the Phase Transition Gate.
+3. Present the completed design brief to the user — each decision with conclusion and rationale. The problem section should contain the confirmed problem statement from Phase 2's opening.
 4. "Does this capture what we're building?"
 5. Invoke `chester-util-worktree` to create the branch and worktree. The branch name is the sprint subdirectory name.
 6. Read project config in the worktree context:
@@ -434,7 +484,7 @@ If interrupted:
 8. Create matching structure in main tree: `{CHESTER_WORK_DIR}/{sprint-subdir}/design/`, `spec/`, `plan/`, `summary/`
 9. Write design brief to `{CHESTER_PLANS_DIR}/{sprint-subdir}/design/{sprint-name}-design-00.md` (worktree)
 10. Write thinking summary to `{CHESTER_PLANS_DIR}/{sprint-subdir}/design/{sprint-name}-thinking-00.md` (worktree)
-11. Write process evidence to `{CHESTER_PLANS_DIR}/{sprint-subdir}/design/{sprint-name}-process-00.md` (worktree). Compile from the enforcement state file: interview profile, drift assessments, challenge mode firings, readiness gate satisfaction, closure decision, **phase transition timing** (when it occurred, what triggered it), and **phase 2 length relative to phase 1**. Human-readable narrative — stories, not scores.
+11. Write process evidence to `{CHESTER_PLANS_DIR}/{sprint-subdir}/design/{sprint-name}-process-00.md` (worktree). Compile from both state files: understanding MCP saturation history and gap evolution (Phase 1), enforcement MCP interview profile, drift assessments, challenge mode firings, readiness gate satisfaction, closure decision (Phase 2). Include **phase transition timing** (when it occurred, what triggered it), and **Phase 2 length relative to Phase 1**. Human-readable narrative — stories, not scores.
 12. Copy all three artifacts to `{CHESTER_WORK_DIR}/{sprint-subdir}/design/`
 13. Commit thinking summary, design brief, and process evidence in worktree with message: `checkpoint: design complete`
 14. Update `~/.chester/thinking.md` — review the Key Reasoning Shifts from the session. For each shift, determine whether it matches an existing lesson (increment score by 1) or is a new lesson (add as a new row with score 1, category `—`). If the table exceeds 20 rows, drop the lowest-scoring entry. Present proposed changes to the user and confirm before writing. If the file does not exist, create it with the table header and the first entries.
@@ -446,9 +496,9 @@ Three artifacts in `{CHESTER_PLANS_DIR}/{sprint-subdir}/design/`:
 
 1. **`{sprint-name}-design-00.md`** — Design brief (WHAT). Domain language. Intent, outcome, in-scope, out-of-scope, decision boundaries, constraints, acceptance criteria, assumptions tested, residual risks.
 
-2. **`{sprint-name}-thinking-00.md`** — Thinking summary (HOW decisions were made). Domain language. Decision history, alternatives considered, user corrections, confidence levels, problem statement shifts.
+2. **`{sprint-name}-thinking-00.md`** — Thinking summary (HOW decisions were made). Domain language. Decision history, alternatives considered, user corrections, confidence levels, understanding shifts.
 
-3. **`{sprint-name}-process-00.md`** — Process evidence (HOW the interview operated). Human-readable narrative. Where challenges fired, how gates were satisfied, where drift was caught, how the interview self-corrected. Phase transition timing and Phase 2 length relative to Phase 1.
+3. **`{sprint-name}-process-00.md`** — Process evidence (HOW the interview operated). Human-readable narrative. Understanding dimension saturation over time, where the conversation pulled vertical, phase transition timing, challenge mode firings (Phase 2), how gates were satisfied, where drift was caught, Phase 2 length relative to Phase 1.
 
 ## File Naming Convention
 
