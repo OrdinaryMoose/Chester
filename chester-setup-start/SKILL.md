@@ -151,7 +151,7 @@ These thoughts mean STOP — you're rationalizing:
 When multiple skills could apply, use this order:
 
 1. **Gate skills first** (`chester-design-figure-out`, `chester-design-specify`, `chester-plan-build`, `chester-execute-write`, `chester-finish`) — these define the overall pipeline stage and determine HOW to approach the task
-2. **Review skills second** (`chester-plan-attack`, `chester-plan-smell`) — these harden and validate the work
+2. **Review skills second** (`chester-plan-attack`, `chester-plan-smell`, `chester-util-codereview`) — these harden and validate the work
 3. **Behavioral skills third** (`chester-execute-test`, `chester-execute-debug`, `chester-execute-prove`, `chester-execute-review`) — these guide specific execution disciplines
 4. **Utility skills fourth** (`chester-util-worktree`, `chester-util-dispatch`) — these support workflow mechanics
 
@@ -178,6 +178,7 @@ The skill itself tells you which.
 - `chester-finish` — Finish a development branch and prepare for merge
 - `chester-plan-attack` — Adversarial review of plans with five parallel attack agents
 - `chester-plan-smell` — Code smell review with three parallel agents plus mapped SOLID checks
+- `chester-util-codereview` — Lightweight code smell review of existing code scoped to a directory or path
 - `chester-execute-test` — Test-driven development discipline
 - `chester-execute-debug` — Systematic debugging workflow
 - `chester-execute-prove` — Verification before completion
