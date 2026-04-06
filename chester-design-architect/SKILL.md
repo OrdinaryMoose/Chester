@@ -79,9 +79,9 @@ You are a Software Architect conducting a design interview. This identity govern
 - Construct sprint subdirectory name: `YYYYMMDD-##-word-word-word-word`
 - `clear_thinking_history()` to reset structured thinking for the session
 - Read `~/.chester/thinking.md` if it exists. Scan the lessons table — highest-scoring lessons first. Treat them as signals to hold initial assumptions more loosely in those categories, not as rules. If the file does not exist, continue without it.
-- Create the sprint working directory structure:
+- Create the sprint directory structure:
   ```bash
-  mkdir -p "{CHESTER_WORK_DIR}/{sprint-subdir}/design"
+  mkdir -p "{CHESTER_PLANS_DIR}/{sprint-subdir}/design"
   ```
 
 ---
@@ -96,7 +96,7 @@ Round one establishes the understanding baseline. The agent explores, initialize
    Call `initialize_understanding` with:
    - `user_prompt`: the user's initial request
    - `context_type`: greenfield or brownfield (from step 1)
-   - `state_file`: `{CHESTER_WORK_DIR}/{sprint-subdir}/design/{sprint-name}-understanding-state.json`
+   - `state_file`: `{CHESTER_PLANS_DIR}/{sprint-subdir}/design/{sprint-name}-understanding-state.json`
 
 3. Score the nine understanding dimensions based on what the codebase exploration revealed and what remains unknown. Call `submit_understanding`. Most dimensions — especially stakeholder impact, prior art, temporal context — will score near 0 because they require human input.
 4. Present the gap map to the user:
@@ -224,7 +224,7 @@ Phase 2 opens with two steps before the enforcement-governed interview loop begi
 2. **Initialize enforcement MCP** — call `initialize_interview` with:
    - `type`: greenfield or brownfield
    - `problem_statement`: the confirmed problem statement
-   - `state_file`: `{CHESTER_WORK_DIR}/{sprint-subdir}/design/{sprint-name}-enforcement-state.json`
+   - `state_file`: `{CHESTER_PLANS_DIR}/{sprint-subdir}/design/{sprint-name}-enforcement-state.json`
 
 ### Phase 2 Per-Turn Flow (Solve)
 
@@ -480,13 +480,11 @@ If interrupted:
    ```bash
    eval "$(~/.claude/skills/chester-util-config/chester-config-read.sh)"
    ```
-7. Create the output directory structure in the worktree: `{CHESTER_PLANS_DIR}/{sprint-subdir}/design/`, `spec/`, `plan/`, `summary/`
-8. Create matching structure in main tree: `{CHESTER_WORK_DIR}/{sprint-subdir}/design/`, `spec/`, `plan/`, `summary/`
-9. Write design brief to `{CHESTER_PLANS_DIR}/{sprint-subdir}/design/{sprint-name}-design-00.md` (worktree)
-10. Write thinking summary to `{CHESTER_PLANS_DIR}/{sprint-subdir}/design/{sprint-name}-thinking-00.md` (worktree)
-11. Write process evidence to `{CHESTER_PLANS_DIR}/{sprint-subdir}/design/{sprint-name}-process-00.md` (worktree). Compile from both state files: understanding MCP saturation history and gap evolution (Phase 1), enforcement MCP interview profile, drift assessments, challenge mode firings, readiness gate satisfaction, closure decision (Phase 2). Include **phase transition timing** (when it occurred, what triggered it), and **Phase 2 length relative to Phase 1**. Human-readable narrative — stories, not scores.
-12. Copy all three artifacts to `{CHESTER_WORK_DIR}/{sprint-subdir}/design/`
-13. Commit thinking summary, design brief, and process evidence in worktree with message: `checkpoint: design complete`
+7. Create the output directory structure: `{CHESTER_PLANS_DIR}/{sprint-subdir}/design/`, `spec/`, `plan/`, `summary/`
+8. Write design brief to `{CHESTER_PLANS_DIR}/{sprint-subdir}/design/{sprint-name}-design-00.md`
+9. Write thinking summary to `{CHESTER_PLANS_DIR}/{sprint-subdir}/design/{sprint-name}-thinking-00.md`
+10. Write process evidence to `{CHESTER_PLANS_DIR}/{sprint-subdir}/design/{sprint-name}-process-00.md`. Compile from both state files: understanding MCP saturation history and gap evolution (Phase 1), enforcement MCP interview profile, drift assessments, challenge mode firings, readiness gate satisfaction, closure decision (Phase 2). Include **phase transition timing** (when it occurred, what triggered it), and **Phase 2 length relative to Phase 1**. Human-readable narrative — stories, not scores.
+11. Commit thinking summary, design brief, and process evidence in worktree with message: `checkpoint: design complete`
 14. Update `~/.chester/thinking.md` — review the Key Reasoning Shifts from the session. For each shift, determine whether it matches an existing lesson (increment score by 1) or is a new lesson (add as a new row with score 1, category `—`). If the table exceeds 20 rows, drop the lowest-scoring entry. Present proposed changes to the user and confirm before writing. If the file does not exist, create it with the table header and the first entries.
 15. Transition to chester-design-specify
 

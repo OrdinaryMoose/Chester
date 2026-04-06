@@ -17,13 +17,6 @@ git init -q
 # Test 1: No config → hardcoded defaults
 echo "--- Test: no config returns defaults ---"
 OUTPUT=$(bash "$SCRIPT" 2>/dev/null)
-if echo "$OUTPUT" | grep -q "CHESTER_WORK_DIR='docs/chester/working'"; then
-  echo "  PASS: default CHESTER_WORK_DIR"
-else
-  echo "  FAIL: expected docs/chester/working"
-  echo "  GOT: $OUTPUT"
-  ERRORS=$((ERRORS + 1))
-fi
 if echo "$OUTPUT" | grep -q "CHESTER_PLANS_DIR='docs/chester/plans'"; then
   echo "  PASS: default CHESTER_PLANS_DIR"
 else
@@ -37,20 +30,19 @@ else
   echo "  FAIL: expected config path none"
   ERRORS=$((ERRORS + 1))
 fi
+if echo "$OUTPUT" | grep -q "CHESTER_WORK_DIR"; then
+  echo "  FAIL: CHESTER_WORK_DIR should not be exported"
+  ERRORS=$((ERRORS + 1))
+else
+  echo "  PASS: no CHESTER_WORK_DIR exported"
+fi
 
 # Test 2: User-level config only — directory paths ignored, config path set
 echo "--- Test: user-level config only (dirs ignored) ---"
 cat > "$HOME/.claude/settings.chester.json" << 'CONF'
-{"working_dir": "user/working", "plans_dir": "user/plans", "budget_guard": {"threshold_percent": 90, "enabled": true}}
+{"plans_dir": "user/plans", "budget_guard": {"threshold_percent": 90, "enabled": true}}
 CONF
 OUTPUT=$(bash "$SCRIPT" 2>/dev/null)
-if echo "$OUTPUT" | grep -q "CHESTER_WORK_DIR='docs/chester/working'"; then
-  echo "  PASS: user-level working_dir ignored (got default)"
-else
-  echo "  FAIL: expected default docs/chester/working (user dirs should be ignored)"
-  echo "  GOT: $OUTPUT"
-  ERRORS=$((ERRORS + 1))
-fi
 if echo "$OUTPUT" | grep -q "CHESTER_PLANS_DIR='docs/chester/plans'"; then
   echo "  PASS: user-level plans_dir ignored (got default)"
 else
@@ -70,16 +62,9 @@ fi
 echo "--- Test: project-level config sets dirs ---"
 mkdir -p "$TMPDIR/.claude"
 cat > "$TMPDIR/.claude/settings.chester.local.json" << 'CONF'
-{"working_dir": "project/working", "plans_dir": "project/plans"}
+{"plans_dir": "project/plans"}
 CONF
 OUTPUT=$(bash "$SCRIPT" 2>/dev/null)
-if echo "$OUTPUT" | grep -q "CHESTER_WORK_DIR='project/working'"; then
-  echo "  PASS: project working_dir used"
-else
-  echo "  FAIL: expected project/working"
-  echo "  GOT: $OUTPUT"
-  ERRORS=$((ERRORS + 1))
-fi
 if echo "$OUTPUT" | grep -q "CHESTER_PLANS_DIR='project/plans'"; then
   echo "  PASS: project plans_dir used"
 else
@@ -98,15 +83,9 @@ fi
 # Test 4: Project config partial — missing key falls back to default
 echo "--- Test: partial project config uses defaults for missing keys ---"
 cat > "$TMPDIR/.claude/settings.chester.local.json" << 'CONF'
-{"working_dir": "only/working"}
+{"budget_guard": {"threshold_percent": 75}}
 CONF
 OUTPUT=$(bash "$SCRIPT" 2>/dev/null)
-if echo "$OUTPUT" | grep -q "CHESTER_WORK_DIR='only/working'"; then
-  echo "  PASS: project working_dir used"
-else
-  echo "  FAIL: expected only/working"
-  ERRORS=$((ERRORS + 1))
-fi
 if echo "$OUTPUT" | grep -q "CHESTER_PLANS_DIR='docs/chester/plans'"; then
   echo "  PASS: missing plans_dir falls back to default"
 else
@@ -118,19 +97,12 @@ fi
 # Test 5: Both configs — dirs from project only, not merged from user
 echo "--- Test: both configs, dirs from project only ---"
 cat > "$HOME/.claude/settings.chester.json" << 'CONF'
-{"working_dir": "user/working", "plans_dir": "user/plans"}
+{"plans_dir": "user/plans"}
 CONF
 cat > "$TMPDIR/.claude/settings.chester.local.json" << 'CONF'
 {"plans_dir": "project/plans"}
 CONF
 OUTPUT=$(bash "$SCRIPT" 2>/dev/null)
-if echo "$OUTPUT" | grep -q "CHESTER_WORK_DIR='docs/chester/working'"; then
-  echo "  PASS: working_dir is default (not from user config)"
-else
-  echo "  FAIL: expected default (user working_dir should not leak)"
-  echo "  GOT: $OUTPUT"
-  ERRORS=$((ERRORS + 1))
-fi
 if echo "$OUTPUT" | grep -q "CHESTER_PLANS_DIR='project/plans'"; then
   echo "  PASS: plans_dir from project config"
 else

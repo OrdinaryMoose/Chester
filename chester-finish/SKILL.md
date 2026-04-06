@@ -219,16 +219,6 @@ git worktree remove <worktree-path>
 
 **For Option 3:** Keep worktree.
 
-### Step 6.5: Planning Directory Cleanup
-
-After the sprint resolves (merge, PR, or discard):
-
-```bash
-rm -rf "{CHESTER_WORK_DIR}/{sprint-subdir}/"
-```
-
-Only remove the resolved sprint's folder. Other active sprint folders are untouched. If the planning directory is now empty, leave it in place for future sprints.
-
 ### Step 7: Session Artifacts (Optional)
 
 After the workflow completes, offer:

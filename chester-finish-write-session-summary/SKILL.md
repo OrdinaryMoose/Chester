@@ -40,7 +40,6 @@ eval "$(~/.claude/skills/chester-util-config/chester-config-read.sh)"
 Determine the sprint subdirectory from context (plan file path, conversation, or most recent sprint directory under `{CHESTER_PLANS_DIR}/`).
 
 Write summary to: `{CHESTER_PLANS_DIR}/{sprint-subdir}/summary/{sprint-name}-summary-00.md`
-Copy to: `{CHESTER_WORK_DIR}/{sprint-subdir}/summary/{sprint-name}-summary-00.md`
 
 If the sprint subdirectory cannot be determined, ask the user.
 

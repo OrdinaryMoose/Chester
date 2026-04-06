@@ -107,7 +107,6 @@ When invoked without a prior chester-design-figure-out session:
 3. Ask for the sprint name (four words, hyphenated) if not derivable from context
 4. Construct sprint subdirectory: `YYYYMMDD-##-word-word-word-word` (## is the next available sprint number)
 5. Create `{CHESTER_PLANS_DIR}/{sprint-subdir}/` with four subdirectories: `design/`, `spec/`, `plan/`, `summary/`
-6. Create matching `{CHESTER_WORK_DIR}/{sprint-subdir}/` with same subdirectories
 
 ## Writing the Spec
 
@@ -117,7 +116,6 @@ When invoked without a prior chester-design-figure-out session:
 - No YAML frontmatter is needed in spec documents. All skills read output paths from the project config via `chester-config-read.sh`, not from document frontmatter.
 
 - Write to `{output_dir}/spec/{sprint-name}-spec-00.md`
-- Copy the spec file to the planning directory: `{CHESTER_WORK_DIR}/{sprint-subdir}/spec/{sprint-name}-spec-00.md`
 
 ## Automated Spec Review Loop
 

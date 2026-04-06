@@ -37,32 +37,30 @@ At the start of every session:
    ```
    If `CHESTER_CONFIG_PATH` is `none`, this is a new project. Run the first-run setup:
 
-   a. Announce: "This looks like a new project for Chester. Let's set up your output directories."
+   a. Announce: "This looks like a new project for Chester. Let's set up your output directory."
 
    b. Present defaults and ask for confirmation or customization:
    ```
-   Chester needs two directories for this project:
+   Chester needs an artifacts directory for this project (gitignored — each worktree gets its own):
 
-   Plans directory (committed archive): docs/chester/plans/
-   Working directory (gitignored, for active docs): docs/chester/working/
+   Plans directory: docs/chester/plans/
 
-   Accept defaults? Or enter custom paths.
+   Accept default? Or enter a custom path.
    ```
 
-   c. User accepts defaults or provides custom paths for either or both.
+   c. User accepts default or provides a custom path.
 
-   d. Create both directories:
+   d. Create the directory:
    ```bash
-   mkdir -p "$CHESTER_WORK_DIR"
    mkdir -p "$CHESTER_PLANS_DIR"
    ```
 
-   e. Ensure working directory is in `.gitignore`:
+   e. Ensure plans directory is in `.gitignore`:
    ```bash
-   if ! git check-ignore -q "$CHESTER_WORK_DIR" 2>/dev/null; then
-     echo "$CHESTER_WORK_DIR/" >> .gitignore
+   if ! git check-ignore -q "$CHESTER_PLANS_DIR" 2>/dev/null; then
+     echo "$CHESTER_PLANS_DIR/" >> .gitignore
      git add .gitignore
-     git commit -m "chore: add chester working directory to .gitignore"
+     git commit -m "chore: add chester plans directory to .gitignore"
    fi
    ```
 
@@ -74,7 +72,6 @@ At the start of every session:
    Write to `$PROJECT_ROOT/.claude/settings.chester.local.json`:
    ```json
    {
-     "working_dir": "<user's chosen working directory>",
      "plans_dir": "<user's chosen plans directory>"
    }
    ```
@@ -85,9 +82,9 @@ At the start of every session:
    fi
    ```
 
-   g. Announce: "Chester configured. Plans archived to `{plans_dir}`, working docs at `{working_dir}`."
+   g. Announce: "Chester configured. Artifacts at `{plans_dir}` (gitignored)."
 
-   If `CHESTER_CONFIG_PATH` is not `none`, read silently and proceed. No announcement unless there's a problem (e.g., working directory missing from .gitignore — fix and warn).
+   If `CHESTER_CONFIG_PATH` is not `none`, read silently and proceed. No announcement unless there's a problem (e.g., plans directory missing from .gitignore — fix and warn).
 
 ## How to Access Skills
 
