@@ -2,6 +2,11 @@
 # chester-config-read.sh — Resolve layered Chester config
 # Usage: eval "$(~/.claude/skills/chester-util-config/chester-config-read.sh)"
 # Exports: CHESTER_PLANS_DIR, CHESTER_CONFIG_PATH
+#
+# Directory model:
+#   CHESTER_WORKING_DIR — absolute path, gitignored; all pipeline skills write here
+#   CHESTER_PLANS_DIR   — relative to repo root, tracked in git; populated once at merge
+#                         time by finish-archive-artifacts (no other skill writes here)
 
 set -euo pipefail
 
