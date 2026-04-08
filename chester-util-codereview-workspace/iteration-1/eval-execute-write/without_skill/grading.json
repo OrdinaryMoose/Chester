@@ -1,0 +1,15 @@
+{
+  "eval_id": 2,
+  "eval_name": "eval-execute-write",
+  "configuration": "without_skill",
+  "expectations": [
+    {"text": "Report explicitly names the target directory (chester-execute-write/) being reviewed", "passed": true, "evidence": "Lists 'Scope: 5 files — SKILL.md, code-reviewer.md, implementer.md, quality-reviewer.md, spec-reviewer.md'"},
+    {"text": "At least one finding cites a specific file:line reference", "passed": true, "evidence": "Multiple references, e.g. 'spec-reviewer.md line 25', 'implementer.md — line 44'"},
+    {"text": "Findings use Critical/Serious/Minor severity labels", "passed": false, "evidence": "Uses Critical/Important/Minor instead of Critical/Serious/Minor — 'Important' replaces 'Serious'"},
+    {"text": "Findings reference specific smell categories", "passed": false, "evidence": "Uses descriptive labels like 'Duplication', 'Inconsistent template structure', 'Silent coupling' instead of the refactoring.guru smell taxonomy"},
+    {"text": "No findings reference files outside chester-execute-write/", "passed": true, "evidence": "All findings reference files within chester-execute-write/"},
+    {"text": "Report includes an overall smell density rating", "passed": false, "evidence": "Has 'Verdict: Generally well-structured with several notable issues' but no Low/Moderate/Significant/High density rating"},
+    {"text": "The agent did not modify any source files in the target directory", "passed": true, "evidence": "Report-only output, no file modifications"},
+    {"text": "Every finding includes concrete evidence", "passed": true, "evidence": "All findings include specific file references and concrete descriptions"}
+  ]
+}

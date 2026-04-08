@@ -1,0 +1,15 @@
+{
+  "eval_id": 1,
+  "eval_name": "eval-services",
+  "configuration": "with_skill",
+  "expectations": [
+    {"text": "Report explicitly names the target directory", "passed": true, "evidence": "'Code Review: `Story.Application.Desktop/Services/`'"},
+    {"text": "At least one finding cites a specific file:line reference", "passed": true, "evidence": "'TreeDataProviderFactory.cs:18-28', 'EditorContentLoader.cs:1-353'"},
+    {"text": "Findings use Critical/Serious/Minor severity labels", "passed": true, "evidence": "1 Critical, 7 Serious, 4 Minor"},
+    {"text": "Findings reference specific smell categories", "passed": true, "evidence": "Shotgun Surgery, Duplicate Code, Divergent Change, Large Class, Middle Man, Feature Envy, Dead Code, Speculative Generality"},
+    {"text": "No findings reference files outside scope", "passed": true, "evidence": "All within Services/"},
+    {"text": "Report includes an overall smell density rating", "passed": true, "evidence": "'Smell Density: Significant'"},
+    {"text": "Agent did not modify source files", "passed": true, "evidence": "Report-only"},
+    {"text": "Every finding includes concrete evidence", "passed": true, "evidence": "File:line references, code descriptions, blast radius counts"}
+  ]
+}

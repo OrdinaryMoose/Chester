@@ -1,0 +1,26 @@
+{
+  "skill_name": "chester-util-codereview",
+  "evals": [
+    {
+      "id": 0,
+      "name": "eval-util-config",
+      "prompt": "Review the code in chester-util-config/ for smells",
+      "expected_output": "A smell report scoped to chester-util-config/ covering its 2 shell scripts, with file:line citations",
+      "files": []
+    },
+    {
+      "id": 1,
+      "name": "eval-plan-smell",
+      "prompt": "Smell check chester-plan-smell/",
+      "expected_output": "A smell report scoped to chester-plan-smell/ — should handle a single large markdown file gracefully, possibly noting it's not traditional code",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "eval-execute-write",
+      "prompt": "Code review chester-execute-write/",
+      "expected_output": "A smell report scoped to chester-execute-write/ covering 5 files (SKILL.md + 4 agent reference docs), with structural findings about the skill's organization",
+      "files": []
+    }
+  ]
+}

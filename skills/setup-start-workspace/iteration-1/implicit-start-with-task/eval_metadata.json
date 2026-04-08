@@ -1,0 +1,6 @@
+{
+  "eval_id": 2,
+  "eval_name": "implicit-start-with-task",
+  "prompt": "I need to add a new validation rule to the pipeline scoring module",
+  "assertions": []
+}

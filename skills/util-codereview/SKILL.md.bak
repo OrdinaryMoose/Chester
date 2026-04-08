@@ -1,0 +1,303 @@
+---
+name: chester-util-codereview
+description: >
+  Code smell review of existing code scoped to a directory, namespace, or path.
+  Spawns three parallel agents — Bloaters & Dispensables, Couplers & OO Abusers,
+  and Change Preventers (each augmented with mapped SOLID checks) — to identify
+  code smells present in the target code. Based on the five smell categories from
+  refactoring.guru/refactoring/smells plus SOLID principles distributed across the
+  smell agents. Invoke via: "review code in src/", "smell check this directory",
+  "code review src/billing", "what smells exist in lib/", "/chester-util-codereview".
+---
+
+# Code Review
+
+Analyzes existing code in a scoped directory for code smells. Every finding must cite
+real evidence — file paths, line numbers, class/method names, or concrete code patterns.
+Speculation without evidence is not a finding.
+
+## Relationship to other review skills
+
+- `chester-plan-smell` is forward-looking — it reviews plans for smells they *would* introduce
+- This skill is present-tense — it reviews code that *already exists*
+
+Both use the same smell taxonomy. They do not overlap: one reviews plans, the other reviews code.
+
+## Scope
+
+The user provides a target: a directory path, a namespace, or a glob pattern. Agents
+confine their exploration to that scope. Code outside the scope is only relevant when
+the scoped code directly depends on it (imports, inheritance, interface contracts).
+
+This constraint matters because without it, agents will wander the entire repo and produce
+findings about code the user didn't ask about — wasting time and diluting the report.
+
+## Workflow
+
+### Step 1 — Resolve the scope
+
+Determine what code to review. The user will either:
+
+- Name a directory: `src/billing/`, `lib/auth`
+- Name a namespace or module: `billing`, `auth.providers`
+- Provide a glob: `**/*Controller.ts`
+- Have a contextual reference: "this directory", "the code we just wrote"
+
+If the scope is ambiguous or missing, ask the user to specify. Do not default to the
+entire repo — that defeats the purpose of scoped review.
+
+Once resolved, confirm the scope briefly: "Reviewing `src/billing/` for code smells."
+
+Explore the target scope to understand what's there before launching agents. Identify:
+
+- The languages and frameworks in use
+- Key files, classes, and modules within the scope
+- Approximate size (handful of files vs. large subsystem)
+- Entry points and public interfaces
+
+This context goes to each agent so they aren't exploring blind.
+
+### Step 2 — Launch three agents in parallel
+
+Launch all three agents in a single message using the Agent tool. Each agent receives
+a scope summary and file listing as the first content, followed by a `---` delimiter,
+then agent-specific analysis instructions. Each agent has `subagent_type` "Explore" so
+it can read the codebase but cannot modify files.
+
+The scope summary should include:
+- The target path/pattern
+- Languages and frameworks detected
+- Key files and their apparent roles
+- Any notable patterns observed during Step 1
+
+---
+
+**Agent 1 — Bloaters & Dispensables**
+
+Prompt the agent with:
+
+> ## Scope
+> Target: `<scope-path>`
+> Languages: <detected languages>
+> Key files:
+> <file listing with brief role descriptions>
+>
+> ---
+>
+> Review the existing code within the scope above for Bloater and Dispensable code smells. Read the actual source files — do not guess from file names alone.
+>
+> Bloater smells to look for:
+> - Long Method: methods/functions that do too much and should be split
+> - Large Class: classes that have taken on too many responsibilities
+> - Primitive Obsession: primitives passed around where value objects or named types belong
+> - Long Parameter List: methods/functions with too many parameters
+> - Data Clumps: groups of related data that travel together without a named type
+>
+> Dispensable smells to look for:
+> - Duplicate Code: repeated logic that exists in multiple places
+> - Dead Code: constructs that are never called or reached
+> - Lazy Class: classes too thin to justify their existence
+> - Speculative Generality: abstraction layers with no current consumer beyond one call site
+> - Comments as Crutch: comments explaining logic that should be self-evident from structure
+>
+> SOLID-mapped smells to also check:
+> - Does any class take on more than one reason to change? (SRP as Large Class)
+> - Are there fat interfaces that force implementors to depend on methods they don't use? (ISP as Long Parameter List / fat interface bloat)
+>
+> Rules:
+> - Every finding MUST cite a specific file path, line number or range, and the construct involved
+> - Read the code. If you cannot find concrete evidence in the source files, drop the finding
+> - Classify each finding as Critical (significant structural harm), Serious (real quality
+>   cost that will compound over time), or Minor (low-impact)
+> - Confine your exploration to `<scope-path>` — only look outside the scope when tracing
+>   a direct dependency (import, inheritance, interface)
+>
+> Output format:
+> ## Bloaters & Dispensables Findings
+>
+> ### Findings
+> - **[Critical|Serious|Minor]** | `file:line` | finding | evidence
+>   > Optional detail block for complex findings
+>
+> Omit empty sections. Omit detail blocks unless the finding cannot be understood without them.
+
+---
+
+**Agent 2 — Couplers & OO Abusers**
+
+Prompt the agent with:
+
+> ## Scope
+> Target: `<scope-path>`
+> Languages: <detected languages>
+> Key files:
+> <file listing with brief role descriptions>
+>
+> ---
+>
+> Review the existing code within the scope above for Coupler and OO Abuser code smells. Read the actual source files — do not guess from file names alone.
+>
+> Coupler smells to look for:
+> - Feature Envy: methods that use another class's data more than their own
+> - Inappropriate Intimacy: classes that reach too deeply into each other's internals
+> - Message Chains: long call chains (a.B().C().D()) that expose navigation paths
+> - Middle Man: classes that do nothing but delegate to another with no added value
+>
+> OO Abuser smells to look for:
+> - Switch Statements: type-based switching where polymorphism belongs
+> - Temporary Field: fields that are only meaningful in some execution paths
+> - Refused Bequest: subclasses that ignore or override most of what their parent provides
+> - Alternative Classes with Different Interfaces: classes that do the same thing under
+>   different method names or signatures
+>
+> SOLID-mapped smells to also check:
+> - Does any subclass behave in a way that would break code written against the base class
+>   contract? (LSP as Refused Bequest)
+> - Do high-level modules depend directly on low-level modules rather than on abstractions?
+>   (DIP as Feature Envy / Inappropriate Intimacy)
+>
+> Rules:
+> - Every finding MUST cite a specific file path, line number or range, and the construct involved
+> - Read the code. If you cannot find concrete evidence in the source files, drop the finding
+> - Classify each finding as Critical, Serious, or Minor
+> - Confine your exploration to `<scope-path>` — only look outside the scope when tracing
+>   a direct dependency
+>
+> Output format:
+> ## Couplers & OO Abusers Findings
+>
+> ### Findings
+> - **[Critical|Serious|Minor]** | `file:line` | finding | evidence
+>   > Optional detail block for complex findings
+>
+> Omit empty sections. Omit detail blocks unless the finding cannot be understood without them.
+
+---
+
+**Agent 3 — Change Preventers**
+
+Prompt the agent with:
+
+> ## Scope
+> Target: `<scope-path>`
+> Languages: <detected languages>
+> Key files:
+> <file listing with brief role descriptions>
+>
+> ---
+>
+> Review the existing code within the scope above for Change Preventer code smells — structural decisions that make the code harder to change. Read the actual source files — do not guess from file names alone.
+>
+> Change Preventer smells to look for:
+> - Divergent Change: classes with multiple unrelated responsibilities such that future
+>   changes to different concerns all require touching the same class
+> - Shotgun Surgery: a single concern distributed across many files such that any change
+>   to that concern requires touching all of them
+> - Parallel Inheritance Hierarchies: class hierarchies that mirror each other, requiring
+>   additions to one whenever you add to the other
+>
+> SOLID-mapped smells to also check:
+> - Does any class hold multiple unrelated responsibilities? (SRP as Divergent Change)
+> - Would adding new behavior require modifying existing closed classes rather than extending?
+>   (OCP as Shotgun Surgery)
+>
+> For each smell found, assess the blast radius: roughly how many files would need to change
+> if the affected concern were modified?
+>
+> Rules:
+> - Every finding MUST cite specific file paths, line numbers, and constructs as evidence
+> - Read the code. If you cannot find concrete evidence in the source files, drop the finding
+> - Classify each finding as Critical, Serious, or Minor
+> - Confine your exploration to `<scope-path>` — only look outside the scope when tracing
+>   a direct dependency
+>
+> Output format:
+> ## Change Preventers Findings
+>
+> ### Findings
+> - **[Critical|Serious|Minor]** | `file:line` | finding | evidence
+>   > Optional detail block for complex findings
+>
+> Omit empty sections. Omit detail blocks unless the finding cannot be understood without them.
+
+---
+
+### Step 3 — Synthesize the smell report
+
+**Structured Thinking gate:** Before merging, use Structured Thinking to
+resolve cross-category overlaps:
+
+1. Call `mcp__structured-thinking__clear_thinking_history` to reset state
+2. For each of the three agents' findings, call
+   `mcp__structured-thinking__capture_thought` with a distinct `branch_id`
+   per agent (e.g., "bloaters-dispensables", "couplers-oo-abusers",
+   "change-preventers")
+3. For each Critical finding, call
+   `mcp__structured-thinking__retrieve_relevant_thoughts` to check whether
+   other agents found supporting or conflicting evidence for the same
+   underlying issue
+4. Where two agents report the same issue at different severities, use
+   `mcp__structured-thinking__revise_thought` to collapse to the more
+   conservative rating
+5. Call `mcp__structured-thinking__get_thinking_summary` to produce the
+   collapsed view
+
+Proceed to write the merged report from the summary. The Structured Thinking
+output is an internal reasoning artifact — it does not appear in the final
+report.
+
+**Fallback:** If the Structured Thinking MCP is unavailable, stop and notify
+the user. The synthesis step requires this tool for reliable cross-category
+deduplication.
+
+After all three agents return, merge their findings into a single report. Deduplicate
+findings that multiple agents independently identified — keep the version with stronger
+evidence and note which agents both flagged it.
+
+Output format:
+
+```
+## Code Review: `<scope-path>`
+
+**Smell Density: [Low | Moderate | Significant | High]**
+
+Agents: Bloaters & Dispensables, Couplers & OO Abusers, Change Preventers.
+Scope: `<scope-path>` (<file count> files, <languages>)
+
+### Findings
+- **Critical** | `file:line` | finding | evidence | smell: [category] | source: [agent(s)]
+- **Serious** | `file:line` | finding | evidence | smell: [category] | source: [agent(s)]
+- **Minor** | `file:line` | finding | evidence | smell: [category] | source: [agent(s)]
+
+### Risk Rationale
+- rationale statement
+- rationale statement
+- rationale statement
+```
+
+**Smell density criteria:**
+
+The density level reflects how findings interact, not just their count.
+
+- **Low** — Findings are independent and minor. The code is clean for its age and complexity.
+- **Moderate** — Some findings share boundaries. Individual fixes are straightforward but
+  a few areas deserve attention.
+- **Significant** — Findings reinforce each other across multiple areas. Complexity and
+  coupling are compounding. Coordinated refactoring needed.
+- **High** — Findings are systemic with shared root causes. The code's structure actively
+  resists change and will degrade further without intervention.
+
+Omit empty sections. If there are no findings, say so plainly.
+
+### Step 4 — Stop
+
+The report is the deliverable. Do not modify code, create branches, or take further action
+unless the user asks. The user decides how to respond to the findings.
+
+## Boundaries
+
+- This skill reviews existing code. For reviewing plans, use `chester-plan-smell`.
+- This skill does not write or modify code. All output is inline in the conversation.
+- This skill requires a scope. It will not review the entire repo by default.
+- Each finding must have file-level evidence with line numbers. Drop any finding that
+  cannot cite a real file and location. This is the single most important rule.

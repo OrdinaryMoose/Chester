@@ -2,10 +2,10 @@
 set -euo pipefail
 
 SKILLS=(
-  "chester-design-figure-out/SKILL.md"
-  "chester-design-specify/SKILL.md"
-  "chester-plan-build/SKILL.md"
-  "chester-finish/SKILL.md"
+  "skills/design-figure-out/SKILL.md"
+  "skills/design-specify/SKILL.md"
+  "skills/plan-build/SKILL.md"
+  "skills/finish/SKILL.md"
 )
 
 ERRORS=0

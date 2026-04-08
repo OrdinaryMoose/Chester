@@ -1,0 +1,15 @@
+{
+  "eval_id": 0,
+  "eval_name": "eval-util-config",
+  "prompt": "Review the code in chester-util-config/ for smells",
+  "assertions": [
+    {"id": "scope_stated", "text": "Report explicitly names the target directory (chester-util-config/) being reviewed"},
+    {"id": "file_line_citations", "text": "At least one finding cites a specific file:line reference"},
+    {"id": "severity_classification", "text": "Findings use Critical/Serious/Minor severity labels"},
+    {"id": "smell_categories", "text": "Findings reference specific smell categories (Bloater, Dispensable, Coupler, OO Abuser, or Change Preventer)"},
+    {"id": "scope_contained", "text": "No findings reference files outside chester-util-config/"},
+    {"id": "density_rating", "text": "Report includes an overall smell density rating (Low/Moderate/Significant/High)"},
+    {"id": "no_code_modifications", "text": "The agent did not modify any source files in the target directory"},
+    {"id": "evidence_based", "text": "Every finding includes concrete evidence (code snippet, line reference, or specific construct name), not vague warnings"}
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "metadata": {
+    "skill_name": "chester-util-codereview",
+    "skill_path": "/home/mike/.claude/skills/chester-util-codereview",
+    "executor_model": "claude-opus-4-6",
+    "analyzer_model": "claude-opus-4-6",
+    "timestamp": "2026-04-05T01:00:00Z",
+    "evals_run": ["eval-viewmodels", "eval-services", "eval-core-domain"],
+    "runs_per_configuration": 1
+  },
+  "runs": [
+    {
+      "eval_id": 0, "eval_name": "eval-viewmodels", "configuration": "with_skill", "run_number": 1,
+      "result": {"pass_rate": 1.0, "passed": 8, "failed": 0, "total": 8, "time_seconds": 175.8, "tokens": 44658, "tool_calls": 25, "errors": 0},
+      "expectations": [
+        {"text": "Report explicitly names the target directory", "passed": true, "evidence": "Header present"},
+        {"text": "At least one finding cites a specific file:line reference", "passed": true, "evidence": "Multiple file:line refs"},
+        {"text": "Findings use Critical/Serious/Minor severity labels", "passed": true, "evidence": "4 Serious, 9 Minor"},
+        {"text": "Findings reference specific smell categories", "passed": true, "evidence": "Full taxonomy used"},
+        {"text": "No findings reference files outside scope", "passed": true, "evidence": "All within ViewModels/"},
+        {"text": "Report includes an overall smell density rating", "passed": true, "evidence": "Moderate"},
+        {"text": "Agent did not modify source files", "passed": true, "evidence": "Report-only"},
+        {"text": "Every finding includes concrete evidence", "passed": true, "evidence": "Evidence throughout"}
+      ]
+    },
+    {
+      "eval_id": 0, "eval_name": "eval-viewmodels", "configuration": "without_skill", "run_number": 1,
+      "result": {"pass_rate": 0.625, "passed": 5, "failed": 3, "total": 8, "time_seconds": 67.2, "tokens": 33034, "tool_calls": 11, "errors": 0},
+      "expectations": [
+        {"text": "Report explicitly names the target directory", "passed": true, "evidence": "Target listed"},
+        {"text": "At least one finding cites a specific file:line reference", "passed": true, "evidence": "Line refs present"},
+        {"text": "Findings use Critical/Serious/Minor severity labels", "passed": false, "evidence": "High/Medium/Low"},
+        {"text": "Findings reference specific smell categories", "passed": false, "evidence": "Mostly ad-hoc"},
+        {"text": "No findings reference files outside scope", "passed": true, "evidence": "All within scope"},
+        {"text": "Report includes an overall smell density rating", "passed": false, "evidence": "No aggregate"},
+        {"text": "Agent did not modify source files", "passed": true, "evidence": "Report-only"},
+        {"text": "Every finding includes concrete evidence", "passed": true, "evidence": "Evidence throughout"}
+      ]
+    },
+    {
+      "eval_id": 1, "eval_name": "eval-services", "configuration": "with_skill", "run_number": 1,
+      "result": {"pass_rate": 1.0, "passed": 8, "failed": 0, "total": 8, "time_seconds": 172.6, "tokens": 51833, "tool_calls": 42, "errors": 0},
+      "expectations": [
+        {"text": "Report explicitly names the target directory", "passed": true, "evidence": "Header present"},
+        {"text": "At least one finding cites a specific file:line reference", "passed": true, "evidence": "Multiple file:line refs"},
+        {"text": "Findings use Critical/Serious/Minor severity labels", "passed": true, "evidence": "1 Crit, 7 Serious, 4 Minor"},
+        {"text": "Findings reference specific smell categories", "passed": true, "evidence": "Full taxonomy used"},
+        {"text": "No findings reference files outside scope", "passed": true, "evidence": "All within Services/"},
+        {"text": "Report includes an overall smell density rating", "passed": true, "evidence": "Significant"},
+        {"text": "Agent did not modify source files", "passed": true, "evidence": "Report-only"},
+        {"text": "Every finding includes concrete evidence", "passed": true, "evidence": "Evidence throughout"}
+      ]
+    },
+    {
+      "eval_id": 1, "eval_name": "eval-services", "configuration": "without_skill", "run_number": 1,
+      "result": {"pass_rate": 0.625, "passed": 5, "failed": 3, "total": 8, "time_seconds": 92.8, "tokens": 42291, "tool_calls": 32, "errors": 0},
+      "expectations": [
+        {"text": "Report explicitly names the target directory", "passed": true, "evidence": "Scope listed"},
+        {"text": "At least one finding cites a specific file:line reference", "passed": true, "evidence": "Line refs present"},
+        {"text": "Findings use Critical/Serious/Minor severity labels", "passed": false, "evidence": "High/Medium/Low"},
+        {"text": "Findings reference specific smell categories", "passed": false, "evidence": "Mostly ad-hoc"},
+        {"text": "No findings reference files outside scope", "passed": true, "evidence": "All within scope"},
+        {"text": "Report includes an overall smell density rating", "passed": false, "evidence": "No aggregate"},
+        {"text": "Agent did not modify source files", "passed": true, "evidence": "Report-only"},
+        {"text": "Every finding includes concrete evidence", "passed": true, "evidence": "Evidence throughout"}
+      ]
+    },
+    {
+      "eval_id": 2, "eval_name": "eval-core-domain", "configuration": "with_skill", "run_number": 1,
+      "result": {"pass_rate": 1.0, "passed": 8, "failed": 0, "total": 8, "time_seconds": 268.8, "tokens": 84145, "tool_calls": 55, "errors": 0},
+      "expectations": [
+        {"text": "Report explicitly names the target directory", "passed": true, "evidence": "Header present"},
+        {"text": "At least one finding cites a specific file:line reference", "passed": true, "evidence": "Extensive line refs"},
+        {"text": "Findings use Critical/Serious/Minor severity labels", "passed": true, "evidence": "1 Crit, 6 Serious, 8 Minor"},
+        {"text": "Findings reference specific smell categories", "passed": true, "evidence": "Full taxonomy used"},
+        {"text": "No findings reference files outside scope", "passed": true, "evidence": "All within Core.Domain/"},
+        {"text": "Report includes an overall smell density rating", "passed": true, "evidence": "Significant"},
+        {"text": "Agent did not modify source files", "passed": true, "evidence": "Report-only"},
+        {"text": "Every finding includes concrete evidence", "passed": true, "evidence": "Evidence throughout"}
+      ]
+    },
+    {
+      "eval_id": 2, "eval_name": "eval-core-domain", "configuration": "without_skill", "run_number": 1,
+      "result": {"pass_rate": 0.75, "passed": 6, "failed": 2, "total": 8, "time_seconds": 135.6, "tokens": 65191, "tool_calls": 32, "errors": 0},
+      "expectations": [
+        {"text": "Report explicitly names the target directory", "passed": true, "evidence": "Scope listed"},
+        {"text": "At least one finding cites a specific file:line reference", "passed": true, "evidence": "Line refs present"},
+        {"text": "Findings use Critical/Serious/Minor severity labels", "passed": false, "evidence": "High/Medium/Low/Informational"},
+        {"text": "Findings reference specific smell categories", "passed": true, "evidence": "Used taxonomy names: Duplicated Code, Primitive Obsession, Parallel Inheritance, etc."},
+        {"text": "No findings reference files outside scope", "passed": true, "evidence": "All within scope"},
+        {"text": "Report includes an overall smell density rating", "passed": false, "evidence": "Summary table only"},
+        {"text": "Agent did not modify source files", "passed": true, "evidence": "Report-only"},
+        {"text": "Every finding includes concrete evidence", "passed": true, "evidence": "Code snippets throughout"}
+      ]
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {"mean": 1.0, "stddev": 0.0, "min": 1.0, "max": 1.0},
+      "time_seconds": {"mean": 205.7, "stddev": 44.5, "min": 172.6, "max": 268.8},
+      "tokens": {"mean": 60212, "stddev": 16863, "min": 44658, "max": 84145}
+    },
+    "without_skill": {
+      "pass_rate": {"mean": 0.667, "stddev": 0.059, "min": 0.625, "max": 0.75},
+      "time_seconds": {"mean": 98.5, "stddev": 28.3, "min": 67.2, "max": 135.6},
+      "tokens": {"mean": 46839, "stddev": 13365, "min": 33034, "max": 65191}
+    },
+    "delta": {
+      "pass_rate": "+0.333",
+      "time_seconds": "+107.2",
+      "tokens": "+13373"
+    }
+  },
+  "notes": [
+    "Same 3 assertions differentiate: severity_classification, smell_categories, density_rating",
+    "Core.Domain baseline used correct taxonomy names, narrowing delta to 2 assertions",
+    "Baseline consistently found practical runtime issues (thread safety, memory leaks, missing notifications) that the skill missed",
+    "Skill consistently found cross-cutting architectural patterns (Shotgun Surgery, blast radius analysis) that baseline missed",
+    "Both found the same high-severity issues in every eval"
+  ]
+}

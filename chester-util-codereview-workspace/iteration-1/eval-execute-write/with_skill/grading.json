@@ -1,0 +1,15 @@
+{
+  "eval_id": 2,
+  "eval_name": "eval-execute-write",
+  "configuration": "with_skill",
+  "expectations": [
+    {"text": "Report explicitly names the target directory (chester-execute-write/) being reviewed", "passed": true, "evidence": "Header: 'Code Review: `chester-execute-write/`' and 'Scope: `chester-execute-write/` (5 files, Markdown with YAML frontmatter and embedded bash)'"},
+    {"text": "At least one finding cites a specific file:line reference", "passed": true, "evidence": "Multiple citations, e.g. 'SKILL.md:1-251', 'quality-reviewer.md:1-27', 'code-reviewer.md:66-68'"},
+    {"text": "Findings use Critical/Serious/Minor severity labels", "passed": true, "evidence": "4 Serious and 6 Minor findings, all using the correct taxonomy"},
+    {"text": "Findings reference specific smell categories", "passed": true, "evidence": "Large Class, Divergent Change, Lazy Class, Middle Man, Shotgun Surgery, Speculative Generality, Duplicate Code, Inappropriate Intimacy, Data Clumps"},
+    {"text": "No findings reference files outside chester-execute-write/", "passed": true, "evidence": "All findings reference files within chester-execute-write/"},
+    {"text": "Report includes an overall smell density rating", "passed": true, "evidence": "'Smell Density: Moderate'"},
+    {"text": "The agent did not modify any source files in the target directory", "passed": true, "evidence": "Report-only output, no file modifications"},
+    {"text": "Every finding includes concrete evidence", "passed": true, "evidence": "All findings include file:line references, construct counts, and specific cross-references between files"}
+  ]
+}

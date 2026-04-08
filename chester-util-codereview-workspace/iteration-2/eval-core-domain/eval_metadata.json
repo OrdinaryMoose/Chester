@@ -1,0 +1,15 @@
+{
+  "eval_id": 2,
+  "eval_name": "eval-core-domain",
+  "prompt": "Review the code in the Core.Domain project for smells",
+  "assertions": [
+    {"id": "scope_stated", "text": "Report explicitly names the target directory being reviewed"},
+    {"id": "file_line_citations", "text": "At least one finding cites a specific file:line reference"},
+    {"id": "severity_classification", "text": "Findings use Critical/Serious/Minor severity labels"},
+    {"id": "smell_categories", "text": "Findings reference specific smell categories from the refactoring.guru taxonomy"},
+    {"id": "scope_contained", "text": "No findings reference files outside the target directory"},
+    {"id": "density_rating", "text": "Report includes an overall smell density rating (Low/Moderate/Significant/High)"},
+    {"id": "no_code_modifications", "text": "The agent did not modify any source files"},
+    {"id": "evidence_based", "text": "Every finding includes concrete evidence"}
+  ]
+}

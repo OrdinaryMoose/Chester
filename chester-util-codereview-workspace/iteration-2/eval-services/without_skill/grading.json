@@ -1,0 +1,15 @@
+{
+  "eval_id": 1,
+  "eval_name": "eval-services",
+  "configuration": "without_skill",
+  "expectations": [
+    {"text": "Report explicitly names the target directory", "passed": true, "evidence": "'Scope: 26 files across Services/, Services/Editor/, and Services/Providers/'"},
+    {"text": "At least one finding cites a specific file:line reference", "passed": true, "evidence": "Line references throughout, e.g. 'lines 68-72, 83-86'"},
+    {"text": "Findings use Critical/Serious/Minor severity labels", "passed": false, "evidence": "Uses High/Medium/Low/Low-Medium"},
+    {"text": "Findings reference specific smell categories", "passed": false, "evidence": "Some taxonomy: 'Duplicated Code', 'Speculative Generality'. But mostly ad-hoc: 'Thread Safety Gap', 'Bare catch Blocks', 'Mutable Interface Property'"},
+    {"text": "No findings reference files outside scope", "passed": true, "evidence": "All within Services/"},
+    {"text": "Report includes an overall smell density rating", "passed": false, "evidence": "No aggregate density rating"},
+    {"text": "Agent did not modify source files", "passed": true, "evidence": "Report-only"},
+    {"text": "Every finding includes concrete evidence", "passed": true, "evidence": "Code snippets, line references, file names throughout"}
+  ]
+}

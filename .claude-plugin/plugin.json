@@ -1,0 +1,7 @@
+{
+  "name": "chester",
+  "version": "1.0.0",
+  "description": "Skill-based development workflow framework — structured pipeline from design through execution to delivery",
+  "skills": "./skills/",
+  "mcpServers": "./.plugin-mcp.json"
+}

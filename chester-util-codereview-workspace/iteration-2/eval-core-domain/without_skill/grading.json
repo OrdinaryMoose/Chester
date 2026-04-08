@@ -1,0 +1,15 @@
+{
+  "eval_id": 2,
+  "eval_name": "eval-core-domain",
+  "configuration": "without_skill",
+  "expectations": [
+    {"text": "Report explicitly names the target directory", "passed": true, "evidence": "'Scope: /home/mike/RiderProjects/StoryDesigner/Story.Core.Domain/'"},
+    {"text": "At least one finding cites a specific file:line reference", "passed": true, "evidence": "'EntityBase.cs (lines 82-97)', line references throughout"},
+    {"text": "Findings use Critical/Serious/Minor severity labels", "passed": false, "evidence": "Uses High/Medium/Low/Low-Medium/Informational"},
+    {"text": "Findings reference specific smell categories", "passed": true, "evidence": "'Duplicated Code', 'Primitive Obsession', 'Parallel Inheritance', 'Dead Code', 'Refused Bequest', 'Data Class'"},
+    {"text": "No findings reference files outside scope", "passed": true, "evidence": "All within Story.Core.Domain/"},
+    {"text": "Report includes an overall smell density rating", "passed": false, "evidence": "Summary table only, no aggregate rating"},
+    {"text": "Agent did not modify source files", "passed": true, "evidence": "Report-only"},
+    {"text": "Every finding includes concrete evidence", "passed": true, "evidence": "Code snippets, line references, file counts, and concrete examples"}
+  ]
+}

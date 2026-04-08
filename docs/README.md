@@ -34,7 +34,7 @@ audit explaining why the code works the way it does.
 | Skill | What it does |
 |-------|-------------|
 | `chester-setup-start` | Loads Chester into every session via the startup hook |
-| `chester-design-figure-out` | Socratic design interview with live visual companion |
+| `chester-design-figure-out` | Quantitatively-disciplined Socratic design discovery with MCP-backed scoring |
 | `chester-design-specify` | Turns the design brief into a reviewed, approvable spec |
 | `chester-plan-build` | Breaks the spec into TDD tasks and stress-tests the plan |
 | `chester-execute-write` | Subagent-driven implementation with per-task review |

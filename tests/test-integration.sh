@@ -47,11 +47,11 @@ fi
 # 3. Test skill files exist and have guard sections
 echo "--- Test: skill modifications ---"
 GUARD_SKILLS=(
-  "chester-design-figure-out/SKILL.md"
-  "chester-design-specify/SKILL.md"
-  "chester-plan-build/SKILL.md"
-  "chester-finish/SKILL.md"
-  "chester-execute-write/SKILL.md"
+  "skills/design-figure-out/SKILL.md"
+  "skills/design-specify/SKILL.md"
+  "skills/plan-build/SKILL.md"
+  "skills/finish/SKILL.md"
+  "skills/execute-write/SKILL.md"
 )
 
 for skill in "${GUARD_SKILLS[@]}"; do
@@ -65,7 +65,7 @@ done
 
 # 4. Test chester-setup-start has session housekeeping
 echo "--- Test: chester-setup-start session housekeeping ---"
-if grep -q "Session Housekeeping" "chester-setup-start/SKILL.md" 2>/dev/null; then
+if grep -q "Session Housekeeping" "skills/setup-start/SKILL.md" 2>/dev/null; then
   echo "  PASS: chester-setup-start has session housekeeping"
 else
   echo "  FAIL: chester-setup-start missing session housekeeping"

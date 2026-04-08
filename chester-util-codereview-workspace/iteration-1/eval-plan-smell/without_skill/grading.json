@@ -1,0 +1,15 @@
+{
+  "eval_id": 1,
+  "eval_name": "eval-plan-smell",
+  "configuration": "without_skill",
+  "expectations": [
+    {"text": "Report explicitly names the target directory (chester-plan-smell/) being reviewed", "passed": true, "evidence": "Header: 'Code Smell Review: chester-plan-smell/SKILL.md'"},
+    {"text": "At least one finding cites a specific file:line reference", "passed": true, "evidence": "Multiple line references, e.g. 'lines 76-118', 'lines 126-174', 'Step 3, lines 227-251'"},
+    {"text": "Findings use Critical/Serious/Minor severity labels", "passed": true, "evidence": "Uses Serious and Minor labels correctly (0 Critical, 3 Serious, 4 Minor in summary table)"},
+    {"text": "Findings reference specific smell categories", "passed": true, "evidence": "Uses taxonomy names: 'Duplicate Code', 'Inappropriate Intimacy', 'Speculative Generality', 'Dead Code'"},
+    {"text": "No findings reference files outside chester-plan-smell/", "passed": true, "evidence": "All findings reference only SKILL.md within chester-plan-smell/"},
+    {"text": "Report includes an overall smell density rating", "passed": false, "evidence": "No overall density rating. Has a summary table with severity counts but no aggregate assessment like Low/Moderate/Significant/High"},
+    {"text": "The agent did not modify any source files in the target directory", "passed": true, "evidence": "Report-only output, no file modifications"},
+    {"text": "Every finding includes concrete evidence", "passed": true, "evidence": "All findings cite line numbers, code snippets, and concrete explanations"}
+  ]
+}

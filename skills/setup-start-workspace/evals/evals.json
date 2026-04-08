@@ -1,0 +1,23 @@
+{
+  "skill_name": "setup-start",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "chester start",
+      "expected_output": "Should verify jq, read config, run all returning-session checks, and echo BOTH the working directory path and the plans directory path to the user. Both paths must be visible in the output.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "I need to add a new validation rule to the pipeline scoring module",
+      "expected_output": "Should invoke setup-start BEFORE engaging with the task. Must echo both directory paths (working and plans) during setup, then proceed to ask about the task or invoke a design skill.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "hey, let's pick up where we left off on the refactor",
+      "expected_output": "Should invoke setup-start first. Must echo both directory paths. Should not skip the path echo even though this is a casual/continuation prompt.",
+      "files": []
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "eval_id": 1,
+  "eval_name": "eval-plan-smell",
+  "configuration": "with_skill",
+  "expectations": [
+    {"text": "Report explicitly names the target directory (chester-plan-smell/) being reviewed", "passed": true, "evidence": "Header: 'Code Review: `chester-plan-smell/`' and 'Scope: `chester-plan-smell/` (1 file, Markdown/YAML)'"},
+    {"text": "At least one finding cites a specific file:line reference", "passed": true, "evidence": "Multiple citations, e.g. 'SKILL.md:68-221', 'SKILL.md:225-251'"},
+    {"text": "Findings use Critical/Serious/Minor severity labels", "passed": true, "evidence": "1 Critical, 4 Serious, 3 Minor findings"},
+    {"text": "Findings reference specific smell categories", "passed": true, "evidence": "Duplicate Code, Shotgun Surgery, Inappropriate Intimacy, Divergent Change, Speculative Generality, Feature Envy"},
+    {"text": "No findings reference files outside chester-plan-smell/", "passed": false, "evidence": "Finding 1 cites 'chester-util-codereview/SKILL.md:75-221' — a cross-scope reference to show duplication between the two skills"},
+    {"text": "Report includes an overall smell density rating", "passed": true, "evidence": "'Smell Density: Significant'"},
+    {"text": "The agent did not modify any source files in the target directory", "passed": true, "evidence": "Report-only output, no file modifications"},
+    {"text": "Every finding includes concrete evidence", "passed": true, "evidence": "All findings cite specific line ranges, construct names, and quantitative observations (e.g. '~60% boilerplate')"}
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "skill_name": "chester-design-architect",
+  "evals": [
+    {
+      "id": 0,
+      "name": "brownfield-cache-staleness",
+      "prompt": "the reference map goes stale when entities are renamed",
+      "expected_output": "Round 1 should present a gap map (codebase observations + explicit gaps in human context and foundations dimensions) and ask a clarifying question targeting the weakest understanding dimension. It should NOT present a problem statement or complete analysis.",
+      "files": []
+    },
+    {
+      "id": 1,
+      "name": "greenfield-preview-feature",
+      "prompt": "we need a way for designers to preview their DSL changes before committing them",
+      "expected_output": "Round 1 should present observations about the current DSL system and explicit gaps about who needs previews, what they've tried, why now, and what's in/out of scope. Should NOT jump to proposing a preview architecture.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "brownfield-performance",
+      "prompt": "the entity list page is slow when there are more than 500 entities",
+      "expected_output": "Round 1 should note what it can see about the entity list implementation and explicitly flag gaps: who experiences this, how often, what's been tried, whether this is getting worse. Should NOT diagnose the performance issue or propose solutions.",
+      "files": []
+    }
+  ]
+}

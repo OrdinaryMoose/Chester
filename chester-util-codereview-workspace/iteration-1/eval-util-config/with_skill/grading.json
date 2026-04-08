@@ -1,0 +1,15 @@
+{
+  "eval_id": 0,
+  "eval_name": "eval-util-config",
+  "configuration": "with_skill",
+  "expectations": [
+    {"text": "Report explicitly names the target directory (chester-util-config/) being reviewed", "passed": true, "evidence": "Header: 'Code Review: `chester-util-config/`' and 'Scope: `chester-util-config/` (2 files, Bash)'"},
+    {"text": "At least one finding cites a specific file:line reference", "passed": true, "evidence": "Multiple findings cite file:line, e.g. 'session-start:10-12', 'chester-config-read.sh:25-29'"},
+    {"text": "Findings use Critical/Serious/Minor severity labels", "passed": true, "evidence": "2 Serious and 6 Minor findings, all using the correct taxonomy"},
+    {"text": "Findings reference specific smell categories", "passed": true, "evidence": "Inappropriate Intimacy, Shotgun Surgery, Divergent Change, Primitive Obsession, Speculative Generality, Comments as Crutch, Feature Envy"},
+    {"text": "No findings reference files outside chester-util-config/", "passed": true, "evidence": "All 8 findings reference only session-start and chester-config-read.sh"},
+    {"text": "Report includes an overall smell density rating", "passed": true, "evidence": "'Smell Density: Moderate'"},
+    {"text": "The agent did not modify any source files in the target directory", "passed": true, "evidence": "Report-only output, no file modifications"},
+    {"text": "Every finding includes concrete evidence", "passed": true, "evidence": "All findings include line numbers, code descriptions, and specific construct names"}
+  ]
+}

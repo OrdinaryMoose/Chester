@@ -1,0 +1,15 @@
+{
+  "eval_id": 0,
+  "eval_name": "eval-viewmodels",
+  "configuration": "with_skill",
+  "expectations": [
+    {"text": "Report explicitly names the target directory", "passed": true, "evidence": "'Code Review: `Story.Application.Desktop/ViewModels/`'"},
+    {"text": "At least one finding cites a specific file:line reference", "passed": true, "evidence": "'DslEditorViewModel.cs:30', 'MainWindowViewModel.cs:126-131'"},
+    {"text": "Findings use Critical/Serious/Minor severity labels", "passed": true, "evidence": "4 Serious, 9 Minor"},
+    {"text": "Findings reference specific smell categories", "passed": true, "evidence": "Large Class, Divergent Change, Inappropriate Intimacy, Shotgun Surgery, Feature Envy, Duplicate Code, Data Clumps, etc."},
+    {"text": "No findings reference files outside scope", "passed": true, "evidence": "All within ViewModels/"},
+    {"text": "Report includes an overall smell density rating", "passed": true, "evidence": "'Smell Density: Moderate'"},
+    {"text": "Agent did not modify source files", "passed": true, "evidence": "Report-only"},
+    {"text": "Every finding includes concrete evidence", "passed": true, "evidence": "All findings cite file:line, specific construct names, and field counts"}
+  ]
+}

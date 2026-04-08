@@ -1,0 +1,15 @@
+{
+  "eval_id": 0,
+  "eval_name": "eval-viewmodels",
+  "configuration": "without_skill",
+  "expectations": [
+    {"text": "Report explicitly names the target directory", "passed": true, "evidence": "'Target: Story.Application.Desktop/ViewModels/ (9 files)'"},
+    {"text": "At least one finding cites a specific file:line reference", "passed": true, "evidence": "'Line 29', 'Line 126-129', line references throughout"},
+    {"text": "Findings use Critical/Serious/Minor severity labels", "passed": false, "evidence": "Uses High/Medium/Low/Low-Medium severity labels"},
+    {"text": "Findings reference specific smell categories", "passed": false, "evidence": "Some taxonomy names (God Class, Feature Envy) but mostly ad-hoc: 'Magic Number', 'Memory Leak Risk', 'Empty Base Class'"},
+    {"text": "No findings reference files outside scope", "passed": true, "evidence": "All within ViewModels/"},
+    {"text": "Report includes an overall smell density rating", "passed": false, "evidence": "No aggregate rating"},
+    {"text": "Agent did not modify source files", "passed": true, "evidence": "Report-only"},
+    {"text": "Every finding includes concrete evidence", "passed": true, "evidence": "Code snippets, line numbers, and concrete explanations throughout"}
+  ]
+}

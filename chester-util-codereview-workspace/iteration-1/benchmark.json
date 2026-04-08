@@ -1,0 +1,193 @@
+{
+  "metadata": {
+    "skill_name": "chester-util-codereview",
+    "skill_path": "/home/mike/.claude/skills/chester-util-codereview",
+    "executor_model": "claude-opus-4-6",
+    "analyzer_model": "claude-opus-4-6",
+    "timestamp": "2026-04-05T00:05:00Z",
+    "evals_run": ["eval-util-config", "eval-plan-smell", "eval-execute-write"],
+    "runs_per_configuration": 1
+  },
+  "runs": [
+    {
+      "eval_id": 0,
+      "eval_name": "eval-util-config",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 8,
+        "failed": 0,
+        "total": 8,
+        "time_seconds": 132.7,
+        "tokens": 25080,
+        "tool_calls": 15,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Report explicitly names the target directory", "passed": true, "evidence": "Header: 'Code Review: `chester-util-config/`'"},
+        {"text": "At least one finding cites a specific file:line reference", "passed": true, "evidence": "e.g. 'session-start:10-12'"},
+        {"text": "Findings use Critical/Serious/Minor severity labels", "passed": true, "evidence": "2 Serious, 6 Minor"},
+        {"text": "Findings reference specific smell categories", "passed": true, "evidence": "Inappropriate Intimacy, Shotgun Surgery, Divergent Change, etc."},
+        {"text": "No findings reference files outside scope", "passed": true, "evidence": "All within chester-util-config/"},
+        {"text": "Report includes an overall smell density rating", "passed": true, "evidence": "'Smell Density: Moderate'"},
+        {"text": "Agent did not modify source files", "passed": true, "evidence": "Report-only output"},
+        {"text": "Every finding includes concrete evidence", "passed": true, "evidence": "Line numbers and construct names throughout"}
+      ]
+    },
+    {
+      "eval_id": 0,
+      "eval_name": "eval-util-config",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.625,
+        "passed": 5,
+        "failed": 3,
+        "total": 8,
+        "time_seconds": 53.9,
+        "tokens": 14668,
+        "tool_calls": 5,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Report explicitly names the target directory", "passed": true, "evidence": "Header: 'Code Smell Review: chester-util-config/'"},
+        {"text": "At least one finding cites a specific file:line reference", "passed": true, "evidence": "'Lines 12-13:', 'Lines 42-44:'"},
+        {"text": "Findings use Critical/Serious/Minor severity labels", "passed": false, "evidence": "Uses High/Medium/Low instead"},
+        {"text": "Findings reference specific smell categories", "passed": false, "evidence": "Ad-hoc: 'Brittle Parser', 'DRY Violation'"},
+        {"text": "No findings reference files outside scope", "passed": true, "evidence": "All within scope"},
+        {"text": "Report includes an overall smell density rating", "passed": false, "evidence": "No aggregate rating"},
+        {"text": "Agent did not modify source files", "passed": true, "evidence": "Report-only"},
+        {"text": "Every finding includes concrete evidence", "passed": true, "evidence": "Code snippets and line numbers"}
+      ]
+    },
+    {
+      "eval_id": 1,
+      "eval_name": "eval-plan-smell",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.875,
+        "passed": 7,
+        "failed": 1,
+        "total": 8,
+        "time_seconds": 173.1,
+        "tokens": 30535,
+        "tool_calls": 17,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Report explicitly names the target directory", "passed": true, "evidence": "'Code Review: `chester-plan-smell/`'"},
+        {"text": "At least one finding cites a specific file:line reference", "passed": true, "evidence": "'SKILL.md:68-221'"},
+        {"text": "Findings use Critical/Serious/Minor severity labels", "passed": true, "evidence": "1 Critical, 4 Serious, 3 Minor"},
+        {"text": "Findings reference specific smell categories", "passed": true, "evidence": "Duplicate Code, Shotgun Surgery, Inappropriate Intimacy, etc."},
+        {"text": "No findings reference files outside scope", "passed": false, "evidence": "Cited chester-util-codereview/SKILL.md for cross-skill duplication"},
+        {"text": "Report includes an overall smell density rating", "passed": true, "evidence": "'Smell Density: Significant'"},
+        {"text": "Agent did not modify source files", "passed": true, "evidence": "Report-only"},
+        {"text": "Every finding includes concrete evidence", "passed": true, "evidence": "Line ranges and quantitative observations"}
+      ]
+    },
+    {
+      "eval_id": 1,
+      "eval_name": "eval-plan-smell",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.75,
+        "passed": 6,
+        "failed": 2,
+        "total": 8,
+        "time_seconds": 50.5,
+        "tokens": 16959,
+        "tool_calls": 4,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Report explicitly names the target directory", "passed": true, "evidence": "'chester-plan-smell/SKILL.md'"},
+        {"text": "At least one finding cites a specific file:line reference", "passed": true, "evidence": "'lines 76-118'"},
+        {"text": "Findings use Critical/Serious/Minor severity labels", "passed": true, "evidence": "Serious and Minor used correctly"},
+        {"text": "Findings reference specific smell categories", "passed": true, "evidence": "'Duplicate Code', 'Inappropriate Intimacy'"},
+        {"text": "No findings reference files outside scope", "passed": true, "evidence": "All within SKILL.md"},
+        {"text": "Report includes an overall smell density rating", "passed": false, "evidence": "Summary table only, no aggregate rating"},
+        {"text": "Agent did not modify source files", "passed": true, "evidence": "Report-only"},
+        {"text": "Every finding includes concrete evidence", "passed": true, "evidence": "Line numbers and snippets"}
+      ]
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "eval-execute-write",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 8,
+        "failed": 0,
+        "total": 8,
+        "time_seconds": 164.7,
+        "tokens": 32234,
+        "tool_calls": 18,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Report explicitly names the target directory", "passed": true, "evidence": "'Code Review: `chester-execute-write/`'"},
+        {"text": "At least one finding cites a specific file:line reference", "passed": true, "evidence": "'SKILL.md:1-251', 'quality-reviewer.md:1-27'"},
+        {"text": "Findings use Critical/Serious/Minor severity labels", "passed": true, "evidence": "4 Serious, 6 Minor"},
+        {"text": "Findings reference specific smell categories", "passed": true, "evidence": "Large Class, Divergent Change, Lazy Class, Middle Man, Shotgun Surgery, etc."},
+        {"text": "No findings reference files outside scope", "passed": true, "evidence": "All within chester-execute-write/"},
+        {"text": "Report includes an overall smell density rating", "passed": true, "evidence": "'Smell Density: Moderate'"},
+        {"text": "Agent did not modify source files", "passed": true, "evidence": "Report-only"},
+        {"text": "Every finding includes concrete evidence", "passed": true, "evidence": "File:line refs and cross-references"}
+      ]
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "eval-execute-write",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.625,
+        "passed": 5,
+        "failed": 3,
+        "total": 8,
+        "time_seconds": 58.8,
+        "tokens": 20491,
+        "tool_calls": 7,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Report explicitly names the target directory", "passed": true, "evidence": "Lists all 5 files by name"},
+        {"text": "At least one finding cites a specific file:line reference", "passed": true, "evidence": "'spec-reviewer.md line 25'"},
+        {"text": "Findings use Critical/Serious/Minor severity labels", "passed": false, "evidence": "Uses Critical/Important/Minor"},
+        {"text": "Findings reference specific smell categories", "passed": false, "evidence": "Descriptive labels: 'Duplication', 'Silent coupling'"},
+        {"text": "No findings reference files outside scope", "passed": true, "evidence": "All within scope"},
+        {"text": "Report includes an overall smell density rating", "passed": false, "evidence": "'Verdict: Generally well-structured' — not the rating scale"},
+        {"text": "Agent did not modify source files", "passed": true, "evidence": "Report-only"},
+        {"text": "Every finding includes concrete evidence", "passed": true, "evidence": "File references and descriptions"}
+      ]
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {"mean": 0.958, "stddev": 0.059, "min": 0.875, "max": 1.0},
+      "time_seconds": {"mean": 156.8, "stddev": 17.3, "min": 132.7, "max": 173.1},
+      "tokens": {"mean": 29283, "stddev": 3004, "min": 25080, "max": 32234}
+    },
+    "without_skill": {
+      "pass_rate": {"mean": 0.667, "stddev": 0.059, "min": 0.625, "max": 0.75},
+      "time_seconds": {"mean": 54.4, "stddev": 3.4, "min": 50.5, "max": 58.8},
+      "tokens": {"mean": 17373, "stddev": 2399, "min": 14668, "max": 20491}
+    },
+    "delta": {
+      "pass_rate": "+0.291",
+      "time_seconds": "+102.4",
+      "tokens": "+11910"
+    }
+  },
+  "notes": [
+    "5 of 8 assertions pass in both configurations (scope_stated, file_line_citations, scope_contained, no_code_modifications, evidence_based) — these do not discriminate skill value",
+    "The skill's distinctive value is in 3 assertions: severity_classification, smell_categories, density_rating — these account for the entire pass rate delta",
+    "plan-smell baseline coincidentally used correct smell taxonomy names without the skill — weakest discriminator eval",
+    "plan-smell with_skill referenced files outside scope to show cross-skill duplication — defensible but technically a scope violation",
+    "Skill adds ~102s and ~12k tokens for +29% pass rate, driven entirely by structured output format consistency"
+  ]
+}

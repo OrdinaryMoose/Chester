@@ -1,0 +1,15 @@
+{
+  "eval_id": 2,
+  "eval_name": "eval-core-domain",
+  "configuration": "with_skill",
+  "expectations": [
+    {"text": "Report explicitly names the target directory", "passed": true, "evidence": "'Code Review: `Story.Core.Domain/`'"},
+    {"text": "At least one finding cites a specific file:line reference", "passed": true, "evidence": "Extensive line references: 'Arc.cs:58-64', 'StoryArcStructuralCheck.cs:60-83'"},
+    {"text": "Findings use Critical/Serious/Minor severity labels", "passed": true, "evidence": "1 Critical, 6 Serious, 8 Minor"},
+    {"text": "Findings reference specific smell categories", "passed": true, "evidence": "Duplicate Code, Shotgun Surgery, Alternative Classes with Different Interfaces, Divergent Change, Lazy Class, Speculative Generality, Comments as Crutch, Primitive Obsession, Parallel Inheritance Hierarchies"},
+    {"text": "No findings reference files outside scope", "passed": true, "evidence": "All within Story.Core.Domain/"},
+    {"text": "Report includes an overall smell density rating", "passed": true, "evidence": "'Smell Density: Significant'"},
+    {"text": "Agent did not modify source files", "passed": true, "evidence": "Report-only"},
+    {"text": "Every finding includes concrete evidence", "passed": true, "evidence": "Line ranges, file counts, blast radius estimates throughout"}
+  ]
+}
