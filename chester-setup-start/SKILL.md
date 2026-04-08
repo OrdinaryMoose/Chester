@@ -1,5 +1,5 @@
 ---
-name: chester-setup-start
+name: setup-start
 description: Use when starting any conversation - establishes how to find and use Chester skills, requiring Skill tool invocation before ANY response including clarifying questions
 ---
 
@@ -33,38 +33,61 @@ At the start of every session:
 
 2. **First-run project configuration:** Check for project-scoped Chester config:
    ```bash
-   eval "$(~/.claude/skills/chester-util-config/chester-config-read.sh)"
+   eval "$(chester-config-read)"
    ```
    If `CHESTER_CONFIG_PATH` is `none`, this is a new project. Run the first-run setup:
 
-   a. Announce: "This looks like a new project for Chester. Let's set up your output directory."
+   a. Announce: "This looks like a new project for Chester. Let's get your directories set up."
 
-   b. Present defaults and ask for confirmation or customization:
+   b. Explain the directory model and present defaults:
    ```
-   Chester needs an artifacts directory for this project (gitignored — each worktree gets its own):
+   Chester uses one active directory and one archive:
 
-   Plans directory: docs/chester/plans/
+   1. **Working directory** — a gitignored scratch space where all documents live during
+      active work (design briefs, specs, plans, summaries). This stays outside worktrees
+      so documents are always in the same place regardless of which branch is checked out.
+      Every pipeline skill writes here. Nothing is committed from here mid-sprint.
 
-   Accept default? Or enter a custom path.
+   2. **Plans directory** — a tracked directory where documents are archived at merge time.
+      You never write here directly. When a sprint closes, `finish-archive-artifacts`
+      copies the working directory's sprint folder into plans and commits it alongside
+      the code, creating a permanent record.
+
+   Working directory (gitignored): docs/chester/working/
+   Plans directory (archive, tracked): docs/chester/plans/
+
+   Accept defaults? Or enter custom paths.
    ```
 
-   c. User accepts default or provides a custom path.
+   c. User accepts defaults or provides custom paths (one or both).
 
-   d. Create the directory:
+   d. Create the working directory:
    ```bash
-   mkdir -p "$CHESTER_PLANS_DIR"
+   mkdir -p "$CHESTER_WORKING_DIR"
    ```
 
-   e. Ensure plans directory is in `.gitignore`:
+   e. Ensure the working directory is in `.gitignore`:
    ```bash
-   if ! git check-ignore -q "$CHESTER_PLANS_DIR" 2>/dev/null; then
-     echo "$CHESTER_PLANS_DIR/" >> .gitignore
+   # Use the relative path for .gitignore (not the absolute resolved path)
+   WORKING_DIR_RELATIVE="<user's chosen working directory>"
+   if ! git check-ignore -q "$WORKING_DIR_RELATIVE" 2>/dev/null; then
+     echo "$WORKING_DIR_RELATIVE/" >> .gitignore
      git add .gitignore
-     git commit -m "chore: add chester plans directory to .gitignore"
+     git commit -m "chore: add chester working directory to .gitignore"
    fi
    ```
 
-   f. Write project config:
+   f. Ensure the plans directory is NOT in `.gitignore` (it must be tracked):
+   ```bash
+   if git check-ignore -q "$CHESTER_PLANS_DIR" 2>/dev/null; then
+     # Remove the gitignore entry — plans directory must be tracked
+     sed -i "\|^$CHESTER_PLANS_DIR|d" .gitignore
+     git add .gitignore
+     git commit -m "chore: unignore chester plans directory (tracked for history)"
+   fi
+   ```
+
+   g. Write project config:
    ```bash
    PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
    mkdir -p "$PROJECT_ROOT/.claude"
@@ -72,6 +95,7 @@ At the start of every session:
    Write to `$PROJECT_ROOT/.claude/settings.chester.local.json`:
    ```json
    {
+     "working_dir": "<user's chosen working directory>",
      "plans_dir": "<user's chosen plans directory>"
    }
    ```
@@ -82,9 +106,61 @@ At the start of every session:
    fi
    ```
 
-   g. Announce: "Chester configured. Artifacts at `{plans_dir}` (gitignored)."
+   h. Announce — use exactly this format:
+   ```
+   Chester is configured.
+   - Working directory: {CHESTER_WORKING_DIR} (gitignored)
+   - Plans directory: {CHESTER_PLANS_DIR} (archive, tracked)
+   ```
 
-   If `CHESTER_CONFIG_PATH` is not `none`, read silently and proceed. No announcement unless there's a problem (e.g., plans directory missing from .gitignore — fix and warn).
+   If `CHESTER_CONFIG_PATH` is not `none`, this is a returning session. Run these
+   verification checks silently, fixing what you can and warning about what you can't:
+
+   **Check 0: Config has both directory keys.**
+   Read `settings.chester.local.json` and verify it contains both `working_dir` and
+   `plans_dir`. If either key is missing, add it with the default value and rewrite
+   the file. Warn: "Config was missing {key} — added default: {value}".
+
+   **Check 1: Working directory exists on disk.**
+   ```bash
+   if [ ! -d "$CHESTER_WORKING_DIR" ]; then
+     mkdir -p "$CHESTER_WORKING_DIR"
+     # Warn: "Created missing working directory at {path}"
+   fi
+   ```
+
+   **Check 2: Working directory IS gitignored** (it must not be tracked).
+   ```bash
+   WORKING_DIR_RELATIVE="<relative path from config>"
+   if ! git check-ignore -q "$WORKING_DIR_RELATIVE" 2>/dev/null; then
+     echo "$WORKING_DIR_RELATIVE/" >> .gitignore
+     git add .gitignore
+     git commit -m "chore: add chester working directory to .gitignore"
+     # Warn: "Working directory was not gitignored — fixed."
+   fi
+   ```
+
+   **Check 3: Plans directory is NOT gitignored** (it must be tracked).
+   ```bash
+   if git check-ignore -q "$CHESTER_PLANS_DIR" 2>/dev/null; then
+     sed -i "\|^$CHESTER_PLANS_DIR|d" .gitignore
+     git add .gitignore
+     git commit -m "chore: unignore chester plans directory (tracked for history)"
+     # Warn: "Plans directory was gitignored — fixed. Plans must be tracked."
+   fi
+   ```
+
+   **After checks, always echo BOTH resolved paths to the user — exactly this format:**
+
+   ```
+   Chester is configured.
+   - Working directory: {CHESTER_WORKING_DIR} (gitignored)
+   - Plans directory: {CHESTER_PLANS_DIR} (archive, tracked)
+   ```
+
+   Both lines are mandatory. Do not omit the working directory. Do not paraphrase
+   or summarize into a single line. The user must see both paths so misconfigurations
+   are caught immediately, not three skills later.
 
 ## How to Access Skills
 
@@ -147,18 +223,18 @@ These thoughts mean STOP — you're rationalizing:
 
 When multiple skills could apply, use this order:
 
-1. **Gate skills first** (`chester-design-figure-out`, `chester-design-specify`, `chester-plan-build`, `chester-execute-write`, `chester-finish`) — these define the overall pipeline stage and determine HOW to approach the task
-2. **Review skills second** (`chester-plan-attack`, `chester-plan-smell`, `chester-util-codereview`) — these harden and validate the work
-3. **Behavioral skills third** (`chester-execute-test`, `chester-execute-debug`, `chester-execute-prove`, `chester-execute-review`) — these guide specific execution disciplines
-4. **Utility skills fourth** (`chester-util-worktree`, `chester-util-dispatch`) — these support workflow mechanics
+1. **Gate skills first** (`design-figure-out`, `design-specify`, `plan-build`, `execute-write`, `execute-verify-complete`, `finish-close-worktree`) — these define the overall pipeline stage and determine HOW to approach the task
+2. **Review skills second** (`plan-attack`, `plan-smell`, `util-codereview`) — these harden and validate the work
+3. **Behavioral skills third** (`execute-test`, `execute-debug`, `execute-prove`, `execute-review`) — these guide specific execution disciplines
+4. **Utility skills fourth** (`util-worktree`, `util-dispatch`) — these support workflow mechanics
 
-"Let's build X" → `chester-design-figure-out` first, then `chester-design-specify`, then `chester-plan-build`.
-"Write a spec for this" → `chester-design-specify` directly.
-"Fix this bug" → `chester-execute-debug` first, then domain-specific skills.
+"Let's build X" → `design-figure-out` first, then `design-specify`, then `plan-build`.
+"Write a spec for this" → `design-specify` directly.
+"Fix this bug" → `execute-debug` first, then domain-specific skills.
 
 ## Skill Types
 
-**Rigid** (`chester-execute-test`, `chester-execute-debug`): Follow exactly. Don't adapt away discipline.
+**Rigid** (`execute-test`, `execute-debug`): Follow exactly. Don't adapt away discipline.
 
 **Flexible** (patterns): Adapt principles to context.
 
@@ -166,24 +242,36 @@ The skill itself tells you which.
 
 ## Available Chester Skills
 
-- `chester-setup-start` — Entry point; establishes the pipeline and skill usage rules (this skill)
-- `chester-design-figure-out` — Socratic discovery of design through structured dialogue
-- `chester-design-architect` — Use when user says "architect". Quantitatively-disciplined Socratic discovery with understanding MCP (Phase 1) and enforcement gating (Phase 2). If user says "architect", use this, not figure-out.
-- `chester-design-specify` — Formalize approved designs into spec documents with automated review
-- `chester-plan-build` — Write and harden implementation plans
-- `chester-execute-write` — Execute plans, request code review, and perform subagent-driven development
-- `chester-finish` — Finish a development branch and prepare for merge
-- `chester-plan-attack` — Adversarial review of plans for structural gaps, execution risks, and assumptions
-- `chester-plan-smell` — Forward-looking code smell analysis of an implementation plan
-- `chester-util-codereview` — Lightweight code smell review of existing code scoped to a directory or path
-- `chester-execute-test` — Test-driven development discipline
-- `chester-execute-debug` — Systematic debugging workflow
-- `chester-execute-prove` — Verification before completion
-- `chester-execute-review` — Receiving and acting on code review feedback
-- `chester-util-worktree` — Git worktree workflow for parallel branches
-- `chester-util-dispatch` — Dispatching parallel subagents
-- `chester-finish-write-session-summary` — Session summary after completing work
-- `chester-finish-write-reasoning-audit` — Reasoning audit for decisions
+### Pipeline Skills (define the workflow stage)
+- `setup-start` — Entry point; establishes the pipeline and skill usage rules (this skill)
+- `start-bootstrap` — Mechanical session setup: config, sprint naming, dir creation, task reset, thinking history
+- `design-figure-out` — Quantitatively-disciplined Socratic discovery with understanding MCP (Phase 1) and enforcement gating (Phase 2). Resolves open design questions before specification.
+- `design-specify` — Formalize approved designs into spec documents with automated review
+- `plan-build` — Write and harden implementation plans
+- `execute-write` — Execute plans, request code review, and perform subagent-driven development
+- `execute-verify-complete` — Capstone of execution: prove tests, clean tree, checkpoint commit
+
+### Finish Skills (close out a sprint)
+- `finish-write-records` — Session summary, reasoning audit, cache analysis (also handles refactor summaries)
+- `finish-archive-artifacts` — Copy working dir artifacts to tracked plans dir and commit
+- `finish-close-worktree` — Branch integration (merge/PR/keep/discard) and worktree cleanup
+
+### Review Skills (harden and validate)
+- `plan-attack` — Adversarial review of plans for structural gaps, execution risks, and assumptions
+- `plan-smell` — Forward-looking code smell analysis of an implementation plan
+- `util-codereview` — Lightweight code smell review of existing code scoped to a directory or path
+
+### Behavioral Skills (execution disciplines)
+- `execute-test` — Test-driven development discipline
+- `execute-debug` — Systematic debugging workflow
+- `execute-prove` — Verification before completion
+- `execute-review` — Receiving and acting on code review feedback
+
+### Utility Skills (workflow mechanics and reference)
+- `util-worktree` — Git worktree workflow for parallel branches
+- `util-dispatch` — Dispatching parallel subagents
+- `util-budget-guard` — Token budget check procedure (read, don't invoke)
+- `util-artifact-schema` — Artifact naming, versioning, and directory layout (read, don't invoke)
 
 ## User Instructions
 
