@@ -1,3 +1,6 @@
 .worktrees/
-docs/chester/plans/
-chester-design-architect/enforcement/node_modules/
+docs/chester/working/
+skills/design-architect/enforcement/node_modules/
+skills/design-architect/understanding/node_modules/
+chester-design-architect-workspace/
+chester-util-codereview-workspace/
