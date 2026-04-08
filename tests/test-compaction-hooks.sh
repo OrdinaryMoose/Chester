@@ -214,6 +214,75 @@ CONTEXT=$(echo "$OUTPUT" | jq -r '.hookSpecificOutput.additionalContext // empty
 [ -z "$CONTEXT" ] || fail "Test 7: no breadcrumb should produce no additionalContext"
 echo "PASS: Test 7 — PostCompact with no breadcrumb (no-op)"
 
+# ── Test 8: Round-trip integration ───────────────────────────────
+# Restore breadcrumb
+echo "$SPRINT" > "$WORKING/.active-sprint"
+
+# Clean slate — remove old snapshot and enforcement state
+rm -f "$SNAPSHOT"
+rm -f "$SPRINT_PATH"/design/*-enforcement-state.json
+
+# Re-write understanding state with known values for precise assertions
+cat > "$SPRINT_PATH/design/test-understanding-state.json" <<'STATE'
+{
+  "contextType": "brownfield",
+  "round": 11,
+  "userPrompt": "integration test prompt",
+  "scores": {
+    "surface_coverage": { "score": 0.80, "justification": "Thorough", "gap": "" },
+    "relationship_mapping": { "score": 0.70, "justification": "Mapped", "gap": "" },
+    "constraint_discovery": { "score": 0.60, "justification": "Found", "gap": "Cannot use GraphQL" },
+    "risk_topology": { "score": 0.55, "justification": "Identified", "gap": "" },
+    "stakeholder_impact": { "score": 0.20, "justification": "Minimal", "gap": "PM not consulted" },
+    "prior_art": { "score": 0.45, "justification": "Some", "gap": "" },
+    "temporal_context": { "score": 0.65, "justification": "Clear", "gap": "" },
+    "problem_boundary": { "score": 0.50, "justification": "Set", "gap": "" },
+    "assumption_inventory": { "score": 0.40, "justification": "Listed", "gap": "Assuming single-tenant" }
+  },
+  "overallSaturation": 0.54,
+  "groupSaturation": {
+    "landscape": 0.66,
+    "human_context": 0.33,
+    "foundations": 0.52
+  },
+  "weakest": {
+    "group": "human_context",
+    "dimension": "stakeholder_impact"
+  },
+  "transition": { "ready": false, "reasons": ["human_context too low"] },
+  "scoreHistory": [],
+  "saturationHistory": [0.10, 0.20, 0.30, 0.40, 0.50, 0.54]
+}
+STATE
+
+# Run PreCompact
+INTEGRATION_STDIN='{"session_id":"integration-test","transcript_path":"/tmp/t.jsonl","cwd":"/tmp","hook_event_name":"PreCompact","trigger":"auto"}'
+echo "$INTEGRATION_STDIN" | "$CHESTER_ROOT/chester-util-config/hooks/pre-compact.sh"
+
+if [ ! -f "$SNAPSHOT" ]; then
+  fail "Test 8: PreCompact did not create snapshot"
+else
+  # Run PostCompact with matching session_id
+  POST_STDIN='{"session_id":"integration-test","transcript_path":"/tmp/t.jsonl","cwd":"/tmp","hook_event_name":"PostCompact","trigger":"auto"}'
+  OUTPUT=$(echo "$POST_STDIN" | "$CHESTER_ROOT/chester-util-config/hooks/post-compact.sh")
+
+  CONTEXT=$(echo "$OUTPUT" | jq -r '.hookSpecificOutput.additionalContext // empty')
+  if [ -z "$CONTEXT" ]; then
+    fail "Test 8: PostCompact produced no additionalContext"
+  else
+    # Verify round-trip accuracy
+    echo "$CONTEXT" | grep -q "Round: 11" || fail "Test 8: wrong round number"
+    echo "$CONTEXT" | grep -q "Understand" || fail "Test 8: wrong phase"
+    echo "$CONTEXT" | grep -q "0.54" || fail "Test 8: wrong overall saturation"
+    echo "$CONTEXT" | grep -q "human_context" || fail "Test 8: missing weakest group"
+    echo "$CONTEXT" | grep -q "stakeholder_impact" || fail "Test 8: missing weakest dimension"
+    echo "$CONTEXT" | grep -q "Cannot use GraphQL" || fail "Test 8: missing constraint"
+    echo "$CONTEXT" | grep -q "PM not consulted" || fail "Test 8: missing gap"
+    echo "$CONTEXT" | grep -q "Assuming single-tenant" || fail "Test 8: missing assumption gap"
+    echo "PASS: Test 8 — Round-trip integration"
+  fi
+fi
+
 # ── Summary ──────────────────────────────────────────────────────
 if [ "$ERRORS" -gt 0 ]; then
   echo ""
