@@ -141,6 +141,79 @@ RC=$?
 [ ! -f "$SNAPSHOT" ] || fail "Test 3: snapshot should not be created without breadcrumb"
 echo "PASS: Test 3 — PreCompact with no breadcrumb (no-op)"
 
+# ── PostCompact Tests ────────────────────────────────────────────
+
+# Restore breadcrumb for PostCompact tests
+echo "$SPRINT" > "$WORKING/.active-sprint"
+
+# Regenerate snapshot (Test 3 cleaned it up)
+echo "$STDIN_JSON" | "$CHESTER_ROOT/chester-util-config/hooks/pre-compact.sh" >/dev/null
+
+# ── Test 4: PostCompact produces additionalContext ───────────────
+
+# Update snapshot with current timestamp and matching session_id
+CURRENT_TS=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+jq --arg ts "$CURRENT_TS" --arg sid "test-session-001" \
+  '.timestamp = $ts | .session_id = $sid' \
+  "$SNAPSHOT" > "$SNAPSHOT.tmp" && mv "$SNAPSHOT.tmp" "$SNAPSHOT"
+
+OUTPUT=$(echo "$STDIN_JSON" | "$CHESTER_ROOT/chester-util-config/hooks/post-compact.sh")
+RC=$?
+
+[ "$RC" -eq 0 ] || fail "Test 4: expected exit 0, got $RC"
+
+# Check output is valid JSON with additionalContext
+CONTEXT=$(echo "$OUTPUT" | jq -r '.hookSpecificOutput.additionalContext // empty')
+if [ -z "$CONTEXT" ]; then
+  fail "Test 4: no additionalContext in output"
+else
+  # Verify key content is present in the context string
+  echo "$CONTEXT" | grep -q "Phase" || fail "Test 4: missing phase in context"
+  echo "$CONTEXT" | grep -q "Round" || fail "Test 4: missing round in context"
+  echo "$CONTEXT" | grep -q "stakeholder_impact" || fail "Test 4: missing weakest dimension"
+  echo "$CONTEXT" | grep -q "Resume" || fail "Test 4: missing resume directive"
+  echo "PASS: Test 4 — PostCompact produces additionalContext"
+fi
+
+# ── Test 5: PostCompact staleness guard ──────────────────────────
+# Set timestamp to 2 hours ago
+OLD_TS=$(date -u -d '2 hours ago' +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || date -u -v-2H +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null)
+if [ -n "$OLD_TS" ]; then
+  jq --arg ts "$OLD_TS" '.timestamp = $ts' "$SNAPSHOT" > "$SNAPSHOT.tmp" && mv "$SNAPSHOT.tmp" "$SNAPSHOT"
+
+  OUTPUT=$(echo "$STDIN_JSON" | "$CHESTER_ROOT/chester-util-config/hooks/post-compact.sh")
+  CONTEXT=$(echo "$OUTPUT" | jq -r '.hookSpecificOutput.additionalContext // empty' 2>/dev/null)
+
+  [ -z "$CONTEXT" ] || fail "Test 5: stale snapshot should produce no additionalContext"
+  echo "PASS: Test 5 — PostCompact staleness guard"
+else
+  echo "SKIP: Test 5 — cannot compute past timestamp on this platform"
+fi
+
+# ── Test 6: PostCompact session ID mismatch ──────────────────────
+# Restore fresh timestamp but with different session_id
+CURRENT_TS=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+jq --arg ts "$CURRENT_TS" --arg sid "different-session" \
+  '.timestamp = $ts | .session_id = $sid' \
+  "$SNAPSHOT" > "$SNAPSHOT.tmp" && mv "$SNAPSHOT.tmp" "$SNAPSHOT"
+
+OUTPUT=$(echo "$STDIN_JSON" | "$CHESTER_ROOT/chester-util-config/hooks/post-compact.sh")
+CONTEXT=$(echo "$OUTPUT" | jq -r '.hookSpecificOutput.additionalContext // empty' 2>/dev/null)
+
+[ -z "$CONTEXT" ] || fail "Test 6: session ID mismatch should produce no additionalContext"
+echo "PASS: Test 6 — PostCompact session ID mismatch guard"
+
+# ── Test 7: PostCompact with no breadcrumb ───────────────────────
+rm -f "$WORKING/.active-sprint"
+
+OUTPUT=$(echo "$STDIN_JSON" | "$CHESTER_ROOT/chester-util-config/hooks/post-compact.sh")
+RC=$?
+
+[ "$RC" -eq 0 ] || fail "Test 7: expected exit 0, got $RC"
+CONTEXT=$(echo "$OUTPUT" | jq -r '.hookSpecificOutput.additionalContext // empty' 2>/dev/null)
+[ -z "$CONTEXT" ] || fail "Test 7: no breadcrumb should produce no additionalContext"
+echo "PASS: Test 7 — PostCompact with no breadcrumb (no-op)"
+
 # ── Summary ──────────────────────────────────────────────────────
 if [ "$ERRORS" -gt 0 ]; then
   echo ""
@@ -149,5 +222,5 @@ if [ "$ERRORS" -gt 0 ]; then
 fi
 
 echo ""
-echo "PASS: All PreCompact tests passed"
+echo "PASS: All compaction hook tests passed"
 exit 0
