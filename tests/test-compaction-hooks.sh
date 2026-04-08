@@ -1,0 +1,295 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+CHESTER_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+ERRORS=0
+
+fail() { echo "FAIL: $1"; ERRORS=$((ERRORS + 1)); }
+
+# ── Setup ────────────────────────────────────────────────────────
+TMPDIR=$(mktemp -d)
+trap 'rm -rf "$TMPDIR"' EXIT
+
+# Mock chester-config-read to point at temp directory
+MOCK_BIN="$TMPDIR/bin"
+mkdir -p "$MOCK_BIN"
+cat > "$MOCK_BIN/chester-config-read" <<MOCK
+#!/usr/bin/env bash
+echo "export CHESTER_WORKING_DIR='$TMPDIR/working'"
+echo "export CHESTER_PLANS_DIR='plans'"
+echo "export CHESTER_CONFIG_PATH='$TMPDIR/config.json'"
+echo "export CHESTER_MAIN_ROOT='$TMPDIR'"
+MOCK
+chmod +x "$MOCK_BIN/chester-config-read"
+export PATH="$MOCK_BIN:$PATH"
+
+WORKING="$TMPDIR/working"
+SPRINT="20260408-01-test-sprint-name"
+SPRINT_PATH="$WORKING/$SPRINT"
+mkdir -p "$SPRINT_PATH/design"
+
+# Write breadcrumb
+echo "$SPRINT" > "$WORKING/.active-sprint"
+
+# Mock understanding state
+cat > "$SPRINT_PATH/design/test-understanding-state.json" <<'STATE'
+{
+  "contextType": "greenfield",
+  "round": 5,
+  "userPrompt": "test prompt",
+  "scores": {
+    "surface_coverage": { "score": 0.72, "justification": "Good coverage", "gap": "" },
+    "relationship_mapping": { "score": 0.65, "justification": "Mapped well", "gap": "" },
+    "constraint_discovery": { "score": 0.45, "justification": "Some found", "gap": "User rejected real-time sync" },
+    "risk_topology": { "score": 0.30, "justification": "Partial", "gap": "" },
+    "stakeholder_impact": { "score": 0.10, "justification": "Minimal", "gap": "No discussion of who is affected" },
+    "prior_art": { "score": 0.40, "justification": "Some research", "gap": "" },
+    "temporal_context": { "score": 0.55, "justification": "Timeline clear", "gap": "" },
+    "problem_boundary": { "score": 0.50, "justification": "Boundaries set", "gap": "Must integrate with existing auth" },
+    "assumption_inventory": { "score": 0.35, "justification": "Some assumptions", "gap": "" }
+  },
+  "overallSaturation": 0.42,
+  "groupSaturation": {
+    "landscape": 0.53,
+    "human_context": 0.25,
+    "foundations": 0.47
+  },
+  "weakest": {
+    "group": "human_context",
+    "dimension": "stakeholder_impact"
+  },
+  "transition": { "ready": false, "reasons": ["saturation too low"] },
+  "scoreHistory": [],
+  "saturationHistory": [0.20, 0.30, 0.35, 0.40, 0.42]
+}
+STATE
+
+STDIN_JSON='{"session_id":"test-session-001","transcript_path":"/tmp/transcript.jsonl","cwd":"/tmp","hook_event_name":"PreCompact","trigger":"auto"}'
+
+# ── Test 1: PreCompact with understanding state only ─────────────
+echo "$STDIN_JSON" | "$CHESTER_ROOT/chester-util-config/hooks/pre-compact.sh"
+RC=$?
+
+if [ "$RC" -ne 0 ]; then
+  fail "Test 1: pre-compact.sh exited with $RC, expected 0"
+fi
+
+SNAPSHOT="$SPRINT_PATH/design/.compaction-snapshot.json"
+if [ ! -f "$SNAPSHOT" ]; then
+  fail "Test 1: snapshot file not created"
+else
+  PHASE=$(jq -r '.phase' "$SNAPSHOT")
+  SID=$(jq -r '.session_id' "$SNAPSHOT")
+  SPRINT_IN_SNAP=$(jq -r '.sprint_name' "$SNAPSHOT")
+  HAS_UNDERSTANDING=$(jq 'has("understanding")' "$SNAPSHOT")
+  HAS_ENFORCEMENT=$(jq '.enforcement == null' "$SNAPSHOT")
+
+  [ "$PHASE" = "understand" ] || fail "Test 1: phase expected 'understand', got '$PHASE'"
+  [ "$SID" = "test-session-001" ] || fail "Test 1: session_id expected 'test-session-001', got '$SID'"
+  [ "$SPRINT_IN_SNAP" = "$SPRINT" ] || fail "Test 1: sprint_name mismatch"
+  [ "$HAS_UNDERSTANDING" = "true" ] || fail "Test 1: understanding data missing"
+  [ "$HAS_ENFORCEMENT" = "true" ] || fail "Test 1: enforcement should be null"
+  echo "PASS: Test 1 — PreCompact with understanding state only"
+fi
+
+# ── Test 2: PreCompact with both states ──────────────────────────
+cat > "$SPRINT_PATH/design/test-enforcement-state.json" <<'STATE'
+{
+  "type": "greenfield",
+  "round": 12,
+  "problemStatement": "test problem",
+  "scores": {
+    "intent": { "score": 0.8, "justification": "Clear", "gap": "" },
+    "outcome": { "score": 0.7, "justification": "Defined", "gap": "" },
+    "scope": { "score": 0.6, "justification": "Bounded", "gap": "" },
+    "constraints": { "score": 0.5, "justification": "Some found", "gap": "Budget unclear" },
+    "success": { "score": 0.4, "justification": "Partial", "gap": "" }
+  },
+  "gates": { "nonGoalsExplicit": true, "decisionBoundariesExplicit": false },
+  "challengeModesUsed": ["contrarian"],
+  "challengeLog": [{ "mode": "contrarian", "round": 8 }],
+  "ambiguityHistory": [0.8, 0.6, 0.5, 0.4],
+  "scoreHistory": [],
+  "pressureTracking": []
+}
+STATE
+
+# Remove old snapshot to test fresh
+rm -f "$SNAPSHOT"
+
+echo "$STDIN_JSON" | "$CHESTER_ROOT/chester-util-config/hooks/pre-compact.sh"
+
+if [ ! -f "$SNAPSHOT" ]; then
+  fail "Test 2: snapshot file not created"
+else
+  PHASE=$(jq -r '.phase' "$SNAPSHOT")
+  HAS_ENF=$(jq '.enforcement != null' "$SNAPSHOT")
+  [ "$PHASE" = "solve" ] || fail "Test 2: phase expected 'solve', got '$PHASE'"
+  [ "$HAS_ENF" = "true" ] || fail "Test 2: enforcement data missing"
+  echo "PASS: Test 2 — PreCompact with both states"
+fi
+
+# ── Test 3: PreCompact with no breadcrumb ────────────────────────
+rm -f "$WORKING/.active-sprint"
+rm -f "$SNAPSHOT"
+
+echo "$STDIN_JSON" | "$CHESTER_ROOT/chester-util-config/hooks/pre-compact.sh"
+RC=$?
+
+[ "$RC" -eq 0 ] || fail "Test 3: expected exit 0, got $RC"
+[ ! -f "$SNAPSHOT" ] || fail "Test 3: snapshot should not be created without breadcrumb"
+echo "PASS: Test 3 — PreCompact with no breadcrumb (no-op)"
+
+# ── PostCompact Tests ────────────────────────────────────────────
+
+# Restore breadcrumb for PostCompact tests
+echo "$SPRINT" > "$WORKING/.active-sprint"
+
+# Regenerate snapshot (Test 3 cleaned it up)
+echo "$STDIN_JSON" | "$CHESTER_ROOT/chester-util-config/hooks/pre-compact.sh" >/dev/null
+
+# ── Test 4: PostCompact produces additionalContext ───────────────
+
+# Update snapshot with current timestamp and matching session_id
+CURRENT_TS=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+jq --arg ts "$CURRENT_TS" --arg sid "test-session-001" \
+  '.timestamp = $ts | .session_id = $sid' \
+  "$SNAPSHOT" > "$SNAPSHOT.tmp" && mv "$SNAPSHOT.tmp" "$SNAPSHOT"
+
+OUTPUT=$(echo "$STDIN_JSON" | "$CHESTER_ROOT/chester-util-config/hooks/post-compact.sh")
+RC=$?
+
+[ "$RC" -eq 0 ] || fail "Test 4: expected exit 0, got $RC"
+
+# Check output is valid JSON with additionalContext
+CONTEXT=$(echo "$OUTPUT" | jq -r '.hookSpecificOutput.additionalContext // empty')
+if [ -z "$CONTEXT" ]; then
+  fail "Test 4: no additionalContext in output"
+else
+  # Verify key content is present in the context string
+  echo "$CONTEXT" | grep -q "Phase" || fail "Test 4: missing phase in context"
+  echo "$CONTEXT" | grep -q "Round" || fail "Test 4: missing round in context"
+  echo "$CONTEXT" | grep -q "stakeholder_impact" || fail "Test 4: missing weakest dimension"
+  echo "$CONTEXT" | grep -q "Resume" || fail "Test 4: missing resume directive"
+  echo "PASS: Test 4 — PostCompact produces additionalContext"
+fi
+
+# ── Test 5: PostCompact staleness guard ──────────────────────────
+# Set timestamp to 2 hours ago
+OLD_TS=$(date -u -d '2 hours ago' +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || date -u -v-2H +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null)
+if [ -n "$OLD_TS" ]; then
+  jq --arg ts "$OLD_TS" '.timestamp = $ts' "$SNAPSHOT" > "$SNAPSHOT.tmp" && mv "$SNAPSHOT.tmp" "$SNAPSHOT"
+
+  OUTPUT=$(echo "$STDIN_JSON" | "$CHESTER_ROOT/chester-util-config/hooks/post-compact.sh")
+  CONTEXT=$(echo "$OUTPUT" | jq -r '.hookSpecificOutput.additionalContext // empty' 2>/dev/null)
+
+  [ -z "$CONTEXT" ] || fail "Test 5: stale snapshot should produce no additionalContext"
+  echo "PASS: Test 5 — PostCompact staleness guard"
+else
+  echo "SKIP: Test 5 — cannot compute past timestamp on this platform"
+fi
+
+# ── Test 6: PostCompact session ID mismatch ──────────────────────
+# Restore fresh timestamp but with different session_id
+CURRENT_TS=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+jq --arg ts "$CURRENT_TS" --arg sid "different-session" \
+  '.timestamp = $ts | .session_id = $sid' \
+  "$SNAPSHOT" > "$SNAPSHOT.tmp" && mv "$SNAPSHOT.tmp" "$SNAPSHOT"
+
+OUTPUT=$(echo "$STDIN_JSON" | "$CHESTER_ROOT/chester-util-config/hooks/post-compact.sh")
+CONTEXT=$(echo "$OUTPUT" | jq -r '.hookSpecificOutput.additionalContext // empty' 2>/dev/null)
+
+[ -z "$CONTEXT" ] || fail "Test 6: session ID mismatch should produce no additionalContext"
+echo "PASS: Test 6 — PostCompact session ID mismatch guard"
+
+# ── Test 7: PostCompact with no breadcrumb ───────────────────────
+rm -f "$WORKING/.active-sprint"
+
+OUTPUT=$(echo "$STDIN_JSON" | "$CHESTER_ROOT/chester-util-config/hooks/post-compact.sh")
+RC=$?
+
+[ "$RC" -eq 0 ] || fail "Test 7: expected exit 0, got $RC"
+CONTEXT=$(echo "$OUTPUT" | jq -r '.hookSpecificOutput.additionalContext // empty' 2>/dev/null)
+[ -z "$CONTEXT" ] || fail "Test 7: no breadcrumb should produce no additionalContext"
+echo "PASS: Test 7 — PostCompact with no breadcrumb (no-op)"
+
+# ── Test 8: Round-trip integration ───────────────────────────────
+# Restore breadcrumb
+echo "$SPRINT" > "$WORKING/.active-sprint"
+
+# Clean slate — remove old snapshot and enforcement state
+rm -f "$SNAPSHOT"
+rm -f "$SPRINT_PATH"/design/*-enforcement-state.json
+
+# Re-write understanding state with known values for precise assertions
+cat > "$SPRINT_PATH/design/test-understanding-state.json" <<'STATE'
+{
+  "contextType": "brownfield",
+  "round": 11,
+  "userPrompt": "integration test prompt",
+  "scores": {
+    "surface_coverage": { "score": 0.80, "justification": "Thorough", "gap": "" },
+    "relationship_mapping": { "score": 0.70, "justification": "Mapped", "gap": "" },
+    "constraint_discovery": { "score": 0.60, "justification": "Found", "gap": "Cannot use GraphQL" },
+    "risk_topology": { "score": 0.55, "justification": "Identified", "gap": "" },
+    "stakeholder_impact": { "score": 0.20, "justification": "Minimal", "gap": "PM not consulted" },
+    "prior_art": { "score": 0.45, "justification": "Some", "gap": "" },
+    "temporal_context": { "score": 0.65, "justification": "Clear", "gap": "" },
+    "problem_boundary": { "score": 0.50, "justification": "Set", "gap": "" },
+    "assumption_inventory": { "score": 0.40, "justification": "Listed", "gap": "Assuming single-tenant" }
+  },
+  "overallSaturation": 0.54,
+  "groupSaturation": {
+    "landscape": 0.66,
+    "human_context": 0.33,
+    "foundations": 0.52
+  },
+  "weakest": {
+    "group": "human_context",
+    "dimension": "stakeholder_impact"
+  },
+  "transition": { "ready": false, "reasons": ["human_context too low"] },
+  "scoreHistory": [],
+  "saturationHistory": [0.10, 0.20, 0.30, 0.40, 0.50, 0.54]
+}
+STATE
+
+# Run PreCompact
+INTEGRATION_STDIN='{"session_id":"integration-test","transcript_path":"/tmp/t.jsonl","cwd":"/tmp","hook_event_name":"PreCompact","trigger":"auto"}'
+echo "$INTEGRATION_STDIN" | "$CHESTER_ROOT/chester-util-config/hooks/pre-compact.sh"
+
+if [ ! -f "$SNAPSHOT" ]; then
+  fail "Test 8: PreCompact did not create snapshot"
+else
+  # Run PostCompact with matching session_id
+  POST_STDIN='{"session_id":"integration-test","transcript_path":"/tmp/t.jsonl","cwd":"/tmp","hook_event_name":"PostCompact","trigger":"auto"}'
+  OUTPUT=$(echo "$POST_STDIN" | "$CHESTER_ROOT/chester-util-config/hooks/post-compact.sh")
+
+  CONTEXT=$(echo "$OUTPUT" | jq -r '.hookSpecificOutput.additionalContext // empty')
+  if [ -z "$CONTEXT" ]; then
+    fail "Test 8: PostCompact produced no additionalContext"
+  else
+    # Verify round-trip accuracy
+    echo "$CONTEXT" | grep -q "Round: 11" || fail "Test 8: wrong round number"
+    echo "$CONTEXT" | grep -q "Understand" || fail "Test 8: wrong phase"
+    echo "$CONTEXT" | grep -q "0.54" || fail "Test 8: wrong overall saturation"
+    echo "$CONTEXT" | grep -q "human_context" || fail "Test 8: missing weakest group"
+    echo "$CONTEXT" | grep -q "stakeholder_impact" || fail "Test 8: missing weakest dimension"
+    echo "$CONTEXT" | grep -q "Cannot use GraphQL" || fail "Test 8: missing constraint"
+    echo "$CONTEXT" | grep -q "PM not consulted" || fail "Test 8: missing gap"
+    echo "$CONTEXT" | grep -q "Assuming single-tenant" || fail "Test 8: missing assumption gap"
+    echo "PASS: Test 8 — Round-trip integration"
+  fi
+fi
+
+# ── Summary ──────────────────────────────────────────────────────
+if [ "$ERRORS" -gt 0 ]; then
+  echo ""
+  echo "FAIL: $ERRORS test(s) failed"
+  exit 1
+fi
+
+echo ""
+echo "PASS: All compaction hook tests passed"
+exit 0
