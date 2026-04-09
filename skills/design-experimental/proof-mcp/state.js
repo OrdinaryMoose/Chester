@@ -2,20 +2,23 @@
  * state.js — State lifecycle and persistence for the design proof MCP server.
  * Orchestrates proof.js (element model, integrity) and metrics.js (completeness,
  * challenges, closure). Uses I/O for save/load.
+ *
+ * Necessary Conditions Model (v2):
+ *   - Longer ID prefixes (EVID-, RULE-, PERM-, NCON-, RISK-) avoid collisions
+ *   - No resolve operation (OPENs removed)
+ *   - Tracks conditionCountHistory instead of openCountHistory
  */
 
 import { readFileSync, writeFileSync } from 'fs';
-import { createElement, validateBasisRefs, checkAllIntegrity } from './proof.js';
-import { computeCompleteness, computeBasisCoverage, detectChallenge, detectStall, checkClosure } from './metrics.js';
+import { createElement, validateRefs, checkAllIntegrity } from './proof.js';
+import { computeCompleteness, computeGroundingCoverage, detectChallenge, detectStall, checkClosure } from './metrics.js';
 
 const ID_PREFIX = {
-  GIVEN: 'G',
-  CONSTRAINT: 'C',
-  ASSERTION: 'A',
-  DECISION: 'D',
-  OPEN: 'O',
-  RISK: 'R',
-  BOUNDARY: 'B',
+  EVIDENCE: 'EVID-',
+  RULE: 'RULE-',
+  PERMISSION: 'PERM-',
+  NECESSARY_CONDITION: 'NCON-',
+  RISK: 'RISK-',
 };
 
 /**
@@ -28,8 +31,10 @@ export function initializeState(problemStatement) {
     round: 0,
     problemStatement,
     elements: new Map(),
-    elementCounters: { GIVEN: 0, CONSTRAINT: 0, ASSERTION: 0, DECISION: 0, OPEN: 0, RISK: 0, BOUNDARY: 0 },
-    openCountHistory: [],
+    elementCounters: {
+      EVIDENCE: 0, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 0, RISK: 0,
+    },
+    conditionCountHistory: [],
     elementCountHistory: [],
     challengeModesUsed: [],
     challengeLog: [],
@@ -47,7 +52,6 @@ export function initializeState(problemStatement) {
  */
 export function generateId(state, type) {
   const newState = structuredClone(state);
-  // structuredClone converts Map to plain object — rebuild it
   newState.elements = cloneElements(state.elements);
 
   newState.elementCounters[type]++;
@@ -64,14 +68,12 @@ export function generateId(state, type) {
  * @returns {object}
  */
 export function applyOperations(state, operations) {
-  // Clone state for immutability
   let current = structuredClone(state);
   current.elements = cloneElements(state.elements);
 
   current.round++;
 
   const added = [];
-  const resolved = [];
   const revised = [];
   const withdrawn = [];
   const errors = [];
@@ -79,10 +81,13 @@ export function applyOperations(state, operations) {
   for (const op of operations) {
     switch (op.op) {
       case 'add': {
-        // Validate basis refs against current elements (including ones added earlier in batch)
-        const basisErrors = validateBasisRefs(op.basis || [], current.elements);
-        if (basisErrors.length > 0) {
-          errors.push(...basisErrors);
+        // Validate grounding/basis refs against current elements
+        const groundingRefs = op.grounding || [];
+        const basisRefs = op.basis || [];
+        const allRefs = [...groundingRefs, ...basisRefs];
+        const refErrors = validateRefs(allRefs, current.elements);
+        if (refErrors.length > 0) {
+          errors.push(...refErrors);
           break;
         }
         const [id, newState] = generateId(current, op.type);
@@ -92,25 +97,6 @@ export function applyOperations(state, operations) {
         added.push(id);
         break;
       }
-      case 'resolve': {
-        const target = current.elements.get(op.target);
-        if (!target || target.status !== 'active') {
-          errors.push(`Cannot resolve "${op.target}": element not found or not active`);
-          break;
-        }
-        if (target.type !== 'OPEN') {
-          errors.push(`Cannot resolve "${op.target}": element is ${target.type}, not OPEN`);
-          break;
-        }
-        if (!current.elements.has(op.resolved_by)) {
-          errors.push(`Cannot resolve "${op.target}": resolved_by "${op.resolved_by}" does not exist`);
-          break;
-        }
-        target.status = 'resolved';
-        target.resolvedBy = op.resolved_by;
-        resolved.push(op.target);
-        break;
-      }
       case 'revise': {
         const target = current.elements.get(op.target);
         if (!target || target.status !== 'active') {
@@ -118,9 +104,12 @@ export function applyOperations(state, operations) {
           break;
         }
         if (op.statement !== undefined) target.statement = op.statement;
+        if (op.grounding !== undefined) target.grounding = op.grounding;
         if (op.basis !== undefined) target.basis = op.basis;
-        if (op.over !== undefined) target.over = op.over;
-        if (op.confidence !== undefined) target.confidence = op.confidence;
+        if (op.collapse_test !== undefined) target.collapse_test = op.collapse_test;
+        if (op.reasoning_chain !== undefined) target.reasoning_chain = op.reasoning_chain;
+        if (op.rejected_alternatives !== undefined) target.rejected_alternatives = op.rejected_alternatives;
+        if (op.relieves !== undefined) target.relieves = op.relieves;
         target.revision++;
         target.revisedInRound = current.round;
         current.revisionLog.push({
@@ -147,31 +136,28 @@ export function applyOperations(state, operations) {
   }
 
   // Record history
-  let activeOpens = 0;
-  let activeCount = 0;
+  let activeConditions = 0;
   for (const [, el] of current.elements) {
-    if (el.status === 'active') {
-      activeCount++;
-      if (el.type === 'OPEN') activeOpens++;
+    if (el.status === 'active' && el.type === 'NECESSARY_CONDITION') {
+      activeConditions++;
     }
   }
-  current.openCountHistory.push(activeOpens);
+  current.conditionCountHistory.push(activeConditions);
   current.elementCountHistory.push(current.elements.size);
 
   // Compute post-operation metadata
   const integrityWarnings = checkAllIntegrity(current.elements);
   const completeness = {
     ...computeCompleteness(current.elements),
-    basisCoverage: computeBasisCoverage(current.elements),
+    groundingCoverage: computeGroundingCoverage(current.elements),
   };
   const challengeTrigger = detectChallenge(current);
-  const stallDetected = detectStall(current.openCountHistory);
+  const stallDetected = detectStall(current.conditionCountHistory);
   const closure = checkClosure(current);
 
   return {
     state: current,
     added,
-    resolved,
     revised,
     withdrawn,
     errors,

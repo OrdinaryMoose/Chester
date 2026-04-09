@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   computeCompleteness,
-  computeBasisCoverage,
+  computeGroundingCoverage,
   detectStall,
   detectChallenge,
   checkClosure,
@@ -12,15 +12,16 @@ import {
 function makeElement(overrides) {
   return {
     id: 'e1',
-    type: 'ASSERTION',
+    type: 'EVIDENCE',
     statement: 'test',
-    source: null,
+    source: 'codebase',
+    grounding: [],
+    collapse_test: null,
+    reasoning_chain: null,
+    rejected_alternatives: [],
+    relieves: null,
     basis: [],
-    over: null,
-    confidence: 0.8,
-    reason: null,
     status: 'active',
-    resolvedBy: null,
     addedInRound: 0,
     revisedInRound: null,
     revision: 0,
@@ -43,87 +44,118 @@ describe('computeCompleteness', () => {
     expect(result).toEqual({
       total_elements: 0,
       active_elements: 0,
-      open_count: 0,
-      boundary_count: 0,
-      decisions_with_alternatives: 0,
+      condition_count: 0,
+      conditions_with_alternatives: 0,
+      conditions_with_collapse_test: 0,
+      rule_count: 0,
+      evidence_count: 0,
+      permission_count: 0,
+      risk_count: 0,
       revision_count: 0,
     });
   });
 
-  it('counts mixed active and withdrawn elements', () => {
+  it('counts elements by type', () => {
     const elements = mapOf(
-      makeElement({ id: 'o1', type: 'OPEN', status: 'active' }),
-      makeElement({ id: 'o2', type: 'OPEN', status: 'withdrawn' }),
-      makeElement({ id: 'b1', type: 'BOUNDARY', status: 'active', reason: 'r' }),
-      makeElement({ id: 'd1', type: 'DECISION', status: 'active', over: ['a', 'b'] }),
-      makeElement({ id: 'd2', type: 'DECISION', status: 'active', over: [] }),
-      makeElement({ id: 'r1', type: 'ASSERTION', status: 'active', revisedInRound: 2 }),
+      makeElement({ id: 'EVID-1', type: 'EVIDENCE', source: 'codebase' }),
+      makeElement({ id: 'RULE-1', type: 'RULE', source: 'designer' }),
+      makeElement({ id: 'PERM-1', type: 'PERMISSION', source: 'designer', relieves: 'x' }),
+      makeElement({
+        id: 'NCON-1', type: 'NECESSARY_CONDITION',
+        grounding: ['EVID-1'], collapse_test: 'breaks',
+        rejected_alternatives: ['alt-a'],
+      }),
+      makeElement({
+        id: 'NCON-2', type: 'NECESSARY_CONDITION',
+        grounding: ['RULE-1'], collapse_test: 'fails',
+        rejected_alternatives: [],
+        status: 'withdrawn',
+      }),
+      makeElement({ id: 'RISK-1', type: 'RISK', basis: ['NCON-1'] }),
     );
     const result = computeCompleteness(elements);
     expect(result.total_elements).toBe(6);
     expect(result.active_elements).toBe(5);
-    expect(result.open_count).toBe(1);        // only active OPEN
-    expect(result.boundary_count).toBe(1);
-    expect(result.decisions_with_alternatives).toBe(1); // d1 has over.length > 0
-    expect(result.revision_count).toBe(1);
+    expect(result.condition_count).toBe(1); // only active NC
+    expect(result.conditions_with_alternatives).toBe(1);
+    expect(result.conditions_with_collapse_test).toBe(1);
+    expect(result.rule_count).toBe(1);
+    expect(result.evidence_count).toBe(1);
+    expect(result.permission_count).toBe(1);
+    expect(result.risk_count).toBe(1);
   });
 
-  it('excludes resolved OPENs from open_count', () => {
+  it('counts revisions', () => {
     const elements = mapOf(
-      makeElement({ id: 'o1', type: 'OPEN', status: 'resolved' }),
+      makeElement({ id: 'EVID-1', type: 'EVIDENCE', revisedInRound: 3 }),
     );
-    const result = computeCompleteness(elements);
-    expect(result.open_count).toBe(0);
-    expect(result.active_elements).toBe(0);
+    expect(computeCompleteness(elements).revision_count).toBe(1);
   });
 });
 
 // =============================================================================
-// computeBasisCoverage
+// computeGroundingCoverage
 // =============================================================================
-describe('computeBasisCoverage', () => {
-  it('returns 1.0 when there are no decisions', () => {
+describe('computeGroundingCoverage', () => {
+  it('returns 1.0 when there are no conditions', () => {
     const elements = mapOf(
-      makeElement({ id: 'g1', type: 'GIVEN', source: 'designer' }),
+      makeElement({ id: 'EVID-1', type: 'EVIDENCE' }),
     );
-    expect(computeBasisCoverage(elements)).toBe(1.0);
+    expect(computeGroundingCoverage(elements)).toBe(1.0);
   });
 
-  it('returns 1.0 when all decisions have full coverage', () => {
+  it('returns 1.0 when all conditions ground in EVIDENCE/RULE/PERMISSION', () => {
     const elements = mapOf(
-      makeElement({ id: 'g1', type: 'GIVEN', source: 'designer' }),
-      makeElement({ id: 'c1', type: 'CONSTRAINT', basis: ['g1'] }),
-      makeElement({ id: 'd1', type: 'DECISION', over: ['x'], basis: ['c1'] }),
+      makeElement({ id: 'EVID-1', type: 'EVIDENCE' }),
+      makeElement({ id: 'RULE-1', type: 'RULE', source: 'designer' }),
+      makeElement({
+        id: 'NCON-1', type: 'NECESSARY_CONDITION',
+        grounding: ['EVID-1', 'RULE-1'], collapse_test: 'x', reasoning_chain: 'y',
+      }),
     );
-    expect(computeBasisCoverage(elements)).toBe(1.0);
+    expect(computeGroundingCoverage(elements)).toBe(1.0);
   });
 
-  it('returns 0.0 when no decisions have full coverage', () => {
-    // ASSERTION leaf (not GIVEN or CONSTRAINT) breaks coverage
+  it('returns 0.0 when no conditions are grounded', () => {
+    // NC grounded only in another NC with no further grounding
     const elements = mapOf(
-      makeElement({ id: 'a1', type: 'ASSERTION', confidence: 0.5, basis: [] }),
-      makeElement({ id: 'd1', type: 'DECISION', over: ['x'], basis: ['a1'] }),
+      makeElement({
+        id: 'NCON-1', type: 'NECESSARY_CONDITION',
+        grounding: ['NCON-2'], collapse_test: 'x', reasoning_chain: 'y',
+      }),
+      makeElement({
+        id: 'NCON-2', type: 'NECESSARY_CONDITION',
+        grounding: [], collapse_test: 'x', reasoning_chain: 'y',
+      }),
     );
-    expect(computeBasisCoverage(elements)).toBe(0.0);
+    expect(computeGroundingCoverage(elements)).toBe(0.0);
   });
 
   it('returns partial coverage ratio', () => {
     const elements = mapOf(
-      makeElement({ id: 'g1', type: 'GIVEN', source: 'designer' }),
-      makeElement({ id: 'a1', type: 'ASSERTION', confidence: 0.5, basis: [] }),
-      makeElement({ id: 'd1', type: 'DECISION', over: ['x'], basis: ['g1'] }), // covered
-      makeElement({ id: 'd2', type: 'DECISION', over: ['y'], basis: ['a1'] }), // not covered
+      makeElement({ id: 'EVID-1', type: 'EVIDENCE' }),
+      makeElement({
+        id: 'NCON-1', type: 'NECESSARY_CONDITION',
+        grounding: ['EVID-1'], collapse_test: 'x', reasoning_chain: 'y',
+      }), // covered
+      makeElement({
+        id: 'NCON-2', type: 'NECESSARY_CONDITION',
+        grounding: ['RISK-1'], collapse_test: 'x', reasoning_chain: 'y',
+      }), // not covered: RISK is not a grounding type
+      makeElement({ id: 'RISK-1', type: 'RISK' }),
     );
-    expect(computeBasisCoverage(elements)).toBe(0.5);
+    expect(computeGroundingCoverage(elements)).toBe(0.5);
   });
 
-  it('ignores withdrawn decisions', () => {
+  it('ignores withdrawn conditions', () => {
     const elements = mapOf(
-      makeElement({ id: 'a1', type: 'ASSERTION', confidence: 0.5, basis: [] }),
-      makeElement({ id: 'd1', type: 'DECISION', over: ['x'], basis: ['a1'], status: 'withdrawn' }),
+      makeElement({
+        id: 'NCON-1', type: 'NECESSARY_CONDITION',
+        grounding: ['RISK-1'], collapse_test: 'x', status: 'withdrawn',
+      }),
+      makeElement({ id: 'RISK-1', type: 'RISK' }),
     );
-    // No active decisions -> 1.0
-    expect(computeBasisCoverage(elements)).toBe(1.0);
+    expect(computeGroundingCoverage(elements)).toBe(1.0);
   });
 });
 
@@ -132,23 +164,19 @@ describe('computeBasisCoverage', () => {
 // =============================================================================
 describe('detectStall', () => {
   it('returns false with fewer than 4 entries', () => {
-    expect(detectStall([5, 5, 5])).toBe(false);
+    expect(detectStall([2, 2, 2])).toBe(false);
   });
 
-  it('returns true when open count unchanged for 3 consecutive rounds', () => {
-    expect(detectStall([5, 5, 5, 5])).toBe(true);
+  it('returns true when condition count unchanged for 3 consecutive rounds', () => {
+    expect(detectStall([2, 2, 2, 2])).toBe(true);
   });
 
   it('returns false when count changes within window', () => {
-    expect(detectStall([5, 5, 4, 5])).toBe(false);
+    expect(detectStall([2, 2, 3, 2])).toBe(false);
   });
 
   it('checks only the last 4 entries', () => {
-    expect(detectStall([3, 2, 5, 5, 5, 5])).toBe(true);
-  });
-
-  it('returns false for decreasing counts', () => {
-    expect(detectStall([5, 4, 3, 2])).toBe(false);
+    expect(detectStall([1, 0, 3, 3, 3, 3])).toBe(true);
   });
 });
 
@@ -159,131 +187,115 @@ describe('detectChallenge', () => {
   const baseState = {
     round: 3,
     elements: new Map(),
-    openCountHistory: [],
+    conditionCountHistory: [],
     elementCountHistory: [],
     challengeModesUsed: [],
   };
 
   describe('ontologist trigger', () => {
-    it('fires when stall detected and not already used', () => {
+    it('fires when condition count stalls', () => {
       const state = {
         ...baseState,
-        openCountHistory: [5, 5, 5, 5],
+        conditionCountHistory: [2, 2, 2, 2],
       };
       const result = detectChallenge(state);
       expect(result.mode).toBe('ontologist');
-      expect(result.reason).toBeTruthy();
     });
 
     it('does not fire when already used', () => {
       const state = {
         ...baseState,
-        openCountHistory: [5, 5, 5, 5],
+        conditionCountHistory: [2, 2, 2, 2],
         challengeModesUsed: ['ontologist'],
       };
-      const result = detectChallenge(state);
-      expect(result.mode).not.toBe('ontologist');
+      expect(detectChallenge(state).mode).not.toBe('ontologist');
     });
   });
 
   describe('simplifier trigger', () => {
-    it('fires when element count grew by >= 3 and opens did not decrease', () => {
+    it('fires when condition count grew by >= 2', () => {
       const state = {
         ...baseState,
-        openCountHistory: [2, 2], // not stall (< 4 entries), opens did not decrease
-        elementCountHistory: [10, 13],
-        challengeModesUsed: [],
+        conditionCountHistory: [1, 3],
+        elementCountHistory: [5, 8],
       };
       const result = detectChallenge(state);
       expect(result.mode).toBe('simplifier');
     });
 
-    it('does not fire when opens decreased', () => {
+    it('does not fire when condition growth < 2', () => {
       const state = {
         ...baseState,
-        openCountHistory: [3, 2],
-        elementCountHistory: [10, 13],
-        challengeModesUsed: [],
+        conditionCountHistory: [2, 3],
+        elementCountHistory: [5, 8],
       };
-      const result = detectChallenge(state);
-      expect(result.mode).not.toBe('simplifier');
+      expect(detectChallenge(state).mode).not.toBe('simplifier');
     });
 
     it('does not fire when already used', () => {
       const state = {
         ...baseState,
-        openCountHistory: [2, 2],
-        elementCountHistory: [10, 13],
+        conditionCountHistory: [1, 3],
         challengeModesUsed: ['simplifier'],
       };
-      const result = detectChallenge(state);
-      expect(result.mode).not.toBe('simplifier');
+      expect(detectChallenge(state).mode).not.toBe('simplifier');
     });
   });
 
   describe('contrarian trigger', () => {
-    it('fires when assertion has no designer GIVEN in basis', () => {
+    it('fires when NC grounded only in EVIDENCE (no RULE)', () => {
       const elements = mapOf(
-        makeElement({ id: 'a1', type: 'ASSERTION', confidence: 0.8, basis: ['c1'] }),
-        makeElement({ id: 'c1', type: 'CONSTRAINT', basis: [] }),
+        makeElement({ id: 'EVID-1', type: 'EVIDENCE' }),
+        makeElement({
+          id: 'NCON-1', type: 'NECESSARY_CONDITION',
+          grounding: ['EVID-1'], collapse_test: 'x', reasoning_chain: 'y',
+        }),
       );
-      const state = {
-        ...baseState,
-        round: 3,
-        elements,
-        challengeModesUsed: [],
-      };
+      const state = { ...baseState, round: 3, elements };
       const result = detectChallenge(state);
       expect(result.mode).toBe('contrarian');
     });
 
-    it('does not fire when assertion has designer GIVEN in chain', () => {
+    it('does not fire when NC has RULE in grounding', () => {
       const elements = mapOf(
-        makeElement({ id: 'g1', type: 'GIVEN', source: 'designer', basis: [] }),
-        makeElement({ id: 'a1', type: 'ASSERTION', confidence: 0.8, basis: ['g1'] }),
+        makeElement({ id: 'EVID-1', type: 'EVIDENCE' }),
+        makeElement({ id: 'RULE-1', type: 'RULE', source: 'designer' }),
+        makeElement({
+          id: 'NCON-1', type: 'NECESSARY_CONDITION',
+          grounding: ['EVID-1', 'RULE-1'], collapse_test: 'x', reasoning_chain: 'y',
+        }),
       );
-      const state = {
-        ...baseState,
-        round: 3,
-        elements,
-        challengeModesUsed: [],
-      };
-      const result = detectChallenge(state);
-      expect(result.mode).not.toBe('contrarian');
+      const state = { ...baseState, round: 3, elements };
+      expect(detectChallenge(state).mode).not.toBe('contrarian');
     });
 
     it('does not fire before round 2', () => {
       const elements = mapOf(
-        makeElement({ id: 'a1', type: 'ASSERTION', confidence: 0.8, basis: [] }),
+        makeElement({ id: 'EVID-1', type: 'EVIDENCE' }),
+        makeElement({
+          id: 'NCON-1', type: 'NECESSARY_CONDITION',
+          grounding: ['EVID-1'], collapse_test: 'x', reasoning_chain: 'y',
+        }),
       );
-      const state = {
-        ...baseState,
-        round: 1,
-        elements,
-        challengeModesUsed: [],
-      };
-      const result = detectChallenge(state);
-      expect(result.mode).not.toBe('contrarian');
+      const state = { ...baseState, round: 1, elements };
+      expect(detectChallenge(state).mode).not.toBe('contrarian');
     });
 
     it('does not fire when already used', () => {
       const elements = mapOf(
-        makeElement({ id: 'a1', type: 'ASSERTION', confidence: 0.8, basis: [] }),
+        makeElement({ id: 'EVID-1', type: 'EVIDENCE' }),
+        makeElement({
+          id: 'NCON-1', type: 'NECESSARY_CONDITION',
+          grounding: ['EVID-1'], collapse_test: 'x', reasoning_chain: 'y',
+        }),
       );
-      const state = {
-        ...baseState,
-        round: 3,
-        elements,
-        challengeModesUsed: ['contrarian'],
-      };
-      const result = detectChallenge(state);
-      expect(result.mode).not.toBe('contrarian');
+      const state = { ...baseState, round: 3, elements, challengeModesUsed: ['contrarian'] };
+      expect(detectChallenge(state).mode).not.toBe('contrarian');
     });
   });
 
   it('returns null mode when no challenges trigger', () => {
-    const result = detectChallenge(baseState);
-    expect(result).toEqual({ mode: null, reason: null });
+    expect(detectChallenge(baseState)).toEqual({ mode: null, reason: null });
   });
 });
 
@@ -291,12 +303,18 @@ describe('detectChallenge', () => {
 // checkClosure
 // =============================================================================
 describe('checkClosure', () => {
-  // Build a state that satisfies all conditions
   function closableState() {
     const elements = mapOf(
-      makeElement({ id: 'g1', type: 'GIVEN', source: 'designer' }),
-      makeElement({ id: 'b1', type: 'BOUNDARY', reason: 'scope', status: 'active' }),
-      makeElement({ id: 'd1', type: 'DECISION', over: ['x', 'y'], basis: ['g1'], revisedInRound: 3 }),
+      makeElement({ id: 'EVID-1', type: 'EVIDENCE' }),
+      makeElement({ id: 'RULE-1', type: 'RULE', source: 'designer' }),
+      makeElement({
+        id: 'NCON-1', type: 'NECESSARY_CONDITION',
+        grounding: ['EVID-1', 'RULE-1'],
+        collapse_test: 'design collapses',
+        reasoning_chain: 'IF x THEN y',
+        rejected_alternatives: ['alt-a', 'alt-b'],
+        revisedInRound: 3,
+      }),
     );
     return { elements, round: 4, phaseTransitionRound: 1 };
   }
@@ -307,35 +325,30 @@ describe('checkClosure', () => {
     expect(result.reasons).toEqual([]);
   });
 
-  it('fails when active OPENs remain', () => {
+  it('fails when conditions are ungrounded', () => {
     const state = closableState();
-    state.elements.set('o1', makeElement({ id: 'o1', type: 'OPEN', status: 'active' }));
+    state.elements.set('NCON-2', makeElement({
+      id: 'NCON-2', type: 'NECESSARY_CONDITION',
+      grounding: ['RISK-1'], collapse_test: 'x', reasoning_chain: 'y',
+      rejected_alternatives: [],
+    }));
+    state.elements.set('RISK-1', makeElement({ id: 'RISK-1', type: 'RISK' }));
     const result = checkClosure(state);
     expect(result.permitted).toBe(false);
-    expect(result.reasons).toContainEqual(expect.stringContaining('OPEN'));
+    expect(result.reasons).toContainEqual(expect.stringContaining('grounded'));
   });
 
-  it('fails when basis coverage is incomplete', () => {
+  it('fails when conditions lack collapse tests', () => {
     const state = closableState();
-    // Add a decision with an uncovered basis
-    state.elements.set('a1', makeElement({ id: 'a1', type: 'ASSERTION', confidence: 0.5, basis: [] }));
-    state.elements.set('d2', makeElement({ id: 'd2', type: 'DECISION', over: ['z'], basis: ['a1'] }));
+    state.elements.get('NCON-1').collapse_test = null;
     const result = checkClosure(state);
     expect(result.permitted).toBe(false);
-    expect(result.reasons).toContainEqual(expect.stringContaining('basis coverage'));
+    expect(result.reasons).toContainEqual(expect.stringContaining('collapse test'));
   });
 
-  it('fails when no active BOUNDARY exists', () => {
+  it('fails when no condition has rejected alternatives', () => {
     const state = closableState();
-    state.elements.delete('b1');
-    const result = checkClosure(state);
-    expect(result.permitted).toBe(false);
-    expect(result.reasons).toContainEqual(expect.stringContaining('BOUNDARY'));
-  });
-
-  it('fails when no DECISION has alternatives', () => {
-    const state = closableState();
-    state.elements.get('d1').over = [];
+    state.elements.get('NCON-1').rejected_alternatives = [];
     const result = checkClosure(state);
     expect(result.permitted).toBe(false);
     expect(result.reasons).toContainEqual(expect.stringContaining('alternatives'));
@@ -343,7 +356,7 @@ describe('checkClosure', () => {
 
   it('fails when no element revised after phase transition', () => {
     const state = closableState();
-    state.elements.get('d1').revisedInRound = null;
+    state.elements.get('NCON-1').revisedInRound = null;
     const result = checkClosure(state);
     expect(result.permitted).toBe(false);
     expect(result.reasons).toContainEqual(expect.stringContaining('revised'));
@@ -357,6 +370,17 @@ describe('checkClosure', () => {
     expect(result.reasons).toContainEqual(expect.stringContaining('round'));
   });
 
+  it('fails when no conditions exist', () => {
+    const state = {
+      elements: mapOf(makeElement({ id: 'EVID-1', type: 'EVIDENCE' })),
+      round: 4,
+      phaseTransitionRound: 1,
+    };
+    const result = checkClosure(state);
+    expect(result.permitted).toBe(false);
+    expect(result.reasons).toContainEqual(expect.stringContaining('No active necessary conditions'));
+  });
+
   it('collects all failing reasons at once', () => {
     const state = {
       elements: new Map(),
@@ -365,7 +389,6 @@ describe('checkClosure', () => {
     };
     const result = checkClosure(state);
     expect(result.permitted).toBe(false);
-    // Should have multiple reasons
-    expect(result.reasons.length).toBeGreaterThanOrEqual(4);
+    expect(result.reasons.length).toBeGreaterThanOrEqual(3);
   });
 });

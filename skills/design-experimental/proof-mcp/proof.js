@@ -1,10 +1,17 @@
 /**
  * proof.js — Element model and integrity checks for the design proof MCP server.
  * Pure-functions module with no I/O.
+ *
+ * Necessary Conditions Model (v2):
+ *   EVIDENCE   — codebase facts, agent-sourced, verifiable
+ *   RULE       — designer-directed restrictions on the design space
+ *   PERMISSION — designer-directed relief from an existing restriction
+ *   NECESSARY_CONDITION — something that must be true for the design to hold
+ *   RISK       — identified hazards attached to specific conditions
  */
 
 export const ELEMENT_TYPES = [
-  'GIVEN', 'CONSTRAINT', 'ASSERTION', 'DECISION', 'OPEN', 'RISK', 'BOUNDARY',
+  'EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK',
 ];
 
 /**
@@ -15,7 +22,11 @@ export const ELEMENT_TYPES = [
  * @returns {object} The created element
  */
 export function createElement(input, id, round) {
-  const { type, statement, source, basis, over, confidence, reason } = input;
+  const {
+    type, statement, source,
+    grounding, collapse_test, reasoning_chain, rejected_alternatives,
+    relieves, basis,
+  } = input;
 
   if (!ELEMENT_TYPES.includes(type)) {
     throw new Error(`Invalid type "${type}". Must be one of: ${ELEMENT_TYPES.join(', ')}`);
@@ -24,27 +35,43 @@ export function createElement(input, id, round) {
     throw new Error('statement is required and must be non-empty');
   }
 
-  if (type === 'ASSERTION') {
-    if (confidence == null || typeof confidence !== 'number' || confidence < 0.0 || confidence > 1.0) {
-      throw new Error('ASSERTION requires confidence between 0.0 and 1.0');
+  // EVIDENCE: agent-sourced codebase facts — source must not be "designer"
+  if (type === 'EVIDENCE') {
+    if (!source) {
+      throw new Error('EVIDENCE requires explicit source field');
+    }
+    if (source === 'designer') {
+      throw new Error('EVIDENCE cannot have source "designer" — use RULE for designer declarations');
     }
   }
 
-  if (type === 'DECISION') {
-    if (!Array.isArray(over)) {
-      throw new Error('DECISION requires over field (array)');
+  // RULE: designer-directed restriction — source must be "designer"
+  if (type === 'RULE') {
+    if (source !== 'designer') {
+      throw new Error('RULE requires source "designer" — only the designer can create rules');
     }
   }
 
-  if (type === 'BOUNDARY') {
-    if (!reason) {
-      throw new Error('BOUNDARY requires reason field');
+  // PERMISSION: designer-directed relief — source must be "designer", relieves required
+  if (type === 'PERMISSION') {
+    if (source !== 'designer') {
+      throw new Error('PERMISSION requires source "designer" — only the designer can grant permissions');
+    }
+    if (!relieves) {
+      throw new Error('PERMISSION requires relieves field (what restriction is being relaxed)');
     }
   }
 
-  if (type === 'GIVEN') {
-    if (source == null) {
-      throw new Error('GIVEN requires explicit source field');
+  // NECESSARY_CONDITION: must have grounding, collapse_test, reasoning_chain
+  if (type === 'NECESSARY_CONDITION') {
+    if (!Array.isArray(grounding) || grounding.length === 0) {
+      throw new Error('NECESSARY_CONDITION requires grounding (non-empty array of element IDs)');
+    }
+    if (!collapse_test) {
+      throw new Error('NECESSARY_CONDITION requires collapse_test (what breaks if this is removed)');
+    }
+    if (!reasoning_chain) {
+      throw new Error('NECESSARY_CONDITION requires reasoning_chain (IF...THEN structure)');
     }
   }
 
@@ -53,12 +80,13 @@ export function createElement(input, id, round) {
     type,
     statement,
     source: source ?? null,
+    grounding: Array.isArray(grounding) ? grounding : [],
+    collapse_test: collapse_test ?? null,
+    reasoning_chain: reasoning_chain ?? null,
+    rejected_alternatives: Array.isArray(rejected_alternatives) ? rejected_alternatives : [],
+    relieves: relieves ?? null,
     basis: Array.isArray(basis) ? basis : [],
-    over: Array.isArray(over) ? over : null,
-    confidence: typeof confidence === 'number' ? confidence : null,
-    reason: reason ?? null,
     status: 'active',
-    resolvedBy: null,
     addedInRound: round,
     revisedInRound: null,
     revision: 0,
@@ -66,35 +94,40 @@ export function createElement(input, id, round) {
 }
 
 /**
- * Check that all IDs in a basis array exist in the elements map.
- * @param {string[]} basis - Array of element IDs
+ * Check that all IDs in an array exist in the elements map.
+ * @param {string[]} refs - Array of element IDs
  * @param {Map} elements - Map of id -> element
  * @returns {string[]} Array of error strings for missing refs
  */
-export function validateBasisRefs(basis, elements) {
+export function validateRefs(refs, elements) {
   const errors = [];
-  for (const ref of basis) {
+  for (const ref of refs) {
     if (!elements.has(ref)) {
-      errors.push(`Basis reference "${ref}" does not exist`);
+      errors.push(`Reference "${ref}" does not exist`);
     }
   }
   return errors;
 }
 
 /**
- * BFS from startId following basis links. Returns all reachable IDs.
+ * BFS from startId following grounding/basis links. Returns all reachable IDs.
  * Handles cycles (stops at revisited nodes). Skips withdrawn elements.
+ * Follows `grounding` for NECESSARY_CONDITIONs, `basis` for others.
  * @param {Map} elements - Map of id -> element
  * @param {string} startId - Element to start traversal from
  * @returns {string[]} Array of all reachable element IDs (excluding startId)
  */
-export function traverseBasisChain(elements, startId) {
+export function traverseGroundingChain(elements, startId) {
   const visited = new Set([startId]);
   const result = [];
   const startEl = elements.get(startId);
   if (!startEl) return result;
 
-  const queue = [...(startEl.basis || [])];
+  // Use grounding for NCs, basis for others
+  const startRefs = startEl.type === 'NECESSARY_CONDITION'
+    ? (startEl.grounding || [])
+    : (startEl.basis || []);
+  const queue = [...startRefs];
 
   while (queue.length > 0) {
     const currentId = queue.shift();
@@ -106,11 +139,12 @@ export function traverseBasisChain(elements, startId) {
 
     result.push(currentId);
 
-    if (el.basis) {
-      for (const ref of el.basis) {
-        if (!visited.has(ref)) {
-          queue.push(ref);
-        }
+    const refs = el.type === 'NECESSARY_CONDITION'
+      ? (el.grounding || [])
+      : (el.basis || []);
+    for (const ref of refs) {
+      if (!visited.has(ref)) {
+        queue.push(ref);
       }
     }
   }
@@ -119,19 +153,22 @@ export function traverseBasisChain(elements, startId) {
 }
 
 /**
- * Flags active elements citing withdrawn elements in their direct basis.
+ * Flags active elements citing withdrawn elements in their direct grounding/basis.
  * @param {Map} elements
  * @returns {Array<{type: string, element_id: string, cited_id: string, message: string}>}
  */
-export function checkWithdrawnBasis(elements) {
+export function checkWithdrawnGrounding(elements) {
   const warnings = [];
   for (const [id, el] of elements) {
     if (el.status !== 'active') continue;
-    for (const ref of (el.basis || [])) {
+    const refs = el.type === 'NECESSARY_CONDITION'
+      ? (el.grounding || [])
+      : (el.basis || []);
+    for (const ref of refs) {
       const cited = elements.get(ref);
       if (cited && cited.status === 'withdrawn') {
         warnings.push({
-          type: 'withdrawn-basis',
+          type: 'withdrawn-grounding',
           element_id: id,
           cited_id: ref,
           message: `Active element "${id}" cites withdrawn element "${ref}"`,
@@ -143,89 +180,53 @@ export function checkWithdrawnBasis(elements) {
 }
 
 /**
- * Flags DECISIONs whose basis chain overlaps with a BOUNDARY's basis chain.
- * Filters direct basis arrays by element status before building chain sets.
+ * Flags NECESSARY_CONDITIONs whose grounding doesn't contain at least one
+ * EVIDENCE, RULE, or PERMISSION (directly or through the chain).
  * @param {Map} elements
- * @returns {Array<{type: string, element_id: string, boundary_id: string, shared_id: string, message: string}>}
+ * @returns {Array<{type: string, element_id: string, message: string}>}
  */
-export function checkBoundaryCollision(elements) {
+export function checkUngrounded(elements) {
   const warnings = [];
-  const decisions = [];
-  const boundaries = [];
+  const groundingTypes = new Set(['EVIDENCE', 'RULE', 'PERMISSION']);
 
-  for (const [, el] of elements) {
+  for (const [id, el] of elements) {
     if (el.status !== 'active') continue;
-    if (el.type === 'DECISION') decisions.push(el);
-    if (el.type === 'BOUNDARY') boundaries.push(el);
-  }
+    if (el.type !== 'NECESSARY_CONDITION') continue;
 
-  for (const decision of decisions) {
-    // Filter direct basis to exclude withdrawn, then traverse
-    const activeBasis = (decision.basis || []).filter(ref => {
-      const el = elements.get(ref);
-      return el && el.status !== 'withdrawn';
+    const chain = traverseGroundingChain(elements, id);
+    const hasGrounding = chain.some(refId => {
+      const dep = elements.get(refId);
+      return dep && groundingTypes.has(dep.type);
     });
-    const decisionChain = new Set(activeBasis);
-    for (const ref of activeBasis) {
-      for (const reachable of traverseBasisChain(elements, ref)) {
-        decisionChain.add(reachable);
-      }
-    }
 
-    for (const boundary of boundaries) {
-      const boundaryActiveBasis = (boundary.basis || []).filter(ref => {
-        const el = elements.get(ref);
-        return el && el.status !== 'withdrawn';
+    if (!hasGrounding) {
+      warnings.push({
+        type: 'ungrounded-condition',
+        element_id: id,
+        message: `Necessary condition "${id}" has no EVIDENCE, RULE, or PERMISSION in its grounding chain`,
       });
-      const boundaryChain = new Set(boundaryActiveBasis);
-      for (const ref of boundaryActiveBasis) {
-        for (const reachable of traverseBasisChain(elements, ref)) {
-          boundaryChain.add(reachable);
-        }
-      }
-
-      for (const shared of decisionChain) {
-        if (boundaryChain.has(shared)) {
-          warnings.push({
-            type: 'boundary-collision',
-            element_id: decision.id,
-            boundary_id: boundary.id,
-            shared_id: shared,
-            message: `Decision "${decision.id}" basis chain overlaps with boundary "${boundary.id}" at "${shared}"`,
-          });
-          break; // one warning per decision-boundary pair
-        }
-      }
     }
   }
   return warnings;
 }
 
 /**
- * Flags high-confidence (>=0.7) ASSERTIONs built on low-confidence (<0.4)
- * ASSERTIONs in their basis chain.
+ * Flags NECESSARY_CONDITIONs that don't have a collapse_test.
+ * (Should be caught at creation, but can happen through revise clearing it.)
  * @param {Map} elements
- * @returns {Array<{type: string, element_id: string, low_confidence_id: string, message: string}>}
+ * @returns {Array<{type: string, element_id: string, message: string}>}
  */
-export function checkConfidenceInversion(elements) {
+export function checkMissingCollapseTest(elements) {
   const warnings = [];
   for (const [id, el] of elements) {
     if (el.status !== 'active') continue;
-    if (el.type !== 'ASSERTION') continue;
-    if (el.confidence < 0.7) continue;
-
-    const chain = traverseBasisChain(elements, id);
-    for (const reachableId of chain) {
-      const dep = elements.get(reachableId);
-      if (!dep || dep.type !== 'ASSERTION') continue;
-      if (dep.confidence < 0.4) {
-        warnings.push({
-          type: 'confidence-inversion',
-          element_id: id,
-          low_confidence_id: reachableId,
-          message: `High-confidence assertion "${id}" (${el.confidence}) depends on low-confidence assertion "${reachableId}" (${dep.confidence})`,
-        });
-      }
+    if (el.type !== 'NECESSARY_CONDITION') continue;
+    if (!el.collapse_test) {
+      warnings.push({
+        type: 'missing-collapse-test',
+        element_id: id,
+        message: `Necessary condition "${id}" has no collapse test — cannot verify necessity`,
+      });
     }
   }
   return warnings;
@@ -233,27 +234,28 @@ export function checkConfidenceInversion(elements) {
 
 /**
  * Flags active downstream elements that cite a revised element but haven't
- * been updated since the revision.
+ * been updated since the revision. Checks grounding for NCs, basis for others.
  * @param {Map} elements
- * @returns {Array<{type: string, element_id: string, stale_basis_id: string, message: string}>}
+ * @returns {Array<{type: string, element_id: string, stale_id: string, message: string}>}
  */
-export function checkStaleDependency(elements) {
+export function checkStaleGrounding(elements) {
   const warnings = [];
   for (const [id, el] of elements) {
     if (el.status !== 'active') continue;
-    for (const ref of (el.basis || [])) {
+    const refs = el.type === 'NECESSARY_CONDITION'
+      ? (el.grounding || [])
+      : (el.basis || []);
+    for (const ref of refs) {
       const dep = elements.get(ref);
       if (!dep) continue;
-      // dep has been revised (revision > 0)
       if (dep.revision > 0) {
-        // downstream hasn't been revised, or was revised before the dep
         const downstreamRound = el.revisedInRound ?? -1;
         const depRound = dep.revisedInRound ?? -1;
         if (downstreamRound < depRound) {
           warnings.push({
-            type: 'stale-dependency',
+            type: 'stale-grounding',
             element_id: id,
-            stale_basis_id: ref,
+            stale_id: ref,
             message: `Element "${id}" cites revised element "${ref}" (revision ${dep.revision}) but has not been updated since`,
           });
         }
@@ -270,9 +272,9 @@ export function checkStaleDependency(elements) {
  */
 export function checkAllIntegrity(elements) {
   return [
-    ...checkWithdrawnBasis(elements),
-    ...checkBoundaryCollision(elements),
-    ...checkConfidenceInversion(elements),
-    ...checkStaleDependency(elements),
+    ...checkWithdrawnGrounding(elements),
+    ...checkUngrounded(elements),
+    ...checkMissingCollapseTest(elements),
+    ...checkStaleGrounding(elements),
   ];
 }

@@ -5,7 +5,7 @@ description: "Experimental two-phase design skill: Plan Mode understanding (Phas
 
 # Experimental Design Discovery with Formal Proof Language
 
-A two-phase design collaboration that separates **Understand** from **Solve**. Phase 1 uses Plan Mode with no MCP — pure conversation. Phase 2 uses a Design Proof MCP that builds a formal proof structure: claims, constraints, decisions, and open questions, validated for structural integrity each turn. You contribute analysis and commentary; the designer shapes the direction. The machinery is invisible.
+A two-phase design collaboration that separates **Understand** from **Solve**. Phase 1 uses Plan Mode with no MCP — pure conversation. Phase 2 uses a Design Proof MCP that builds a formal proof structure around **necessary conditions** — things that must be true for the design to hold, each grounded in evidence or designer authority, each with a collapse test showing what breaks if removed. You contribute analysis and commentary; the designer shapes the direction. The machinery is invisible.
 
 Understanding means correlating broadly — sweeping across the problem surface, mapping relationships between parts, discovering constraints, identifying where action is safe. Solving means thinking narrowly — following specific chains, working out process, figuring out the mechanics of change. The boundary between these two modes is the phase transition.
 
@@ -27,8 +27,8 @@ You MUST create a task for each of these items and complete them in order:
 4. **Round one** — use explorer findings + own exploration, present gap map, offer first commentary, announce Phase 1. No MCP initialization.
 5. **Understand phase** — per-turn conversational cycle (no MCP, no scoring, no structured submissions)
 6. **Phase transition** — designer confirms understanding, `capture_thought()` with tag `understanding-confirmed` and stage `Transition`, call `ExitPlanMode`
-7. **Proof phase** — write problem statement, initialize proof MCP, per-turn proof cycle
-8. **Closure** — proof complete or forced, write three artifacts, update lessons table, transition to design-specify
+7. **Proof phase** — present designer's verbatim problem statement for confirmation, initialize proof MCP, per-turn proof cycle with necessary conditions model
+8. **Closure** — closing argument presented and approved, write three artifacts, update lessons table, transition to design-specify
 
 ## Role: Software Architect
 
@@ -111,12 +111,13 @@ Phase 1: Understand
     ↓ Transition: Understanding confirmed by designer
 
 Phase 2: Solve
-├── Goal: Resolved design direction
-├── Opens with: Problem statement (crystallization of Phase 1 understanding)
+├── Goal: Grounded set of necessary conditions for the design
+├── Opens with: Designer's verbatim problem statement → proof initialization
 ├── Internal: Capture thinking → Compose proof operations → Submit → Read response → Choose topic
 ├── Visible:  Observations → Information package → Commentary → "What do you think?"
-├── Stopping criterion: Remaining commentary is about how to implement, not what to build
-├── Governed by: Design Proof MCP (formal element tracking, integrity validation)
+├── Closes with: Closing argument (reasoned argument from premises to conditions)
+├── Stopping criterion: All conditions grounded, collapse-tested, and designer-approved
+├── Governed by: Design Proof MCP (necessary conditions model, integrity validation)
 └── Property: Naturally shorter because problem understanding constrains the space
 ```
 
@@ -188,18 +189,18 @@ The boundary between Understand and Solve is marked by a **transition checkpoint
 2. Present a transition summary to the designer in domain language — what has been understood, any areas of residual uncertainty
 3. Designer confirms understanding is sufficient
 4. `capture_thought()` with tag `understanding-confirmed`, stage `Transition`
-5. Call `ExitPlanMode` — frame the transition as: "Understanding is established. We're moving from exploration to building the design proof. I'll write formal claims about what we know, what constrains the solution, what we decide, and what remains open. You respond the same way — correct, confirm, redirect, or move on."
+5. Call `ExitPlanMode` — frame the transition as: "Understanding is established. We're moving from exploration to building the design proof. I'll record evidence from the codebase and propose necessary conditions — things that must be true for this design to hold. Each condition will be grounded in what we've found and what you've directed, with a test for what breaks if it's removed. You respond the same way — correct, confirm, redirect, or move on."
 6. Announce Phase 2
 
 ### Phase 2 Opening (Solve)
 
 Phase 2 opens with three steps before the proof-governed interview loop begins:
 
-1. **Write problem statement** — crystallize Phase 1's understanding into a concise problem statement (2-4 paragraphs) capturing: what's wrong, why it matters, what's been tried, what constrains a solution. Present to designer for confirmation. This is the first artifact of Phase 2 — the crystallization of earned understanding, not a pre-exploration conclusion.
+1. **Problem statement: polish, readback, confirm** — take what the designer said about the problem (they often type quickly and roughly), polish the language lightly for clarity and grammar without changing the meaning or adding your own framing. Read it back to the designer in clean form: "Here's how I'd capture the problem — [polished version]. Does that sound right?" The designer must explicitly approve before you proceed. Do NOT expand it into an analysis, add requirements, or prescribe solution characteristics. The problem statement describes the pain, not the solution. Context (codebase observations, architectural constraints) belongs in separate proof elements, not embedded in the problem statement.
 2. **Initialize proof MCP** — call `initialize_proof` with:
-   - `problem_statement`: the confirmed problem statement
+   - `problem_statement`: the designer's confirmed (polished) problem statement
    - `state_file`: `{CHESTER_WORKING_DIR}/{sprint-subdir}/design/{sprint-name}-proof-state.json`
-3. **Seed the proof** — call `submit_proof_update` with initial GIVENs (from codebase exploration, source: "codebase") and CONSTRAINTs (from designer's confirmed understanding, source: "designer")
+3. **Seed the proof** — call `submit_proof_update` with initial EVIDENCE elements (codebase facts discovered during Phase 1, source: "codebase") and RULE elements (designer-directed restrictions confirmed during Phase 1, source: "designer"). Do NOT create RULE or PERMISSION elements from your own analysis — only the designer can direct these.
 
 ### Phase 2 Per-Turn Flow (Solve)
 
@@ -215,30 +216,43 @@ If a trigger point is met, call `capture_thought`:
 - User rejects or corrects → tag: `constraint` + topic, stage: `Constraint`
 - Complex decision node (3+ viable options) → tag by topic, stage: `Analysis` or `Synthesis`
 
+#### Invisible: Proof Machinery (Steps 3–5)
+
+Steps 3–5 are your internal work. Nothing from these steps — element types, IDs, JSON structures, tool call formats, field names, integrity warning codes — appears in any output the designer sees. The designer sees only the human-language output from Steps 6–9.
+
 **Step 3: Compose proof operations.**
-Translate the conversation into formal proof operations:
-- New facts from the designer → add GIVEN elements (source: "designer")
-- New facts from codebase analysis → add GIVEN elements (source: "codebase")
-- Analytical conclusions → add ASSERTION elements (source: "agent") with confidence
-- Questions that need answering → add OPEN elements
-- Scope boundaries → add BOUNDARY elements with reason
-- Risks identified → add RISK elements
-- Design choices made → add DECISION elements with basis and rejected alternatives
-- OPENs answered → resolve operations linking to the resolving DECISION
+Translate the conversation into formal proof operations. The MCP accepts these five element types directly — use these exact type names in `submit_proof_update` calls:
+
+- **EVIDENCE** — codebase facts you discovered through research (source: "codebase"). Verifiable, mutable.
+- **RULE** — designer-directed restrictions on the design space (source: "designer"). Only the designer can create these. Includes scope exclusions, architectural mandates, and design directives.
+- **PERMISSION** — designer-directed relief from an existing restriction (source: "designer"). Only the designer can grant these. Must specify what restriction is being relaxed via `relieves`.
+- **NECESSARY_CONDITION** — something that must be true for the design to hold. Each requires:
+  - `grounding`: array of element IDs (at least one EVIDENCE, RULE, or PERMISSION)
+  - `reasoning_chain`: IF [premises] THEN [this condition is necessary]
+  - `collapse_test`: what breaks if this condition is removed
+  - `rejected_alternatives`: (optional) what other conditions were considered instead
+- **RISK** — identified hazards attached to specific conditions via `basis`
+
+**Operations:**
+- New codebase facts → add EVIDENCE elements
+- Designer declarations/restrictions → add RULE elements (only when the designer directs)
+- Designer relief from restrictions → add PERMISSION elements (only when the designer grants)
+- Design conclusions with grounding → add NECESSARY_CONDITION elements
+- Identified hazards → add RISK elements with basis pointing to relevant conditions
 - Elements corrected by designer → revise operations with updated content
 - Elements rejected by designer → withdraw operations
+
+**Prohibition:** You must NOT create RULE or PERMISSION elements from your own analysis. These are designer-sourced only. If you believe a restriction exists, surface it in commentary and let the designer confirm it as a RULE.
 
 **Step 4: Submit proof update.**
 Call `submit_proof_update` with all operations batched in a single call. Include `challenge_used` if a challenge mode was delivered this turn.
 
 **Step 5: Read proof response.**
-The proof MCP returns:
-- `integrity_warnings` — structural anomalies detected (see Integrity Warning Surfacing)
-- `completeness` — element counts, open questions, basis coverage
-- `challenge_trigger` — a challenge mode and reason, or null
-- `stall_detected` — whether the proof is stagnating
-- `closure_permitted` — whether all closure conditions are met
-- `closure_reasons` — what conditions remain unmet (if closure not permitted)
+The proof MCP returns integrity warnings, completeness metrics, challenge triggers, stall detection, and closure status. Use these to inform your topic choice and commentary — but never surface them in their raw form.
+
+#### Visible: Designer-Facing Output (Steps 6–9)
+
+Everything from here forward is what the designer sees. It must read like a colleague talking through the design — plain human language, no code, no structured data, no element references.
 
 **Step 6: Choose topic.**
 Select what to address this turn using this priority (not discretionary):
@@ -248,7 +262,7 @@ Select what to address this turn using this priority (not discretionary):
 3. **Integrity warnings** — if the proof MCP reported structural anomalies, surface them (see Integrity Warning Surfacing)
 4. **Foundational untested assumption** — if you identify an assumption whose falsity would collapse the design
 5. **Codebase contradiction** — if exploration reveals something that directly contradicts the designer's stated intent
-6. **Open questions** — active OPENs in the proof that need resolution
+6. **Ungrounded conditions** — necessary conditions lacking designer authority or codebase evidence
 7. **Coverage rotation** — next unaddressed area of the design space
 
 **Step 7: Compose information package.**
@@ -276,18 +290,18 @@ When the proof MCP returns integrity warnings, surface them in the observations 
 
 | Warning type | Domain language |
 |-------------|----------------|
-| `withdrawn-basis` | "One of our decisions rests on a premise we've since set aside." |
-| `boundary-collision` | "A decision path crosses into territory we marked as out of scope." |
-| `confidence-inversion` | "A high-confidence claim is built on a low-confidence foundation." |
-| `stale-dependency` | "We revised a premise but haven't revisited the claims that depend on it." |
+| `withdrawn-grounding` | "One of our conditions rests on a premise we've since set aside." |
+| `ungrounded-condition` | "A design requirement isn't grounded in anything we've established — it needs evidence or a designer directive to stand." |
+| `missing-collapse-test` | "We're claiming something is necessary but haven't said what breaks if we remove it." |
+| `stale-grounding` | "We revised a premise but haven't revisited the conditions that depend on it." |
 
 Follow the translated warning with a brief explanation of which decision and which premise are involved, using domain concepts only.
 
 ### Phase 2: Solve
 
-**Goal:** Given the deeply understood problem, explore the solution space and arrive at a resolved design direction. Every claim, constraint, decision, and open question is formally recorded in the proof.
+**Goal:** Given the deeply understood problem, build a set of necessary conditions — grounded, justified design requirements with reasoning chains and collapse tests. The proof tracks what must be true for the design to hold, not the agent's internal bookkeeping.
 
-**Stopping criterion:** Remaining questions are about *how to implement* rather than *what to build*. When the question queue shifts from design-level to implementation-level, the design is resolved. The proof MCP confirms via `closure_permitted: true`.
+**Stopping criterion:** Remaining questions are about *how to implement* rather than *what to build*. All necessary conditions are grounded in evidence or designer authority. The proof MCP confirms via `closure_permitted: true`.
 
 **Length check:** Phase 2 is naturally shorter than Phase 1 because the deep problem understanding constrains the solution space. If Phase 2 consumes more rounds than Phase 1, note this in process evidence as a signal that understanding may have been insufficient.
 
@@ -297,9 +311,9 @@ Four modes, each fires once per interview. Three triggered by the proof MCP duri
 
 | Mode | Trigger | Effect |
 |------|---------|--------|
-| Contrarian | Proof MCP: an assertion's basis chain contains no designer-sourced GIVEN | Challenge the core premise — the agent is making a load-bearing claim with no grounding in anything the designer confirmed |
-| Simplifier | Proof MCP: element count grew by more than 2 while no OPENs were resolved | Probe minimal viable scope — complexity is expanding without resolving existing questions |
-| Ontologist | Proof MCP: active OPEN count unchanged for 3 consecutive rounds | Force essence-level reframing — questions exist but aren't being addressed |
+| Contrarian | Proof MCP: a necessary condition is grounded only in EVIDENCE with no RULE | Challenge the core premise — the agent is deriving design requirements from code alone without designer authority |
+| Simplifier | Proof MCP: condition count grew by 2+ without consolidation | Probe whether all conditions are genuinely necessary — can some be consolidated or are they redundant? |
+| Ontologist | Proof MCP: condition count unchanged for 3 consecutive rounds | Force essence-level reframing — the proof isn't evolving, are we asking the right question? |
 | Auditor | Self-triggered: design direction matches a lesson from `~/.chester/thinking.md` with score >= 2 | Confront the pattern with historical evidence |
 
 When a challenge is triggered, your next commentary MUST be the challenge — it overrides normal topic selection. After delivering a challenge triggered by the proof MCP, report it via `challenge_used` in the next `submit_proof_update` call.
@@ -412,8 +426,8 @@ The information package serves a dual purpose: **content delivery** (giving the 
 
 ### Prohibited Content in Observations Block
 
-- Element IDs or proof terminology (GIVEN, ASSERTION, DECISION, OPEN, CONSTRAINT, BOUNDARY, RISK)
-- Proof state references (closure_permitted, basis_coverage, element counts)
+- Element IDs or proof terminology (EVIDENCE, RULE, PERMISSION, NECESSARY_CONDITION, RISK, grounding, collapse_test)
+- Proof state references (closure_permitted, grounding_coverage, element counts)
 - Challenge mode names (Contrarian, Simplifier, Ontologist, Auditor)
 - MCP mechanism references (submit_proof_update, initialize_proof, integrity_warnings, etc.)
 - Priority rule references
@@ -454,11 +468,12 @@ name uncomfortable truths.
 
 ### Translation Gate
 
-Mandatory on every commentary AND every information package component:
+Mandatory on every piece of designer-visible output — commentary, information packages, observations, the closing argument, and checkpoints:
 
 1. **Strip all code vocabulary.** Type names, class names, property names, method names, file paths, module names — remove them all. Use only domain concepts.
-2. **Litmus test:** Could a product manager who understands the domain but has never opened this codebase follow this commentary / read this information?
-3. If no, translate further or reframe until it works in domain language.
+2. **Strip all proof vocabulary.** Element type names, element IDs, field names (grounding, collapse_test, reasoning_chain), integrity warning codes, closure conditions — remove them all. Translate the meaning into plain sentences.
+3. **Strip all structured formatting.** No JSON, no code blocks, no schema fragments, no tool call examples. The designer sees prose, not data structures.
+4. **Litmus test:** Could a product manager who understands the domain but has never opened this codebase or seen the proof system follow this? If no, translate further until it reads like a colleague talking.
 
 ### Research Boundary
 
@@ -521,7 +536,7 @@ If interrupted:
 1. `get_thinking_summary()` — check for `understanding-confirmed` thought
 2. If absent: Phase 1 was active. Resume conversational understanding. Call `EnterPlanMode` if not already in Plan Mode.
 3. If present: Phase 2 was active. Call `get_proof_state` with the proof state file path (`{CHESTER_WORKING_DIR}/{sprint-subdir}/design/{sprint-name}-proof-state.json`).
-4. Summarize current proof state in domain language: "We were in round N. We've established [summary of key facts and constraints], made [N] decisions, and have [N] open questions remaining. [Challenge modes used, if any]. Continuing."
+4. Summarize current proof state in domain language: "We were in round N. We've established [summary of key evidence and rules], built [N] necessary conditions, and have [summary of grounding status and any integrity warnings]. [Challenge modes used, if any]. Continuing."
 5. Pick up from last completed round. Do not re-present prior turns.
 
 ---
@@ -535,14 +550,14 @@ No candidate topic clears the materiality threshold — you have nothing left to
 ### Proof MCP Must Confirm
 
 The proof MCP must return `closure_permitted: true`. This requires:
-- Zero active open questions
-- Full basis coverage (every decision chain terminates at established facts or constraints)
-- At least one scope boundary defined
-- At least one decision with considered alternatives
-- At least one revision after designer interaction
+- All necessary conditions are grounded (each has EVIDENCE, RULE, or PERMISSION in its chain)
+- Every condition has a collapse test
+- At least one condition has rejected alternatives
+- At least one element revised after designer interaction
 - Minimum 3 rounds in Phase 2
+- No active integrity warnings
 
-If `closure_permitted: false`, the interview continues. Surface the reason in domain terms without referencing proof structure: "We haven't defined what's out of scope yet" or "There are still open questions that haven't been addressed."
+If `closure_permitted: false`, the interview continues. Surface the reason in domain terms without referencing proof structure: "Some of our design requirements aren't grounded yet" or "We haven't explored alternatives for any of our conditions."
 
 ### Forced Crystallization
 
@@ -563,11 +578,17 @@ After at least 3 rounds of Phase 2, the designer may exit at any checkpoint. Not
 
 1. `get_thinking_summary()` to produce the consolidated decision history
 2. `get_proof_state()` for the final proof snapshot
-3. Present the completed design brief to the user — each decision with conclusion and rationale, derived from proof decisions and their basis chains, translated to domain language. The problem section should contain the confirmed problem statement from Phase 2's opening.
-4. "Does this capture what we're building?"
-5. Write three artifacts to the `design/` subdirectory (see `util-artifact-schema` for naming and path conventions):
-   - **Design brief** (`{sprint-name}-design-00.md`) — domain language, derived from proof. Intent, outcome, in-scope, out-of-scope, decision boundaries, constraints, acceptance criteria, assumptions tested, residual risks.
-   - **Thinking summary** (`{sprint-name}-thinking-00.md`) — decision history from thinking summary. Alternatives considered, user corrections, confidence levels, understanding shifts.
+3. **Present the closing argument** — before writing the design brief, present a plain-English narrative that walks the designer through the design's logical justification. This reads like a colleague summarizing "here's what we decided and why it holds up":
+
+   Start with the problem as the designer stated it. Then walk through each key design requirement in natural prose — for each one, explain what we found in the system, what the designer directed, and why those things together mean this requirement is necessary. Make the logical chain obvious without naming elements or referencing proof structure. Describe what was explicitly put out of scope and why. Name the weakest points honestly — where are we least certain, what risks remain? End with a summary: "if we removed any one of these requirements, here's what would break."
+
+   The closing argument must read like a short, persuasive essay — not a list of conditions with metadata. A product manager who understands the domain but has never seen the proof should be able to follow the reasoning and judge whether it's sound.
+
+4. The designer approves or challenges the closing argument. This is the design's proof — the reasoned argument from premises to conclusions, told in plain language. If challenged, return to the proof loop to address the designer's concerns.
+5. "Does this capture what we're building?"
+6. Write three artifacts to the `design/` subdirectory (see `util-artifact-schema` for naming and path conventions):
+   - **Design brief** (`{sprint-name}-design-00.md`) — domain language, derived from proof. Intent, outcome, in-scope, out-of-scope, necessary conditions with rationale, designer-directed restrictions, acceptance criteria, residual risks.
+   - **Thinking summary** (`{sprint-name}-thinking-00.md`) — decision history from thinking summary. Alternatives considered, user corrections, understanding shifts, conditions that were proposed and later withdrawn.
    - **Process evidence** (`{sprint-name}-process-00.md`) — proof element growth by round, integrity warnings surfaced, challenge mode firings, closure condition satisfaction, phase transition timing, Phase 2 length relative to Phase 1. Human-readable narrative — stories, not scores.
 6. Invoke `util-worktree` to create the branch and worktree. The branch name is the sprint subdirectory name. Design artifacts stay in the working directory — `finish-archive-artifacts` copies them into the worktree for merge.
 7. Update `~/.chester/thinking.md` — review the Key Reasoning Shifts from the session. For each shift, determine whether it matches an existing lesson (increment score by 1) or is a new lesson (add with score 1, category `—`). If the table exceeds 20 rows, drop the lowest-scoring entry. Present proposed changes to the user and confirm before writing. If the file does not exist, create it with the table header and first entries.

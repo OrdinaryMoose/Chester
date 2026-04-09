@@ -6,12 +6,12 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { ListToolsRequestSchema, CallToolRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 import { initializeState, applyOperations, markChallengeUsed, saveState, loadState } from './state.js';
 import { checkAllIntegrity } from './proof.js';
-import { computeCompleteness, computeBasisCoverage, detectChallenge, checkClosure } from './metrics.js';
+import { computeCompleteness, computeGroundingCoverage, detectChallenge, checkClosure } from './metrics.js';
 
-const ELEMENT_TYPES = ['GIVEN', 'CONSTRAINT', 'ASSERTION', 'DECISION', 'OPEN', 'RISK', 'BOUNDARY'];
+const ELEMENT_TYPES = ['EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK'];
 
 const server = new Server(
-  { name: 'chester-design-proof', version: '1.0.0' },
+  { name: 'chester-design-proof', version: '2.0.0' },
   { capabilities: { tools: {} } }
 );
 
@@ -20,11 +20,11 @@ const server = new Server(
 const TOOLS = [
   {
     name: 'initialize_proof',
-    description: 'Initialize a new design proof session with element types and operations',
+    description: 'Initialize a new design proof session with the necessary conditions model',
     inputSchema: {
       type: 'object',
       properties: {
-        problem_statement: { type: 'string', description: 'The problem statement to prove a design for' },
+        problem_statement: { type: 'string', description: "The designer's verbatim problem statement" },
         state_file: { type: 'string', description: 'Absolute path to persist state JSON' },
       },
       required: ['problem_statement', 'state_file'],
@@ -32,7 +32,7 @@ const TOOLS = [
   },
   {
     name: 'submit_proof_update',
-    description: 'Submit a batch of proof operations (add, resolve, revise, withdraw) for the current round',
+    description: 'Submit a batch of proof operations (add, revise, withdraw) for the current round',
     inputSchema: {
       type: 'object',
       properties: {
@@ -43,16 +43,26 @@ const TOOLS = [
           items: {
             type: 'object',
             properties: {
-              op: { type: 'string', enum: ['add', 'resolve', 'revise', 'withdraw'] },
+              op: { type: 'string', enum: ['add', 'revise', 'withdraw'] },
               type: { type: 'string', enum: ELEMENT_TYPES, description: 'Element type (for add)' },
               statement: { type: 'string', description: 'Element statement (for add/revise)' },
-              source: { type: 'string', description: 'Source attribution (for add)' },
-              basis: { type: 'array', items: { type: 'string' }, description: 'Basis element IDs (for add/revise)' },
-              over: { type: 'array', items: { type: 'string' }, description: 'Alternatives considered (for DECISION add)' },
-              confidence: { type: 'number', description: 'Confidence 0.0-1.0 (for ASSERTION add/revise)' },
-              reason: { type: 'string', description: 'Reason (for BOUNDARY add)' },
-              target: { type: 'string', description: 'Target element ID (for resolve/revise/withdraw)' },
-              resolved_by: { type: 'string', description: 'Resolving element ID (for resolve)' },
+              source: { type: 'string', description: 'Source: "codebase" for EVIDENCE, "designer" for RULE/PERMISSION' },
+              grounding: {
+                type: 'array', items: { type: 'string' },
+                description: 'Grounding element IDs (for NECESSARY_CONDITION add/revise)',
+              },
+              collapse_test: { type: 'string', description: 'What breaks if removed (for NECESSARY_CONDITION)' },
+              reasoning_chain: { type: 'string', description: 'IF...THEN reasoning (for NECESSARY_CONDITION)' },
+              rejected_alternatives: {
+                type: 'array', items: { type: 'string' },
+                description: 'Alternatives considered and rejected (for NECESSARY_CONDITION)',
+              },
+              relieves: { type: 'string', description: 'What restriction is relaxed (for PERMISSION)' },
+              basis: {
+                type: 'array', items: { type: 'string' },
+                description: 'Basis element IDs (for RISK — conditions it attaches to)',
+              },
+              target: { type: 'string', description: 'Target element ID (for revise/withdraw)' },
             },
             required: ['op'],
           },
@@ -116,7 +126,7 @@ function handleInitialize({ problem_statement, state_file }) {
       text: JSON.stringify({
         status: 'initialized',
         element_types: ELEMENT_TYPES,
-        operations: ['add', 'resolve', 'revise', 'withdraw'],
+        operations: ['add', 'revise', 'withdraw'],
         state_file,
       }),
     }],
@@ -128,9 +138,7 @@ function handleSubmitProofUpdate({ state_file, operations, challenge_used }) {
 
   const result = applyOperations(state, operations);
 
-  // If ALL operations failed (errors exist but nothing succeeded), return error
   const anySuccess = result.added.length > 0 ||
-    result.resolved.length > 0 ||
     result.revised.length > 0 ||
     result.withdrawn.length > 0;
 
@@ -149,7 +157,6 @@ function handleSubmitProofUpdate({ state_file, operations, challenge_used }) {
 
   state = result.state;
 
-  // Mark challenge if used
   if (challenge_used) {
     state = markChallengeUsed(state, challenge_used);
   }
@@ -163,7 +170,6 @@ function handleSubmitProofUpdate({ state_file, operations, challenge_used }) {
         status: 'accepted',
         round: state.round,
         elements_added: result.added,
-        elements_resolved: result.resolved,
         elements_revised: result.revised,
         elements_withdrawn: result.withdrawn,
         errors: result.errors,
@@ -184,7 +190,7 @@ function handleGetProofState({ state_file }) {
   const integrityWarnings = checkAllIntegrity(state.elements);
   const completeness = {
     ...computeCompleteness(state.elements),
-    basisCoverage: computeBasisCoverage(state.elements),
+    groundingCoverage: computeGroundingCoverage(state.elements),
   };
   const challengeTrigger = detectChallenge(state);
   const closure = checkClosure(state);
