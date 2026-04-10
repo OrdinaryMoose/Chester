@@ -107,6 +107,7 @@ mkdir -p "{CHESTER_WORKING_DIR}/{sprint-subdir}/design" \
 | `thinking` | `design/` | Thinking summary — HOW decisions were made | `design-figure-out` |
 | `process` | `design/` | Process evidence — HOW the interview operated | `design-figure-out` |
 | `spec` | `spec/` | Specification — formal requirements document | `design-specify` |
+| `spec-ground-truth-report` | `spec/` | Ground-truth findings — codebase verification of spec claims | `design-specify` (ground-truth review) |
 | `plan` | `plan/` | Implementation plan — task-by-task build instructions | `plan-build` |
 | `plan-threat-report` | `plan/` | Combined plan-attack + plan-smell findings | `plan-build` (hardening phase) |
 | `deferred` | `plan/` | Items deferred during execution | `execute-write` |
