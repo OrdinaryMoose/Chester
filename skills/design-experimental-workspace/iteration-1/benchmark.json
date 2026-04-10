@@ -1,0 +1,121 @@
+{
+  "metadata": {
+    "skill_name": "design-experimental",
+    "timestamp": "2026-04-09T01:34:00Z",
+    "runs_per_configuration": 3
+  },
+  "configurations": [
+    {
+      "name": "with_skill",
+      "pass_rate": 0.833,
+      "pass_rate_stddev": 0.167,
+      "time_mean": 69.4,
+      "time_stddev": 10.4,
+      "tokens_mean": 25888,
+      "tokens_stddev": 702,
+      "evals": [
+        {
+          "eval_name": "problem-statement",
+          "pass_rate": 1.0,
+          "passed": 4,
+          "total": 4,
+          "time": 60.8,
+          "tokens": 25459,
+          "assertions": [
+            {"text": "problem-statement-uses-designer-words", "passed": true},
+            {"text": "no-agent-created-rules", "passed": true},
+            {"text": "evidence-has-codebase-source", "passed": true},
+            {"text": "no-old-element-types", "passed": true}
+          ]
+        },
+        {
+          "eval_name": "proof-composition",
+          "pass_rate": 0.5,
+          "passed": 2,
+          "total": 4,
+          "time": 80.7,
+          "tokens": 26725,
+          "assertions": [
+            {"text": "designer-statement-becomes-rule", "passed": false},
+            {"text": "nc-has-required-fields", "passed": true},
+            {"text": "nc-grounding-references-exist", "passed": false},
+            {"text": "reasoning-chain-has-if-then", "passed": true}
+          ]
+        },
+        {
+          "eval_name": "integrity-contrarian",
+          "pass_rate": 1.0,
+          "passed": 4,
+          "total": 4,
+          "time": 66.8,
+          "tokens": 25481,
+          "assertions": [
+            {"text": "no-element-ids-in-observations", "passed": true},
+            {"text": "no-proof-terminology-in-observations", "passed": true},
+            {"text": "contrarian-challenge-delivered", "passed": true},
+            {"text": "integrity-warning-translated", "passed": true}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "without_skill",
+      "pass_rate": 0.75,
+      "pass_rate_stddev": 0.25,
+      "time_mean": 54.6,
+      "time_stddev": 14.8,
+      "tokens_mean": 14862,
+      "tokens_stddev": 932,
+      "evals": [
+        {
+          "eval_name": "problem-statement",
+          "pass_rate": 0.5,
+          "passed": 2,
+          "total": 4,
+          "time": 60.3,
+          "tokens": 15941,
+          "assertions": [
+            {"text": "problem-statement-uses-designer-words", "passed": false},
+            {"text": "no-agent-created-rules", "passed": false},
+            {"text": "evidence-has-codebase-source", "passed": true},
+            {"text": "no-old-element-types", "passed": true}
+          ]
+        },
+        {
+          "eval_name": "proof-composition",
+          "pass_rate": 1.0,
+          "passed": 4,
+          "total": 4,
+          "time": 38.9,
+          "tokens": 14514,
+          "assertions": [
+            {"text": "designer-statement-becomes-rule", "passed": true},
+            {"text": "nc-has-required-fields", "passed": true},
+            {"text": "nc-grounding-references-exist", "passed": true},
+            {"text": "reasoning-chain-has-if-then", "passed": true}
+          ]
+        },
+        {
+          "eval_name": "integrity-contrarian",
+          "pass_rate": 1.0,
+          "passed": 4,
+          "total": 4,
+          "time": 65.2,
+          "tokens": 14132,
+          "assertions": [
+            {"text": "no-element-ids-in-observations", "passed": true},
+            {"text": "no-proof-terminology-in-observations", "passed": true},
+            {"text": "contrarian-challenge-delivered", "passed": true},
+            {"text": "integrity-warning-translated", "passed": true}
+          ]
+        }
+      ]
+    }
+  ],
+  "analyst_observations": [
+    "Eval 1 (proof-composition) with-skill REGRESSED: agent mapped new type names back to old MCP types (EVIDENCE->GIVEN, RULE->CONSTRAINT, NC->ASSERTION). The SKILL.md describes new types but agent assumed the MCP hadn't been updated. Fix: add explicit statement to SKILL.md that the MCP uses the new type names directly.",
+    "Eval 0 (problem-statement) shows strongest skill advantage: with-skill preserved verbatim designer words and refused to create RULEs; baseline rewrote problem and inferred 2 RULEs from the problem description.",
+    "Eval 2 (integrity-contrarian) performed well in both configurations. Translation Gate compliance and contrarian delivery are strong even without the skill. Possibly non-discriminating.",
+    "Token usage: with-skill runs use ~1.7x more tokens (25.9k vs 14.9k avg), consistent with overhead of reading the full SKILL.md."
+  ]
+}

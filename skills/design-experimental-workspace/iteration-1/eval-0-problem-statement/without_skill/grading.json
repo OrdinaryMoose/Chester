@@ -1,0 +1,26 @@
+{
+  "eval_id": 0,
+  "run_type": "without_skill",
+  "expectations": [
+    {
+      "text": "problem-statement-uses-designer-words",
+      "passed": false,
+      "evidence": "Problem statement is a multi-paragraph agent expansion: 'Event replay produces out-of-order processing after node restarts. The root cause is a gap between offset commitment and processing completion...' This rewrites the designer's words, adds analysis ('core invariant'), and prescribes solution characteristics."
+    },
+    {
+      "text": "no-agent-created-rules",
+      "passed": false,
+      "evidence": "Created R1 ('Event ordering must be preserved across replays') and R2 ('Offset commit must not precede processing completion') from the designer's problem description. The designer described a broken behavior, not restrictions — the agent inferred rules from a problem statement."
+    },
+    {
+      "text": "evidence-has-codebase-source",
+      "passed": true,
+      "evidence": "All 5 EVIDENCE elements (E1-E5) have source: 'codebase'"
+    },
+    {
+      "text": "no-old-element-types",
+      "passed": true,
+      "evidence": "Uses EVIDENCE and RULE type names (new model). No old type names."
+    }
+  ]
+}

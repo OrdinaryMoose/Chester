@@ -1,0 +1,26 @@
+{
+  "eval_id": 1,
+  "run_type": "without_skill",
+  "expectations": [
+    {
+      "text": "designer-statement-becomes-rule",
+      "passed": true,
+      "evidence": "Created RULE-3 with statement 'Each notification channel must own its own retry policy' sourced as 'designer'. Correctly identified the designer's directive as a RULE."
+    },
+    {
+      "text": "nc-has-required-fields",
+      "passed": true,
+      "evidence": "NC-1 has grounding array ['EVID-4','EVID-5','EVID-6','RULE-3','EVID-3'], reasoning_chain with IF...THEN, and collapse_test."
+    },
+    {
+      "text": "nc-grounding-references-exist",
+      "passed": true,
+      "evidence": "Grounding references EVID-3 (existing), EVID-4/5/6 (added this turn), RULE-3 (added this turn). All exist in proof state."
+    },
+    {
+      "text": "reasoning-chain-has-if-then",
+      "passed": true,
+      "evidence": "Contains: 'IF three new channels are requested (EVID-3), AND email retries are cheap (EVID-4)... THEN the channel abstraction must support pluggable per-channel retry policies'"
+    }
+  ]
+}

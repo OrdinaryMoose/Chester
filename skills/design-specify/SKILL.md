@@ -26,7 +26,7 @@ You MUST create a task for each of these items and complete them in order:
 
 1. **Setup** — if invoked standalone (no figure-out), invoke `start-bootstrap`; otherwise sprint context already exists
 2. **Read design brief** — read the design brief from disk or gather design from conversation context
-3. **Competing architectures** — dispatch 3 `feature-dev:code-architect` agents with different trade-off lenses; present approaches to user; user picks direction
+3. **Competing architectures + prior art** — dispatch 4 agents in parallel: 3 `feature-dev:code-architect` agents with different trade-off lenses + 1 prior art explorer; present approaches to user with prior art context; user picks direction
 4. **Write spec document** — synthesize design into structured spec based on chosen architecture (see `util-artifact-schema` for output path and naming)
 5. **Automated spec review loop** — dispatch spec-document-reviewer subagent with design brief, Think Tool gate per issue, fix and re-dispatch (max 2 iterations, then escalate to user)
 6. **User review gate** — present clean spec to user for review; if changes requested, apply and loop back to step 5
@@ -78,9 +78,13 @@ digraph build_spec {
 When invoked without a prior design-figure-out session, invoke `start-bootstrap` to
 set up the sprint context (config, naming, directories, task reset).
 
-## Competing Architectures
+## Competing Architectures + Prior Art
 
-After reading the design brief but before writing the spec, dispatch three `feature-dev:code-architect` agents in parallel. Each receives the same design brief and codebase context but is constrained to a different trade-off profile:
+After reading the design brief but before writing the spec, dispatch four agents in parallel. Three are architects proposing competing structural approaches; one researches prior art from adjacent sprints.
+
+### Architect Agents
+
+Dispatch three `feature-dev:code-architect` agents. Each receives the same design brief and codebase context but is constrained to a different trade-off profile:
 
 | Agent | Lens | Prompt guidance |
 |-------|------|-----------------|
@@ -90,16 +94,31 @@ After reading the design brief but before writing the spec, dispatch three `feat
 
 Each architect returns a complete blueprint with patterns found, architecture decision, component design, implementation map, data flow, and build sequence.
 
+### Prior Art Explorer
+
+Dispatch one `Explore` agent in parallel with the architects. This agent searches both the plans directory (archived, tracked) and the working directory (in-progress, gitignored) for design briefs, specs, plans, and thinking summaries from prior sprints relevant to the current design brief.
+
+| Agent | Focus | Prompt guidance |
+|-------|-------|-----------------|
+| Explorer 4 | **Prior art & companion work** | "Search `{CHESTER_PLANS_DIR}/` and `{CHESTER_WORKING_DIR}/` for design briefs (`*-design-*.md`), specs (`*-spec-*.md`), plans (`*-plan-*.md`), and thinking summaries (`*-thinking-*.md`) from previous sprints. For each artifact found that is relevant to [design brief summary]: read it and extract (1) key findings and discoveries, (2) decisions made that constrain or inform the current design, (3) current status (Approved, Paused, Draft, Superseded), (4) any infrastructure or system that was found to be non-functional, partial, or blocked, (5) any code, types, or patterns that were built by prior sprints and could be reused or must be respected. Report organized by sprint, with brief name, status, and a summary of findings relevant to the current design." |
+
+The prior art explorer's findings serve two purposes:
+- **Context for the comparison** — when presenting the three architectures to the user, prior art findings may favor one approach over another (e.g., a prior sprint built infrastructure that Architect 1's minimal approach can reuse, or a paused sprint found that a pattern Architect 2 proposes doesn't work)
+- **Constraint for the spec** — decisions, conventions, and non-functional infrastructure from companion work become constraints in the spec, preventing the spec from planning work against broken plumbing or contradicting adjacent design decisions
+
+### After all four agents complete
+
 **Present the comparison to the user:**
 
-1. Summarize each approach in 3–5 sentences — what it does differently and why
-2. Compare trade-offs in a table: change surface, maintainability, implementation effort, risk
-3. State your recommendation with reasoning — which approach best fits the design brief's goals and constraints
-4. Ask the user which approach they prefer, or whether they want a hybrid
+1. Summarize each architect's approach in 3–5 sentences — what it does differently and why
+2. If the prior art explorer found relevant companion work, note how it affects each approach (e.g., "Architect 1's approach aligns with types built in sprint X" or "Architect 2's approach depends on validation wiring that sprint Y found non-functional")
+3. Compare trade-offs in a table: change surface, maintainability, implementation effort, risk
+4. State your recommendation with reasoning — which approach best fits the design brief's goals, constraints, and prior art context
+5. Ask the user which approach they prefer, or whether they want a hybrid
 
 The user's choice (or hybrid direction) becomes the architectural foundation for the spec. If the user says "whatever you think," go with your recommendation but state it explicitly so the choice is on record.
 
-This step exists because humans evaluate *comparisons* far better than *single proposals*. Presenting one architecture and asking "is this good?" is a weaker gate than presenting three and asking "which trade-off profile fits?"
+This step exists because humans evaluate *comparisons* far better than *single proposals*. Presenting one architecture and asking "is this good?" is a weaker gate than presenting three and asking "which trade-off profile fits?" The prior art explorer ensures all three proposals are grounded in what adjacent work has actually established, not just what the codebase looks like today.
 
 ## Writing the Spec
 
@@ -150,7 +169,7 @@ After the user approves the spec, it remains in the working directory. The spec 
 ## Integration
 
 - **Calls:** `start-bootstrap` (standalone only)
-- **Reads:** `util-artifact-schema` (naming/paths), `util-budget-guard`
+- **Reads:** `util-artifact-schema` (naming/paths), `util-design-brief-template` (brief structure reference), `util-budget-guard`
 - **Invoked by:** design-figure-out (primary), or user directly (standalone)
 - **Transitions to:** plan-build
 - **Does NOT invoke:** plan-attack, plan-smell, or any implementation skill

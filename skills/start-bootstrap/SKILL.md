@@ -46,10 +46,11 @@ This is housekeeping — the calling skill will create its own tasks after boots
 
 ### Step 4: Establish Sprint Name
 
-Derive a four-word sprint name from the user's intent (lowercase, hyphenated). Construct
-the sprint subdirectory name following `util-artifact-schema`:
+Derive a three-word verb-noun-noun sprint name from the user's intent (lowercase,
+hyphenated — the verb is the action, the two nouns are the target). Construct the
+sprint subdirectory name following `util-artifact-schema`:
 
-**Format:** `YYYYMMDD-##-word-word-word-word`
+**Format:** `YYYYMMDD-##-verb-noun-noun`
 
 Find the next sequence number:
 ```bash
@@ -80,9 +81,10 @@ This file is read by `pre-compact.sh` and `post-compact.sh` to locate MCP state 
 ### Step 6: Initialize Thinking History
 
 1. Call `clear_thinking_history()` to reset structured thinking for the session
-2. Read `~/.chester/thinking.md` if it exists — scan the lessons table, highest-scoring
-   lessons first. Treat lessons as signals to hold initial assumptions more loosely in
-   those categories, not as rules. If the file does not exist, continue without it.
+2. Read `~/.chester/thinking.md` if it exists — identify the top 5 highest-scoring
+   lessons. These are held in memory for per-turn lesson injection during the interview
+   (see "Per-Turn Lesson Injection" in the design skills). If the file has fewer than 5
+   entries, use all of them. If the file does not exist, continue without it.
 
 ## What It Returns
 
@@ -90,8 +92,8 @@ After bootstrap completes, the calling skill has:
 
 - `CHESTER_WORKING_DIR` — absolute path to gitignored working directory
 - `CHESTER_PLANS_DIR` — relative path to tracked plans directory
-- Sprint subdirectory name (e.g., `20260407-01-strip-console-report-output`)
-- Sprint name (four-word portion: `strip-console-report-output`)
+- Sprint subdirectory name (e.g., `20260407-01-strip-console-reports`)
+- Sprint name (three-word portion: `strip-console-reports`)
 - Clean task list
 - Fresh thinking history with lessons loaded
 - `.active-sprint` breadcrumb file pointing to the current sprint

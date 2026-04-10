@@ -1,0 +1,6 @@
+{
+  "eval_id": 0,
+  "eval_name": "problem-statement",
+  "prompt": "You are in Phase 2 of a design-experimental session. Phase 1 understanding is complete. The designer said: 'Our event replay is broken — events process out of order after node restarts because the consumer group rebalances and each partition resumes from its last committed offset, but the offsets were committed before processing finished.'\n\nThe codebase exploration during Phase 1 revealed:\n- EventConsumer class commits offsets synchronously after batch processing (src/events/consumer.ts:142)\n- No transaction boundary around process-then-commit\n- The replay mechanism simply seeks to the last committed offset\n- Three downstream services depend on event ordering: billing, audit-log, notification-dispatch\n\nWrite the problem statement for proof initialization, compose the initial seed operations (EVIDENCE and RULE elements), and present them. Show what you would pass to initialize_proof and submit_proof_update.",
+  "assertions": []
+}

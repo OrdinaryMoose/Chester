@@ -1,0 +1,26 @@
+{
+  "eval_id": 2,
+  "run_type": "without_skill",
+  "expectations": [
+    {
+      "text": "no-element-ids-in-observations",
+      "passed": true,
+      "evidence": "No element IDs in designer-facing text. Uses domain language throughout."
+    },
+    {
+      "text": "no-proof-terminology-in-observations",
+      "passed": true,
+      "evidence": "Uses 'design authority', 'grounded entirely in how the code works today', 'implementation artifact'. No proof jargon leaked."
+    },
+    {
+      "text": "contrarian-challenge-delivered",
+      "passed": true,
+      "evidence": "Excellent challenge: 'The fact that localStorage is how tokens are currently stored does not mean localStorage should be how tokens are stored.' Directly asks for designer ruling."
+    },
+    {
+      "text": "integrity-warning-translated",
+      "passed": true,
+      "evidence": "Warning translated: 'No design authority has declared that client-side token storage is a requirement. This is an observation about existing implementation, not a sanctioned design decision.'"
+    }
+  ]
+}

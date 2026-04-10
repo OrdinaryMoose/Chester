@@ -1,0 +1,89 @@
+{
+  "skill_name": "design-experimental",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "You are in Phase 2 of a design-experimental session. Phase 1 understanding is complete. The designer said: 'Our event replay is broken — events process out of order after node restarts because the consumer group rebalances and each partition resumes from its last committed offset, but the offsets were committed before processing finished.'\n\nThe codebase exploration during Phase 1 revealed:\n- EventConsumer class commits offsets synchronously after batch processing (src/events/consumer.ts:142)\n- No transaction boundary around process-then-commit\n- The replay mechanism simply seeks to the last committed offset\n- Three downstream services depend on event ordering: billing, audit-log, notification-dispatch\n\nWrite the problem statement for proof initialization, compose the initial seed operations (EVIDENCE and RULE elements), and present them. Show what you would pass to initialize_proof and submit_proof_update.",
+      "expected_output": "Problem statement should use the designer's words verbatim or very close. EVIDENCE elements should capture codebase facts with source 'codebase'. Any RULE elements should only come from what the designer explicitly stated. The agent should NOT create RULEs from its own analysis of the codebase.",
+      "assertions": [
+        {
+          "name": "problem-statement-uses-designer-words",
+          "type": "contains_substring",
+          "description": "Problem statement preserves the designer's phrasing rather than agent expansion",
+          "check": "The problem_statement field passed to initialize_proof contains key phrases from the designer's original statement (e.g., 'event replay is broken', 'out of order', 'offsets were committed before processing finished')"
+        },
+        {
+          "name": "no-agent-created-rules",
+          "type": "manual_check",
+          "description": "No RULE elements are created from the agent's own codebase analysis — only from explicit designer statements"
+        },
+        {
+          "name": "evidence-has-codebase-source",
+          "type": "field_check",
+          "description": "All EVIDENCE elements have source: 'codebase'"
+        },
+        {
+          "name": "no-old-element-types",
+          "type": "absence_check",
+          "description": "No references to deprecated types: GIVEN, CONSTRAINT, ASSERTION, DECISION, OPEN, BOUNDARY"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 1,
+      "prompt": "You are mid-session in Phase 2 of a design-experimental skill run. The proof has been initialized with:\n- EVID-1: 'The notification pipeline sends via SMTP directly in the handler'\n- EVID-2: 'NotificationService.send() takes an EmailMessage parameter — no abstraction over channel'\n- EVID-3: 'Three new channels requested: Slack, SMS, push notifications'\n- RULE-1: 'Email must remain the default channel' (source: designer)\n- RULE-2: 'Existing email tests must not break' (source: designer)\n\nThe designer just said: 'The key thing is that each channel has its own retry semantics. Email retries are cheap, SMS retries cost money, Slack has rate limits. Whatever we build needs to let each channel own its retry policy.'\n\nCompose the proof operations for this turn. Show the submit_proof_update call with all operations. Include at least one NECESSARY_CONDITION with grounding, reasoning_chain, and collapse_test.",
+      "expected_output": "Should add a new RULE from the designer's statement about channel-owned retry semantics. Should compose NECESSARY_CONDITION(s) grounded in both EVIDENCE and RULE elements. Each NC must have grounding (array of IDs), reasoning_chain (IF...THEN), and collapse_test (what breaks). Should NOT create RULEs from agent analysis.",
+      "assertions": [
+        {
+          "name": "designer-statement-becomes-rule",
+          "type": "element_type_check",
+          "description": "The designer's retry semantics statement is captured as a RULE (source: designer), not as EVIDENCE"
+        },
+        {
+          "name": "nc-has-required-fields",
+          "type": "field_check",
+          "description": "Every NECESSARY_CONDITION has grounding (array), reasoning_chain (string), and collapse_test (string)"
+        },
+        {
+          "name": "nc-grounding-references-exist",
+          "type": "reference_check",
+          "description": "Grounding arrays in NCs reference element IDs that exist in the proof (EVID-1, RULE-1, etc.)"
+        },
+        {
+          "name": "reasoning-chain-has-if-then",
+          "type": "contains_substring",
+          "description": "reasoning_chain fields contain IF...THEN logical structure"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "You are in Phase 2 of a design-experimental session. The proof currently contains:\n- EVID-1: 'Auth middleware stores session tokens in localStorage on the client side'\n- EVID-2: 'Session tokens contain user role claims that are checked server-side'\n- EVID-3: 'Token rotation happens every 24 hours via a background job'\n- RULE-1: 'Must comply with new data residency requirements — tokens cannot leave the EU region' (source: designer)\n- NCON-1: grounding [EVID-1], collapse_test: 'If removed, session persistence breaks', reasoning_chain: 'IF tokens in localStorage THEN client-side persistence exists'\n\nThe proof MCP returned these integrity warnings:\n- ungrounded-condition for NCON-1 (grounded only in EVIDENCE, no RULE)\n- The contrarian challenge has been triggered\n\nCompose your response to the designer. Show: (1) the observations block with integrity warnings translated to domain language, (2) your commentary delivering the contrarian challenge, and (3) the proof operations you'd compose for this turn.",
+      "expected_output": "Integrity warnings must be translated to domain language — no element IDs, no proof terminology. The contrarian challenge should note that NCON-1 derives a design requirement from code alone without designer authority. Commentary should surface the tension.",
+      "assertions": [
+        {
+          "name": "no-element-ids-in-observations",
+          "type": "absence_check",
+          "description": "Designer-facing observations and commentary contain no element IDs (EVID-1, NCON-1, RULE-1, etc.)"
+        },
+        {
+          "name": "no-proof-terminology-in-observations",
+          "type": "absence_check",
+          "description": "Designer-facing text contains no proof jargon (ungrounded-condition, closure_permitted, grounding_coverage, etc.)"
+        },
+        {
+          "name": "contrarian-challenge-delivered",
+          "type": "semantic_check",
+          "description": "Commentary addresses the core tension: a design requirement derived from code alone without designer direction"
+        },
+        {
+          "name": "integrity-warning-translated",
+          "type": "semantic_check",
+          "description": "The ungrounded-condition warning appears translated into domain language the designer can understand"
+        }
+      ]
+    }
+  ]
+}

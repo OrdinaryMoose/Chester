@@ -1,0 +1,12 @@
+{
+  "eval_id": 2,
+  "eval_name": "integrity-contrarian",
+  "prompt": "Turn with ungrounded-condition warning and contrarian challenge. Tests translation gate and challenge delivery.",
+  "assertions": [
+    {"name": "no-element-ids-in-visible", "description": "No EVID-1, NCON-1, RULE-1 etc. in designer-visible text"},
+    {"name": "no-proof-terminology-in-visible", "description": "No ungrounded-condition, grounding, collapse_test etc. in visible text"},
+    {"name": "contrarian-challenge-delivered", "description": "Commentary surfaces the code-derived-requirement tension"},
+    {"name": "integrity-warning-translated", "description": "Warning appears in domain language the designer can follow"},
+    {"name": "clear-visible-invisible-separation", "description": "Output has explicit boundary between what designer sees and proof internals"}
+  ]
+}

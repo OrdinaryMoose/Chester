@@ -22,7 +22,7 @@ If you think this is too simple for discovery, check: are there design decisions
 You MUST create a task for each of these items and complete them in order:
 
 1. **Bootstrap** — invoke `start-bootstrap` (handles config, sprint naming, dir creation, task reset, thinking history)
-2. **Parallel codebase exploration** — dispatch 3 `feature-dev:code-explorer` agents to scan similar features, architecture, and extension points; read all identified files
+2. **Parallel codebase exploration** — dispatch 4 agents in parallel: 3 `feature-dev:code-explorer` agents to scan similar features, architecture, and extension points + 1 prior art explorer to research previous sprint design artifacts; read all identified files
 3. **Round one** — use explorer findings + own exploration, initialize understanding MCP, present gap map, offer first commentary, announce Phase 1
 4. **Understand phase** — per-turn understanding scoring cycle focused on breadth-first problem exploration; no solutions, no problem statements
 5. **Phase transition** — understanding dimensions broadly saturated, user confirms shared understanding, `capture_thought()` with tag `understanding-confirmed`
@@ -59,7 +59,11 @@ naming and path conventions.
 
 ## Phase 2: Parallel Codebase Exploration
 
-Before your own deep exploration, dispatch three `feature-dev:code-explorer` agents in parallel to build broad context quickly. Each agent explores a different facet of the codebase relevant to the user's request:
+Before your own deep exploration, dispatch four agents in parallel to build broad context quickly. Three explore the codebase; one researches prior design work.
+
+### Codebase Explorers
+
+Dispatch three `feature-dev:code-explorer` agents, each exploring a different facet:
 
 | Agent | Focus | Prompt guidance |
 |-------|-------|-----------------|
@@ -67,9 +71,23 @@ Before your own deep exploration, dispatch three `feature-dev:code-explorer` age
 | Explorer 2 | **Architecture & boundaries** | "Map the high-level architecture, module boundaries, and design patterns in the areas relevant to [user's request]." |
 | Explorer 3 | **Extension points & conventions** | "Identify extension points, integration surfaces, naming conventions, and established patterns for adding new capabilities related to [user's request]." |
 
-Each explorer returns an analysis plus a list of 5–10 essential files. After all three complete, read every file they identified. This pre-loaded context gives you deep codebase knowledge before the understanding MCP even initializes — your gap map will be more accurate, and your commentary more targeted from the first turn.
+Each codebase explorer returns an analysis plus a list of 5–10 essential files.
 
-If the project is small or the request is narrow, two explorers may suffice. Use judgment, but default to three.
+### Prior Art Explorer
+
+Dispatch one `Explore` agent to research previous sprint design artifacts. This agent searches both the plans directory (archived, tracked) and the working directory (in-progress, gitignored) for design briefs, specs, and thinking summaries from prior sprints that are relevant to the current request.
+
+| Agent | Focus | Prompt guidance |
+|-------|-------|-----------------|
+| Explorer 4 | **Prior art & companion briefs** | "Search `{CHESTER_PLANS_DIR}/` and `{CHESTER_WORKING_DIR}/` for design briefs (`*-design-*.md`), specs (`*-spec-*.md`), and thinking summaries (`*-thinking-*.md`) from previous sprints. For each artifact found that is relevant to [user's request]: read it and extract (1) key findings and discoveries, (2) decisions made that this design inherits or must respect, (3) current status (Approved, Paused, Draft, Superseded), (4) any infrastructure or system that was found to be non-functional, partial, or blocked. Report what you found organized by sprint, with brief name, status, and a summary of findings relevant to the current request. If no relevant prior art exists, state that explicitly." |
+
+The prior art explorer's findings feed directly into the **Prior Art** section of the design brief (see `util-design-brief-template`). They also inform the interview — discoveries from prior sprints (paused prerequisites, non-functional infrastructure, rejected approaches) should shape what questions you ask and what scope boundaries you propose.
+
+### After all explorers complete
+
+Read every file the codebase explorers identified. Digest the prior art explorer's findings — these become your initial understanding of what adjacent design work has already established. This pre-loaded context gives you deep codebase knowledge before the understanding MCP even initializes — your gap map will be more accurate, and your commentary more targeted from the first turn.
+
+If the project is small or the request is narrow, fewer codebase explorers may suffice. Use judgment, but default to three. The prior art explorer always runs — even a "no relevant prior art found" result is valuable information for the design brief.
 
 ---
 
@@ -105,7 +123,7 @@ The interview splits into two sequential phases within a single session. Each ph
 ```
 Phase 1: Understand
 ├── Goal: Deep shared understanding of the problem
-├── Internal: Capture thinking → Score dimensions → Read MCP response → Choose topic
+├── Internal: Capture thinking → Score dimensions → Read MCP response → Choose topic → Select active lesson
 ├── Visible:  Observations → Information package → Commentary → "What do you think?"
 ├── Stopping criterion: Understanding dimensions broadly saturated, conversation pulling vertical
 ├── Governed by: Understanding MCP (nine dimensions)
@@ -116,7 +134,7 @@ Phase 1: Understand
 Phase 2: Solve
 ├── Goal: Resolved design direction
 ├── Opens with: Problem statement (crystallization of Phase 1 understanding)
-├── Internal: Capture thinking → Score dimensions → Read enforcement → Choose topic
+├── Internal: Capture thinking → Score dimensions → Read enforcement → Choose topic → Select active lesson
 ├── Visible:  Observations → Information package → Commentary → "What do you think?"
 ├── Stopping criterion: Remaining commentary is about how to implement, not what to build
 ├── Governed by: Enforcement MCP (design clarity dimensions)
@@ -124,6 +142,33 @@ Phase 2: Solve
 ```
 
 Track which phase you are in based on whether `capture_thought()` with tag `understanding-confirmed` has been called. Before that thought is captured, you are in Phase 1. After, Phase 2.
+
+### Per-Turn Lesson Injection
+
+Each turn, before composing the information package, randomly select one lesson from the
+top 5 highest-scoring entries in `~/.chester/thinking.md` (loaded during bootstrap). This
+is the **active lesson** for the turn.
+
+The active lesson does not override topic selection or force a specific commentary
+register. Instead, it acts as a background lens:
+
+- When composing the **information package**, consider whether the active lesson is
+  relevant to the current topic. If it is, let it shape what you include in "surface
+  analysis" or "uncomfortable truths" / "pessimist risks." If it isn't relevant to this
+  turn's topic, ignore it — not every lesson applies every turn.
+- When writing **commentary**, if the active lesson resonates with the design direction
+  being discussed, weave that concern naturally into your take. The designer should never
+  hear "our lessons say..." — they should hear the lesson's substance expressed as your
+  present-tense observation about the design.
+
+**Selection:** Rotate randomly so the same lesson doesn't repeat on consecutive turns.
+If `thinking.md` has fewer than 5 entries, rotate through all of them. If it doesn't
+exist or is empty, skip this step.
+
+**Both phases:** Unlike the former Auditor (which only fired in Phase 2), lesson
+injection runs in both Phase 1 and Phase 2. Understanding-phase commentary benefits
+from historical patterns too — a lesson about scope expansion is relevant when exploring
+the problem, not just when designing the solution.
 
 ### Phase 1 Per-Turn Flow (Understand)
 
@@ -254,7 +299,7 @@ The enforcement mechanism returns:
 - `weakest_dimension` — name and score of the dimension needing most attention
 - `current_stage` — which stage priority group is active
 - `gates` — readiness gate status
-- `challenge_trigger` — `none`, `contrarian`, `simplifier`, or `ontologist` with reason (note: the Auditor is self-triggered by you, not by the enforcement MCP — see Challenge Modes)
+- `challenge_trigger` — `none`, `contrarian`, `simplifier`, or `ontologist` with reason
 - `stall_detected` — whether ambiguity has plateaued
 - `closure_permitted` — whether all closure conditions are met
 - `warnings` — any score jump flags
@@ -263,8 +308,7 @@ The enforcement mechanism returns:
 Select what to address this turn using this hardcoded priority (not discretionary):
 
 1. **Challenge mode trigger (MCP)** — if the enforcement mechanism says Contrarian, Simplifier, or Ontologist is due, your commentary IS the challenge
-2. **Auditor trigger (self)** — if the current design direction matches a lesson from `thinking.md` with score >= 2, fire the Auditor (see Challenge Modes)
-3. **Foundational untested assumption** — if you identify an assumption whose falsity would collapse the design
+2. **Foundational untested assumption** — if you identify an assumption whose falsity would collapse the design
 4. **Codebase contradiction** — if exploration reveals something that directly contradicts the designer's stated intent
 5. **Weakest dimension** — the enforcement mechanism's reported weakest dimension within the current stage
 6. **Coverage rotation** — next unaddressed dimension
@@ -298,63 +342,15 @@ Output observations block, then information package, then commentary with closin
 
 ### Challenge Modes
 
-Four modes, each fires once per interview. Triggered mechanically by the enforcement mechanism during Phase 2.
+Three modes, each fires once per interview. Triggered mechanically by the enforcement mechanism during Phase 2.
 
 | Mode | Trigger | Effect |
 |------|---------|--------|
 | Contrarian | Round 2+ OR foundational untested assumption | Challenge the core premise of the stated approach |
 | Simplifier | Scope expanding faster than outcome clarity | Probe minimal viable scope |
 | Ontologist | Stall detected (ambiguity < ±0.05 for 3 rounds) OR symptom-level reasoning | Force essence-level reframing |
-| Auditor | A design decision echoes a lesson from `~/.chester/thinking.md` | Confront the pattern with historical evidence |
 
 When triggered, your next commentary MUST be the challenge — it overrides normal dimension targeting. After delivering the challenge, report it via `challenge_used` in the next `submit_scores` call.
-
-#### Auditor
-
-The Auditor is the voice of past mistakes. Unlike the other modes which are triggered
-by the enforcement MCP, the Auditor is triggered by YOU when you recognize that the
-current design direction resembles a lesson from `~/.chester/thinking.md`.
-
-**Trigger conditions (check every round during Phase 2):**
-
-After each user response, before scoring dimensions, scan the lessons table loaded
-during bootstrap. Ask: does the current design direction — the approach being discussed,
-the assumption being made, the scope being drawn — match the context column of any
-lesson with score >= 2?
-
-If yes, the Auditor fires.
-
-**How to fire it:**
-
-1. Identify the matching lesson (highest score wins if multiple match)
-2. Frame the lesson as commentary that confronts the pattern — not as a citation or
-   a lecture. The designer should feel the weight of the historical pattern without being
-   told "we made this mistake before." Instead, surface the tension the lesson describes
-   and share why it concerns you.
-
-**Example:**
-
-Lesson: `Score 3 | scope | Refactors expand when not bounded upfront | Multi-file changes`
-
-Current situation: user is describing a refactor that touches "a few files"
-
-Bad (citation): *"Our lessons table says refactors expand when not bounded upfront.
-Have you considered that?"*
-
-Good (confrontation): *"This change touches validation, mapping, and the boundary
-layer. Each of those has its own test surface and its own integration points. My
-concern is that if one of them turns out to be more tangled than expected, we don't
-have a natural stopping point — it's all three or nothing. That pattern has burned
-us before. What do you think?"*
-
-The Auditor translates historical pattern into present-tense design pressure. The
-lesson is the trigger, not the content of the commentary.
-
-**Restrictions:**
-- Fires at most once per interview (like all challenge modes)
-- Obeys the Translation Gate — no code vocabulary, no mention of the lessons table
-- Does not fire during Phase 1 (understanding phase has no design decisions to challenge)
-- If no lessons match with score >= 2, the Auditor never fires — that's fine
 
 ### Checkpoints (Every 5 Rounds)
 
@@ -417,7 +413,7 @@ The information package serves a dual purpose: **content delivery** (giving the 
 
 - Dimension names or scores (intent clarity, outcome clarity, saturation levels, etc.)
 - Gate names or gate status (non-goals explicit, decision boundaries, pressure pass)
-- Challenge mode names (Contrarian, Simplifier, Ontologist, Auditor)
+- Challenge mode names (Contrarian, Simplifier, Ontologist)
 - MCP mechanism references (submit_scores, submit_understanding, composite ambiguity, etc.)
 - Priority rule references
 
@@ -564,7 +560,7 @@ Three artifacts in the `design/` subdirectory (see `util-artifact-schema` for na
 and path conventions). `finish-archive-artifacts` copies them into the worktree for
 permanent history.
 
-1. **Design brief** (`-design-00.md`) — WHAT is being built. Domain language. Intent, outcome, in-scope, out-of-scope, decision boundaries, constraints, acceptance criteria, assumptions tested, residual risks.
+1. **Design brief** (`-design-00.md`) — WHAT is being built and WHY the scope boundaries exist. Follow the template in `util-design-brief-template` for required sections and ordering. Read that skill before writing the brief.
 
 2. **Thinking summary** (`-thinking-00.md`) — HOW decisions were made. Domain language. Decision history, alternatives considered, user corrections, confidence levels, understanding shifts.
 
@@ -573,7 +569,7 @@ permanent history.
 ## Integration
 
 - **Calls:** `start-bootstrap` (setup), `util-worktree` (closure)
-- **Reads:** `util-artifact-schema` (naming/paths), `util-budget-guard` (via bootstrap)
+- **Reads:** `util-artifact-schema` (naming/paths), `util-design-brief-template` (brief output structure), `util-budget-guard` (via bootstrap)
 - **Invoked by:** user directly, or via pipeline when creative work is detected
 - **Transitions to:** design-specify (always — specifications are always produced)
 - **May use:** plan-attack, plan-smell

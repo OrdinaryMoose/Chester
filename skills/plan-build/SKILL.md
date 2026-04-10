@@ -172,15 +172,19 @@ After writing the complete plan:
 
 After the plan review loop approves the plan:
 
-1. Launch plan-attack and plan-smell in parallel against the plan
-2. Wait for both to complete
-3. Read both reports and synthesize a single combined implementation risk level — this is a judgment call, not a formula. Consider how findings from both reports interact and compound.
-4. Present to the human:
+1. Read the skill files `plan-attack/SKILL.md` and `plan-smell/SKILL.md` from the Chester skills directory
+2. Launch two Agent subagents in parallel (in a single message). For each:
+   - Embed the full skill instructions from the SKILL.md you just read into the Agent prompt
+   - Include the plan file path so the subagent knows what to review
+   - Do NOT use `feature-dev:code-reviewer` or any other subagent_type — use the default general-purpose agent with the Chester skill instructions as the prompt
+3. Wait for both to complete
+4. Read both reports and synthesize a single combined implementation risk level — this is a judgment call, not a formula. Consider how findings from both reports interact and compound.
+5. Present to the human:
    - The combined implementation risk level (Low / Moderate / Significant / High)
    - 3-5 statements explaining why this level was chosen
    - The human's four options: proceed, proceed with directed mitigations, return to design with additional requirements, or stop
-5. Write the combined threat report to the `plan/` subdirectory as `{sprint-name}-plan-threat-report-00.md` (see `util-artifact-schema`).
-6. Wait for the human's decision. Do not auto-trigger any action.
+6. Write the combined threat report to the `plan/` subdirectory as `{sprint-name}-plan-threat-report-00.md` (see `util-artifact-schema`).
+7. Wait for the human's decision. Do not auto-trigger any action.
 
 ## Save Plan Document
 

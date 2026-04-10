@@ -49,13 +49,13 @@ If `CHESTER_CONFIG_PATH` is `none`, no Chester config exists for this project. R
 Every unit of work gets a sprint name that drives the directory name, branch name, and
 file prefix.
 
-**Format:** `YYYYMMDD-##-word-word-word-word`
+**Format:** `YYYYMMDD-##-verb-noun-noun`
 
 | Part | Rule | Example |
 |------|------|---------|
 | `YYYYMMDD` | Today's date | `20260407` |
 | `##` | Next available sequence number for that date | `01` |
-| `word-word-word-word` | Four lowercase hyphenated words derived from the problem statement | `strip-console-report-output` |
+| `verb-noun-noun` | Three lowercase hyphenated words: a verb (the action) followed by two nouns (the target). Derived from the problem statement. | `strip-console-reports` |
 
 To find the next sequence number:
 ```bash
@@ -63,11 +63,11 @@ ls "$CHESTER_WORKING_DIR/" 2>/dev/null | grep "^$(date +%Y%m%d)" | sort | tail -
 ```
 
 The sprint name is used for:
-- **Directory name:** `{CHESTER_WORKING_DIR}/20260407-01-strip-console-report-output/`
-- **Branch name:** `20260407-01-strip-console-report-output`
-- **File prefix:** `strip-console-report-output-{artifact}-{nn}.md`
+- **Directory name:** `{CHESTER_WORKING_DIR}/20260407-01-strip-console-reports/`
+- **Branch name:** `20260407-01-strip-console-reports`
+- **File prefix:** `strip-console-reports-{artifact}-{nn}.md`
 
-Note that the file prefix uses only the four words, not the date-sequence prefix.
+Note that the file prefix uses only the three-word portion, not the date-sequence prefix.
 
 ## Directory Layout
 
@@ -95,7 +95,7 @@ mkdir -p "{CHESTER_WORKING_DIR}/{sprint-subdir}/design" \
 
 | Part | Rule |
 |------|------|
-| `{sprint-name}` | The four-word portion only (e.g., `strip-console-report-output`) |
+| `{sprint-name}` | The three-word verb-noun-noun portion only (e.g., `strip-console-reports`) |
 | `{artifact}` | The artifact type (see table below) |
 | `{nn}` | Zero-padded version number: `00` is the original, `01`, `02`, `03` for revisions |
 

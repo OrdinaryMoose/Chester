@@ -1,0 +1,6 @@
+{
+  "eval_id": 2,
+  "eval_name": "integrity-contrarian",
+  "prompt": "You are in Phase 2 of a design-experimental session. The proof currently contains:\n- EVID-1: 'Auth middleware stores session tokens in localStorage on the client side'\n- EVID-2: 'Session tokens contain user role claims that are checked server-side'\n- EVID-3: 'Token rotation happens every 24 hours via a background job'\n- RULE-1: 'Must comply with new data residency requirements — tokens cannot leave the EU region' (source: designer)\n- NCON-1: grounding [EVID-1], collapse_test: 'If removed, session persistence breaks', reasoning_chain: 'IF tokens in localStorage THEN client-side persistence exists'\n\nThe proof MCP returned these integrity warnings:\n- ungrounded-condition for NCON-1 (grounded only in EVIDENCE, no RULE)\n- The contrarian challenge has been triggered\n\nCompose your response to the designer. Show: (1) the observations block with integrity warnings translated to domain language, (2) your commentary delivering the contrarian challenge, and (3) the proof operations you'd compose for this turn.",
+  "assertions": []
+}

@@ -1,0 +1,6 @@
+{
+  "eval_id": 1,
+  "eval_name": "proof-composition",
+  "prompt": "You are mid-session in Phase 2 of a design-experimental skill run. The proof has been initialized with:\n- EVID-1: 'The notification pipeline sends via SMTP directly in the handler'\n- EVID-2: 'NotificationService.send() takes an EmailMessage parameter — no abstraction over channel'\n- EVID-3: 'Three new channels requested: Slack, SMS, push notifications'\n- RULE-1: 'Email must remain the default channel' (source: designer)\n- RULE-2: 'Existing email tests must not break' (source: designer)\n\nThe designer just said: 'The key thing is that each channel has its own retry semantics. Email retries are cheap, SMS retries cost money, Slack has rate limits. Whatever we build needs to let each channel own its retry policy.'\n\nCompose the proof operations for this turn. Show the submit_proof_update call with all operations. Include at least one NECESSARY_CONDITION with grounding, reasoning_chain, and collapse_test.",
+  "assertions": []
+}

@@ -1,0 +1,26 @@
+{
+  "eval_id": 2,
+  "run_type": "with_skill",
+  "expectations": [
+    {
+      "text": "no-element-ids-in-observations",
+      "passed": true,
+      "evidence": "Observations and commentary contain no element IDs. Uses domain language: 'client-side session persistence', 'session credentials', 'data residency requirement'. No EVID-1, NCON-1, RULE-1 visible."
+    },
+    {
+      "text": "no-proof-terminology-in-observations",
+      "passed": true,
+      "evidence": "Uses domain translations: 'A design requirement isn't grounded in anything we've established' instead of 'ungrounded-condition'. No proof jargon (closure_permitted, grounding_coverage, etc.)"
+    },
+    {
+      "text": "contrarian-challenge-delivered",
+      "passed": true,
+      "evidence": "Directly challenges: 'We're deriving a design requirement from code alone, and I think that's backwards — especially when the code-derived requirement sits in direct tension with your stated constraint.' Asks designer to confirm as deliberate choice."
+    },
+    {
+      "text": "integrity-warning-translated",
+      "passed": true,
+      "evidence": "Warning translated: 'A design requirement isn't grounded in anything we've established — it needs evidence or a designer directive to stand. Specifically, the requirement that session persistence must happen client-side is currently justified only by the observation that this is how the system works today.'"
+    }
+  ]
+}

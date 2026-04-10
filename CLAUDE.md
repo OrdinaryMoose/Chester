@@ -33,7 +33,7 @@ Supporting files (reviewer templates, reference docs, scripts) go in the same di
 See `skills/util-artifact-schema/SKILL.md` for the full reference. Summary:
 
 ```
-docs/chester/working/YYYYMMDD-##-word-word-word-word/   (gitignored, in-progress)
+docs/chester/working/YYYYMMDD-##-verb-noun-noun/   (gitignored, in-progress)
 ├── design/
 │   ├── <sprint-name>-design-NN.md
 │   └── <sprint-name>-thinking-NN.md
@@ -46,11 +46,11 @@ docs/chester/working/YYYYMMDD-##-word-word-word-word/   (gitignored, in-progress
     ├── <sprint-name>-summary-NN.md
     └── <sprint-name>-audit-NN.md
 
-docs/chester/plans/YYYYMMDD-##-word-word-word-word/     (tracked, archived)
+docs/chester/plans/YYYYMMDD-##-verb-noun-noun/     (tracked, archived)
 └── (same structure, copied by finish-archive-artifacts)
 ```
 
-Sprint name format: `YYYYMMDD-##-word-word-word-word` where `##` is the next available sprint number. Used for both the directory and the branch. `NN` is a zero-padded sequence number (00, 01, ...).
+Sprint name format: `YYYYMMDD-##-verb-noun-noun` where `##` is the next available sprint number, and the three words are a verb (the action) followed by two nouns (the target). Used for both the directory and the branch. `NN` is a zero-padded sequence number (00, 01, ...).
 
 ## Commit Style
 

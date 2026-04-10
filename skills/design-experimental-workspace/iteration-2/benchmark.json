@@ -1,0 +1,107 @@
+{
+  "metadata": {
+    "skill_name": "design-experimental",
+    "timestamp": "2026-04-09T01:45:00Z",
+    "runs_per_configuration": 3
+  },
+  "configurations": [
+    {
+      "name": "with_skill",
+      "pass_rate": 1.0,
+      "pass_rate_stddev": 0.0,
+      "time_mean": 63.5,
+      "time_stddev": 7.1,
+      "tokens_mean": 25818,
+      "tokens_stddev": 183,
+      "evals": [
+        {
+          "eval_name": "problem-statement",
+          "pass_rate": 1.0,
+          "passed": 5,
+          "total": 5,
+          "time": 71.0,
+          "tokens": 25859,
+          "assertions": [
+            {"text": "problem-statement-polished-not-verbatim", "passed": true},
+            {"text": "readback-with-confirmation-prompt", "passed": true},
+            {"text": "no-agent-created-rules", "passed": true},
+            {"text": "no-code-in-visible-output", "passed": true},
+            {"text": "uses-new-mcp-types", "passed": true}
+          ]
+        },
+        {
+          "eval_name": "proof-composition",
+          "pass_rate": 1.0,
+          "passed": 5,
+          "total": 5,
+          "time": 57.1,
+          "tokens": 25619,
+          "assertions": [
+            {"text": "designer-statement-becomes-rule", "passed": true},
+            {"text": "nc-has-required-fields", "passed": true},
+            {"text": "uses-new-mcp-types", "passed": true},
+            {"text": "no-code-in-visible-output", "passed": true},
+            {"text": "visible-reads-as-conversation", "passed": true}
+          ]
+        },
+        {
+          "eval_name": "integrity-contrarian",
+          "pass_rate": 1.0,
+          "passed": 5,
+          "total": 5,
+          "time": 62.5,
+          "tokens": 25976,
+          "assertions": [
+            {"text": "no-element-ids-in-visible", "passed": true},
+            {"text": "no-proof-terminology-in-visible", "passed": true},
+            {"text": "contrarian-challenge-delivered", "passed": true},
+            {"text": "integrity-warning-translated", "passed": true},
+            {"text": "clear-visible-invisible-separation", "passed": true}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "without_skill (iteration-1 baseline)",
+      "pass_rate": 0.75,
+      "pass_rate_stddev": 0.25,
+      "time_mean": 54.6,
+      "time_stddev": 14.8,
+      "tokens_mean": 14862,
+      "tokens_stddev": 932,
+      "evals": [
+        {
+          "eval_name": "problem-statement",
+          "pass_rate": 0.5,
+          "passed": 2,
+          "total": 4,
+          "time": 60.3,
+          "tokens": 15941
+        },
+        {
+          "eval_name": "proof-composition",
+          "pass_rate": 1.0,
+          "passed": 4,
+          "total": 4,
+          "time": 38.9,
+          "tokens": 14514
+        },
+        {
+          "eval_name": "integrity-contrarian",
+          "pass_rate": 1.0,
+          "passed": 4,
+          "total": 4,
+          "time": 65.2,
+          "tokens": 14132
+        }
+      ]
+    }
+  ],
+  "analyst_observations": [
+    "Iteration 2 fixes resolved all iteration 1 regressions. With-skill now passes 15/15 assertions (100%), up from 10/12 (83%) in iteration 1.",
+    "The MCP type disambiguation fix resolved the Eval 1 regression — agent now uses EVIDENCE/RULE/NECESSARY_CONDITION directly instead of mapping to old types.",
+    "The invisible/visible boundary fix produced clean separation in all 3 evals. Designer-facing text contains zero code, JSON, element IDs, or proof terminology.",
+    "Problem statement polish-readback-confirm flow working correctly: rough input cleaned up, readback with 'Does that sound right?', no expansion or agent framing.",
+    "Token overhead stable at ~1.7x vs baseline (25.8k vs 14.9k). The skill adds structure and quality but costs more tokens."
+  ]
+}

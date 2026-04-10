@@ -1,0 +1,11 @@
+{
+  "eval_id": 0,
+  "run_type": "with_skill",
+  "expectations": [
+    {"text": "problem-statement-polished-not-verbatim", "passed": true, "evidence": "Designer's rough 'event replay broken — events out of order...' polished to clean prose: 'Events are replayed out of order after service restarts. When consumers rejoin their groups after a rebalance...' Meaning preserved, grammar/clarity improved."},
+    {"text": "readback-with-confirmation-prompt", "passed": true, "evidence": "Opens with 'Here's how I'd capture the problem:' followed by polished statement, ends with 'Does that sound right?'"},
+    {"text": "no-agent-created-rules", "passed": true, "evidence": "Internal section explicitly states 'None yet — no designer-directed restrictions were established during Phase 1.' Commentary invites future RULE creation without pre-creating them."},
+    {"text": "no-code-in-visible-output", "passed": true, "evidence": "Designer-visible section contains zero code blocks, zero JSON, zero element IDs, zero proof terminology. Reads as plain conversational English."},
+    {"text": "uses-new-mcp-types", "passed": true, "evidence": "Internal section uses EVIDENCE type consistently. No GIVEN, CONSTRAINT, ASSERTION references."}
+  ]
+}

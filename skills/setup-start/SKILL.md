@@ -271,6 +271,7 @@ The skill itself tells you which.
 - `util-dispatch` — Dispatching parallel subagents
 - `util-budget-guard` — Token budget check procedure (read, don't invoke)
 - `util-artifact-schema` — Artifact naming, versioning, and directory layout (read, don't invoke)
+- `util-design-brief-template` — Design brief output structure and section requirements (read, don't invoke)
 
 ## User Instructions
 
