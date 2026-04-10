@@ -245,7 +245,7 @@ The skill itself tells you which.
 - `start-bootstrap` — Mechanical session setup: config, sprint naming, dir creation, task reset, thinking history
 - `design-figure-out` — Quantitatively-disciplined Socratic discovery with understanding MCP (Phase 1) and enforcement gating (Phase 2). Resolves open design questions before specification.
 - `design-experimental` — Experimental two-phase design skill: Plan Mode understanding (Phase 1), formal proof-building with structural validation (Phase 2). Fork of design-figure-out for validating proof-based design discipline.
-- `design-specify` — Formalize approved designs into spec documents with automated review
+- `design-specify` — Formalize approved designs into spec documents with automated review and optional codebase verification
 - `plan-build` — Write and harden implementation plans
 - `execute-write` — Execute plans, request code review, and perform subagent-driven development
 - `execute-verify-complete` — Capstone of execution: prove tests, clean tree, checkpoint commit
