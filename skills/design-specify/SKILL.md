@@ -51,7 +51,8 @@ digraph build_spec {
     "Offer ground-truth review" [shape=diamond];
     "Dispatch ground-truth reviewer" [shape=box];
     "GT findings?" [shape=diamond];
-    "Fix HIGH/MEDIUM findings\nWrite report" [shape=box];
+    "Fix HIGH/MEDIUM findings" [shape=box];
+    "Write GT report" [shape=box];
     "Present to user" [shape=box];
     "User approves?" [shape=diamond];
     "Invoke plan-build" [shape=doublecircle];
@@ -73,12 +74,13 @@ digraph build_spec {
     "Offer ground-truth review" -> "Dispatch ground-truth reviewer" [label="user accepts"];
     "Offer ground-truth review" -> "Present to user" [label="user declines"];
     "Dispatch ground-truth reviewer" -> "GT findings?";
-    "GT findings?" -> "Fix HIGH/MEDIUM findings\nWrite report" [label="findings"];
-    "GT findings?" -> "Present to user" [label="clean"];
-    "Fix HIGH/MEDIUM findings\nWrite report" -> "Present to user";
+    "GT findings?" -> "Fix HIGH/MEDIUM findings" [label="findings"];
+    "GT findings?" -> "Write GT report" [label="clean"];
+    "Fix HIGH/MEDIUM findings" -> "Write GT report";
+    "Write GT report" -> "Present to user";
     "Present to user" -> "User approves?";
     "User approves?" -> "Invoke plan-build" [label="yes (spec stays in working dir)"];
-    "User approves?" -> "Write spec document" [label="changes requested"];
+    "User approves?" -> "Dispatch spec reviewer" [label="changes requested"];
 }
 ```
 
