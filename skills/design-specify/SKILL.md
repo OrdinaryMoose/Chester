@@ -1,6 +1,6 @@
 ---
 name: design-specify
-description: "Formalize an approved design into a durable spec document. Use when a design brief exists (from design-figure-out, a whiteboard, a previous session, or a human-written brief) and needs to be written as a formal spec with automated review."
+description: "Formalize an approved design into a durable spec document. Use when a design brief exists (from design-figure-out, a whiteboard, a previous session, or a human-written brief) and needs to be written as a formal spec with automated review and optional codebase verification."
 ---
 
 # Build Spec
@@ -29,8 +29,9 @@ You MUST create a task for each of these items and complete them in order:
 3. **Competing architectures + prior art** — dispatch 4 agents in parallel: 3 `feature-dev:code-architect` agents with different trade-off lenses + 1 prior art explorer; present approaches to user with prior art context; user picks direction
 4. **Write spec document** — synthesize design into structured spec based on chosen architecture (see `util-artifact-schema` for output path and naming)
 5. **Automated spec review loop** — dispatch spec-document-reviewer subagent with design brief, Think Tool gate per issue, fix and re-dispatch (max 2 iterations, then escalate to user)
-6. **User review gate** — present clean spec to user for review; if changes requested, apply and loop back to step 5
-7. **Transition** — invoke plan-build (spec is NOT committed here — `finish-archive-artifacts` copies all artifacts into the worktree for merge)
+6. **Ground-truth review (opt-in)** — after fidelity review passes, offer codebase verification; if accepted, dispatch ground-truth-reviewer subagent, fix HIGH/MEDIUM findings, write report to `spec/` subdirectory
+7. **User review gate** — present clean spec (and ground-truth report if generated) to user for review; if changes requested, apply and loop back to step 5
+8. **Transition** — invoke plan-build (spec is NOT committed here — `finish-archive-artifacts` copies all artifacts into the worktree for merge)
 
 ## Process Flow
 
@@ -47,6 +48,11 @@ digraph build_spec {
     "Think Tool per issue\nFix issues" [shape=box];
     "Iteration < 2?" [shape=diamond];
     "Escalate to user" [shape=box];
+    "Offer ground-truth review" [shape=diamond];
+    "Dispatch ground-truth reviewer" [shape=box];
+    "GT findings?" [shape=diamond];
+    "Fix HIGH/MEDIUM findings" [shape=box];
+    "Write GT report" [shape=box];
     "Present to user" [shape=box];
     "User approves?" [shape=diamond];
     "Invoke plan-build" [shape=doublecircle];
@@ -59,15 +65,22 @@ digraph build_spec {
     "Present approaches\nUser picks direction" -> "Write spec document";
     "Write spec document" -> "Dispatch spec reviewer";
     "Dispatch spec reviewer" -> "Issues found?";
-    "Issues found?" -> "Present to user" [label="no — approved"];
+    "Issues found?" -> "Offer ground-truth review" [label="no — approved"];
     "Issues found?" -> "Think Tool per issue\nFix issues" [label="yes"];
     "Think Tool per issue\nFix issues" -> "Iteration < 2?";
     "Iteration < 2?" -> "Dispatch spec reviewer" [label="yes"];
     "Iteration < 2?" -> "Escalate to user" [label="no"];
     "Escalate to user" -> "Present to user";
+    "Offer ground-truth review" -> "Dispatch ground-truth reviewer" [label="user accepts"];
+    "Offer ground-truth review" -> "Present to user" [label="user declines"];
+    "Dispatch ground-truth reviewer" -> "GT findings?";
+    "GT findings?" -> "Fix HIGH/MEDIUM findings" [label="findings"];
+    "GT findings?" -> "Write GT report" [label="clean"];
+    "Fix HIGH/MEDIUM findings" -> "Write GT report";
+    "Write GT report" -> "Present to user";
     "Present to user" -> "User approves?";
     "User approves?" -> "Invoke plan-build" [label="yes (spec stays in working dir)"];
-    "User approves?" -> "Write spec document" [label="changes requested"];
+    "User approves?" -> "Dispatch spec reviewer" [label="changes requested"];
 }
 ```
 
@@ -149,11 +162,45 @@ Apply the fix, then move to the next issue. Re-dispatch the reviewer after all i
 3. If loop exceeds 2 iterations, escalate to user for guidance
 4. On subsequent iterations, increment the version number (see `util-artifact-schema` for versioning)
 
+## Ground-Truth Review (Opt-In)
+
+After the spec fidelity review passes, offer the ground-truth review:
+
+> "Spec fidelity review passed. Would you like to run a ground-truth review to verify
+> spec claims against the actual codebase? This is recommended for specs that reference
+> existing types, APIs, file paths, or runtime behavior. Skip for greenfield specs with
+> no existing code references."
+
+If the user declines, proceed directly to the user review gate.
+
+If the user requests changes at the user review gate and the flow loops back through the fidelity review, do not re-offer the ground-truth review if it already ran in this session — proceed directly to the user review gate unless the user's changes materially alter code references.
+
+If the user accepts:
+
+1. Dispatch ground-truth-reviewer subagent (see ground-truth-reviewer.md in this skill directory)
+   - Provide: spec path AND design brief path
+   - The subagent reads source files to verify every claim the spec makes about existing code
+2. On return, evaluate findings by severity:
+   - **HIGH findings:** Fix the spec (increment version per `util-artifact-schema`). Re-run the ground-truth review only — do not re-run the fidelity review, since the fix targets codebase accuracy, not brief alignment. Exception: if the fix changes the spec's architectural approach (not just correcting a reference), re-run the fidelity review as well.
+   - **MEDIUM findings:** Fix the spec. No re-review needed unless the fix is substantial.
+   - **LOW findings:** Note in the report. Do not fix the spec — these are context for the implementer.
+   - **Iteration cap:** If the ground-truth review loop exceeds 2 iterations, escalate to user for guidance — matching the fidelity review pattern.
+3. Write the ground-truth report to the `spec/` subdirectory as `{sprint-name}-spec-ground-truth-report-00.md` (see `util-artifact-schema`)
+4. Present the report summary to the user alongside the spec at the user review gate
+
+The ground-truth report is preserved as an artifact. In a future iteration, `plan-build`
+could pass the ground-truth report to plan-attack to reduce redundant verification at the
+plan stage — but that is out of scope for this change.
+
 ## User Review Gate
 
 After the automated review loop passes:
 
 > "Spec written and reviewed at `{path}`. Please review and let me know if you want changes before we proceed to the implementation plan."
+
+If a ground-truth review was performed, also present:
+
+> "Ground-truth review report at `{report-path}`. [N] findings ([breakdown by severity]). [1-sentence risk summary from report]."
 
 Wait for the user's response. If they request changes, apply them and re-run the automated review loop. Only proceed once the user approves.
 
@@ -169,6 +216,7 @@ After the user approves the spec, it remains in the working directory. The spec 
 ## Integration
 
 - **Calls:** `start-bootstrap` (standalone only)
+- **Dispatches:** ground-truth-reviewer subagent (opt-in, after fidelity review)
 - **Reads:** `util-artifact-schema` (naming/paths), `util-design-brief-template` (brief structure reference), `util-budget-guard`
 - **Invoked by:** design-figure-out (primary), or user directly (standalone)
 - **Transitions to:** plan-build
