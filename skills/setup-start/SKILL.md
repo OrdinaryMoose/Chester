@@ -221,12 +221,13 @@ These thoughts mean STOP — you're rationalizing:
 
 When multiple skills could apply, use this order:
 
-1. **Gate skills first** (`design-figure-out`, `design-experimental`, `design-specify`, `plan-build`, `execute-write`, `execute-verify-complete`, `finish-close-worktree`) — these define the overall pipeline stage and determine HOW to approach the task
+1. **Gate skills first** (`design-figure-out`, `design-experimental`, `design-small-task`, `design-specify`, `plan-build`, `execute-write`, `execute-verify-complete`, `finish-close-worktree`) — these define the overall pipeline stage and determine HOW to approach the task
 2. **Review skills second** (`plan-attack`, `plan-smell`, `util-codereview`) — these harden and validate the work
 3. **Behavioral skills third** (`execute-test`, `execute-debug`, `execute-prove`, `execute-review`) — these guide specific execution disciplines
 4. **Utility skills fourth** (`util-worktree`, `util-dispatch`) — these support workflow mechanics
 
 "Let's build X" → `design-figure-out` first, then `design-specify`, then `plan-build`.
+"Quick design check for X" → `design-small-task` first, then `plan-build`.
 "Write a spec for this" → `design-specify` directly.
 "Fix this bug" → `execute-debug` first, then domain-specific skills.
 
@@ -245,6 +246,7 @@ The skill itself tells you which.
 - `start-bootstrap` — Mechanical session setup: config, sprint naming, dir creation, task reset, thinking history
 - `design-figure-out` — Quantitatively-disciplined Socratic discovery with understanding MCP (Phase 1) and enforcement gating (Phase 2). Resolves open design questions before specification.
 - `design-experimental` — Experimental two-phase design skill: Plan Mode understanding (Phase 1), formal proof-building with structural validation (Phase 2). Fork of design-figure-out for validating proof-based design discipline.
+- `design-small-task` — Lightweight design conversation for well-bounded tasks. Surfaces considerations through structured Q&A, produces a brief for plan-build. No MCP, no spec step.
 - `design-specify` — Formalize approved designs into spec documents with automated review
 - `plan-build` — Write and harden implementation plans
 - `execute-write` — Execute plans, request code review, and perform subagent-driven development
@@ -272,6 +274,7 @@ The skill itself tells you which.
 - `util-budget-guard` — Token budget check procedure (read, don't invoke)
 - `util-artifact-schema` — Artifact naming, versioning, and directory layout (read, don't invoke)
 - `util-design-brief-template` — Design brief output structure and section requirements (read, don't invoke)
+- `util-design-brief-small-template` — Lightweight design brief template for bounded tasks (6 sections vs 13). Read, don't invoke.
 
 ## User Instructions
 

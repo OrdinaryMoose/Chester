@@ -498,13 +498,13 @@ new capabilities or efforts that become possible once this design is implemented
 Different design skills use different vocabulary for similar concepts. This table maps
 skill-specific terms to template sections:
 
-| Template section | design-figure-out term | design-experimental term |
-|-----------------|----------------------|------------------------|
-| Design Decisions | "decision boundaries" | "necessary conditions with rationale" |
-| Scope (out) | "non-goals" | "out of scope" |
-| Constraints | "constraints" | "designer-directed restrictions" + "constraints" |
-| Assumptions | "assumptions tested" | (embedded in proof elements — extract to this section) |
-| Logic Trail | (not produced — omit section) | "Logic Trail" (derived from proof state) |
+| Template section | design-figure-out term | design-experimental term | design-small-task term |
+|-----------------|----------------------|------------------------|----------------------|
+| Design Decisions | "decision boundaries" | "necessary conditions with rationale" | "key decisions" |
+| Scope (out) | "non-goals" | "out of scope" | "out of scope" |
+| Constraints | "constraints" | "designer-directed restrictions" + "constraints" | "constraints" |
+| Assumptions | "assumptions tested" | (embedded in proof elements — extract to this section) | (omitted — uses `util-design-brief-small-template`) |
+| Logic Trail | (not produced — omit section) | "Logic Trail" (derived from proof state) | (omitted — no proof system) |
 
 Both skills map onto the same template. The vocabulary differs; the information is the
 same.
@@ -538,3 +538,11 @@ Before finalizing the brief, apply this test: **Could a reader who has never see
 design conversation, the companion briefs, or the codebase understand why every scope
 boundary exists?** If the answer is no, the Prior Art or annotated out-of-scope sections
 are incomplete.
+
+### Lightweight alternative
+
+`design-small-task` uses `util-design-brief-small-template` instead of this template.
+The small template has 6 sections (Goal, Prior Art, Scope, Key Decisions, Constraints,
+Acceptance Criteria) optimized for direct plan-build consumption without multi-brief
+coordination overhead. See that template for details on which sections are deliberately
+omitted and why.
