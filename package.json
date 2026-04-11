@@ -1,0 +1,27 @@
+{
+  "name": "chester",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Chester MCP servers for design skills",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OrdinaryMoose/Chester.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/OrdinaryMoose/Chester/issues"
+  },
+  "homepage": "https://github.com/OrdinaryMoose/Chester#readme",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0"
+  }
+}

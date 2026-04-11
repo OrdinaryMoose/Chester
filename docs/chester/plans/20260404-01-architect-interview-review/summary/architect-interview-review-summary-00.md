@@ -30,6 +30,7 @@ Added a new turn component between the thinking block and the question. Each tur
 Phase 1 packages contain: Current facts, Surface analysis, Uncomfortable truths.
 Phase 2 packages contain: Current facts, Surface analysis, General options, Pessimist risks.
 
+
 Each component constrained to 2-4 sentences to preserve ~2-minute round cadence.
 
 ### Phase-Aware Scoring Guidance
