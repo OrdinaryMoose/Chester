@@ -2,15 +2,15 @@
   "mcpServers": {
     "chester-enforcement": {
       "command": "node",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/skills/design-figure-out/enforcement/server.js"]
+      "args": ["/home/mike/Documents/Chester/skills/design-figure-out/enforcement/server.js"]
     },
     "chester-understanding": {
       "command": "node",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/skills/design-figure-out/understanding/server.js"]
+      "args": ["/home/mike/Documents/Chester/skills/design-figure-out/understanding/server.js"]
     },
     "chester-design-proof": {
       "command": "node",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/skills/design-experimental/proof-mcp/server.js"]
+      "args": ["/home/mike/Documents/Chester/skills/design-experimental/proof-mcp/server.js"]
     }
   }
 }
