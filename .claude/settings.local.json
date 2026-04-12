@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git clone:*)",
+      "Bash(cp -r /tmp/chester_tmp/. /home/mike/Documents/Chester/)",
+      "Bash(rm -rf /tmp/chester_tmp)",
+      "Bash(claude plugins:*)",
+      "Read(//usr/local/bin/**)",
+      "Read(//home/mike/.nvm/versions/**)",
+      "Bash(npm --version)",
+      "Bash(node /home/mike/Documents/Chester/skills/design-figure-out/enforcement/server.js)",
+      "Bash(kill %1)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(echo \"exit code: $?\")",
+      "Bash(node:*)",
+      "Bash(ls /home/mike/Documents/Chester/*.md)",
+      "Skill(update-config)"
+    ]
+  },
+  "outputStyle": "Explanatory"
+}
