@@ -10,7 +10,7 @@ description: >
 
 This document defines the structure for design brief artifacts produced by
 `design-small-task`. It is the lightweight counterpart to `util-design-brief-template`,
-which serves `design-figure-out` and `design-experimental`.
+which serves `design-experimental`.
 
 ## When to Use This Template
 
@@ -18,12 +18,12 @@ Use this template when:
 - The task is well-bounded — the designer already knows roughly what they want
 - The design conversation was 2-5 rounds, not 10-20
 - There are no companion briefs or multi-brief dependency chains
-- The brief feeds directly into plan-build, skipping design-specify
+- The brief feeds directly into plan-build (no intermediate spec step)
 
 Use the full `util-design-brief-template` when:
 - The task is complex or ambiguous
 - Multiple briefs interact (companion briefs, prior art chains)
-- The brief will be consumed by design-specify's three architect agents
+- The brief is produced by design-experimental and must match its 9-section envelope+point structure (see `util-design-brief-template`)
 - Infrastructure dependencies need operational status tracking
 
 ## Guiding Principle
@@ -152,8 +152,7 @@ with rationale:
 | Follow-on Work | Bounded tasks don't typically enable dependency chains. |
 
 If a bounded task turns out to need any of these sections, that may be a signal the
-task is not actually bounded and should use the full template with `design-figure-out`
-or `design-experimental`.
+task is not actually bounded and should use the full template with `design-experimental`.
 
 ---
 

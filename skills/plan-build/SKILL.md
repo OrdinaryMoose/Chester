@@ -19,7 +19,7 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 
 Use TaskCreate/TaskUpdate to give the user real-time visibility into your progress. This is for user awareness only — it does not constrain your workflow.
 
-**Task reset (do first, do not track):** Before creating any tasks, call TaskList. If any tasks exist from a previous skill (e.g., design-figure-out), delete them all via TaskUpdate with status: `deleted`. This is housekeeping — do not create a tracked task for it.
+**Task reset (do first, do not track):** Before creating any tasks, call TaskList. If any tasks exist from a previous skill (e.g., design-experimental), delete them all via TaskUpdate with status: `deleted`. This is housekeeping — do not create a tracked task for it.
 
 **Starting tasks:** After the reset, create one task for each of these phases via TaskCreate:
 
@@ -42,7 +42,7 @@ Use TaskCreate/TaskUpdate to give the user real-time visibility into your progre
 - The 8 starting tasks are the baseline
 - When writing plan tasks, you may optionally create one sub-task per plan task if the plan has many tasks, to give finer-grained progress — use your judgment based on plan size
 
-**Context:** This should be run in a dedicated worktree (created by design-figure-out skill).
+**Context:** This should be run in a dedicated worktree (created by `design-experimental` or `design-small-task` during their Archival / closure stage).
 
 **Save plans to:** the `plan/` subdirectory. Inherit the sprint subdirectory from the spec's directory path. See `util-artifact-schema` for naming and path conventions.
 
@@ -50,7 +50,7 @@ The plan is NOT committed here — `finish-archive-artifacts` copies all artifac
 
 ## Scope Check
 
-If the spec covers multiple independent subsystems, it should have been broken into sub-project specs during design-figure-out. If it wasn't, suggest breaking this into separate plans — one per subsystem. Each plan should produce working, testable software on its own.
+If the brief covers multiple independent subsystems, it should have been broken into sub-project briefs during the design phase (design-experimental's proof loop, or design-small-task's conversation). If it wasn't, suggest breaking this into separate plans — one per subsystem. Each plan should produce working, testable software on its own.
 
 ## File Structure
 

@@ -22,9 +22,9 @@ Before executing in either mode, complete these setup steps.
 
 ### 1.2 Verify Worktree
 
-- Verify that a worktree already exists (created by design-figure-out earlier in the pipeline)
+- Verify that a worktree already exists (created by `design-experimental` or `design-small-task` earlier in the pipeline, or by `util-worktree` if invoked standalone)
 - Check: run `git worktree list` and confirm a worktree is active for the current branch
-- If no worktree exists (e.g., execute-write invoked standalone without a prior figure-out session), invoke util-worktree to create one as a fallback
+- If no worktree exists (e.g., execute-write invoked standalone without a prior design phase), invoke util-worktree to create one as a fallback
 - All implementation happens in the worktree, not the main tree
 
 ### 1.3 Handle Deferred Items
