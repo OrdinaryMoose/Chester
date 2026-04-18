@@ -221,14 +221,13 @@ These thoughts mean STOP — you're rationalizing:
 
 When multiple skills could apply, use this order:
 
-1. **Gate skills first** (`design-figure-out`, `design-experimental`, `design-small-task`, `design-specify`, `plan-build`, `execute-write`, `execute-verify-complete`, `finish-close-worktree`) — these define the overall pipeline stage and determine HOW to approach the task
+1. **Gate skills first** (`design-experimental`, `design-small-task`, `plan-build`, `execute-write`, `execute-verify-complete`, `finish-close-worktree`) — these define the overall pipeline stage and determine HOW to approach the task
 2. **Review skills second** (`plan-attack`, `plan-smell`, `util-codereview`) — these harden and validate the work
 3. **Behavioral skills third** (`execute-test`, `execute-debug`, `execute-prove`, `execute-review`) — these guide specific execution disciplines
 4. **Utility skills fourth** (`util-worktree`, `util-dispatch`) — these support workflow mechanics
 
-"Let's build X" → `design-figure-out` first, then `design-specify`, then `plan-build`.
+"Let's build X with architectural choices" → `design-experimental` first, then `plan-build`.
 "Quick design check for X" → `design-small-task` first, then `plan-build`.
-"Write a spec for this" → `design-specify` directly.
 "Fix this bug" → `execute-debug` first, then domain-specific skills.
 
 ## Skill Types
@@ -244,10 +243,8 @@ The skill itself tells you which.
 ### Pipeline Skills (define the workflow stage)
 - `setup-start` — Entry point; establishes the pipeline and skill usage rules (this skill)
 - `start-bootstrap` — Mechanical session setup: config, sprint naming, dir creation, task reset, thinking history
-- `design-figure-out` — Quantitatively-disciplined Socratic discovery with understanding MCP (Phase 1) and enforcement gating (Phase 2). Resolves open design questions before specification.
-- `design-experimental` — Experimental two-phase design skill: Plan Mode understanding (Phase 1), formal proof-building with structural validation (Phase 2). Fork of design-figure-out for validating proof-based design discipline.
+- `design-experimental` — Default structural design skill: Plan Mode understanding phase followed by formal proof-building, with a Finalization stage that verifies the proof foundation and generates competing architectural approaches via three architect subagents.
 - `design-small-task` — Lightweight design conversation for well-bounded tasks. Surfaces considerations through structured Q&A, produces a brief for plan-build. No MCP, no spec step.
-- `design-specify` — Formalize approved designs into spec documents with automated review and optional codebase verification
 - `plan-build` — Write and harden implementation plans
 - `execute-write` — Execute plans, request code review, and perform subagent-driven development
 - `execute-verify-complete` — Capstone of execution: prove tests, clean tree, checkpoint commit

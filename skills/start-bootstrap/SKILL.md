@@ -3,8 +3,8 @@ name: start-bootstrap
 description: >
   Mechanical session setup for pipeline skills. Invoke this skill at the start of any
   pipeline skill that needs a sprint context — config reading, sprint naming, directory
-  creation, task reset, and thinking history initialization. Called by design-figure-out,
-  design-specify (standalone), and execute-write (standalone).
+  creation, task reset, and thinking history initialization. Called by design-experimental
+  and execute-write (standalone).
 ---
 
 # Session Bootstrap
@@ -15,9 +15,9 @@ skill resumes with a fully prepared sprint environment.
 
 ## When to Call
 
-- **Always:** `design-figure-out` (starts fresh sprints)
-- **Standalone only:** `design-specify`, `execute-write` (when invoked without a prior
-  design phase, they need sprint context created; when invoked mid-pipeline, sprint
+- **Always:** `design-experimental` (starts fresh sprints)
+- **Standalone only:** `execute-write` (when invoked without a prior
+  design phase, it needs sprint context created; when invoked mid-pipeline, sprint
   context already exists)
 
 ## What It Does

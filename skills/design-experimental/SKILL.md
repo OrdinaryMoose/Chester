@@ -1,6 +1,6 @@
 ---
 name: design-experimental
-description: "Experimental two-phase design skill: Plan Mode understanding (Phase 1), formal proof-building with structural validation (Phase 2). Fork of design-figure-out for validating proof-based design discipline."
+description: "Default structural design skill for architectural or multi-decision work. Plan Mode understanding phase (Phase 1), formal proof-building with structural validation (Phase 2), then a Finalization stage that verifies the proof foundation against the codebase and generates competing architectural approaches via three architect subagents. Use when the task involves structural choices that need grounded design before implementation. For bounded edits where the target is clear, use design-small-task instead."
 ---
 
 # Experimental Design Discovery with Formal Proof Language
@@ -28,7 +28,9 @@ You MUST create a task for each of these items and complete them in order:
 5. **Understand phase** — per-turn conversational cycle (no MCP, no scoring, no structured submissions)
 6. **Phase transition** — designer confirms understanding, `capture_thought()` with tag `understanding-confirmed` and stage `Transition`, call `ExitPlanMode`
 7. **Proof phase** — present designer's verbatim problem statement for confirmation, initialize proof MCP, per-turn proof cycle with necessary conditions model
-8. **Closure** — closing argument presented and approved, write three artifacts, update lessons table, transition to design-specify
+8. **Closing argument** — compose and present the closing argument; designer approval settles the proof
+9. **Finalization (Envelope Handoff)** — dispatch parallel gate (1 ground-truth + 3 architects), aggregate findings, offer recommendation, reconcile with designer, close stage
+10. **Archival (Artifact Handoff)** — write four artifacts (design brief, thinking summary, process evidence, ground-truth report), invoke `util-worktree`, update lessons table, transition to plan-build
 
 ## Role: Software Architect
 
@@ -570,31 +572,180 @@ After at least 3 rounds of Phase 2, the designer may exit at any checkpoint. Not
 
 ---
 
-## Phase 5: Closure
+## Finalization Stage
 
-1. `get_thinking_summary()` to produce the consolidated decision history
-2. `get_proof_state()` for the final proof snapshot
-3. **Present the closing argument** — before writing the design brief, present a plain-English narrative that walks the designer through the design's logical justification. This reads like a colleague summarizing "here's what we decided and why it holds up":
+Finalization operates on the settled envelope after the designer approves the closing
+argument. The envelope is frozen at Envelope Handoff; Finalization selects a point
+within it. The stage fires once per closing-argument approval; automatic re-runs are
+not supported. Deep-case proof reopening is designer-initiated only.
 
-   Start with the problem as the designer stated it. Then walk through each key design requirement in natural prose — for each one, explain what we found in the system, what the designer directed, and why those things together mean this requirement is necessary. Make the logical chain obvious without naming elements or referencing proof structure. Describe what was explicitly put out of scope and why. Name the weakest points honestly — where are we least certain, what risks remain? End with a summary: "if we removed any one of these requirements, here's what would break."
+### Envelope Handoff (Contract Boundary)
 
-   The closing argument must read like a short, persuasive essay — not a list of conditions with metadata. A product manager who understands the domain but has never seen the proof should be able to follow the reasoning and judge whether it's sound.
+**Payload crossing the boundary:** the envelope — problem statement, necessary
+conditions (with reasoning chains, collapse tests, rejected alternatives), rules,
+permissions, evidence foundation, risks, closing argument. Frozen at designer
+approval; consumers cannot modify it.
 
-4. The designer approves or challenges the closing argument. This is the design's proof — the reasoned argument from premises to conclusions, told in plain language. If challenged, return to the proof loop to address the designer's concerns.
-5. "Does this capture what we're building?"
-6. Write three artifacts to the `design/` subdirectory (see `util-artifact-schema` for naming and path conventions):
-   - **Design brief** (`{sprint-name}-design-00.md`) — domain language, derived from proof. Follow the template in `util-design-brief-template` for required sections and ordering. Read that skill before writing the brief.
-   - **Thinking summary** (`{sprint-name}-thinking-00.md`) — decision history from thinking summary. Alternatives considered, user corrections, understanding shifts, conditions that were proposed and later withdrawn.
-   - **Process evidence** (`{sprint-name}-process-00.md`) — proof element growth by round, integrity warnings surfaced, challenge mode firings, closure condition satisfaction, phase transition timing, Phase 2 length relative to Phase 1. Human-readable narrative — stories, not scores.
-6. Invoke `util-worktree` to create the branch and worktree. The branch name is the sprint subdirectory name. Design artifacts stay in the working directory — `finish-archive-artifacts` copies them into the worktree for merge.
-7. Update `~/.chester/thinking.md` — review the Key Reasoning Shifts from the session. For each shift, determine whether it matches an existing lesson (increment score by 1) or is a new lesson (add with score 1, category `—`). If the table exceeds 20 rows, drop the lowest-scoring entry. Present proposed changes to the user and confirm before writing. If the file does not exist, create it with the table header and first entries.
-8. Transition to design-specify
+**Consumers:** four subagents dispatched in parallel in a single message.
+
+**Ground-truth subagent input projection:**
+- Problem statement (from proof initialization)
+- Closing argument (inline prose)
+- EVIDENCE verification rows: for each EVIDENCE element in the proof state, project
+  into `{claim: <statement>, anchor: <file-path-or-symbol-extracted-from-statement>,
+  proof_element_id: <element_id>}`. If no anchor can be extracted from the statement
+  text, set `anchor: null` — the subagent will flag such rows as unverifiable.
+
+**Anchor extraction convention** (worked example):
+
+Anchors are extracted from EVIDENCE `statement` text by locating the most specific
+code reference the claim names. The extraction prefers a project-relative file path
+when one is present, then a fully qualified type or method name, then a symbol name.
+If multiple candidates appear, pick the one the claim is primarily about.
+
+Examples (statement → extracted anchor):
+
+- `"Pipeline.cs has 1,481 lines and is organized as a single class."` → `Pipeline.cs`
+- `"The IValidator interface declares a single Validate method on Application.Contracts."` → `IValidator`
+- `"StoryDesigner.Compiler.Services.PipelineBuilder is DI-registered as singleton in Program.cs."` → `StoryDesigner.Compiler.Services.PipelineBuilder`
+- `"The system has three validation layers but only two are wired in production."` → `null` (no specific anchor — flag as unverifiable)
+- `"Logic/Validation/Rules/RangeRule.cs implements IValidationRule<NumericValue>."` → `Logic/Validation/Rules/RangeRule.cs`
+
+The convention is deliberately simple: prose judgment, one anchor per row. The
+ground-truth subagent uses the anchor to find the target in the codebase; the claim
+text drives the verification verdict. If the subagent cannot locate the anchor, it
+returns NOT-FOUND for that row.
+
+**Architect subagent input (each of three, isolated-parallel, no cross-contamination):**
+- Problem statement
+- Necessary conditions (with reasoning chains and collapse tests)
+- Rules (designer-directed restrictions)
+- Permissions (designer-directed relief, with `relieves` references)
+- Evidence foundation (all EVIDENCE elements' statements, unprojected — architects
+  read the full foundation, not just anchors)
+- Risks
+- Closing argument (for context)
+- Trade-off lens: one of minimal-changes / clean-architecture / pragmatic-balance
+
+**Architect output (each returns, structured bulleted format, no tables):**
+- **Approach Summary** — 2-3 sentences naming the shape
+- **Component Structure** — bullets of new or modified units
+- **Reuse Profile** — bullets of existing code or patterns leveraged
+- **Trade-off Summary** — "Optimized for:" bullets + "Sacrificed:" bullets
+- **Envelope Compliance** — per-necessary-condition satisfied-by, per-rule respected-how, per-permission-leveraged-where
+- **Risks Introduced** — bullets
+
+Architects do NOT produce a per-architect "Alternatives Considered" section —
+aggregation across the three architects is this stage's job.
+
+### Five Steps
+
+1. **Dispatch** — Launch four subagents in parallel in a single message. Explicit
+   dispatch directives:
+   - **Ground-truth subagent:** use the default general-purpose agent with the
+     ground-truth input projection above embedded in the prompt.
+   - **Three architect subagents:** use `subagent_type: "feature-dev:code-architect"`
+     with the minimal-changes, clean-architecture, and pragmatic-balance lens
+     prompts. Each architect receives the full envelope (problem statement,
+     necessary conditions, rules, permissions, evidence foundation, risks, closing
+     argument) and operates in isolation — no cross-contamination between the three.
+
+   All four dispatches go in one message so wall-clock cost is one wait regardless
+   of per-subagent duration.
+
+2. **Aggregate** — Receive all four reports. Do not present piecemeal. Assemble into
+   one coherent presentation: ground-truth findings grouped by severity
+   (HIGH / MEDIUM / LOW) with per-finding recommended action (accept-as-risk-note /
+   revise-brief / reopen-proof), followed by three parallel bulleted blocks — one
+   per architect — each using the six-section output structure.
+
+3. **Recommend** — Offer an opinionated take: given the proof's reasoning and the
+   envelope's shape, which architect approach fits best, or does the designer's
+   implicit direction still fit better? Provide reasoning. The designer may agree,
+   push back, or redirect.
+
+4. **Reconcile** — Designer works two tracks:
+   - **GT findings track:** per finding, accept-as-risk-note (goes into brief's
+     Risks section), revise-brief (update Evidence or Chosen Approach section),
+     or reopen-proof (deep case, see below).
+   - **Approach track:** pick one of A1/A2/A3, articulate a hybrid, stay with the
+     implicit direction from the proof, or reopen-proof. If hybrid or own direction,
+     polish-readback-confirm — the agent reads back the articulated approach in
+     clean language and asks for explicit approval (same pattern as problem statement
+     at Phase 2 entry).
+
+5. **Close** — When both tracks resolve, Finalization closes. Proceed to Archival.
+
+### Deep Case — Designer-Initiated Proof Reopening
+
+Reopening the proof is rare and only happens at the designer's explicit direction.
+If a ground-truth HIGH finding demolishes a load-bearing EVIDENCE element, or an
+architect proposal reveals a structural gap that invalidates a necessary condition,
+the designer may choose to reopen. Procedure:
+
+1. `get_proof_state` to load the current proof.
+2. Designer identifies which elements to revise or withdraw.
+3. `submit_proof_update` with the appropriate revise or withdraw operations.
+4. Return to Phase 2 proof loop for at least one more round.
+5. Compose a new closing argument; re-approval required.
+6. Finalization stage repeats from step 1.
+
+Reopening is never automatic. The skill surfaces the option; the designer decides.
+
+---
+
+## Archival Stage
+
+After Finalization closes, the skill writes durable artifacts and hands off to
+plan-build.
+
+### Artifact Handoff (Contract Boundary)
+
+**Payload crossing the boundary:** the design point — envelope (unchanged from
+Envelope Handoff) plus chosen approach, alternatives considered, ground-truth
+report, reconciled risks.
+
+**Consumers:** file system (durable artifacts in `design/` subdirectory),
+`finish-archive-artifacts` (copies artifacts into worktree plans/ at merge),
+`plan-build` (reads brief + ground-truth report at next stage).
+
+**Payload invariant:** once written, artifacts are authoritative for this sprint.
+Plan-build operates on them; later skills read them without re-verification.
+
+### Procedure
+
+1. `get_thinking_summary()` to produce the consolidated decision history.
+2. `get_proof_state()` for the final proof snapshot.
+3. Write four artifacts to `{CHESTER_WORKING_DIR}/{sprint-subdir}/design/`
+   (see `util-artifact-schema` for exact paths):
+   - **Design brief** (`{sprint-name}-design-00.md`) — follow `util-design-brief-template`'s
+     nine-section envelope-plus-point structure. Envelope sections sourced from the
+     proof; Chosen Approach and Alternatives Considered sections sourced from
+     Finalization.
+   - **Thinking summary** (`{sprint-name}-thinking-00.md`) — decision history including
+     a new "Finalization Reasoning" section covering which architect was
+     adopted/rejected and why, which ground-truth findings were accepted versus
+     forced brief revisions, hybrid articulation if the designer synthesized, and
+     any reopen decisions.
+   - **Process evidence** (`{sprint-name}-process-00.md`) — operational narrative
+     including a new "Finalization Metrics" section covering dispatch timing,
+     subagent return latencies, finding counts by severity, architect proposal
+     count, reconciliation path taken, and outcome (pick / hybrid / stay-own /
+     reopen).
+   - **Ground-truth report** (`{sprint-name}-ground-truth-report-00.md`) — the
+     findings report produced by the ground-truth subagent at Envelope Handoff,
+     preserved as an artifact. `plan-build` reads this report at its entry.
+4. Invoke `util-worktree` to create the branch and worktree — only if not already
+   in a worktree. The branch name is the sprint subdirectory name.
+5. Update `~/.chester/thinking.md` with Key Reasoning Shifts from the session.
+6. Transition to `plan-build`.
 
 ## Integration
 
-- **Calls:** `start-bootstrap` (setup), `util-worktree` (closure)
+- **Calls:** `start-bootstrap` (setup), `util-worktree` (Archival)
+- **Dispatches (Finalization stage):** 1 ground-truth subagent + 3 `feature-dev:code-architect` subagents (parallel, isolated)
 - **Uses:** `chester-design-proof` MCP (Phase 2), `capture_thought` / `get_thinking_summary` (throughout)
 - **Reads:** `util-artifact-schema` (naming/paths), `util-design-brief-template` (brief output structure), `util-budget-guard` (via bootstrap)
-- **Invoked by:** user explicitly (opt-in — design-figure-out remains default)
-- **Transitions to:** `design-specify`
-- **Does NOT use:** `chester-understanding`, `chester-enforcement`
+- **Invoked by:** user, as the default structural design skill
+- **Transitions to:** `plan-build`
+- **Does NOT use:** `chester-understanding`, `chester-enforcement` (archived)
