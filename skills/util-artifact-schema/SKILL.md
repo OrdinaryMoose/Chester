@@ -103,11 +103,10 @@ mkdir -p "{CHESTER_WORKING_DIR}/{sprint-subdir}/design" \
 
 | Artifact | Directory | Purpose | Produced by |
 |----------|-----------|---------|-------------|
-| `design` | `design/` | Design brief — WHAT is being built and WHY | `design-figure-out` |
-| `thinking` | `design/` | Thinking summary — HOW decisions were made | `design-figure-out` |
-| `process` | `design/` | Process evidence — HOW the interview operated | `design-figure-out` |
-| `spec` | `spec/` | Specification — formal requirements document | `design-specify` |
-| `spec-ground-truth-report` | `spec/` | Ground-truth findings — codebase verification of spec claims | `design-specify` (ground-truth review) |
+| `design` | `design/` | Design brief — envelope + chosen approach | `design-experimental`, `design-small-task` |
+| `thinking` | `design/` | Thinking summary — decision history including Finalization reasoning | `design-experimental` |
+| `process` | `design/` | Process evidence — operational narrative including Finalization metrics | `design-experimental` |
+| `ground-truth-report` | `design/` | Ground-truth findings — codebase verification of Evidence elements, produced at Envelope Handoff | `design-experimental` (Finalization stage) |
 | `plan` | `plan/` | Implementation plan — task-by-task build instructions | `plan-build` |
 | `plan-threat-report` | `plan/` | Combined plan-attack + plan-smell findings | `plan-build` (hardening phase) |
 | `deferred` | `plan/` | Items deferred during execution | `execute-write` |
@@ -120,8 +119,7 @@ Some skills write JSON state files that are not versioned artifacts:
 
 | File | Directory | Purpose |
 |------|-----------|---------|
-| `{sprint-name}-understanding-state.json` | `design/` | Understanding MCP state | 
-| `{sprint-name}-enforcement-state.json` | `design/` | Enforcement MCP state |
+| `{sprint-name}-proof-state.json` | `design/` | Design Proof MCP state |
 
 ## Versioning
 
