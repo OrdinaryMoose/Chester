@@ -749,4 +749,3 @@ Plan-build operates on them; later skills read them without re-verification.
 - **Invoked by:** user, as the default structural design skill
 - **Transitions to:** `plan-build`
 - **Does NOT use:** `chester-understanding`, `chester-enforcement` (archived)
-- **Does NOT call:** `design-specify` (archived — verification and architect comparison absorbed into Finalization stage)
