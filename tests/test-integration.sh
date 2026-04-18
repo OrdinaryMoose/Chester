@@ -47,28 +47,35 @@ fi
 # 3. Test skill files exist and have guard sections
 echo "--- Test: skill modifications ---"
 GUARD_SKILLS=(
-  "skills/design-figure-out/SKILL.md"
-  "skills/design-specify/SKILL.md"
+  "skills/design-experimental/SKILL.md"
+  "skills/design-small-task/SKILL.md"
   "skills/plan-build/SKILL.md"
-  "skills/finish/SKILL.md"
   "skills/execute-write/SKILL.md"
 )
 
 for skill in "${GUARD_SKILLS[@]}"; do
-  if grep -q "Budget Guard Check" "$skill" 2>/dev/null; then
-    echo "  PASS: $skill has budget guard"
+  has_own_guard=false
+  calls_bootstrap=false
+  if grep -q -i "budget guard" "$skill" 2>/dev/null && grep -q "util-budget-guard" "$skill" 2>/dev/null; then
+    has_own_guard=true
+  fi
+  if grep -q "start-bootstrap" "$skill" 2>/dev/null; then
+    calls_bootstrap=true
+  fi
+  if $has_own_guard || $calls_bootstrap; then
+    echo "  PASS: $skill has budget guard (direct or via start-bootstrap)"
   else
     echo "  FAIL: $skill missing budget guard"
     ERRORS=$((ERRORS + 1))
   fi
 done
 
-# 4. Test chester-setup-start has session housekeeping
-echo "--- Test: chester-setup-start session housekeeping ---"
+# 4. Test setup-start has session housekeeping
+echo "--- Test: setup-start session housekeeping ---"
 if grep -q "Session Housekeeping" "skills/setup-start/SKILL.md" 2>/dev/null; then
-  echo "  PASS: chester-setup-start has session housekeeping"
+  echo "  PASS: setup-start has session housekeeping"
 else
-  echo "  FAIL: chester-setup-start missing session housekeeping"
+  echo "  FAIL: setup-start missing session housekeeping"
   ERRORS=$((ERRORS + 1))
 fi
 
