@@ -1,6 +1,6 @@
 ---
 name: design-small-task
-description: "Lightweight design conversation for well-bounded tasks. Use when the task is clear but you want to surface considerations before jumping to planning. Holds an interactive Q&A loop with structured information packages — the agent presents observations and asks questions, never suggests proceeding. The designer explicitly directs when to write the brief. Feeds directly into plan-build, skipping design-specify."
+description: "Lightweight design conversation for well-bounded tasks. Use when the task is clear but you want to surface considerations before jumping to planning. Holds an interactive Q&A loop with structured information packages — the agent presents observations and asks questions, never suggests proceeding. The designer explicitly directs when to write the brief. Produces a six-section brief at Artifact Handoff and transitions directly to plan-build."
 ---
 
 # Small Task Design Conversation
@@ -9,8 +9,8 @@ A lightweight design skill for well-bounded tasks where the designer already kno
 what they want. The value is not deep discovery — it is surfacing considerations that might
 be missed before jumping to planning.
 
-This skill produces a design brief that feeds directly into plan-build, skipping
-design-specify entirely.
+This skill produces a design brief that feeds directly into plan-build, routing
+directly to plan-build with no intermediate spec step.
 
 <HARD-GATE>
 Do not write the design brief until the designer explicitly directs you to proceed.
@@ -178,10 +178,11 @@ name uncomfortable truths.
 
 ---
 
-## Phase 5: Closure
+## Phase 5: Closure (Artifact Handoff)
 
 When the designer explicitly directs you to proceed (e.g., "go ahead," "write it up,"
-"proceed," "let's build it"):
+"proceed," "let's build it"), perform the Artifact Handoff — crossing from in-conversation
+design into durable written artifacts:
 
 1. Write the design brief to `{CHESTER_WORKING_DIR}/{sprint-subdir}/design/{sprint-name}-design-00.md`
    following the template in `util-design-brief-small-template`:
@@ -224,5 +225,5 @@ When the designer explicitly directs you to proceed (e.g., "go ahead," "write it
 - **Calls:** `start-bootstrap` (setup), `util-worktree` (closure)
 - **Reads:** `util-artifact-schema` (naming/paths), `util-design-brief-small-template` (brief format), `util-budget-guard` (via bootstrap)
 - **Transitions to:** `plan-build`
-- **Does NOT call:** `design-specify`, any MCP server
+- **Does NOT call:** any MCP server; no proof phase, no architect comparison, no ground-truth verification — the bounded-task brief goes directly to plan-build
 - **Does NOT use:** `capture_thought`, `get_thinking_summary`
