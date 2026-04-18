@@ -75,6 +75,27 @@ Then attack the plan across these dimensions:
 For each dimension, verify claims against actual code. Use grep/search to enumerate
 real usages — do not trust the plan's claim that it covers everything.
 
+## Trust Input (Optional)
+
+When dispatched from `plan-build` after `design-experimental`, this skill may
+receive a **verified-anchor skip-list** in its prompt — a list of file paths, type
+names, and method names that the ground-truth subagent verified against the
+codebase during the design stage's Finalization.
+
+If a skip-list is present:
+- Treat the listed anchors as trusted — do NOT re-verify them — **unless the plan
+  text explicitly modifies them** (create, rename, refactor, delete).
+- Anchors the plan references but does not modify are trusted.
+- Anchors the plan modifies are re-verified against the plan's claims.
+- Any anchor not in the skip-list is re-verified as usual.
+
+If no skip-list is present (e.g., dispatched from `plan-build` after
+`design-small-task`, which has no ground-truth stage), perform full codebase
+verification as described in Step 2.
+
+The skip-list narrows scope without reducing rigor. Findings on plan-specific
+additions are weighted the same as always.
+
 ## Evidence Standard
 
 Every finding must cite:
