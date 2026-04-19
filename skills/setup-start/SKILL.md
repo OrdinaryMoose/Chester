@@ -243,7 +243,7 @@ The skill itself tells you which.
 ### Pipeline Skills (define the workflow stage)
 - `setup-start` — Entry point; establishes the pipeline and skill usage rules (this skill)
 - `start-bootstrap` — Mechanical session setup: config, sprint naming, dir creation, task reset, thinking history
-- `design-experimental` — Default structural design skill: Plan Mode understanding phase followed by formal proof-building, with a Finalization stage that verifies the proof foundation and generates competing architectural approaches via three architect subagents.
+- `design-experimental` — Default structural design skill: understanding phase under a nine-dimension saturation MCP (Phase 1), followed by formal proof-building (Phase 2), with a Finalization stage that verifies the proof foundation and generates competing architectural approaches via three architect subagents.
 - `design-small-task` — Lightweight design conversation for well-bounded tasks. Surfaces considerations through structured Q&A, produces a brief for plan-build. No MCP, no spec step.
 - `plan-build` — Write and harden implementation plans
 - `execute-write` — Execute plans, request code review, and perform subagent-driven development

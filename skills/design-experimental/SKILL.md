@@ -1,16 +1,16 @@
 ---
 name: design-experimental
-description: "Default structural design skill for architectural or multi-decision work. Plan Mode understanding phase (Phase 1), formal proof-building with structural validation (Phase 2), then a Finalization stage that verifies the proof foundation against the codebase and generates competing architectural approaches via three architect subagents. Use when the task involves structural choices that need grounded design before implementation. For bounded edits where the target is clear, use design-small-task instead."
+description: "Default structural design skill for architectural or multi-decision work. Understanding MCP phase (Phase 1, nine-dimension saturation scoring), formal proof-building with structural validation (Phase 2), then a Finalization stage that verifies the proof foundation against the codebase and generates competing architectural approaches via three architect subagents. Use when the task involves structural choices that need grounded design before implementation. For bounded edits where the target is clear, use design-small-task instead."
 ---
 
 # Experimental Design Discovery with Formal Proof Language
 
-A two-phase design collaboration that separates **Understand** from **Solve**. Phase 1 uses Plan Mode with no MCP — pure conversation. Phase 2 uses a Design Proof MCP that builds a formal proof structure around **necessary conditions** — things that must be true for the design to hold, each grounded in evidence or designer authority, each with a collapse test showing what breaks if removed. You contribute analysis and commentary; the designer shapes the direction. The machinery is invisible.
+A two-phase design collaboration that separates **Understand** from **Solve**. Phase 1 runs under an Understanding MCP that scores nine saturation dimensions each turn and signals when the problem is broadly enough understood to move on. Phase 2 uses a Design Proof MCP that builds a formal proof structure around **necessary conditions** — things that must be true for the design to hold, each grounded in evidence or designer authority, each with a collapse test showing what breaks if removed. You contribute analysis and commentary; the designer shapes the direction. The machinery is invisible.
 
 Understanding means correlating broadly — sweeping across the problem surface, mapping relationships between parts, discovering constraints, identifying where action is safe. Solving means thinking narrowly — following specific chains, working out process, figuring out the mechanics of change. The boundary between these two modes is the phase transition.
 
 <HARD-GATE>
-If there are open design questions, you MUST resolve them through this skill before proceeding. Plan Mode is active during Phase 1 — you cannot write files, edit code, or run commands. The proof MCP disciplines Phase 2 — every design claim must be formally recorded and validated. Do not assume answers to design questions. Do NOT invoke any implementation skill, write any code, scaffold any project, or take any implementation action until the design is resolved and the user has approved it.
+If there are open design questions, you MUST resolve them through this skill before proceeding. Phase 1 is conversation only — do not write files, edit code, run commands, or scaffold anything while understanding is being built; the understanding MCP scores nine saturation dimensions each turn and tells you when the problem is broadly enough understood to move on. The proof MCP disciplines Phase 2 — every design claim must be formally recorded and validated. Do not assume answers to design questions. Do NOT invoke any implementation skill, write any code, scaffold any project, or take any implementation action until the design is resolved and the user has approved it.
 </HARD-GATE>
 
 ## Anti-Pattern Check
@@ -22,15 +22,14 @@ If you think this is too simple for discovery, check: are there design decisions
 You MUST create a task for each of these items and complete them in order:
 
 1. **Bootstrap** — invoke `start-bootstrap` (handles config, sprint naming, dir creation, task reset, thinking history)
-2. **EnterPlanMode** — call `EnterPlanMode` after bootstrap completes
-3. **Parallel context exploration** — dispatch 3 agents in parallel, each on a distinct corpus: 1 `feature-dev:code-explorer` for the codebase (similar features, architecture, extension points) + 1 `Explore` agent for prior sprint design artifacts + 1 `general-purpose` agent for industry patterns via WebSearch/WebFetch; read all identified files
-4. **Round one** — use explorer findings + own exploration, present gap map, offer first commentary, announce Phase 1. No MCP initialization.
-5. **Understand phase** — per-turn conversational cycle (no MCP, no scoring, no structured submissions)
-6. **Phase transition** — designer confirms understanding, `capture_thought()` with tag `understanding-confirmed` and stage `Transition`, call `ExitPlanMode`
-7. **Proof phase** — present designer's verbatim problem statement for confirmation, initialize proof MCP, per-turn proof cycle with necessary conditions model
-8. **Closing argument** — compose and present the closing argument; designer approval settles the proof
-9. **Finalization (Envelope Handoff)** — dispatch parallel gate (1 ground-truth + 3 architects), aggregate findings, offer recommendation, reconcile with designer, close stage
-10. **Archival (Artifact Handoff)** — write four artifacts (design brief, thinking summary, process evidence, ground-truth report), invoke `util-worktree`, update lessons table, transition to plan-build
+2. **Parallel context exploration** — dispatch 3 agents in parallel, each on a distinct corpus: 1 `feature-dev:code-explorer` for the codebase (similar features, architecture, extension points) + 1 `Explore` agent for prior sprint design artifacts + 1 `general-purpose` agent for industry patterns via WebSearch/WebFetch; read all identified files
+3. **Round one** — use explorer findings + own exploration, initialize understanding MCP, submit baseline saturation scores, present gap map, offer first commentary, announce Phase 1
+4. **Understand phase** — per-turn cycle under the understanding MCP: score nine saturation dimensions each turn, let the MCP's weakest-dimension signal drive topic selection
+5. **Phase transition** — designer confirms understanding, `capture_thought()` with tag `understanding-confirmed` and stage `Transition`
+6. **Proof phase** — present designer's verbatim problem statement for confirmation, initialize proof MCP, per-turn proof cycle with necessary conditions model
+7. **Closing argument** — compose and present the closing argument; designer approval settles the proof
+8. **Finalization (Envelope Handoff)** — dispatch parallel gate (1 ground-truth + 3 architects), aggregate findings, offer recommendation, reconcile with designer, close stage
+9. **Archival (Artifact Handoff)** — write four artifacts (design brief, thinking summary, process evidence, ground-truth report), invoke `util-worktree`, update lessons table, transition to plan-build
 
 ## Role: Software Architect
 
@@ -58,9 +57,14 @@ task reset, and thinking history initialization. After bootstrap, you have the s
 subdirectory name and a prepared working directory. See `util-artifact-schema` for all
 naming and path conventions.
 
-After bootstrap completes, call `EnterPlanMode`. This restricts you to read-only tools
-(Read, Glob, Grep, Agent) and conversation. You cannot write files, edit code, or run
-commands until Plan Mode is explicitly exited at the phase transition.
+After bootstrap completes, hold yourself to exploration-and-conversation discipline
+through Phase 1: no file writes, no edits, no commands, no scaffolding. Read/Glob/Grep/Agent
+are the only tools you need during understanding. The understanding MCP, initialized
+during Round One, disciplines Phase 1 from the other side — each turn you score the
+nine saturation dimensions and the MCP reports which dimension is weakest, where the
+largest gaps sit, and whether transition readiness has been reached. If you catch
+yourself reaching for an edit during Phase 1, stop: the design is not yet ready to be
+written.
 
 ---
 
@@ -100,16 +104,25 @@ Scope-down guidance. All three explorers run by default. Skip an explorer only w
 
 ## Phase 3: Round One
 
-Round one establishes the understanding baseline. The agent uses the explorer findings plus its own exploration to present what it knows alongside what it doesn't.
+Round one establishes the understanding baseline. The agent uses the explorer findings plus its own exploration to initialize the understanding MCP and present what it knows alongside what it doesn't.
 
-1. Explore codebase for relevant context, building on what the explorers found.
-2. Present the gap map to the user:
+1. Explore codebase for relevant context, building on what the explorers found. Classify **brownfield** (existing codebase target) vs **greenfield**. This classification is internal — do not present it to the user.
+2. Initialize the understanding MCP. Call `initialize_understanding` with:
+   - `user_prompt`: the user's initial request
+   - `context_type`: greenfield or brownfield (from step 1)
+   - `state_file`: `{CHESTER_WORKING_DIR}/{sprint-subdir}/design/{sprint-name}-understanding-state.json`
+
+   The MCP returns the nine dimensions and their group structure (landscape, human_context, foundations).
+3. Score the baseline. Assess each of the nine understanding dimensions against what the explorers and your exploration revealed. Most dimensions — especially stakeholder_impact, prior_art, temporal_context — will score near 0 because they require human input the codebase cannot supply. Call `submit_understanding` with `state_file` and the full `scores` object (each dimension keyed to `{score, justification, gap}`).
+4. Present the gap map to the user:
    - **What the codebase reveals** — observations about the current system, its structure, patterns, and constraints. These are observations, not conclusions — not a problem statement, not a solution structure, and not a comprehensive analysis.
-   - **What the agent can't determine from code alone** — explicit gaps grouped by theme: what requires human context (stakeholder impact, prior art, temporal context) and what requires deeper foundation mapping (constraints, boundaries, relationships).
-3. Offer your first commentary — share what you've observed about the least-understood area. End with "What do you think?"
-4. Announce: **Phase 1 (Understand) begins.** The conversation will focus on building shared understanding of the problem before exploring solutions.
-5. `capture_thought()` with tag `understanding-baseline`, stage `Understand`.
-6. Interview loop starts with the user's response.
+   - **What the prior art reveals** — observations about the designer's intent or vision of the architecture or system, lessons or applicable knowledge from previous sprints, and/or solutions tried before and discarded that may change our understanding of the problem. These are observations, not conclusions — not a problem statement, not a solution structure, and not a comprehensive analysis.
+   - **What industry development reveals** — observations about current industry projects, research, or applicable information that can inform our development effort or illuminate elements of the design that we have not considered. These are observations, not conclusions — not a problem statement, not a solution structure, and not a comprehensive analysis.
+   - **What the agent can't determine from code alone** — explicit gaps drawn from the understanding MCP's gap fields, grouped by dimension group (human_context, foundations).
+5. Offer your first commentary — share what you've observed about the weakest dimension from the least-saturated group (as reported by the understanding MCP). End with "What do you think?"
+6. Announce: **Phase 1 (Understand) begins.** The conversation will focus on building shared understanding of the problem before exploring solutions.
+7. `capture_thought()` with tag `understanding-baseline`, stage `Understand`.
+8. Interview loop starts with the user's response.
 
 ---
 
@@ -117,15 +130,15 @@ Round one establishes the understanding baseline. The agent uses the explorer fi
 
 ### Two-Phase Interview Model
 
-The interview splits into two sequential phases within a single session. Phase 1 runs under Plan Mode with no MCP. Phase 2 runs under the Design Proof MCP. They do not overlap.
+The interview splits into two sequential phases within a single session. Phase 1 runs under the Understanding MCP (nine saturation dimensions, transition-readiness signal). Phase 2 runs under the Design Proof MCP. They do not overlap.
 
 ```
 Phase 1: Understand
 ├── Goal: Deep shared understanding of the problem
-├── Internal: Capture thinking → Choose topic → Select active lesson → Compose information package → Write commentary
+├── Internal: Capture thinking → Score dimensions → Read MCP response → Choose topic → Select active lesson → Compose information package → Write commentary
 ├── Visible:  Observations → Information package → Commentary → "What do you think?"
-├── Stopping criterion: Understanding is broadly saturated, conversation pulling vertical
-├── Governed by: Plan Mode (read-only, conversation only)
+├── Stopping criterion: Understanding dimensions broadly saturated (MCP reports transition_ready: true), conversation pulling vertical
+├── Governed by: Understanding MCP (nine dimensions across three groups)
 └── Constraint: No solutions, no problem statements, no design thinking
 
     ↓ Transition: Understanding confirmed by designer
@@ -172,7 +185,7 @@ the problem, not just when designing the solution.
 
 ### Phase 1 Per-Turn Flow (Understand)
 
-One cycle runs per user response. You are a single agent performing all roles: researcher, analyst, pessimist, and interviewer. No MCP, no scoring, no structured submissions. Pure conversation.
+One cycle runs per user response. You are a single agent performing all roles: researcher, analyst, pessimist, and interviewer.
 
 After each user response:
 
@@ -183,18 +196,38 @@ If a trigger point is met, call `capture_thought`:
 - User rejects or corrects → tag: `constraint` + topic, stage: `Constraint`
 - Complex area with multiple facets → tag by topic, stage: `Analysis`
 
-**Step 2: Choose topic.**
-Select what to address this turn. Without MCP scoring, use your judgment guided by these priorities:
+**Step 2: Score understanding dimensions.**
+Assess each of the nine understanding dimensions on a 0.0–1.0 scale. For each dimension, determine:
+- **Score**: how well understood this dimension is right now (0 = unknown, 1 = fully mapped)
+- **Justification**: why this score — what evidence supports it (cannot be empty)
+- **Gap**: what's still missing (cannot be empty if score < 0.9)
 
-1. **Designer's lead** — if the designer's response points to a specific area, follow it
-2. **Largest gap** — the area where your understanding is weakest
-3. **Coverage rotation** — next untouched area of the problem landscape
-4. **Uncomfortable territory** — what you've been avoiding
+Call `submit_understanding` with:
+- `state_file`: path to the understanding state file
+- `scores`: all nine dimension scores with justifications and gaps
 
-**Step 3: Compose information package.**
+**Step 3: Read understanding response.**
+The understanding MCP returns:
+- `overall_saturation` — weighted average across all dimension groups
+- `group_saturation` — per-group averages (landscape, human_context, foundations)
+- `weakest_group` — the least-saturated group
+- `weakest_dimension` — name and score of the dimension needing most attention
+- `gaps_summary` — dimensions with the most substantive gaps
+- `transition_ready` — whether all transition conditions are met
+- `warnings` — any score-jump flags
+
+**Step 4: Choose topic.**
+Select what to address this turn using this priority (not discretionary):
+
+1. **Score-jump warning** — if the understanding MCP flagged a score jump, re-examine that dimension
+2. **Weakest dimension in least-saturated group** — the understanding MCP's reported target
+3. **Largest gap** — the dimension with the most substantive gap description
+4. **Coverage rotation** — next untouched dimension
+
+**Step 5: Compose information package.**
 Build the Phase 1 information package (see Information Package below). This is the primary deliverable of each turn — curated, altitude-appropriate material that fuels the designer's reasoning.
 
-**Step 4: Write commentary.**
+**Step 6: Write commentary.**
 Based on the information package and what you've learned so far, share your take on the
 topic. This is your genuine analysis — what you think is happening, what tensions you
 see, what you suspect matters. Apply the Translation Gate.
@@ -207,14 +240,14 @@ End with **"What do you think?"** or a natural variant ("Does that match your se
 of it?", "Am I reading this right?", "What am I missing?"). The designer will correct
 you, confirm you, or redirect you. All three are productive.
 
-**Step 5: Present to user.**
-Output observations block, then information package, then commentary with closing prompt.
+**Step 7: Present to user.**
+Output observations block, then information package, then commentary with closing prompt. Dimension names, scores, group saturation, and MCP mechanism names must NOT appear in the user-visible output — the machinery is invisible.
 
 ### Phase 1: Understand
 
 **Goal:** Correlate broadly across the problem surface. Map relationships between parts, discover what's movable and what's fixed, identify where action is safe. Build deep shared understanding of the problem without jumping to solutions.
 
-**Plan Mode active.** You cannot write files, edit code, or run commands. Read/Glob/Grep/Agent remain available for codebase exploration. Your output is conversation only.
+**Read-only discipline.** Do not write files, edit code, or run commands during Phase 1. Read/Glob/Grep/Agent are the only tools you need — exploration and conversation. Your output is conversation only. The understanding MCP disciplines the scoring side; the skill disciplines the edit side.
 
 **Prohibited in Phase 1:**
 - Solution proposals or option enumeration
@@ -225,19 +258,20 @@ Output observations block, then information package, then commentary with closin
 - Problem statements or problem framing artifacts
 - Complete analyses or comprehensive summaries of the problem
 
-**Stopping criterion:** Understanding is broadly saturated and the conversation is pulling vertical — remaining topics are about specifics and implementation rather than understanding. The designer confirms this.
+**Stopping criterion:** The understanding MCP reports `transition_ready: true` and the conversation is pulling vertical — remaining topics are about specifics and implementation rather than understanding. The designer confirms this.
 
 ### Phase Transition
 
 The boundary between Understand and Solve is marked by a **transition checkpoint**. The transition confirms shared understanding.
 
 **Transition process:**
-1. Recognize that the conversation is pulling vertical (topics shifting from understanding to implementation detail) and understanding feels broadly saturated
-2. Present a transition summary to the designer in domain language — what has been understood, any areas of residual uncertainty
-3. Designer confirms understanding is sufficient
-4. `capture_thought()` with tag `understanding-confirmed`, stage `Transition`
-5. Call `ExitPlanMode` — frame the transition as: "Understanding is established. We're moving from exploration to building the design proof. I'll record evidence from the codebase and propose necessary conditions — things that must be true for this design to hold. Each condition will be grounded in what we've found and what you've directed, with a test for what breaks if it's removed. You respond the same way — correct, confirm, redirect, or move on."
-6. Announce Phase 2
+1. Understanding MCP reports `transition_ready: true`
+2. Recognize that the conversation is pulling vertical (topics shifting from understanding to implementation detail)
+3. Present a transition summary to the designer in domain language — what has been understood, any dimensions still below 0.5 translated into domain-language areas of residual uncertainty
+4. Designer confirms understanding is sufficient
+5. `capture_thought()` with tag `understanding-confirmed`, stage `Transition`
+6. Frame the transition to the designer: "Understanding is established. We're moving from exploration to building the design proof. I'll record evidence from the codebase and propose necessary conditions — things that must be true for this design to hold. Each condition will be grounded in what we've found and what you've directed, with a test for what breaks if it's removed. You respond the same way — correct, confirm, redirect, or move on."
+7. Announce Phase 2
 
 ### Phase 2 Opening (Solve)
 
@@ -401,21 +435,23 @@ Three components, all italic single-sentence lines. Present under the heading "O
 
 Each turn presents a curated information package between the observations and the commentary. The package delivers the facts; the commentary delivers your analysis. Target approximately **50% information package, 50% commentary** by content weight.
 
-Each component should be **2-4 sentences** — concise, not paragraphs.
+Each component should be **2-3 sentences** — concise, not paragraphs.
 
 **Phase 1 (Understand) components:**
 
 | Component | Purpose | Altitude |
 |-----------|---------|----------|
 | **Current facts** | What the code/system says now about this topic | Expert-level factual, conceptual language |
+| **Prior art** | Is there prior art that applies to this situation | Informative, factual, not opinionated |
 | **Surface analysis** | What's changing or under pressure in this area | Light touch, not exhaustive |
-| **Uncomfortable truths** | What's fragile, contradictory, or historically painful | Pessimist stance — name what others avoid |
+| **Alternate narrative** | What's fragile, contradictory, or historically painful | Pessimist stance — name what others avoid |
 
 **Phase 2 (Solve) components:**
 
 | Component | Purpose | Altitude |
 |-----------|---------|----------|
 | **Current facts** | What the code/system says now, relevant to this design topic | Expert-level factual, conceptual language |
+| **Prior art** | Is there prior art that applies to this situation | Informative, factual, not opinionated |
 | **Surface analysis** | What changes if we move in this direction | Light touch analysis of implications |
 | **General options** | The solution space for this topic | Enough to see the landscape — your opinion goes in commentary |
 | **Pessimist risks** | What's fragile or uncomfortable about the emerging direction | Uncomfortable truths about the design |
@@ -424,10 +460,12 @@ The information package serves a dual purpose: **content delivery** (giving the 
 
 ### Prohibited Content in Observations Block
 
+- Dimension names or scores (surface_coverage, stakeholder_impact, saturation levels, weakest_dimension, etc.)
 - Element IDs or proof terminology (EVIDENCE, RULE, PERMISSION, NECESSARY_CONDITION, RISK, grounding, collapse_test)
 - Proof state references (closure_permitted, grounding_coverage, element counts)
+- Understanding state references (transition_ready, group_saturation, gaps_summary)
 - Challenge mode names (Contrarian, Simplifier, Ontologist)
-- MCP mechanism references (submit_proof_update, initialize_proof, integrity_warnings, etc.)
+- MCP mechanism references (submit_understanding, submit_proof_update, initialize_proof, initialize_understanding, integrity_warnings, etc.)
 - Priority rule references
 
 ### Commentary Model
@@ -532,7 +570,7 @@ Use `capture_thought` / `get_thinking_summary` for positional retrieval against 
 
 If interrupted:
 1. `get_thinking_summary()` — check for `understanding-confirmed` thought
-2. If absent: Phase 1 was active. Resume conversational understanding. Call `EnterPlanMode` if not already in Plan Mode.
+2. If absent: Phase 1 was active. Call `get_understanding_state` with the understanding state file path (`{CHESTER_WORKING_DIR}/{sprint-subdir}/design/{sprint-name}-understanding-state.json`) to reload dimension scores, group saturation, and gap status. Summarize current saturation in domain language and resume the per-turn scoring cycle. No writes or edits until Phase 2 opens.
 3. If present: Phase 2 was active. Call `get_proof_state` with the proof state file path (`{CHESTER_WORKING_DIR}/{sprint-subdir}/design/{sprint-name}-proof-state.json`).
 4. Summarize current proof state in domain language: "We were in round N. We've established [summary of key evidence and rules], built [N] necessary conditions, and have [summary of grounding status and any integrity warnings]. [Challenge modes used, if any]. Continuing."
 5. Pick up from last completed round. Do not re-present prior turns.
@@ -728,10 +766,11 @@ Plan-build operates on them; later skills read them without re-verification.
      forced brief revisions, hybrid articulation if the designer synthesized, and
      any reopen decisions.
    - **Process evidence** (`{sprint-name}-process-00.md`) — operational narrative
-     including a new "Finalization Metrics" section covering dispatch timing,
-     subagent return latencies, finding counts by severity, architect proposal
-     count, reconciliation path taken, and outcome (pick / hybrid / stay-own /
-     reopen).
+     including understanding saturation history and gap evolution (Phase 1),
+     phase transition timing, Phase 2 length relative to Phase 1, and a
+     "Finalization Metrics" section covering dispatch timing, subagent return
+     latencies, finding counts by severity, architect proposal count,
+     reconciliation path taken, and outcome (pick / hybrid / stay-own / reopen).
    - **Ground-truth report** (`{sprint-name}-ground-truth-report-00.md`) — the
      findings report produced by the ground-truth subagent at Envelope Handoff,
      preserved as an artifact. `plan-build` reads this report at its entry.

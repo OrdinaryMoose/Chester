@@ -1,0 +1,18 @@
+{
+  "name": "chester-design-understanding",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Understanding mechanism MCP server for chester-design-experimental Phase 1 scoring",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1"
+  },
+  "devDependencies": {
+    "vitest": "^3.1.1"
+  }
+}

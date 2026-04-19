@@ -72,6 +72,9 @@ Three-part exploration, all inline (no agent dispatch):
 3. **Prior art scan** — check for existing patterns, similar features, or conventions
    in the codebase that should inform the design.
 
+If there are conflicts or tension between the results of the code exploration and the
+prior art scan, then highlight this to the designer.
+
 ---
 
 ## Phase 3: Round One
