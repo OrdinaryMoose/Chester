@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "chester-design-proof": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/skills/design-experimental/proof-mcp/server.js"]
+    }
+  }
+}

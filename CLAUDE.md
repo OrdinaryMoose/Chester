@@ -83,7 +83,7 @@ Skill types: **rigid** (follow exactly — e.g., test-first, fix-bugs) vs **flex
 To develop Chester locally:
 
 ```bash
-claude --plugin-dir /home/mike/RiderProjects/Chester
+claude --plugin-dir /home/mike/Documents/CodeProjects/Chester
 ```
 
 Skills are live-reloaded — edit SKILL.md files and use `/reload-plugins` to pick up changes.

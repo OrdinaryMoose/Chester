@@ -29,7 +29,7 @@ from this brief alone. Every scope boundary must have a reason legible in the br
 
 ## Template Structure
 
-Nine required sections, in order.
+Ten required sections, in order.
 
 ---
 
@@ -118,6 +118,29 @@ where the claim references specific elements.
 The ground-truth verification report produced at Envelope Handoff is a sibling
 artifact and contains the full verification detail. This section captures the
 evidence list the design relied on, not the verification findings.
+
+---
+
+### Industry Context (REQUIRED)
+
+External patterns surfaced by the industry explorer that bear on the design. Each
+entry names a pattern or approach from the broader field, summarizes how it
+addresses this class of problem, and notes the pitfalls or failure modes observed
+when it is applied. Citations are required so the reader can audit the source.
+This section is input the designer weighed — not a list of recommendations adopted.
+
+```markdown
+## Industry Context
+
+- **{Pattern name}** — {one-sentence description of how the pattern addresses the
+  problem class}. Pitfalls: {failure modes observed in practice}. Source:
+  {URL or citation}.
+```
+
+If the industry explorer reported thin signal (niche problem, proprietary domain,
+nothing substantive found), state that explicitly: "Industry signal was thin for
+this problem class. No comparable external patterns were substantive enough to
+influence the design." This tells the reader the axis was considered, not skipped.
 
 ---
 
@@ -214,12 +237,13 @@ clean") and restatements of the design ("the canonical form exists") do not belo
 3. Rules
 4. Permissions
 5. Evidence
-6. Chosen Approach
-7. Alternatives Considered
-8. Risks
-9. Acceptance Criteria
+6. Industry Context
+7. Chosen Approach
+8. Alternatives Considered
+9. Risks
+10. Acceptance Criteria
 
-All nine sections are required. If a section would be empty, include it with an
+All ten sections are required. If a section would be empty, include it with an
 explicit "None" statement rather than omitting it — this tells the reader you
 considered it.
 

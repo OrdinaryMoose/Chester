@@ -23,7 +23,7 @@ You MUST create a task for each of these items and complete them in order:
 
 1. **Bootstrap** — invoke `start-bootstrap` (handles config, sprint naming, dir creation, task reset, thinking history)
 2. **EnterPlanMode** — call `EnterPlanMode` after bootstrap completes
-3. **Parallel codebase exploration** — dispatch 4 agents in parallel: 3 `feature-dev:code-explorer` agents to scan similar features, architecture, and extension points + 1 prior art explorer to research previous sprint design artifacts; read all identified files
+3. **Parallel context exploration** — dispatch 3 agents in parallel, each on a distinct corpus: 1 `feature-dev:code-explorer` for the codebase (similar features, architecture, extension points) + 1 `Explore` agent for prior sprint design artifacts + 1 `general-purpose` agent for industry patterns via WebSearch/WebFetch; read all identified files
 4. **Round one** — use explorer findings + own exploration, present gap map, offer first commentary, announce Phase 1. No MCP initialization.
 5. **Understand phase** — per-turn conversational cycle (no MCP, no scoring, no structured submissions)
 6. **Phase transition** — designer confirms understanding, `capture_thought()` with tag `understanding-confirmed` and stage `Transition`, call `ExitPlanMode`
@@ -64,37 +64,37 @@ commands until Plan Mode is explicitly exited at the phase transition.
 
 ---
 
-## Phase 2: Parallel Codebase Exploration
+## Phase 2: Parallel Context Exploration
 
-Before your own deep exploration, dispatch four agents in parallel to build broad context quickly. Three explore the codebase; one researches prior design work.
+Before your own deep exploration, dispatch three agents in parallel to build broad context quickly. Each agent owns a distinct corpus so their findings complement rather than overlap — one reads the codebase, one reads prior sprint artifacts, one reads the public web. Parallelism is only useful when the search spaces are disjoint; agents pointed at the same corpus reconverge on the same files and waste tokens.
 
-### Codebase Explorers
+### Codebase Explorer
 
-Dispatch three `feature-dev:code-explorer` agents, each exploring a different facet:
+Dispatch one `feature-dev:code-explorer` agent with a merged prompt covering three facets: similar features traced end-to-end, architecture and module boundaries in the relevant areas, and extension points, integration surfaces, and naming conventions for adding new capabilities.
 
-| Agent | Focus | Prompt guidance |
-|-------|-------|-----------------|
-| Explorer 1 | **Similar features** | "Find existing features similar to [user's request]. Trace their implementations, patterns used, and how they integrate." |
-| Explorer 2 | **Architecture & boundaries** | "Map the high-level architecture, module boundaries, and design patterns in the areas relevant to [user's request]." |
-| Explorer 3 | **Extension points & conventions** | "Identify extension points, integration surfaces, naming conventions, and established patterns for adding new capabilities related to [user's request]." |
-
-Each codebase explorer returns an analysis plus a list of 5–10 essential files.
+Prompt guidance: "For [user's request], do three things in one pass. (1) Find existing features similar to the request and trace their implementations, patterns, and integration points end-to-end. (2) Map the high-level architecture and module boundaries in the areas the request touches. (3) Identify extension points, integration surfaces, naming conventions, and established patterns for adding new capabilities. Report an integrated analysis organized by these three facets, plus a consolidated list of 5–10 essential files worth reading."
 
 ### Prior Art Explorer
 
 Dispatch one `Explore` agent to research previous sprint design artifacts. This agent searches both the plans directory (archived, tracked) and the working directory (in-progress, gitignored) for design briefs, specs, and thinking summaries from prior sprints that are relevant to the current request.
 
-| Agent | Focus | Prompt guidance |
-|-------|-------|-----------------|
-| Explorer 4 | **Prior art & companion briefs** | "Search `{CHESTER_PLANS_DIR}/` and `{CHESTER_WORKING_DIR}/` for design briefs (`*-design-*.md`), specs (`*-spec-*.md`), and thinking summaries (`*-thinking-*.md`) from previous sprints. For each artifact found that is relevant to [user's request]: read it and extract (1) key findings and discoveries, (2) decisions made that this design inherits or must respect, (3) current status (Approved, Paused, Draft, Superseded), (4) any infrastructure or system that was found to be non-functional, partial, or blocked. Report what you found organized by sprint, with brief name, status, and a summary of findings relevant to the current request. If no relevant prior art exists, state that explicitly." |
+Prompt guidance: "Search `{CHESTER_PLANS_DIR}/` and `{CHESTER_WORKING_DIR}/` for design briefs (`*-design-*.md`), specs (`*-spec-*.md`), and thinking summaries (`*-thinking-*.md`) from previous sprints. For each artifact found that is relevant to [user's request]: read it and extract (1) key findings and discoveries, (2) decisions made that this design inherits or must respect, (3) current status (Approved, Paused, Draft, Superseded), (4) any infrastructure or system that was found to be non-functional, partial, or blocked. Report what you found organized by sprint, with brief name, status, and a summary of findings relevant to the current request. If no relevant prior art exists, state that explicitly."
 
-The prior art explorer's findings feed directly into the **Prior Art** section of the design brief (see `util-design-brief-template`). They also inform the interview — discoveries from prior sprints (paused prerequisites, non-functional infrastructure, rejected approaches) should shape what questions you ask and what scope boundaries you propose.
+The prior art explorer's findings inform the interview — discoveries from prior sprints (paused prerequisites, non-functional infrastructure, rejected approaches) should shape what questions you ask and what scope boundaries you propose.
+
+### Industry Explorer
+
+Dispatch one `general-purpose` agent with access to `WebSearch` and `WebFetch`. This agent researches how others outside this codebase have approached the class of problem in the user's request — named patterns, common pitfalls, modes of failure — so the design conversation benefits from the broader field's experience rather than rediscovering known approaches internally.
+
+Prompt guidance: "For [user's request], research how this class of problem is approached in the broader industry. Use WebSearch to find authoritative discussions (technical blogs, conference talks, well-regarded articles, standards documents, language/framework maintainer guidance). Use WebFetch to read the sources that look substantive. Report: (1) named patterns and approaches commonly used for this problem class, each with a one-paragraph description, (2) common pitfalls and modes of failure for each pattern, (3) the conditions under which each pattern tends to fail. Cite every claim with a source URL. Report patterns and tradeoffs, not recommendations — the designer will decide what fits. If the signal is thin (niche problem, obscure stack, nothing substantive found), say so explicitly rather than padding the report with low-confidence material."
+
+The guardrail matters. Without it, web content smuggles in as authority and foreign patterns get grafted onto a codebase they don't suit. With it, external patterns stay as input the designer evaluates, not prescriptions the architect accepts. The industry explorer's findings feed the **Industry Context** section of the design brief (see `util-design-brief-template`).
 
 ### After all explorers complete
 
-Read every file the codebase explorers identified. Digest the prior art explorer's findings — these become your initial understanding of what adjacent design work has already established. This pre-loaded context gives you deep codebase knowledge before the conversation begins — your gap map will be more accurate, and your commentary more targeted from the first turn.
+Read every file the codebase explorer identified. Digest the prior art explorer's findings — these become your initial understanding of what adjacent design work has already established. Note the industry explorer's patterns and pitfalls — these sharpen the commentary you offer and the blind spots you probe. This pre-loaded context across three distinct corpora gives you grounded codebase knowledge, historical continuity, and comparative awareness before the conversation begins.
 
-If the project is small or the request is narrow, fewer codebase explorers may suffice. Use judgment, but default to three. The prior art explorer always runs — even a "no relevant prior art found" result is valuable information for the design brief.
+Scope-down guidance. All three explorers run by default. Skip an explorer only when its corpus is genuinely empty or inapplicable: skip the prior art explorer when this is the first sprint in a project (no `plans/` or `working/` content yet), skip the industry explorer when the task is Chester-internal tooling or a deeply proprietary domain where external signal is predictably thin. A "no relevant findings" result from an explorer is still useful information — don't skip preemptively. When in doubt, run all three.
 
 ---
 
