@@ -616,7 +616,13 @@ Mandatory on every piece of designer-visible output — commentary, information 
 2. **Strip all proof vocabulary.** Element type names, element IDs, field names (grounding, collapse_test, reasoning_chain), integrity warning codes, closure conditions — remove them all. Translate the meaning into plain sentences.
 3. **Strip all structured formatting.** No JSON, no code blocks, no schema fragments, no tool call examples, no `using` statements, no `.cs` / `.ts` / `.py` suffixes, no backticked identifiers. The designer sees prose, not data structures.
 4. **Strip sprint/ticket identifiers from reasoning.** Refer to the work by its subject ("the kind-classification work", "the Solution-family rename") not its ID ("LBD-10", "LBD-12"). IDs may appear once in the alignment check if the designer used them; they should not drive the commentary.
-5. **Litmus test:** Could a product manager who understands the domain but has never opened this codebase or seen the proof system follow this? If no, translate further until it reads like a colleague talking.
+5. **PM Litmus Test.** Imagine the product manager on this project. They are not a coder. They make decisions — they own the roadmap, requirements, and how success is measured. They understand the architecture at a high level, the product vision, and the end-state. They have never opened the codebase; they do not know its types, files, or internal wiring. They have not seen the proof system.
+
+   Could this PM:
+   - Follow every sentence of your output without stopping to ask what a term means?
+   - Make an informed decision from what you've said?
+
+   If either answer is no, translate further. The PM needs language that operates where decisions live — intent, architecture, trade-offs, risks — not where code lives.
 
 #### Before/After Example
 

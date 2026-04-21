@@ -239,7 +239,13 @@ Mandatory on every piece of designer-visible output — commentary, information 
 
 1. **Strip all code vocabulary.** Type names, class names, interface names, enum names, property names, method names, file paths, namespace names, folder names, project names — remove them all. Use only domain concepts.
 2. **Strip all structured formatting.** No JSON, no code blocks, no schema fragments, no `using` statements, no `.cs` / `.ts` / `.py` suffixes, no backticked identifiers. The designer sees prose, not data structures.
-3. **Litmus test:** Could a product manager who understands the domain but has never opened this codebase follow this? If no, translate further until it reads like a colleague talking.
+3. **PM Litmus Test.** Imagine the product manager on this project. They are not a coder. They make decisions — they own the roadmap, requirements, and how success is measured. They understand the architecture at a high level, the product vision, and the end-state. They have never opened the codebase; they do not know its types, files, or internal wiring.
+
+   Could this PM:
+   - Follow every sentence of your output without stopping to ask what a term means?
+   - Make an informed decision from what you've said?
+
+   If either answer is no, translate further. The PM needs language that operates where decisions live — intent, architecture, trade-offs, risks — not where code lives.
 
 #### Before/After Example
 
