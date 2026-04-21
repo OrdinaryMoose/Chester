@@ -23,13 +23,14 @@ You MUST create a task for each of these items and complete them in order:
 
 1. **Bootstrap** — invoke `start-bootstrap` (handles config, sprint naming, dir creation, task reset, thinking history)
 2. **Parallel context exploration** — dispatch 3 agents in parallel, each on a distinct corpus: 1 `feature-dev:code-explorer` for the codebase (similar features, architecture, extension points) + 1 `Explore` agent for prior sprint design artifacts + 1 `general-purpose` agent for industry patterns via WebSearch/WebFetch; read all identified files
-3. **Round one** — use explorer findings + own exploration, initialize understanding MCP, submit baseline saturation scores, present gap map, offer first commentary, announce Phase 1
-4. **Understand phase** — per-turn cycle under the understanding MCP: score nine saturation dimensions each turn, let the MCP's weakest-dimension signal drive topic selection
-5. **Phase transition** — designer confirms understanding, `capture_thought()` with tag `understanding-confirmed` and stage `Transition`
-6. **Proof phase** — present designer's verbatim problem statement for confirmation, initialize proof MCP, per-turn proof cycle with necessary conditions model
-7. **Closing argument** — compose and present the closing argument; designer approval settles the proof
-8. **Finalization (Envelope Handoff)** — dispatch parallel gate (1 ground-truth + 3 architects), aggregate findings, offer recommendation, reconcile with designer, close stage
-9. **Archival (Artifact Handoff)** — write four artifacts (design brief, thinking summary, process evidence, ground-truth report), invoke `util-worktree`, update lessons table, transition to plan-build
+3. **Initialize understanding MCP** — call `initialize_understanding`, score the nine dimensions against explorer findings, call `submit_understanding` with the baseline. **No designer-facing turn is permitted until this step completes.**
+4. **Round one presentation** — present gap map, offer first commentary, announce Phase 1 begins. This is the first designer-facing turn.
+5. **Understand phase** — per-turn cycle under the understanding MCP: score nine saturation dimensions each turn, let the MCP's weakest-dimension signal drive topic selection
+6. **Phase transition** — designer confirms understanding, `capture_thought()` with tag `understanding-confirmed` and stage `Transition`
+7. **Proof phase** — present designer's verbatim problem statement for confirmation, initialize proof MCP, per-turn proof cycle with necessary conditions model
+8. **Closing argument** — compose and present the closing argument; designer approval settles the proof
+9. **Finalization (Envelope Handoff)** — dispatch parallel gate (1 ground-truth + 3 architects), aggregate findings, offer recommendation, reconcile with designer, close stage
+10. **Archival (Artifact Handoff)** — write four artifacts (design brief, thinking summary, process evidence, ground-truth report), invoke `util-worktree`, update lessons table, transition to plan-build
 
 ## Role: Design Partner
 
@@ -169,11 +170,30 @@ Read every file the codebase explorer identified. Digest the prior art explorer'
 
 Scope-down guidance. All three explorers run by default. Skip an explorer only when its corpus is genuinely empty or inapplicable: skip the prior art explorer when this is the first sprint in a project (no `plans/` or `working/` content yet), skip the industry explorer when the task is Chester-internal tooling or a deeply proprietary domain where external signal is predictably thin. A "no relevant findings" result from an explorer is still useful information — don't skip preemptively. When in doubt, run all three.
 
+<HARD-GATE>
+**Your next action is `initialize_understanding`. Nothing else.**
+
+Once all explorers complete, you are NOT permitted to:
+- Write commentary to the designer
+- Ask the designer any question
+- Present observations, an information package, a gap map, or a "what do you think?"
+- Do further exploration or read more files
+- Mark the Parallel Context Exploration task complete and stop
+
+You MUST call `initialize_understanding` and `submit_understanding` (with baseline scores across the nine dimensions) before any designer-facing turn. The MCP initialization is the gate between exploration and the conversation. No turn to the designer exists until the MCP is live.
+
+If you catch yourself composing a turn without having called `initialize_understanding`, stop mid-compose, initialize the MCP, and only then build the Round One turn. This is the single most common failure mode of this skill — bypassing MCP init and falling into an informal conversation loop that never lights up the scoring machinery.
+
+**Check before every turn in this phase:** has `initialize_understanding` been called this session? If no, that call is your next action. If yes, proceed with the Round One presentation per the steps below.
+</HARD-GATE>
+
 ---
 
 ## Phase 3: Round One
 
 Round one establishes the understanding baseline. The agent uses the explorer findings plus its own exploration to initialize the understanding MCP and present what it knows alongside what it doesn't.
+
+**Ordering is strict.** MCP initialization and baseline scoring happen *before* the first turn to the designer. The gap map, commentary, and "what do you think?" are the *output* of Round One — not the entry into it. If the MCP is not initialized, you are not in Round One yet; you are still in the setup gate above.
 
 1. Explore codebase for relevant context, building on what the explorers found. Classify **brownfield** (existing codebase target) vs **greenfield**. This classification is internal — do not present it to the user.
 2. Initialize the understanding MCP. Call `initialize_understanding` with:
