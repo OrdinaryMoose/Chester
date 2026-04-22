@@ -29,7 +29,7 @@ You MUST create a task for each of these items and complete them in order:
 6. **Phase transition** — designer confirms understanding, `capture_thought()` with tag `understanding-confirmed` and stage `Transition`
 7. **Proof phase** — present designer's verbatim problem statement for confirmation, initialize proof MCP, per-turn proof cycle with necessary conditions model
 8. **Closing argument** — compose and present the closing argument; designer approval settles the proof
-9. **Finalization (Envelope Handoff)** — dispatch parallel gate (1 ground-truth + 3 architects), aggregate findings, offer recommendation, reconcile with designer, close stage
+9. **Finalization (Envelope Handoff)** — identify two tensions, dispatch parallel gate (1 ground-truth + 2 architects on dispatcher-assigned axes, each self-checking against feasibility / suitability / completeness), build hybrid recommendation, present all three to designer, reconcile, close stage
 10. **Archival (Artifact Handoff)** — write four artifacts (design brief, thinking summary, process evidence, ground-truth report), invoke `util-worktree`, update lessons table, transition to plan-build
 
 ## Role: Design Partner
@@ -203,15 +203,23 @@ Round one establishes the understanding baseline. The agent uses the explorer fi
 
    The MCP returns the nine dimensions and their group structure (landscape, human_context, foundations).
 3. Score the baseline. Assess each of the nine understanding dimensions against what the explorers and your exploration revealed. Most dimensions — especially stakeholder_impact, prior_art, temporal_context — will score near 0 because they require human input the codebase cannot supply. Call `submit_understanding` with `state_file` and the full `scores` object (each dimension keyed to `{score, justification, gap}`).
-4. Present the gap map to the user:
+4. **Session Framing** — open the first designer-facing turn with orientation, before any analysis. Round One is a handoff moment: you've done private exploration (three parallel agents, baseline scoring), the designer has been waiting. Transfer context, do not assume it. The framing block contains:
+   - **What we're working on** — one sentence naming the task in plain domain language.
+   - **What decision space we're entering** — one or two sentences describing the shape of the problem you'll be exploring together, without pre-committing to a problem statement (that belongs to Phase 2).
+   - **What I looked at** — two to three sentences summarizing the exploration: codebase areas read, prior sprint work consulted, industry patterns considered. Concept language, not file lists or explorer names.
+   - **Where I landed** — one sentence previewing the shape of the gap map that follows.
+
+   Plain conversational opener. No "alignment check" language yet — there is nothing to align to at Round One. The framing *builds* the shared model; subsequent turns align against it.
+
+5. Present the gap map to the user (after framing):
    - **What the codebase reveals** — observations about the current system, its structure, patterns, and constraints. These are observations, not conclusions — not a problem statement, not a solution structure, and not a comprehensive analysis.
    - **What the prior art reveals** — observations about the designer's intent or vision of the architecture or system, lessons or applicable knowledge from previous sprints, and/or solutions tried before and discarded that may change our understanding of the problem. These are observations, not conclusions — not a problem statement, not a solution structure, and not a comprehensive analysis.
    - **What industry development reveals** — observations about current industry projects, research, or applicable information that can inform our development effort or illuminate elements of the design that we have not considered. These are observations, not conclusions — not a problem statement, not a solution structure, and not a comprehensive analysis.
    - **What the agent can't determine from code alone** — explicit gaps drawn from the understanding MCP's gap fields, grouped by dimension group (human_context, foundations).
-5. Offer your first commentary — share what you've observed about the weakest dimension from the least-saturated group (as reported by the understanding MCP). End with "What do you think?"
-6. Announce: **Phase 1 (Understand) begins.** The conversation will focus on building shared understanding of the problem before exploring solutions.
-7. `capture_thought()` with tag `understanding-baseline`, stage `Understand`.
-8. Interview loop starts with the user's response.
+6. Offer your first commentary — share what you've observed about the weakest dimension from the least-saturated group (as reported by the understanding MCP). End with "What do you think?"
+7. Announce: **Phase 1 (Understand) begins.** The conversation will focus on building shared understanding of the problem before exploring solutions.
+8. `capture_thought()` with tag `understanding-baseline`, stage `Understand`.
+9. Interview loop starts with the user's response.
 
 ---
 
@@ -789,65 +797,96 @@ ground-truth subagent uses the anchor to find the target in the codebase; the cl
 text drives the verification verdict. If the subagent cannot locate the anchor, it
 returns NOT-FOUND for that row.
 
-**Architect subagent input (each of three, isolated-parallel, no cross-contamination):**
+### Acceptance Preconditions (F-A-C)
+
+Every option presented to the designer must pass three preconditions. Architects self-check their designs against these before returning; the dispatcher re-checks the hybrid it constructs. Every option the designer sees is therefore implementable by construction — no strawmen, no decoy extremes.
+
+- **Feasible** — the design can be performed within normal sprint constraints. Time, team capacity, ops tolerance, deployment windows. A design that requires an atomic wave-front migration the sprint cannot absorb fails feasibility.
+- **Suitable** — the design solves the problem it was asked to solve. Not a related problem, not a broader problem — the one the proof specifies. A design that solves something adjacent fails suitability.
+- **Complete** — the design addresses the full scope of what was asked. A great solution to one of three tasks is not complete. Partial coverage of a multi-task ask fails completeness.
+
+Architects and the dispatcher must cite *specific* evidence for each precondition — concrete sprint-constraint values, concrete problem aspects solved, concrete scope items covered. Vague claims do not count as passing.
+
+### Axis Selection (Dispatcher)
+
+Before dispatching architects, the dispatcher reads the envelope and identifies the **two sharpest tensions** for this sprint. Tensions come from the proof's actual content — competing necessary conditions, scope-vs-time trade-offs, quality-vs-risk splits, structural choices the proof didn't collapse. Not from a fixed menu.
+
+For each tension, the dispatcher defines an axis of variation. Example axes (illustrative, not prescribed):
+- "Absolute closure vs. observed-drift closure"
+- "Scope breadth vs. blast radius"
+- "Contract tightness vs. producer convenience"
+- "Staging complexity vs. atomicity"
+
+Each architect is assigned one axis with explicit framing: "optimize for one end, accept sacrifice at the other end." Architects do not see each other's axes.
+
+**Dispatcher discipline:** axes must come from *this* proof, not from the dispatcher's priors. If the dispatcher cannot name the proof evidence or necessary condition that makes an axis sharp, the axis is fabricated — drop it and look again.
+
+### Architect Subagent Contract
+
+**Architect subagent input (each of two, isolated-parallel, no cross-contamination):**
 - Problem statement
 - Necessary conditions (with reasoning chains and collapse tests)
 - Rules (designer-directed restrictions)
 - Permissions (designer-directed relief, with `relieves` references)
-- Evidence foundation (all EVIDENCE elements' statements, unprojected — architects
-  read the full foundation, not just anchors)
+- Evidence foundation (all EVIDENCE elements' statements, unprojected — architects read the full foundation, not just anchors)
 - Risks
 - Closing argument (for context)
-- Trade-off lens: one of minimal-changes / clean-architecture / pragmatic-balance
+- **Assigned axis** — the dispatcher-defined axis for this sprint, with directive to optimize for one end and accept sacrifice at the other
+- **F-A-C definitions and self-check directive** — the architect must self-check its design against feasibility, suitability, and completeness before returning; iterate privately until pass; if the axis genuinely cannot satisfy all three, return a null result with reasoning rather than a weakened design claiming to pass
 
 **Architect output (each returns, structured bulleted format, no tables):**
 - **Approach Summary** — 2-3 sentences naming the shape
+- **Axis Position** — explicit statement of where on the assigned axis this design sits and what it sacrifices at the other end
 - **Component Structure** — bullets of new or modified units
 - **Reuse Profile** — bullets of existing code or patterns leveraged
-- **Trade-off Summary** — "Optimized for:" bullets + "Sacrificed:" bullets
 - **Envelope Compliance** — per-necessary-condition satisfied-by, per-rule respected-how, per-permission-leveraged-where
 - **Risks Introduced** — bullets
+- **Feasibility Evidence** — specific reasoning showing the design fits normal sprint constraints (cite concrete constraints, not vague claims)
+- **Suitability Evidence** — specific reasoning showing the design solves the problem asked (cite concrete problem aspects)
+- **Completeness Evidence** — specific reasoning showing the full scope is covered (cite concrete scope items)
 
-Architects do NOT produce a per-architect "Alternatives Considered" section —
-aggregation across the three architects is this stage's job.
+Architects do NOT produce a per-architect "Alternatives Considered" section — hybrid construction across the two architects is the dispatcher's job.
 
-### Five Steps
+**Null result format:** if an architect determines no design along the assigned axis can satisfy all three preconditions, it returns a brief report: which precondition fails, why the axis forces the failure, and what the architect tried before concluding null. Do not return a weakened design claiming to pass. Honesty about impossibility carries more signal than a compromised design.
 
-1. **Dispatch** — Launch four subagents in parallel in a single message. Explicit
-   dispatch directives:
-   - **Ground-truth subagent:** use the default general-purpose agent with the
-     ground-truth input projection above embedded in the prompt.
-   - **Three architect subagents:** use `subagent_type: "feature-dev:code-architect"`
-     with the minimal-changes, clean-architecture, and pragmatic-balance lens
-     prompts. Each architect receives the full envelope (problem statement,
-     necessary conditions, rules, permissions, evidence foundation, risks, closing
-     argument) and operates in isolation — no cross-contamination between the three.
+### Hybrid Recommendation (Dispatcher)
 
-   All four dispatches go in one message so wall-clock cost is one wait regardless
-   of per-subagent duration.
+After both architects return, the dispatcher constructs a hybrid as a recommendation. Hybrid is one of:
 
-2. **Aggregate** — Receive all four reports. Do not present piecemeal. Assemble into
-   one coherent presentation: ground-truth findings grouped by severity
-   (HIGH / MEDIUM / LOW) with per-finding recommended action (accept-as-risk-note /
-   revise-brief / reopen-proof), followed by three parallel bulleted blocks — one
-   per architect — each using the six-section output structure.
+1. **Principled merge** — a design combining elements of both architects' approaches with its own named optimization target and its own declared sacrifices. Not "balance". Not "middle". Name the optimization target explicitly; name what the hybrid trades away.
+2. **Third shape** — a different approach suggested by the tension between the two axes, optimized along its own dimension (e.g., staging the work temporally, deferring one tension to a later sprint, running parallel systems with eventual consolidation).
+3. **No merge possible** — honest null from the dispatcher: the two architects' axes are structurally incompatible; pick one. Rare but legitimate.
 
-3. **Recommend** — Offer an opinionated take: given the proof's reasoning and the
-   envelope's shape, which architect approach fits best, or does the designer's
-   implicit direction still fit better? Provide reasoning. The designer may agree,
-   push back, or redirect.
+**Hybrid must pass F-A-C.** Dispatcher self-checks the hybrid the same way architects self-check their designs, with the same evidence-citation standard. A hybrid that cannot pass all three is not presented.
 
-4. **Reconcile** — Designer works two tracks:
-   - **GT findings track:** per finding, accept-as-risk-note (goes into brief's
-     Risks section), revise-brief (update Evidence or Chosen Approach section),
-     or reopen-proof (deep case, see below).
-   - **Approach track:** pick one of A1/A2/A3, articulate a hybrid, stay with the
-     implicit direction from the proof, or reopen-proof. If hybrid or own direction,
-     polish-readback-confirm — the agent reads back the articulated approach in
-     clean language and asks for explicit approval (same pattern as problem statement
-     at Phase 2 entry).
+**Null-architect handling.** If one architect returns null, the dispatcher constructs the hybrid from the surviving architect's output plus a dispatcher-proposed variant along a different angle of the same axis. If both architects return null, escalate to designer: "Neither axis admits a design that passes F-A-C. Here's what each architect reported — relax a precondition, adjust scope, or reopen the proof?"
 
-5. **Close** — When both tracks resolve, Finalization closes. Proceed to Archival.
+### Six Steps
+
+1. **Identify tensions and pick axes** (dispatcher, in-context). Read the envelope. Name the two sharpest tensions and the axis each defines. Cite the proof evidence or necessary condition that makes each axis sharp.
+
+2. **Dispatch three subagents in parallel in a single message.**
+   - **Ground-truth subagent:** default general-purpose agent with the ground-truth input projection above embedded in the prompt.
+   - **Two architect subagents:** `subagent_type: "feature-dev:code-architect"` with the dispatcher-assigned axes and F-A-C self-check directive. Each receives the full envelope and operates in isolation.
+
+   All three dispatches go in one message so wall-clock cost is one wait regardless of per-subagent duration.
+
+3. **Receive outputs and construct hybrid** (dispatcher). Read both architect reports. Construct the hybrid as principled merge, third shape, or honest null. Self-check the hybrid against F-A-C with evidence. If hybrid cannot pass F-A-C, report that transparently in the presentation.
+
+4. **Aggregate and present.** Open with framing before the analysis — Finalization is another handoff moment: you've done private work (architect dispatch, hybrid construction), the designer has been waiting. Transfer context, do not assume it. The framing block contains:
+   - **Where we are** — one sentence: the proof settled, the closing argument approved, Finalization ran.
+   - **What I did** — two to three sentences summarizing the private work: the two tensions you picked and why, the two architects dispatched along those axes, the hybrid you constructed. Concept language.
+   - **What's ahead in this turn** — one sentence previewing the three blocks (Architect A, Architect B, Hybrid Recommendation) and the ground-truth findings.
+
+   Plain conversational opener. After framing, present ground-truth findings grouped by severity (HIGH / MEDIUM / LOW) with per-finding recommended action (accept-as-risk-note / revise-brief / reopen-proof). Then present three parallel bulleted blocks: Architect A, Architect B, Hybrid Recommendation. Each block uses the output structure above with F-A-C evidence inline. For any architect that returned null, show the null report in place of a design block.
+
+5. **Recommend.** The hybrid is the dispatcher's recommendation by construction. Explain the reasoning: why this hybrid, why its sacrifices are acceptable, which tensions it resolves and which it defers. Designer may agree, push back, or redirect.
+
+6. **Reconcile.** Designer works two tracks:
+   - **GT findings track:** per finding, accept-as-risk-note (goes into brief's Risks section), revise-brief (update Evidence or Chosen Approach section), or reopen-proof (deep case, see below).
+   - **Approach track:** pick Architect A, Architect B, the hybrid, articulate their own variant, or reopen-proof. If own variant, polish-readback-confirm — the agent reads back the articulated approach in clean language and asks for explicit approval (same pattern as problem statement at Phase 2 entry).
+
+   When both tracks resolve, Finalization closes. Proceed to Archival.
 
 ### Deep Case — Designer-Initiated Proof Reopening
 
@@ -917,7 +956,7 @@ Plan-build operates on them; later skills read them without re-verification.
 ## Integration
 
 - **Calls:** `start-bootstrap` (setup), `util-worktree` (Archival)
-- **Dispatches (Finalization stage):** 1 ground-truth subagent + 3 `feature-dev:code-architect` subagents (parallel, isolated)
+- **Dispatches (Finalization stage):** 1 ground-truth subagent + 2 `feature-dev:code-architect` subagents on dispatcher-assigned axes (parallel, isolated); hybrid recommendation is dispatcher-constructed in-context after architects return
 - **Uses:** `chester-design-proof` MCP (Phase 2), `capture_thought` / `get_thinking_summary` (throughout)
 - **Reads:** `util-artifact-schema` (naming/paths), `util-design-brief-template` (brief output structure), `util-budget-guard` (via bootstrap)
 - **Invoked by:** user, as the default structural design skill

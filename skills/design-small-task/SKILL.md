@@ -124,14 +124,25 @@ prior art scan, then highlight this to the designer.
 
 ## Phase 3: Round One
 
-Present the exploration findings as the first turn of the conversation loop.
+Round One is a handoff moment. You've done private exploration; the designer has been waiting. Your job at Round One is to **transfer context, not assume it**. Open with framing that orients the designer, then move to analysis — never the other way around.
 
-1. Present what you know from the conversation and exploration:
-   - What the task involves and what the codebase reveals about the relevant areas
-   - What you can't determine and need the designer's input on
-2. Offer your first commentary — share your take on the most important consideration
-3. End with "What do you think?" or a natural variant
-4. The conversation loop begins with the designer's response
+1. **Session Framing** (open here, before any analysis):
+   - **What we're working on** — one sentence naming the task in plain domain language.
+   - **What decision we're here to make** — one or two sentences naming the specific question you'll be working through together.
+   - **What I looked at** — two to three sentences summarizing the exploration: codebase areas read, prior art checked, relevant documents consulted. Concept language, not file lists.
+   - **Where I landed** — one sentence previewing the shape of the observations that follow.
+
+   This block is a paragraph or short list — plain conversational opener. No "alignment check" language yet; there is nothing to align to. The framing *builds* the shared model; subsequent turns align against it.
+
+2. **Observations / Information Package / Commentary** (after framing):
+   - Present what you know from the conversation and exploration:
+     - What the task involves and what the codebase reveals about the relevant areas
+     - What you can't determine and need the designer's input on
+   - Offer your first commentary — share your take on the most important consideration
+
+3. End with "What do you think?" or a natural variant.
+
+4. The conversation loop begins with the designer's response. From here forward, "alignment check" is valid — a shared model now exists.
 
 ---
 
