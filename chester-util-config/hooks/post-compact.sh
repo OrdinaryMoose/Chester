@@ -8,8 +8,18 @@ NL=$'\n'
 
 INPUT=$(cat)
 
-# Source chester config — exit silently if unavailable
-eval "$(chester-config-read)" 2>/dev/null || exit 0
+# Resolve chester-config-read: prefer plugin root, fall back to PATH
+if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ] && [ -x "$CLAUDE_PLUGIN_ROOT/bin/chester-config-read" ]; then
+  CONFIG_CMD="$CLAUDE_PLUGIN_ROOT/bin/chester-config-read"
+elif command -v chester-config-read >/dev/null 2>&1; then
+  CONFIG_CMD="chester-config-read"
+else
+  exit 0
+fi
+
+# Source chester config — exit silently if unavailable or vars missing
+eval "$("$CONFIG_CMD")" 2>/dev/null || exit 0
+[ -n "${CHESTER_WORKING_DIR:-}" ] || exit 0
 
 # Read breadcrumb — exit silently if not in an interview session
 BREADCRUMB_FILE="$CHESTER_WORKING_DIR/.active-sprint"
