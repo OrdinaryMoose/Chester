@@ -46,11 +46,9 @@ afterEach(async () => {
 });
 
 describe("Store — constructor", () => {
-  it("defaults storePath to absolute /docs/chester/decision-record/decision-record.md when unset", () => {
-    const store = new Store();
-    expect(store.storePath).toBe(
-      "/docs/chester/decision-record/decision-record.md",
-    );
+  it("throws when storePath is not provided", () => {
+    expect(() => new Store()).toThrow(/storePath/);
+    expect(() => new Store({})).toThrow(/storePath/);
   });
 
   it("honors storePath override", () => {
@@ -221,6 +219,23 @@ describe("Store — finalizeRefs", () => {
     await expect(
       store.finalizeRefs(`${today()}-99999`, { test_sha: "abc1234" }),
     ).rejects.toThrow();
+  });
+
+  it("throws when current Test field is empty (capture-phase validation bypassed)", async () => {
+    // Simulate a corrupt record with empty Test field by direct file edit.
+    // This should never happen via append() (schema validation catches it), but
+    // guards against silent malformed output if the invariant ever breaks.
+    const store = new Store({ storePath: tmpStore });
+    const { id } = await store.append(makeRecord({}));
+    const content = await readFile(tmpStore, "utf8");
+    const corrupted = content.replace(
+      /### Test\n[^\n]+/,
+      "### Test\n",
+    );
+    await writeFile(tmpStore, corrupted, "utf8");
+    await expect(
+      store.finalizeRefs(id, { test_sha: "abc1234" }),
+    ).rejects.toThrow(/empty/);
   });
 });
 
@@ -395,26 +410,37 @@ describe("Store — query", () => {
 });
 
 describe("Store — concurrent append", () => {
-  it("two Store instances writing same file do not interleave; both records land", async () => {
-    const s1 = new Store({ storePath: tmpStore });
-    const s2 = new Store({ storePath: tmpStore });
-    const [r1, r2] = await Promise.all([
-      s1.append(makeRecord({ title: "From-S1" })),
-      s2.append(makeRecord({ title: "From-S2" })),
-    ]);
-    expect(r1.status).toBe("accepted");
-    expect(r2.status).toBe("accepted");
-    expect(r1.id).not.toBe(r2.id);
+  it("ten Store instances writing same file produce unique monotonic IDs, no interleaving", async () => {
+    const N = 10;
+    const stores = Array.from(
+      { length: N },
+      () => new Store({ storePath: tmpStore }),
+    );
+    const results = await Promise.all(
+      stores.map((s, i) =>
+        s.append(makeRecord({ title: `Writer-${i}` })),
+      ),
+    );
 
+    // All accepted.
+    for (const r of results) expect(r.status).toBe("accepted");
+
+    // All IDs unique.
+    const ids = results.map((r) => r.id);
+    expect(new Set(ids).size).toBe(N);
+
+    // IDs form the contiguous sequence 00001..0000N (for today's prefix).
+    const expected = Array.from(
+      { length: N },
+      (_, i) => `${today()}-${String(i + 1).padStart(5, "0")}`,
+    );
+    expect(ids.sort()).toEqual(expected);
+
+    // File contains all N records; no partial writes.
     const content = await readFile(tmpStore, "utf8");
     const headings = content.match(/^## Decision /gm) || [];
-    expect(headings).toHaveLength(2);
-    expect(content).toContain("From-S1");
-    expect(content).toContain("From-S2");
-
-    // IDs should be today-00001 and today-00002 (set)
-    const ids = [r1.id, r2.id].sort();
-    expect(ids).toEqual([`${today()}-00001`, `${today()}-00002`]);
+    expect(headings).toHaveLength(N);
+    for (let i = 0; i < N; i++) expect(content).toContain(`Writer-${i}`);
   });
 });
 

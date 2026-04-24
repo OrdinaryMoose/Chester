@@ -16,9 +16,6 @@ import { dirname } from "path";
 import lockfile from "proper-lockfile";
 import { validate, DECISION_RECORD_FIELDS } from "./schema.js";
 
-const DEFAULT_STORE_PATH =
-  "/docs/chester/decision-record/decision-record.md";
-
 // ---------- helpers ----------
 
 function today() {
@@ -215,8 +212,12 @@ function blockToRecord(block) {
 
 export class Store {
   constructor({ storePath } = {}) {
-    this.storePath = storePath || DEFAULT_STORE_PATH;
-    this._release = null;
+    if (!storePath) {
+      throw new Error(
+        "Store requires storePath option. MCP server must provide via CHESTER_DECISION_RECORD_PATH env var; tests must provide a temp path."
+      );
+    }
+    this.storePath = storePath;
   }
 
   // Ensures the file exists so proper-lockfile can acquire on it. Creates
@@ -228,21 +229,17 @@ export class Store {
     }
   }
 
-  async _lock() {
+  // Acquire exclusive file-lock. Returns the release function — caller MUST
+  // invoke it in a finally block. Lock handle is a local per-method resource
+  // (not instance state) so concurrent methods on the same Store do not clobber
+  // each other.
+  async _acquireLock() {
     await this._ensureFile();
-    this._release = await lockfile.lock(this.storePath, {
+    return await lockfile.lock(this.storePath, {
       stale: 10000,
       retries: { retries: 10, factor: 1.5, minTimeout: 20, maxTimeout: 500 },
       realpath: false,
     });
-  }
-
-  async _unlock() {
-    if (this._release) {
-      const r = this._release;
-      this._release = null;
-      await r();
-    }
   }
 
   async nextId() {
@@ -260,7 +257,7 @@ export class Store {
   }
 
   async append(record) {
-    await this._lock();
+    const release = await this._acquireLock();
     try {
       const content = await readFileOrEmpty(this.storePath);
       // Compute next ID from file under lock.
@@ -294,12 +291,12 @@ export class Store {
       await writeFile(this.storePath, next, "utf8");
       return { id, status: "accepted" };
     } finally {
-      await this._unlock();
+      await release();
     }
   }
 
   async supersede(oldId, newId) {
-    await this._lock();
+    const release = await this._acquireLock();
     try {
       const content = await readFileOrEmpty(this.storePath);
       const blocks = parseBlocks(content);
@@ -320,7 +317,7 @@ export class Store {
       await writeFile(this.storePath, assembleBlocks(blocks), "utf8");
       return { accepted: true };
     } finally {
-      await this._unlock();
+      await release();
     }
   }
 
@@ -330,7 +327,7 @@ export class Store {
         "finalizeRefs requires at least one of test_sha, code_sha",
       );
     }
-    await this._lock();
+    const release = await this._acquireLock();
     try {
       const content = await readFileOrEmpty(this.storePath);
       const blocks = parseBlocks(content);
@@ -338,7 +335,12 @@ export class Store {
       if (!block) throw new Error(`record not found: ${recordId}`);
 
       if (test_sha) {
-        const current = readSection(block.lines, "Test") || "";
+        const current = readSection(block.lines, "Test");
+        if (!current) {
+          throw new Error(
+            `cannot finalize Test on ${recordId}: current value is empty (capture-phase validation should have prevented this)`,
+          );
+        }
         const suffixMatch = current.match(/\s@\s([0-9a-f]{7,40})$/);
         if (suffixMatch) {
           if (suffixMatch[1] !== test_sha) {
@@ -357,7 +359,12 @@ export class Store {
       }
 
       if (code_sha) {
-        const current = readSection(block.lines, "Code") || "";
+        const current = readSection(block.lines, "Code");
+        if (!current) {
+          throw new Error(
+            `cannot finalize Code on ${recordId}: current value is empty (capture-phase validation should have prevented this)`,
+          );
+        }
         const suffixMatch = current.match(/\s@\s([0-9a-f]{7,40})$/);
         if (suffixMatch) {
           if (suffixMatch[1] !== code_sha) {
@@ -377,12 +384,12 @@ export class Store {
       await writeFile(this.storePath, assembleBlocks(blocks), "utf8");
       return { accepted: true };
     } finally {
-      await this._unlock();
+      await release();
     }
   }
 
   async abandon(sprint) {
-    await this._lock();
+    const release = await this._acquireLock();
     try {
       const content = await readFileOrEmpty(this.storePath);
       const blocks = parseBlocks(content);
@@ -403,7 +410,7 @@ export class Store {
       await writeFile(this.storePath, assembleBlocks(blocks), "utf8");
       return { affected, skipped_superseded };
     } finally {
-      await this._unlock();
+      await release();
     }
   }
 
