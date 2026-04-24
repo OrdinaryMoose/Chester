@@ -208,6 +208,27 @@ function blockToRecord(block) {
   return rec;
 }
 
+// ---------- Errors ----------
+
+// Typed error surfaced when finalizeRefs is re-called with a different SHA.
+// Consumers should check `err.code === FINALIZATION_MISMATCH` rather than
+// pattern-matching the English message — the canonical error code is
+// "already-finalized-with-different-sha" per spec-05 §Return shapes.
+export const FINALIZATION_MISMATCH = "already-finalized-with-different-sha";
+
+export class FinalizationMismatchError extends Error {
+  constructor(field, existingSha, newSha) {
+    super(
+      `${field} already finalized with SHA ${existingSha}, refusing to rewrite to ${newSha}`,
+    );
+    this.name = "FinalizationMismatchError";
+    this.code = FINALIZATION_MISMATCH;
+    this.field = field;
+    this.existingSha = existingSha;
+    this.newSha = newSha;
+  }
+}
+
 // ---------- Store ----------
 
 export class Store {
@@ -344,8 +365,10 @@ export class Store {
         const suffixMatch = current.match(/\s@\s([0-9a-f]{7,40})$/);
         if (suffixMatch) {
           if (suffixMatch[1] !== test_sha) {
-            throw new Error(
-              `Test already finalized with SHA ${suffixMatch[1]}, refusing to rewrite to ${test_sha}`,
+            throw new FinalizationMismatchError(
+              "Test",
+              suffixMatch[1],
+              test_sha,
             );
           }
           // Idempotent — no-op.
@@ -368,8 +391,10 @@ export class Store {
         const suffixMatch = current.match(/\s@\s([0-9a-f]{7,40})$/);
         if (suffixMatch) {
           if (suffixMatch[1] !== code_sha) {
-            throw new Error(
-              `Code already finalized with SHA ${suffixMatch[1]}, refusing to rewrite to ${code_sha}`,
+            throw new FinalizationMismatchError(
+              "Code",
+              suffixMatch[1],
+              code_sha,
             );
           }
         } else {

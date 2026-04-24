@@ -11,6 +11,7 @@
 // MCP wiring. server.js wires these into the SDK transport.
 
 import { validate } from "./schema.js";
+import { FINALIZATION_MISMATCH } from "./store.js";
 
 // Build a full 16-field record from dr_capture's 11-field input.
 //
@@ -90,15 +91,15 @@ export async function handleFinalizeRefs(args, store) {
     await store.finalizeRefs(record_id, { test_sha, code_sha });
     return { status: "accepted" };
   } catch (err) {
-    const msg = err.message || String(err);
-    // Map mismatch errors to the canonical error code from the spec.
-    if (/already finalized with SHA/i.test(msg)) {
+    // Typed mismatch errors (FinalizationMismatchError) carry the canonical
+    // spec-defined code. Other errors pass through verbatim.
+    if (err && err.code === FINALIZATION_MISMATCH) {
       return {
         status: "error",
-        errors: [{ reason: "already-finalized-with-different-sha" }],
+        errors: [{ reason: err.code }],
       };
     }
-    return { status: "error", errors: [{ reason: msg }] };
+    return { status: "error", errors: [{ reason: err.message || String(err) }] };
   }
 }
 
@@ -129,8 +130,10 @@ export async function handleSupersede(args, store) {
 export async function handleAbandon(args, store) {
   const { sprint } = args;
   if (!sprint) {
-    // Abandon with no sprint is a no-op — return zero counts rather than error.
-    return { affected: 0, skipped_superseded: 0 };
+    return {
+      status: "error",
+      errors: [{ field: "sprint", reason: "missing required field" }],
+    };
   }
   return await store.abandon(sprint);
 }
@@ -141,7 +144,11 @@ export async function handleAbandon(args, store) {
 // execute-verify-complete, which runs the full bash test suite separately.
 // Here we only check:
 //   - `exists`: Test field is non-empty and well-formed (true if present).
-//   - `passes`: null (not evaluated at this layer — upstream bash harness gates).
+//   - `passes`: derived from sha_finalized. SHA finalization happens AFTER the
+//     task's commit, which only happens AFTER the suite passes upstream. So
+//     sha_finalized implies the suite was green at commit time. This keeps the
+//     return shape a strict bool per spec-05 §Return shapes without this MCP
+//     needing a test runner.
 //   - `sha_finalized`: Test field carries a `@ <sha>` suffix.
 // Aggregate fails if any record lacks sha_finalized.
 export async function handleVerifyTests(args, store) {
@@ -155,7 +162,7 @@ export async function handleVerifyTests(args, store) {
       id: r.id,
       test,
       exists: wellFormed,
-      passes: null,
+      passes: hasSha,
       sha_finalized: hasSha,
     };
   });
@@ -196,6 +203,13 @@ export async function handleAudit(args, store) {
     audited: records.length,
     drifted: findings.length,
     findings,
+    // `kinds_checked` discloses audit coverage so consumers (finish-write-records
+    // session summaries) can distinguish "checked and clean" from "not checked."
+    // Spec-05 defines four kinds; only `sha-missing` is functional at this layer.
+    // Other kinds require filesystem/git introspection — to be added in a later
+    // sprint. Until then, absence of those findings does NOT imply absence of
+    // that drift class.
+    kinds_checked: ["sha-missing"],
   };
 }
 

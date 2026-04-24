@@ -186,6 +186,12 @@ describe("handlers — dr_abandon", () => {
     const result = await handleAbandon({ sprint: "nonexistent" }, store);
     expect(result).toEqual({ affected: 0, skipped_superseded: 0 });
   });
+
+  it("returns structured error when sprint arg is missing", async () => {
+    const result = await handleAbandon({}, store);
+    expect(result.status).toBe("error");
+    expect(result.errors[0].field).toBe("sprint");
+  });
 });
 
 describe("handlers — dr_verify_tests", () => {
@@ -227,6 +233,23 @@ describe("handlers — dr_verify_tests", () => {
     expect(result.per_record.every((x) => x.sha_finalized)).toBe(true);
   });
 
+  it("per_record.passes is a bool derived from sha_finalized (never null)", async () => {
+    const r1 = await handleCapture(captureArgs({ chosen: "first" }), store);
+    await handleCapture(captureArgs({ chosen: "second" }), store);
+    await handleFinalizeRefs(
+      { record_id: r1.id, test_sha: "abc1234", code_sha: "def5678" },
+      store,
+    );
+    const result = await handleVerifyTests(
+      { sprint: "20260424-01-build-decision-loop" },
+      store,
+    );
+    for (const r of result.per_record) {
+      expect(typeof r.passes).toBe("boolean");
+      expect(r.passes).toBe(r.sha_finalized);
+    }
+  });
+
   it("aggregate=fail on empty record set (nothing to verify)", async () => {
     const result = await handleVerifyTests(
       { sprint: "nonexistent-sprint" },
@@ -264,6 +287,11 @@ describe("handlers — dr_audit", () => {
     const result = await handleAudit({}, store);
     expect(result.findings).toEqual([]);
     expect(result.drifted).toBe(0);
+  });
+
+  it("discloses audit coverage via kinds_checked field", async () => {
+    const result = await handleAudit({}, store);
+    expect(result.kinds_checked).toEqual(["sha-missing"]);
   });
 });
 

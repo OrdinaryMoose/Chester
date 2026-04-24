@@ -1,5 +1,9 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { Store } from "../store.js";
+import {
+  Store,
+  FinalizationMismatchError,
+  FINALIZATION_MISMATCH,
+} from "../store.js";
 import { mkdtemp, rm, readFile, writeFile, stat } from "fs/promises";
 import { tmpdir } from "os";
 import { join } from "path";
@@ -194,8 +198,27 @@ describe("Store — finalizeRefs", () => {
     const { id } = await store.append(makeRecord());
     await store.finalizeRefs(id, { test_sha: "abc1234", code_sha: "def5678" });
     await expect(
-      store.finalizeRefs(id, { test_sha: "zzzzzzz", code_sha: "def5678" }),
+      store.finalizeRefs(id, { test_sha: "0000000", code_sha: "def5678" }),
     ).rejects.toThrow();
+  });
+
+  it("throws typed FinalizationMismatchError with canonical code on SHA mismatch", async () => {
+    const store = new Store({ storePath: tmpStore });
+    const { id } = await store.append(makeRecord());
+    await store.finalizeRefs(id, { test_sha: "abc1234", code_sha: "def5678" });
+    try {
+      await store.finalizeRefs(id, {
+        test_sha: "0000000",
+        code_sha: "def5678",
+      });
+      throw new Error("expected rejection");
+    } catch (err) {
+      expect(err).toBeInstanceOf(FinalizationMismatchError);
+      expect(err.code).toBe(FINALIZATION_MISMATCH);
+      expect(err.field).toBe("Test");
+      expect(err.existingSha).toBe("abc1234");
+      expect(err.newSha).toBe("0000000");
+    }
   });
 
   it("accepts only test_sha (leaves code unchanged)", async () => {
