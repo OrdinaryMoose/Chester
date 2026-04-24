@@ -13,10 +13,34 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-SPEC_PATH="$REPO_ROOT/../../docs/chester/working/20260424-01-build-decision-loop/spec/build-decision-loop-spec-05.md"
+SPRINT="20260424-01-build-decision-loop"
+SPEC_FILE="$SPRINT/spec/build-decision-loop-spec-05.md"
 
-if [ ! -f "$SPEC_PATH" ]; then
-  echo "ERROR: spec-05 not found at $SPEC_PATH" >&2
+# spec-05 lives in the archived plans dir post-merge, OR in the gitignored
+# working dir during active sprints. Check both; prefer archived.
+#
+# Working dir can live EITHER as a sibling of the worktree (worktree layout:
+# REPO_ROOT is .worktrees/<sprint>/, `$REPO_ROOT/../..` reaches main repo root)
+# OR co-located under REPO_ROOT (main-repo layout).
+CANDIDATES=(
+  "$REPO_ROOT/docs/chester/plans/$SPEC_FILE"
+  "$REPO_ROOT/docs/chester/working/$SPEC_FILE"
+  "$REPO_ROOT/../../docs/chester/working/$SPEC_FILE"
+)
+
+SPEC_PATH=""
+for candidate in "${CANDIDATES[@]}"; do
+  if [ -f "$candidate" ]; then
+    SPEC_PATH="$candidate"
+    break
+  fi
+done
+
+if [ -z "$SPEC_PATH" ]; then
+  echo "ERROR: spec-05 not found. Tried:" >&2
+  for candidate in "${CANDIDATES[@]}"; do
+    echo "  - $candidate" >&2
+  done
   exit 2
 fi
 
