@@ -180,7 +180,44 @@ Compute and display as a table with per-call and overall cache hit rates. Write 
 
 This is best-effort. If jq parsing fails, report the error and skip.
 
-## Step 4: Copy Implementation Plan (feature mode only)
+## Step 4: Decision-Record Audit and Abandonment (feature mode only)
+
+Before copying the plan and closing out, close the decision-record loop on this sprint. Invoke tools on the `chester-decision-record` MCP.
+
+### Normal completion path (sprint succeeded)
+
+Invoke `dr_audit({sprint_subject: "<sprint-name>"})`. The tool returns `{audited, drifted, findings, kinds_checked}`. Add a new section to the session summary:
+
+```markdown
+## Decision-Record Audit
+
+- Records audited: {audited}
+- Drift findings: {drifted}
+- Kinds checked: {kinds_checked joined with comma}
+
+{for each finding: - **{id}** | {kind} — {detail}}
+```
+
+If `drifted > 0`, call out the findings prominently — they indicate records whose Test/Code links have broken since capture and need either a supersede or a fix in a follow-up sprint.
+
+### Abandonment path (sprint abandoned)
+
+If the user confirms the sprint is being abandoned rather than completed, invoke `dr_abandon("<sprint-name>")`. The tool returns `{affected, skipped_superseded}`. Log the counts in the session summary:
+
+```markdown
+## Decision-Record Abandonment
+
+Sprint abandoned. Active records transitioned to Abandoned status.
+
+- Records abandoned (Active → Abandoned): {affected}
+- Records skipped (already Superseded): {skipped_superseded}
+```
+
+Do NOT call `dr_abandon` on the normal completion path — it is destructive and only appropriate when the sprint's output is being discarded.
+
+---
+
+## Step 5: Copy Implementation Plan (feature mode only)
 
 Look for the plan that drove this session in `{CHESTER_WORKING_DIR}/{sprint-subdir}/plan/`.
 Copy the most recent plan file into the summary output directory for cross-reference.
@@ -191,7 +228,7 @@ reconstructed. If no plan exists at all, skip and note its absence.
 Note: this creates a convenience copy alongside the summary. The authoritative plan
 remains in `plan/` and is archived separately by `finish-archive-artifacts`.
 
-## Step 5: Offer Session State Update
+## Step 6: Offer Session State Update
 
 If a strategy document or session state file exists for the current work, offer to
 update it:
@@ -201,7 +238,7 @@ update it:
 
 Do not update session state files automatically.
 
-## Step 6: Commit (refactor mode only)
+## Step 7: Commit (refactor mode only)
 
 Refactor artifacts are committed directly since they don't go through the archive flow:
 
