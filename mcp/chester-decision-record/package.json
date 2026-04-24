@@ -1,0 +1,19 @@
+{
+  "name": "chester-decision-record",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Decision record MCP server for Chester's build decision loop",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "proper-lockfile": "^4.1.2"
+  },
+  "devDependencies": {
+    "vitest": "^3.1.1"
+  }
+}
