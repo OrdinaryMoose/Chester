@@ -67,6 +67,22 @@ Task tool (general-purpose):
 
     Verify by checking git, not by trusting the report.
 
+    ## Decision-Record Alignment
+
+    **Applies only if decision records were created during this task.** For every
+    decision record created during this task (visible via `dr_query` with filter
+    `{sprint_subject, status: Active}` or by checking the store file):
+
+    - Verify the record's `Spec Update` field text matches the spec clause that
+      was updated — read the current spec; confirm the clause exists with the
+      referenced AC ID and that the wording aligns.
+    - Verify the record's `Test` field carries a SHA suffix (format:
+      `{test_name} @ {commit_sha}`). If the SHA is missing, the implementer
+      forgot to call `dr_finalize_refs` after commit — flag as a Commit-level
+      issue.
+    - Verify the record's `Code` field carries a SHA suffix similarly
+      (`{file:line} @ {commit_sha}`); flag missing SHAs as a Commit-level issue.
+
     ## Confidence Scoring
 
     Every issue gets a confidence score (0–100) reflecting how certain you are

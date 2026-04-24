@@ -58,8 +58,8 @@ For each task in order:
    - Record BASE_SHA before dispatch (the commit before the task starts)
 
 2. **Handle implementer status codes:**
-   - **DONE:** Proceed to spec review (step 3)
-   - **DONE_WITH_CONCERNS:** Read concerns, decide whether to proceed to review or re-dispatch
+   - **DONE:** Proceed to the decision-record trigger check (step 3)
+   - **DONE_WITH_CONCERNS:** Read concerns, decide whether to proceed to the trigger check or re-dispatch
    - **NEEDS_CONTEXT:** Provide the requested context and re-dispatch
    - **BLOCKED:** Assess the blocker. Either resolve it and re-dispatch, restructure the task, or escalate to the user
 
@@ -74,20 +74,28 @@ For each task in order:
    Do not default to re-dispatch. The think gate conclusion is the basis for
    the chosen response.
 
-3. **Dispatch spec compliance reviewer** using the template at `execute-write/references/spec-reviewer.md`
+3. **Decision-Record Trigger Check and Propagation**
+   - Skip if the current task's Type is `docs-producing` or `config-producing` (no skeleton diff runs for non-code tasks).
+   - Read the implementer's `observable-behaviors.md` artifact (Mod 2) and the spec's skeleton manifest (`spec-skeleton` artifact type per `util-artifact-schema`).
+   - Run the skeleton-coverage diff: for each observable behavior in the artifact, check whether an existing skeleton's declared boundary covers it. Behaviors with no skeleton coverage trigger FIRE.
+   - On FIRE: call `dr_capture` via the `chester-decision-record` MCP with the full field set (Test = test name only, Code = file:line only — SHAs appended post-commit). Then run the propagation procedure per `references/propagation-procedure.md` (spec-clause update → spec-driven test generation via `test-generator.md` subagent → full suite run via `execute-prove`). Task is BLOCKED until the suite passes including the new test(s).
+   - After the task commits, call `dr_finalize_refs(record_id, test_sha, code_sha)` to append commit SHAs to the record's Test and Code fields. Finalize happens within the same task execution, after commit, before the task is marked DONE in TodoWrite.
+   - Backward reach: failing tests on earlier-task code trigger existing BLOCKED-status handling (re-dispatch implementer scoped to failing-test files, updated spec clause as context).
+
+4. **Dispatch spec compliance reviewer** using the template at `execute-write/references/spec-reviewer.md`
    - Provide the full task requirements AND the implementer's report
    - Include BASE_SHA and HEAD_SHA for commit verification
    - If reviewer finds issues: fix them (re-dispatch implementer or fix inline) and re-review
 
-4. **Dispatch code quality reviewer** using the template at `execute-write/references/quality-reviewer.md`
+5. **Dispatch code quality reviewer** using the template at `execute-write/references/quality-reviewer.md`
    - Only dispatch after spec compliance passes
    - Handle severity-based results:
      - **Critical:** Must fix before proceeding
      - **Important:** Should fix; use judgment on whether to fix now or defer
      - **Minor:** Note and move on
 
-5. **Record HEAD_SHA** after task is complete and all reviews pass
-6. **Update TodoWrite** — mark task DONE, move next task to IN_PROGRESS
+6. **Record HEAD_SHA** after task is complete and all reviews pass
+7. **Update TodoWrite** — mark task DONE, move next task to IN_PROGRESS
 
 ### 2.2 Model Selection Guidance
 
@@ -238,6 +246,9 @@ steps and ask "Want to proceed?" — just proceed.
 - Listing the finish sequence steps and asking "Want to proceed?" — the sequence is automatic
 - Skipping finish-write-records without asking the user
 - Not invoking execute-verify-complete at all
+
+**From the decision-record loop:**
+- Marking a task DONE without running the decision-record trigger check step, or without the suite — including any new propagation-generated tests — passing.
 
 **General:**
 - Acting on deferred items instead of writing them down
