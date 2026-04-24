@@ -33,9 +33,11 @@ const STATUS_VALUES = new Set(["Active", "Superseded", "Abandoned"]);
 const ID_PATTERN = /^\d{8}-\d{5}$/;
 
 // Finalize-phase ref patterns. Short SHA is 7 hex chars minimum; full SHA is
-// 40. We allow anything in that range.
-const TEST_SHA_PATTERN = /^\S.*\s@\s[0-9a-f]{7,40}$/;
-const CODE_SHA_PATTERN = /^\S+:\d+\s@\s[0-9a-f]{7,40}$/;
+// 40. Test name allows any non-empty content; code path allows spaces (Windows
+// paths like "C:\Program Files\..."). Trailing whitespace rejected by anchoring
+// SHA to end of string.
+const TEST_SHA_PATTERN = /^\S(?:.*\S)?\s@\s[0-9a-f]{7,40}$/;
+const CODE_SHA_PATTERN = /^.+:\d+\s@\s[0-9a-f]{7,40}$/;
 
 function isNonEmptyString(v) {
   return typeof v === "string" && v.trim().length > 0;

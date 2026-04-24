@@ -136,6 +136,24 @@ describe("validate — finalize phase", () => {
     expect(result.ok).toBe(false);
     expect(result.errors.some((e) => e.field === "test")).toBe(true);
   });
+
+  it("accepts code path containing spaces", () => {
+    const sha = "abc1234";
+    const record = makeFinalizeRecord({
+      code: `C:\\Program Files\\app\\main.js:42 @ ${sha}`,
+    });
+    const result = validate(record, { phase: "finalize" });
+    expect(result.ok).toBe(true);
+  });
+
+  it("rejects test value with trailing whitespace", () => {
+    const record = makeFinalizeRecord({
+      test: "name @ abc1234 ",
+    });
+    const result = validate(record, { phase: "finalize" });
+    expect(result.ok).toBe(false);
+    expect(result.errors.some((e) => e.field === "test")).toBe(true);
+  });
 });
 
 describe("validate — format validation", () => {
