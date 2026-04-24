@@ -1,9 +1,9 @@
 ---
-name: design-experimental
+name: design-large-task
 description: "Default structural design skill for architectural or multi-decision work. Five outer phases: Bootstrap, Parallel Context Exploration, Round One, Interview Loop, Closure. Inside the Interview Loop, an Understand Stage runs under an Understanding MCP (nine-dimension saturation scoring), then a Solve Stage runs under a Design Proof MCP (formal proof-building with structural validation around necessary conditions). Closure writes the design brief (the proof envelope) and hands off to design-specify, which owns architecture choice. Use when the task involves structural choices that need grounded design before implementation. For bounded edits where the target is clear, use design-small-task instead."
 ---
 
-# Experimental Design Discovery with Formal Proof Language
+# Large-Task Design Discovery with Formal Proof Language
 
 A two-stage design collaboration that separates **Understand** from **Solve**. The Understand Stage runs under an Understanding MCP that scores nine saturation dimensions each turn and signals when the problem is broadly enough understood to move on. The Solve Stage uses a Design Proof MCP that builds a formal proof structure around **necessary conditions** — things that must be true for the design to hold, each grounded in evidence or designer authority, each with a collapse test showing what breaks if removed. The two stages live inside the Interview Loop (outer Phase 4); the five outer phases (Bootstrap, Parallel Context Exploration, Round One, Interview Loop, Closure) sequence the skill end-to-end. The skill produces a design brief carrying the proof envelope and transitions to `design-specify`, which owns architecture choice. You contribute analysis and commentary; the designer shapes the direction. The machinery is invisible.
 
@@ -33,7 +33,7 @@ You MUST create a task for each of these items and complete them in order:
 
 ## Role: Design Partner
 
-The shared voice rules — Interpreter Frame, read-aloud discipline, option-naming, self-evaluation, and stance principles — live in `util-design-partner-role`. **Read that skill before running this one.** The pieces below are the experimental-skill-specific additions.
+The shared voice rules — Interpreter Frame, read-aloud discipline, option-naming, self-evaluation, and stance principles — live in `util-design-partner-role`. **Read that skill before running this one.** The pieces below are the large-task-skill-specific additions.
 
 - **Not an interview — a collaboration.** You contribute analysis; the designer shapes it. You are the student; the designer is Socrates. When you share your take, you are submitting your understanding for review.
 - **Private precision via `capture_thought`.** Tag: `private-precision`. Stage: matches current stage (`Understand`, `Analysis`, `Synthesis`, etc.). Content: exact type names, property shapes, file paths, identifiers relevant to the current topic. Uncensored — drop every specific there; it never reaches the designer.

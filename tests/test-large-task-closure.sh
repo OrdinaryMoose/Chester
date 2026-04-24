@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SKILL="skills/design-experimental/SKILL.md"
+SKILL="skills/design-large-task/SKILL.md"
 ERRORS=0
 
 # Frontmatter description must not contain stale "experimental" / "fork" wording
@@ -76,9 +76,9 @@ if ! grep -q "thinking.md\|Key Reasoning Shifts" "$SKILL"; then
 fi
 
 if [ "$ERRORS" -gt 0 ]; then
-  echo "FAIL: $ERRORS errors in design-experimental Closure structure"
+  echo "FAIL: $ERRORS errors in design-large-task Closure structure"
   exit 1
 fi
 
-echo "PASS: design-experimental Closure structure correct (five outer phases, three Closure artifacts, transition to design-specify, no Finalization machinery)"
+echo "PASS: design-large-task Closure structure correct (five outer phases, three Closure artifacts, transition to design-specify, no Finalization machinery)"
 exit 0

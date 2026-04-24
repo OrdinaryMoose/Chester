@@ -1,12 +1,12 @@
 # Design Brief Output Template
 
 Canonical template for design brief output. Read this file when writing the design
-brief artifact at Closure of `design-experimental`. The brief carries the proof
+brief artifact at Closure of `design-large-task`. The brief carries the proof
 envelope — what the proof established — and feeds `design-specify`, which dispatches
 architects against this envelope to choose the architectural approach.
 
 This document defines the required structure for design brief artifacts produced by
-`design-experimental` at Closure. It is the single source of truth for what a design
+`design-large-task` at Closure. It is the single source of truth for what a design
 brief must contain.
 
 A design brief is the **envelope** — what the proof established. The goal, the

@@ -24,7 +24,7 @@ Chester's design skills use local MCP servers that require Node.js dependencies:
 cd ~/Documents/Chester
 npm install --prefix skills/design-figure-out/enforcement
 npm install --prefix skills/design-figure-out/understanding
-npm install --prefix skills/design-experimental/proof-mcp
+npm install --prefix skills/design-large-task/proof-mcp
 ```
 
 ### 3. Set absolute paths in .mcp.json
@@ -46,7 +46,7 @@ Edit `.mcp.json` and replace every occurrence of `${CLAUDE_PLUGIN_ROOT}` with yo
     },
     "chester-design-proof": {
       "command": "node",
-      "args": ["/your/path/to/Chester/skills/design-experimental/proof-mcp/server.js"]
+      "args": ["/your/path/to/Chester/skills/design-large-task/proof-mcp/server.js"]
     }
   }
 }
@@ -74,7 +74,7 @@ After `git pull`, re-run the npm installs and re-sync the plugin:
 ```bash
 npm install --prefix skills/design-figure-out/enforcement
 npm install --prefix skills/design-figure-out/understanding
-npm install --prefix skills/design-experimental/proof-mcp
+npm install --prefix skills/design-large-task/proof-mcp
 claude plugins update chester@chester
 ```
 

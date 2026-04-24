@@ -195,7 +195,7 @@ go test ./...
 ## Integration
 
 **Called by:**
-- **design-experimental** (Archival stage) - REQUIRED when design is approved and implementation follows
+- **design-large-task** (Archival stage) - REQUIRED when design is approved and implementation follows
 - **design-small-task** (Closure) - REQUIRED when brief is approved and implementation follows
 - **execute-write** - REQUIRED before executing any tasks
 - Any skill needing isolated workspace

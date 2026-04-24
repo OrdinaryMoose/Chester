@@ -19,7 +19,7 @@ Before executing in either mode, complete these setup steps.
 ### 1.2 Verify Worktree
 
 - Verify that a worktree already exists. In the canonical sequence
-  (`design-experimental` | `design-small-task` → `design-specify` → `plan-build` → execute-write), the worktree is created upstream during the design phase (by `design-experimental` at Archival or `design-small-task` at Closure) and inherited through `design-specify` and `plan-build` unchanged.
+  (`design-large-task` | `design-small-task` → `design-specify` → `plan-build` → execute-write), the worktree is created upstream during the design phase (by `design-large-task` at Archival or `design-small-task` at Closure) and inherited through `design-specify` and `plan-build` unchanged.
 - Check: run `git worktree list` and confirm a worktree is active for the current branch.
 - If no worktree exists (e.g., execute-write invoked standalone without a prior design phase), invoke `util-worktree` to create one as a fallback.
 - All implementation happens in the worktree, not the main tree.
@@ -52,7 +52,7 @@ This is the recommended execution mode. Each task is dispatched to a fresh subag
 
 For each task in order:
 
-1. **Dispatch implementer subagent** using the template at `execute-write/implementer.md`
+1. **Dispatch implementer subagent** using the template at `execute-write/references/implementer.md`
    - Paste the FULL task text into the prompt — do not make the subagent read a file
    - Include all context: where this fits, dependencies, architectural constraints
    - Record BASE_SHA before dispatch (the commit before the task starts)
@@ -74,12 +74,12 @@ For each task in order:
    Do not default to re-dispatch. The think gate conclusion is the basis for
    the chosen response.
 
-3. **Dispatch spec compliance reviewer** using the template at `execute-write/spec-reviewer.md`
+3. **Dispatch spec compliance reviewer** using the template at `execute-write/references/spec-reviewer.md`
    - Provide the full task requirements AND the implementer's report
    - Include BASE_SHA and HEAD_SHA for commit verification
    - If reviewer finds issues: fix them (re-dispatch implementer or fix inline) and re-review
 
-4. **Dispatch code quality reviewer** using the template at `execute-write/quality-reviewer.md`
+4. **Dispatch code quality reviewer** using the template at `execute-write/references/quality-reviewer.md`
    - Only dispatch after spec compliance passes
    - Handle severity-based results:
      - **Critical:** Must fix before proceeding
@@ -151,7 +151,7 @@ git log --oneline BASE_SHA..HEAD_SHA
 
 ### 4.2 Dispatch Code Reviewer
 
-Use the template at `execute-write/code-reviewer.md` with:
+Use the template at `execute-write/references/code-reviewer.md` with:
 - WHAT_WAS_IMPLEMENTED: summary of all completed tasks
 - PLAN_OR_REQUIREMENTS: reference to the plan file
 - BASE_SHA: commit before first task
@@ -206,7 +206,7 @@ steps and ask "Want to proceed?" — just proceed.
   - `execute-test` — can be invoked per task when TDD is required by the plan
   - `execute-prove` — can be invoked per task for verification checkpoints
 - **Reads:** `util-artifact-schema` (for deferred items path)
-- **Template files (in this skill directory):**
+- **Template files** (in `references/`):
   - `implementer.md` — prompt template for implementer subagents
   - `spec-reviewer.md` — prompt template for spec compliance review subagents
   - `quality-reviewer.md` — prompt template for code quality review subagents

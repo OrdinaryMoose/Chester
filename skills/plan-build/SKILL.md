@@ -15,7 +15,7 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 
 Use TaskCreate/TaskUpdate to give the user real-time visibility into your progress. This is for user awareness only — it does not constrain your workflow.
 
-**Task reset (do first, do not track):** Before creating any tasks, call TaskList. If any tasks exist from a previous skill (e.g., design-experimental), delete them all via TaskUpdate with status: `deleted`. This is housekeeping — do not create a tracked task for it.
+**Task reset (do first, do not track):** Before creating any tasks, call TaskList. If any tasks exist from a previous skill (e.g., design-large-task), delete them all via TaskUpdate with status: `deleted`. This is housekeeping — do not create a tracked task for it.
 
 **Starting tasks:** After the reset, create one task for each of these phases via TaskCreate:
 
@@ -38,7 +38,7 @@ Use TaskCreate/TaskUpdate to give the user real-time visibility into your progre
 - The 8 starting tasks are the baseline
 - When writing plan tasks, you may optionally create one sub-task per plan task if the plan has many tasks, to give finer-grained progress — use your judgment based on plan size
 
-**Context:** This should be run in a dedicated worktree (created by `design-experimental` or `design-small-task` during their Archival / closure stage).
+**Context:** This should be run in a dedicated worktree (created by `design-large-task` or `design-small-task` during their Archival / closure stage).
 
 **Save plans to:** the `plan/` subdirectory. Inherit the sprint subdirectory from the spec's directory path. See `util-artifact-schema` for naming and path conventions.
 
@@ -46,7 +46,7 @@ The plan is NOT committed here — `finish-archive-artifacts` copies all artifac
 
 ## Scope Check
 
-If the brief covers multiple independent subsystems, it should have been broken into sub-project briefs during the design phase (design-experimental's proof loop, or design-small-task's conversation). If it wasn't, suggest breaking this into separate plans — one per subsystem. Each plan should produce working, testable software on its own.
+If the brief covers multiple independent subsystems, it should have been broken into sub-project briefs during the design phase (design-large-task's proof loop, or design-small-task's conversation). If it wasn't, suggest breaking this into separate plans — one per subsystem. Each plan should produce working, testable software on its own.
 
 ## File Structure
 
@@ -132,7 +132,7 @@ When `design-specify` ran an opt-in ground-truth review against the spec, the
 The report is a trusted input at the plan stage — `plan-attack` does not need to
 re-verify what design-specify already verified.
 
-`design-experimental` no longer produces a design-stage ground-truth report
+`design-large-task` no longer produces a design-stage ground-truth report
 (architecture choice and ground-truth verification are owned by `design-specify`).
 The cascade reads only the spec-stage report when present.
 
@@ -227,4 +227,4 @@ Which approach?
 - **Reads:** `util-artifact-schema` (naming/paths), the spec from upstream `spec/` subdirectory, the spec-stage ground-truth report from upstream `spec/` subdirectory (when present)
 - **Transitions to:** `execute-write` (subagent or inline mode)
 - **Does NOT call:** `start-bootstrap` (inherits sprint context from upstream design and spec stages)
-- **Spec compatibility:** reads spec documents written by `design-specify`, regardless of whether the upstream brief came from `design-experimental` (nine-section) or `design-small-task` (six-section) — design-specify normalizes both into the spec contract
+- **Spec compatibility:** reads spec documents written by `design-specify`, regardless of whether the upstream brief came from `design-large-task` (nine-section) or `design-small-task` (six-section) — design-specify normalizes both into the spec contract

@@ -28,7 +28,7 @@ Chester then enforces discipline during implementation: tests before code, root 
 Chester skills fall into two categories:
 
 - **Rigid skills** — follow the process exactly. These have Iron Laws and explicit anti-rationalization sections. Deviating from the process is treated as a process violation, not a reasonable adaptation. Skills in this category: `execute-test`, `execute-prove`.
-- **Flexible skills** — adapt the principles to context. These provide frameworks and structure, but the agent uses judgment about how to apply them. Skills in this category: `design-experimental`, `design-figure-out`, `design-small-task`, `plan-build`, `execute-write`.
+- **Flexible skills** — adapt the principles to context. These provide frameworks and structure, but the agent uses judgment about how to apply them. Skills in this category: `design-large-task`, `design-figure-out`, `design-small-task`, `plan-build`, `execute-write`.
 
 When you are using a rigid skill and find yourself thinking "just this once" or "this is different because…" — that is rationalization. The skill documentation says so explicitly. Follow the process.
 
@@ -82,7 +82,7 @@ The `--prefix` flag tells npm to treat the specified directory as the project ro
 cd ~/Documents/Chester
 npm install --prefix skills/design-figure-out/enforcement
 npm install --prefix skills/design-figure-out/understanding
-npm install --prefix skills/design-experimental/proof-mcp
+npm install --prefix skills/design-large-task/proof-mcp
 ```
 
 This is equivalent to `cd`-ing into each directory and running `npm install` individually.
@@ -106,7 +106,7 @@ Edit `.mcp.json` and replace every occurrence of `${CLAUDE_PLUGIN_ROOT}` with yo
     },
     "chester-design-proof": {
       "command": "node",
-      "args": ["/your/path/to/Chester/skills/design-experimental/proof-mcp/server.js"]
+      "args": ["/your/path/to/Chester/skills/design-large-task/proof-mcp/server.js"]
     }
   }
 }
@@ -132,7 +132,7 @@ After `git pull`, re-run the npm installs and re-sync the plugin:
 ```bash
 npm install --prefix skills/design-figure-out/enforcement
 npm install --prefix skills/design-figure-out/understanding
-npm install --prefix skills/design-experimental/proof-mcp
+npm install --prefix skills/design-large-task/proof-mcp
 claude plugins update chester@chester
 ```
 
@@ -165,7 +165,7 @@ Chester writes these paths to a project-scoped config file and creates `.gitigno
 ```
 setup-start (session load)
     ↓
-design-experimental OR design-small-task OR design-figure-out
+design-large-task OR design-small-task OR design-figure-out
     ↓
 design-specify
     ↓
@@ -208,7 +208,7 @@ You do not call most of these manually — they chain automatically. The pipelin
 
 **What it does:** Mechanical session initialization for pipeline skills. Reads config, derives the sprint name in `YYYYMMDD-##-verb-noun-noun` format, creates the working directory and sprint subdirectory, resets the task list from any prior skill, and loads the top lessons from `~/.chester/thinking.md`.
 
-**When it runs:** Called internally by `design-experimental`, `design-figure-out`, `design-small-task`, and `design-specify` (standalone). You do not invoke this directly.
+**When it runs:** Called internally by `design-large-task`, `design-figure-out`, `design-small-task`, and `design-specify` (standalone). You do not invoke this directly.
 
 **Tips:**
 - The sprint name format is the branch name. Three words: a verb (the action) followed by two nouns (the target). Example: `20260412-01-add-user-auth`.
@@ -216,7 +216,7 @@ You do not call most of these manually — they chain automatically. The pipelin
 
 ---
 
-### `chester:design-experimental`
+### `chester:design-large-task`
 
 **What it does:** The preferred design skill. A two-phase Socratic design interview where Phase 1 runs under Plan Mode (read-only: no file writes, no edits, no commands) and Phase 2 uses a formal Design Proof MCP. Instead of scoring clarity dimensions, Phase 2 builds a structured proof of necessary conditions — things that must be true for the design to hold, each grounded in codebase evidence or designer authority, each with a collapse test showing what breaks if removed.
 
@@ -253,7 +253,7 @@ The agent acts as a Software Architect — opinionated, codebase-aware, willing 
 
 **When to invoke:** When the task is clear and bounded, but you want to surface edge cases, existing patterns, and constraints before planning. Good for: adding a field to an existing feature, modifying a specific behavior, implementing a well-understood extension.
 
-**How it differs from design-experimental:**
+**How it differs from design-large-task:**
 - No MCP servers required
 - No phase structure (single continuous conversation)
 - No Plan Mode — the agent can read and write freely throughout
@@ -264,7 +264,7 @@ The agent acts as a Software Architect — opinionated, codebase-aware, willing 
 **Hard gate:** The agent will never suggest writing the brief or wrapping up the conversation. You explicitly direct it to proceed ("go ahead," "write it up," "let's build it"). Until you do, it keeps asking questions.
 
 **Tips:**
-- Use this for tasks that are genuinely mechanical but where you want a checklist of considerations before planning. If you find the conversation expanding into architecture discussions, you probably need `design-experimental` instead.
+- Use this for tasks that are genuinely mechanical but where you want a checklist of considerations before planning. If you find the conversation expanding into architecture discussions, you probably need `design-large-task` instead.
 - Because the agent can use code vocabulary, you can reference specific files, classes, and patterns directly.
 - The six-section brief (Goal, Prior Art, Scope, Key Decisions, Constraints, Acceptance Criteria) is designed to be self-contained enough that `plan-build` can consume it without reading the conversation.
 
@@ -272,13 +272,13 @@ The agent acts as a Software Architect — opinionated, codebase-aware, willing 
 
 ### `chester:design-figure-out`
 
-**What it does:** The original design skill, now superseded by `design-experimental`. A two-phase Socratic design interview with quantitative MCP scoring. Phase 1 uses a nine-dimension understanding MCP; Phase 2 uses an enforcement MCP that scores design clarity dimensions and gates closure behind an ambiguity threshold.
+**What it does:** The original design skill, now superseded by `design-large-task`. A two-phase Socratic design interview with quantitative MCP scoring. Phase 1 uses a nine-dimension understanding MCP; Phase 2 uses an enforcement MCP that scores design clarity dimensions and gates closure behind an ambiguity threshold.
 
-The agent acts as a Software Architect and dispatches four parallel exploration agents before the interview begins, identical to `design-experimental`.
+The agent acts as a Software Architect and dispatches four parallel exploration agents before the interview begins, identical to `design-large-task`.
 
-**When to invoke:** When `design-experimental` is unavailable or its proof MCP server is not connected. Otherwise prefer `design-experimental`.
+**When to invoke:** When `design-large-task` is unavailable or its proof MCP server is not connected. Otherwise prefer `design-large-task`.
 
-**How it differs from design-experimental:**
+**How it differs from design-large-task:**
 - Phase 1 uses a scoring MCP rather than Plan Mode
 - Phase 2 scores clarity dimensions rather than building a formal proof
 - Closure requires ambiguity below 0.20 and three readiness gates, rather than proof MCP confirmation
@@ -297,13 +297,13 @@ The agent acts as a Software Architect and dispatches four parallel exploration 
 
 ### `chester:design-specify`
 
-**What it does:** Formalizes an approved design into a durable spec document. Takes the design brief from `design-experimental` or `design-figure-out` (or a human-written brief) and produces a spec that `plan-build` can use.
+**What it does:** Formalizes an approved design into a durable spec document. Takes the design brief from `design-large-task` or `design-figure-out` (or a human-written brief) and produces a spec that `plan-build` can use.
 
 The key feature: before writing the spec, four agents run in parallel — three architect agents each with a different trade-off profile (minimal changes, clean architecture, pragmatic balance), plus a prior art explorer. You pick the architecture direction, and the spec is built from that choice.
 
 After the spec is written, an automated fidelity review loop runs (up to 2 iterations) to verify the spec faithfully addresses the design brief. Optionally, a ground-truth review verifies spec claims against the actual codebase.
 
-**When to invoke:** Automatically after `design-experimental` or `design-figure-out`. Can also be invoked standalone if you have a design brief from a whiteboard, conversation, or previous session.
+**When to invoke:** Automatically after `design-large-task` or `design-figure-out`. Can also be invoked standalone if you have a design brief from a whiteboard, conversation, or previous session.
 
 **How to use:** After either design skill transitions to this, it runs automatically. You see a comparison of three architecture approaches and pick one (or ask for a hybrid). Then you review the spec and approve it before planning begins.
 
@@ -567,7 +567,7 @@ summary/  (session summary, reasoning audit, cache analysis)
 
 **What it does:** Creates an isolated git worktree for feature work. Follows a smart directory selection process, verifies the worktree directory is gitignored, runs project setup (npm install, cargo build, etc.), and verifies a clean test baseline before reporting ready.
 
-**When to invoke:** Automatically called by `design-experimental` and `design-figure-out` at closure and by `execute-write` as a fallback if no worktree exists. Can also be invoked standalone before feature work.
+**When to invoke:** Automatically called by `design-large-task` and `design-figure-out` at closure and by `execute-write` as a fallback if no worktree exists. Can also be invoked standalone before feature work.
 
 **Directory selection priority:**
 1. Existing `.worktrees/` directory (preferred)
@@ -640,7 +640,7 @@ summary/  (session summary, reasoning audit, cache analysis)
 
 Brief templates are not standalone skills — they live as reference files inside each design skill:
 
-- `skills/design-experimental/references/design-brief-template.md` — 8-section envelope (Goal, Necessary Conditions, Rules, Permissions, Evidence, Industry Context, Risks, Acceptance Criteria). Read by `design-experimental` before writing the brief at Closure.
+- `skills/design-large-task/references/design-brief-template.md` — 8-section envelope (Goal, Necessary Conditions, Rules, Permissions, Evidence, Industry Context, Risks, Acceptance Criteria). Read by `design-large-task` before writing the brief at Closure.
 - `skills/design-small-task/references/design-brief-small-template.md` — 6-section lightweight (Goal, Prior Art, Scope, Key Decisions, Constraints, Acceptance Criteria). Read by `design-small-task` before writing the brief at Closure.
 
 **Tip:** Design briefs are written in domain language — no type names, file paths, or implementation details. The self-containment test is whether `design-specify` can dispatch architects from the brief alone.
@@ -669,7 +669,7 @@ The shortest path to a new sprint:
 "I want to add [feature]. Let's design it."
 ```
 
-Chester will invoke `design-experimental` automatically and walk you through the pipeline.
+Chester will invoke `design-large-task` automatically and walk you through the pipeline.
 
 For a simpler, bounded task:
 
@@ -681,7 +681,7 @@ For a simpler, bounded task:
 
 If a design or planning session is interrupted, the skills have resume protocols:
 
-- `design-experimental` and `design-figure-out`: the agent calls `get_thinking_summary()` and reloads the MCP state from disk. It picks up from the last completed round.
+- `design-large-task` and `design-figure-out`: the agent calls `get_thinking_summary()` and reloads the MCP state from disk. It picks up from the last completed round.
 - `plan-build`: re-read the spec and plan file if partially written.
 - `execute-write`: re-read the plan, check the task list, verify which tasks are committed.
 
@@ -694,13 +694,13 @@ Read the threat report carefully. The risk rating is a judgment call from the at
 
 "Significant" risk does not mean stop. It means know what you're walking into.
 
-### When to use design-experimental vs. design-small-task
+### When to use design-large-task vs. design-small-task
 
 | Situation | Skill |
 |-----------|-------|
-| New feature with open design questions | `design-experimental` |
+| New feature with open design questions | `design-large-task` |
 | Modification to existing behavior with clear constraints | `design-small-task` |
-| `design-experimental` MCP servers unavailable | `design-figure-out` |
+| `design-large-task` MCP servers unavailable | `design-figure-out` |
 | You already have a design and just need a spec | `design-specify` (standalone) |
 
 ### When to skip design-specify
@@ -733,9 +733,9 @@ Chester will identify which failures are independent, craft focused agent prompt
 |-------|-------|-------------|
 | `setup-start` | Setup | Auto-loads every session |
 | `start-bootstrap` | Setup | Called internally by pipeline skills |
-| `design-experimental` | Design | Before any creative work — the preferred design skill |
+| `design-large-task` | Design | Before any creative work — the preferred design skill |
 | `design-small-task` | Design | Bounded tasks with clear intent, no MCP needed |
-| `design-figure-out` | Design | Fallback when design-experimental MCP servers are unavailable |
+| `design-figure-out` | Design | Fallback when design-large-task MCP servers are unavailable |
 | `design-specify` | Design | Formalize a brief into a reviewed spec |
 | `plan-build` | Plan | Break a spec into a TDD implementation plan |
 | `plan-attack` | Plan | Adversarial review — auto-runs in plan hardening |
@@ -751,5 +751,5 @@ Chester will identify which failures are independent, craft focused agent prompt
 | `util-dispatch` | Utility | Coordinate parallel subagents |
 | `util-codereview` | Utility | Smell review of existing code |
 | `util-artifact-schema` | Reference | Artifact naming and path conventions |
-| `design-experimental/references/design-brief-template.md` | Reference | 8-section envelope brief (read by design-experimental) |
+| `design-large-task/references/design-brief-template.md` | Reference | 8-section envelope brief (read by design-large-task) |
 | `design-small-task/references/design-brief-small-template.md` | Reference | 6-section lightweight brief (read by design-small-task) |

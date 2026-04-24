@@ -2,7 +2,7 @@
   "name": "chester-design-understanding",
   "version": "1.0.0",
   "type": "module",
-  "description": "Understanding mechanism MCP server for chester-design-experimental Phase 1 scoring",
+  "description": "Understanding mechanism MCP server for chester-design-large-task Phase 1 scoring",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

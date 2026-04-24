@@ -11,7 +11,7 @@ be missed before jumping to planning.
 
 This skill produces a design brief that feeds into `design-specify`, which formalizes
 it into a spec document before `plan-build` consumes the spec. Small-task briefs are
-shorter (six sections) than experimental briefs (nine sections) but follow the same
+shorter (six sections) than large-task briefs (eight sections) but follow the same
 downstream chain.
 
 <HARD-GATE>

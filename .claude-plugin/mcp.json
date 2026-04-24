@@ -2,11 +2,11 @@
   "mcpServers": {
     "chester-design-proof": {
       "command": "node",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/skills/design-experimental/proof-mcp/server.js"]
+      "args": ["${CLAUDE_PLUGIN_ROOT}/skills/design-large-task/proof-mcp/server.js"]
     },
     "chester-design-understanding": {
       "command": "node",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/skills/design-experimental/understanding-mcp/server.js"]
+      "args": ["${CLAUDE_PLUGIN_ROOT}/skills/design-large-task/understanding-mcp/server.js"]
     }
   }
 }

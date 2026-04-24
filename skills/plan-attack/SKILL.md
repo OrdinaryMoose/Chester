@@ -77,7 +77,7 @@ real usages — do not trust the plan's claim that it covers everything.
 
 ## Trust Input (Optional)
 
-When dispatched from `plan-build` after `design-experimental`, this skill may
+When dispatched from `plan-build` after `design-large-task`, this skill may
 receive a **verified-anchor skip-list** in its prompt — a list of file paths, type
 names, and method names that the ground-truth subagent verified against the
 codebase during the design stage's Finalization.

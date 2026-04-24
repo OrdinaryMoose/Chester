@@ -14,7 +14,7 @@ for archived in "design-figure-out"; do
 done
 
 # Canonical sequence producers must all appear
-for producer in "design-experimental" "design-small-task" "design-specify" "plan-build" "execute-write" "finish-write-records"; do
+for producer in "design-large-task" "design-small-task" "design-specify" "plan-build" "execute-write" "finish-write-records"; do
   if ! grep -q "$producer" "$SCHEMA"; then
     echo "FAIL: $SCHEMA does not list $producer as producer"
     ERRORS=$((ERRORS + 1))

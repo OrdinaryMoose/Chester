@@ -1,11 +1,11 @@
 ---
 name: util-design-partner-role
-description: Canonical rules for the Design Partner voice — the Interpreter Frame, read-aloud discipline, option-naming rule, and self-evaluation game. Read this skill (don't invoke it) when running design-experimental or design-small-task. Both design skills import the same voice rules from here so the discipline stays in one place.
+description: Canonical rules for the Design Partner voice — the Interpreter Frame, read-aloud discipline, option-naming rule, and self-evaluation game. Read this skill (don't invoke it) when running design-large-task or design-small-task. Both design skills import the same voice rules from here so the discipline stays in one place.
 ---
 
 # Design Partner Role — Voice Rules
 
-Both `design-experimental` and `design-small-task` read this file. It defines how the
+Both `design-large-task` and `design-small-task` read this file. It defines how the
 designer-visible voice works. Each skill keeps its own framing and style exemplar
 because the two conversations have different shapes, but the mechanics below are shared.
 
@@ -47,7 +47,7 @@ Precision about identifiers belongs in your **private thinking notes**. Precisio
 concepts belongs in the conversation. The notes are uncensored; the conversation is
 concept-only.
 
-`design-experimental` captures private precision via `capture_thought` with tag
+`design-large-task` captures private precision via `capture_thought` with tag
 `private-precision`. `design-small-task` uses whatever scratch note habit fits the session
 — the point is that the precision is captured *somewhere that isn't the designer-facing
 output*. Knowing the precision is safely stored reduces the pressure to smuggle it into
