@@ -74,6 +74,27 @@ if ! grep -qi "implementer.*code\|implementation.*code\|code.*diff" "$TEST_GEN";
   ERRORS=$((ERRORS + 1))
 fi
 
+# (f) design-specify/SKILL.md references skeleton-generator.md + util-artifact-schema
+#     for the manifest path (Task 7), not a hardcoded path.
+DESIGN_SPECIFY="skills/design-specify/SKILL.md"
+if ! grep -qi "Scaffold test skeletons" "$DESIGN_SPECIFY"; then
+  echo "FAIL: $DESIGN_SPECIFY missing 'Scaffold test skeletons' step"
+  ERRORS=$((ERRORS + 1))
+fi
+if ! grep -q "skeleton-generator.md" "$DESIGN_SPECIFY"; then
+  echo "FAIL: $DESIGN_SPECIFY does not reference skeleton-generator.md"
+  ERRORS=$((ERRORS + 1))
+fi
+if ! grep -qi "util-artifact-schema\|spec-skeleton artifact" "$DESIGN_SPECIFY"; then
+  echo "FAIL: $DESIGN_SPECIFY must defer manifest path to util-artifact-schema, not hardcode it"
+  ERRORS=$((ERRORS + 1))
+fi
+# Guard against hardcoded-path regression.
+if grep -qE 'spec/\{sprint-name\}-spec-skeleton-\{nn\}\.md' "$DESIGN_SPECIFY"; then
+  echo "FAIL: $DESIGN_SPECIFY appears to hardcode the manifest path — defer to util-artifact-schema"
+  ERRORS=$((ERRORS + 1))
+fi
+
 if [ "$ERRORS" -gt 0 ]; then
   echo "FAIL: $ERRORS errors in reference files"
   exit 1
