@@ -24,8 +24,8 @@ You MUST create a task for each of these items and complete them in order:
 1. **Bootstrap** — invoke `start-bootstrap` (handles config, sprint naming, dir creation, task reset, thinking history)
 2. **Parallel context exploration** — dispatch 3 agents in parallel, each on a distinct corpus: 1 `feature-dev:code-explorer` for the codebase (similar features, architecture, extension points) + 1 `Explore` agent for prior sprint design artifacts + 1 `general-purpose` agent for industry patterns via WebSearch/WebFetch; read all identified files
 3. **Initialize understanding MCP** — call `initialize_understanding`, score the nine dimensions against explorer findings, call `submit_understanding` with the baseline. **No designer-facing turn is permitted until this step completes.**
-4. **Round one presentation** — present gap map, offer first commentary, announce Understand Stage begins. This is the first designer-facing turn.
-5. **Understand Stage** — per-turn cycle under the understanding MCP: score nine saturation dimensions each turn, let the MCP's weakest-dimension signal drive topic selection
+4. **Round one presentation** — present framing and gap map only. No commentary, no "what do you think?" Ask the designer if they are ready to move into the Understand Stage. This is the first designer-facing turn; it is information transfer, not interview.
+5. **Understand Stage** — designer confirms readiness; per-turn cycle under the understanding MCP begins on the next response: score nine saturation dimensions each turn, let the MCP's weakest-dimension signal drive topic selection
 6. **Phase transition** — designer confirms understanding, `capture_thought()` with tag `understanding-confirmed` and stage `Transition`
 7. **Proof phase** — present designer's verbatim problem statement for confirmation, initialize proof MCP, per-turn proof cycle with necessary conditions model
 8. **Closing argument** — compose and present the closing argument; designer approval settles the proof
@@ -143,9 +143,11 @@ If you catch yourself composing a turn without having called `initialize_underst
 
 ## Phase 3: Round One
 
-Round one establishes the understanding baseline. The agent uses the explorer findings plus its own exploration to initialize the understanding MCP and present what it knows alongside what it doesn't.
+Round one establishes the understanding baseline and hands the shared context to the designer. It is **information transfer only** — no commentary, no interview question, no "what do you think?" The interview begins in the Understand Stage, governed by the understanding MCP's per-turn scoring cycle. Round One exists so the designer enters that stage on the same page you are.
 
-**Ordering is strict.** MCP initialization and baseline scoring happen *before* the first turn to the designer. The gap map, commentary, and "what do you think?" are the *output* of Round One — not the entry into it. If the MCP is not initialized, you are not in Round One yet; you are still in the setup gate above.
+**Ordering is strict.** MCP initialization and baseline scoring happen *before* the first turn to the designer. The framing and gap map are the *output* of Round One. If the MCP is not initialized, you are not in Round One yet; you are still in the setup gate above.
+
+**No interview in Round One.** Do not offer commentary on the weakest dimension. Do not ask the designer to react to your take. Do not probe any gap. Those are Understand Stage moves and require the scoring cycle to drive topic selection. Round One ends with a single ready-check question; the first real turn is the designer's first Understand Stage response.
 
 1. Explore codebase for relevant context, building on what the explorers found. Classify **brownfield** (existing codebase target) vs **greenfield**. This classification is internal — do not present it to the user.
 2. Initialize the understanding MCP. Call `initialize_understanding` with:
@@ -168,10 +170,9 @@ Round one establishes the understanding baseline. The agent uses the explorer fi
    - **What the prior art reveals** — observations about the designer's intent or vision of the architecture or system, lessons or applicable knowledge from previous sprints, and/or solutions tried before and discarded that may change our understanding of the problem. These are observations, not conclusions — not a problem statement, not a solution structure, and not a comprehensive analysis.
    - **What industry development reveals** — observations about current industry projects, research, or applicable information that can inform our development effort or illuminate elements of the design that we have not considered. These are observations, not conclusions — not a problem statement, not a solution structure, and not a comprehensive analysis.
    - **What the agent can't determine from code alone** — explicit gaps drawn from the understanding MCP's gap fields, grouped by dimension group (human_context, foundations).
-6. Offer your first commentary — share what you've observed about the weakest dimension from the least-saturated group (as reported by the understanding MCP). End with "What do you think?"
-7. Announce: **Understand Stage begins.** The conversation will focus on building shared understanding of the problem before exploring solutions.
-8. `capture_thought()` with tag `understanding-baseline`, stage `Understand`.
-9. Interview loop starts with the user's response.
+6. **Ready check — no commentary.** After presenting the gap map, close the turn with a plain readiness prompt. Example wording: "That's the shared picture I have coming in. If it matches your sense of the ground, we can move into the Understand Stage — I'll start scoring what's understood each turn and pulling on the weakest thread. Ready to begin, or do you want to correct anything about the picture first?" No take on the weakest dimension. No "What do you think?" No probing question about any gap. The designer either confirms, corrects the picture, or adds context. Corrections loop back into the gap map presentation; confirmation moves to step 7.
+7. `capture_thought()` with tag `understanding-baseline`, stage `Understand`.
+8. On designer confirmation, announce: **Understand Stage begins.** The first per-turn scoring cycle runs on the designer's next response (or on their confirmation message itself, if it carries substantive new information).
 
 ---
 
