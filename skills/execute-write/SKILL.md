@@ -22,10 +22,11 @@ Before executing in either mode, complete these setup steps.
 
 ### 1.2 Verify Worktree
 
-- Verify that a worktree already exists (created by `design-experimental` or `design-small-task` earlier in the pipeline, or by `util-worktree` if invoked standalone)
-- Check: run `git worktree list` and confirm a worktree is active for the current branch
-- If no worktree exists (e.g., execute-write invoked standalone without a prior design phase), invoke util-worktree to create one as a fallback
-- All implementation happens in the worktree, not the main tree
+- Verify that a worktree already exists. In the canonical sequence
+  (`design-experimental` | `design-small-task` → `design-specify` → `plan-build` → execute-write), the worktree is created upstream during the design phase (by `design-experimental` at Archival or `design-small-task` at Closure) and inherited through `design-specify` and `plan-build` unchanged.
+- Check: run `git worktree list` and confirm a worktree is active for the current branch.
+- If no worktree exists (e.g., execute-write invoked standalone without a prior design phase), invoke `util-worktree` to create one as a fallback.
+- All implementation happens in the worktree, not the main tree.
 
 ### 1.3 Handle Deferred Items
 
@@ -195,21 +196,29 @@ steps and ask "Want to proceed?" — just proceed.
 
 ## Integration
 
+- **Invoked by:** `plan-build` (primary, end of its Execution Handoff), or user directly (standalone — must point to an existing plan).
+- **Transitions to:** Section 5 finish sequence, in order:
+  1. `execute-verify-complete` (mandatory — proves tests, clean tree, checkpoint commit)
+  2. `finish-write-records` (optional — user-prompted at Section 5 step 2)
+  3. `finish-archive-artifacts` (mandatory — copies working dir to plans dir)
+  4. `finish-close-worktree` (mandatory — branch integration, worktree cleanup)
 - **Required sub-skills:**
-  - util-worktree — verifies existing worktree; creates one as fallback for standalone invocation
-  - execute-verify-complete — called after all tasks complete
-  - finish-archive-artifacts — archives sprint artifacts
-  - finish-close-worktree — branch integration and cleanup
+  - `util-worktree` — verifies existing worktree; creates one as fallback for standalone invocation
+  - `execute-verify-complete` — called after all tasks complete
+  - `finish-archive-artifacts` — archives sprint artifacts
+  - `finish-close-worktree` — branch integration and cleanup
 - **Optional sub-skills:**
-  - finish-write-records — session summary and reasoning audit
-  - execute-test — can be invoked per task when TDD is required by the plan
-  - execute-prove — can be invoked per task for verification checkpoints
+  - `finish-write-records` — session summary and reasoning audit
+  - `execute-test` — can be invoked per task when TDD is required by the plan
+  - `execute-prove` — can be invoked per task for verification checkpoints
+  - `execute-debug` — invoked when a task hits a failure that needs root-cause investigation
+  - `execute-review` — invoked when receiving code review feedback mid-task
 - **Reads:** `util-artifact-schema` (for deferred items path), `util-budget-guard`
 - **Template files (in this skill directory):**
-  - implementer.md — prompt template for implementer subagents
-  - spec-reviewer.md — prompt template for spec compliance review subagents
-  - quality-reviewer.md — prompt template for code quality review subagents
-  - code-reviewer.md — prompt template for full code review subagents
+  - `implementer.md` — prompt template for implementer subagents
+  - `spec-reviewer.md` — prompt template for spec compliance review subagents
+  - `quality-reviewer.md` — prompt template for code quality review subagents
+  - `code-reviewer.md` — prompt template for full code review subagents
 
 ## Red Flags
 

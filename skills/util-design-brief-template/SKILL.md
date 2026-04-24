@@ -2,34 +2,36 @@
 name: util-design-brief-template
 description: >
   Canonical template for design brief output. Read this skill (don't invoke it)
-  when writing the design brief artifact at the end of `design-experimental`. Follows
-  the envelope-plus-point structure: the envelope (what the proof established) plus the
-  point (the architectural approach selected during Finalization).
+  when writing the design brief artifact at Closure of `design-experimental`.
+  The brief carries the proof envelope — what the proof established — and feeds
+  `design-specify`, which dispatches architects against this envelope to choose
+  the architectural approach.
 ---
 
 # Design Brief Output Template
 
 This document defines the required structure for design brief artifacts produced by
-`design-experimental`. It is the single source of truth for what a design brief must
-contain at Artifact Handoff.
+`design-experimental` at Closure. It is the single source of truth for what a design
+brief must contain.
 
-A design brief has two layers. The **envelope** is what the proof established — the
-goal, the necessary conditions that must hold, the designer-directed rules and
-permissions, the codebase evidence the design rests on. The **point** is the
-architectural approach selected during Finalization — the HOW that satisfies the
-envelope, plus the alternatives considered. Both layers must be self-contained: a
-reader who has never seen the design conversation should understand what is being
-built, what must be true for it to hold, and how it will be implemented.
+A design brief is the **envelope** — what the proof established. The goal, the
+necessary conditions that must hold, the designer-directed rules and permissions, the
+codebase evidence the design rests on, and the industry context that informed the
+conversation. The brief does **not** contain the architectural approach — that is
+chosen by `design-specify` against this envelope and recorded in the spec, not the
+brief.
 
 ## Guiding Principle
 
-The brief must be **self-contained for plan-build**. A plan-build agent that has
-never seen the design conversation should be able to write an implementation plan
-from this brief alone. Every scope boundary must have a reason legible in the brief.
+The brief must be **self-contained for design-specify**. A design-specify agent that
+has never seen the design conversation should be able to dispatch architects, build
+a hybrid recommendation, write the spec, and run the spec reviews from this brief
+alone. Every necessary condition must have a reasoning chain and collapse test legible
+in the brief.
 
 ## Template Structure
 
-Ten required sections, in order.
+Eight required sections, in order.
 
 ---
 
@@ -115,9 +117,9 @@ where the claim references specific elements.
 - {Claim about the current system} ({file path or type name if anchored})
 ```
 
-The ground-truth verification report produced at Envelope Handoff is a sibling
-artifact and contains the full verification detail. This section captures the
-evidence list the design relied on, not the verification findings.
+`design-specify` runs an opt-in ground-truth review against the spec it produces from
+this brief; that review will re-verify these evidence anchors against the codebase.
+Be precise here so that downstream verification has clean targets.
 
 ---
 
@@ -144,65 +146,12 @@ influence the design." This tells the reader the axis was considered, not skippe
 
 ---
 
-### Chosen Approach (REQUIRED)
-
-The architectural approach selected during Finalization. Describes the shape of the
-solution — components, reuse profile, trade-off profile. This is the HOW. Sourced
-from the architect proposal the designer adopted (or the designer's articulated
-hybrid or own direction).
-
-```markdown
-## Chosen Approach
-
-{2-4 paragraphs describing the shape — what gets built, how it integrates with
-existing code, what trade-offs it makes. Domain language with specific file/type
-references where needed.}
-
-**Component Structure:**
-- {New or modified unit}
-- ...
-
-**Reuse Profile:**
-- {Existing code or pattern leveraged}
-- ...
-
-**Trade-off Summary:**
-- Optimized for: {things this approach prioritizes}
-- Sacrificed: {things this approach gives up}
-```
-
----
-
-### Alternatives Considered (REQUIRED)
-
-The architectural approaches that were not adopted. Sourced from the architect
-proposals the designer did not pick (or from hybrids where only part of a proposal
-was folded in). For each alternative, describe the shape briefly and record why it
-was rejected in favor of the Chosen Approach.
-
-```markdown
-## Alternatives Considered
-
-### {Alternative name or trade-off lens}
-
-{Shape summary — 2-3 sentences.}
-
-**Why not chosen:** {rationale, typically referencing envelope constraints the
-alternative violates or trade-offs the designer preferred to avoid}
-```
-
-If only one alternative was meaningfully considered, include one entry. If the
-architect proposals all converged on near-identical shapes, state that explicitly
-— the fact that the comparison produced narrow breadth is itself useful signal.
-
----
-
 ### Risks (REQUIRED)
 
-Hazards that remain even if the Chosen Approach is implemented correctly. Sourced
-from the proof's RISK elements plus any new risks surfaced during Finalization
-(ground-truth findings that were noted rather than forcing revision, architect
-proposal concerns adopted into the approach).
+Hazards that remain even if the design is implemented correctly. Sourced from the
+proof's RISK elements. Architects in `design-specify` will inherit these risks and
+may add architecture-level risks against the spec — but the brief carries the
+design-level risks established during the proof.
 
 ```markdown
 ## Risks
@@ -238,12 +187,10 @@ clean") and restatements of the design ("the canonical form exists") do not belo
 4. Permissions
 5. Evidence
 6. Industry Context
-7. Chosen Approach
-8. Alternatives Considered
-9. Risks
-10. Acceptance Criteria
+7. Risks
+8. Acceptance Criteria
 
-All ten sections are required. If a section would be empty, include it with an
+All eight sections are required. If a section would be empty, include it with an
 explicit "None" statement rather than omitting it — this tells the reader you
 considered it.
 
@@ -251,12 +198,15 @@ considered it.
 
 ## Relationship to Sibling Artifacts
 
-The design brief is one of four artifacts produced at Artifact Handoff:
+The design brief is one of three artifacts produced at Closure:
 
-- **Design brief** (this template) — envelope + point + risks + acceptance
-- **Thinking summary** — decision history including Finalization Reasoning
-- **Process evidence** — operational narrative including Finalization Metrics
-- **Ground-truth report** — verification findings against the Evidence section
+- **Design brief** (this template) — the proof envelope. WHAT and WHY, not HOW.
+- **Thinking summary** — decision history. HOW the conversation reached the
+  necessary conditions, alternatives considered along the way, user corrections,
+  confidence levels, understanding shifts.
+- **Process evidence** — operational narrative. HOW the interview operated:
+  understanding dimension saturation over time, where the conversation pulled
+  vertical, stage transition timing, challenge mode firings, gate satisfaction.
 
 The brief cross-references the sibling artifacts but is readable on its own.
 
@@ -264,9 +214,10 @@ The brief cross-references the sibling artifacts but is readable on its own.
 
 ## The Self-Containment Test
 
-Before finalizing the brief: **Could a plan-build agent consume this brief and write
-an implementation plan without needing to read the design conversation or the
-sibling artifacts?** If the answer is no, the Evidence, Chosen Approach, or Risks
+Before finalizing the brief: **Could a `design-specify` agent consume this brief and
+dispatch architect subagents (against the dispatcher-assigned axes derived from the
+brief's tensions) without needing to read the design conversation or the sibling
+artifacts?** If the answer is no, the Necessary Conditions, Evidence, or Rules
 sections are incomplete.
 
 ---
@@ -275,6 +226,7 @@ sections are incomplete.
 
 `design-small-task` uses `util-design-brief-small-template` instead of this template.
 The small template has six sections (Goal, Prior Art, Scope, Key Decisions,
-Constraints, Acceptance Criteria) optimized for direct plan-build consumption when
-there is no proof phase upstream. `plan-build` reads both templates by section
-heading and does not branch on which design skill produced the brief.
+Constraints, Acceptance Criteria) optimized for bounded-task briefs that skip the
+proof phase. Both templates feed `design-specify` — `design-specify` reads both by
+section heading and does not branch on which design skill produced the brief; the
+spec it builds normalizes both shapes into one spec contract for `plan-build`.

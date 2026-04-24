@@ -75,8 +75,8 @@ Each sprint gets four subdirectories under the working directory:
 
 ```
 {CHESTER_WORKING_DIR}/{sprint-subdir}/
-├── design/     ← design briefs, thinking summaries, process evidence
-├── spec/       ← specification documents
+├── design/     ← design briefs (proof envelope), thinking summaries, process evidence
+├── spec/       ← specification documents, spec-stage ground-truth reports (opt-in)
 ├── plan/       ← implementation plans, threat reports, deferred items
 └── summary/    ← session summaries, reasoning audits, cache analysis
 ```
@@ -103,10 +103,11 @@ mkdir -p "{CHESTER_WORKING_DIR}/{sprint-subdir}/design" \
 
 | Artifact | Directory | Purpose | Produced by |
 |----------|-----------|---------|-------------|
-| `design` | `design/` | Design brief — envelope + chosen approach | `design-experimental`, `design-small-task` |
-| `thinking` | `design/` | Thinking summary — decision history including Finalization reasoning | `design-experimental` |
-| `process` | `design/` | Process evidence — operational narrative including Finalization metrics | `design-experimental` |
-| `ground-truth-report` | `design/` | Ground-truth findings — codebase verification of Evidence elements, produced at Envelope Handoff | `design-experimental` (Finalization stage) |
+| `design` | `design/` | Design brief — proof envelope (goal, necessary conditions, rules, permissions, evidence, industry context, risks, acceptance criteria). See `util-design-brief-template` for full structure. | `design-experimental` (8-section envelope), `design-small-task` (6-section lightweight) |
+| `thinking` | `design/` | Thinking summary — decision history of how the proof reached its necessary conditions | `design-experimental` |
+| `process` | `design/` | Process evidence — operational narrative (Understand Stage saturation history, Stage Transition timing, Solve Stage length) | `design-experimental` |
+| `spec` | `spec/` | Specification document — architecture chosen from the brief's envelope, component structure, reuse profile, trade-off profile | `design-specify` |
+| `spec-ground-truth-report` | `spec/` | Ground-truth findings — codebase verification of spec claims about existing code (opt-in review) | `design-specify` (ground-truth review stage) |
 | `plan` | `plan/` | Implementation plan — task-by-task build instructions | `plan-build` |
 | `plan-threat-report` | `plan/` | Combined plan-attack + plan-smell findings | `plan-build` (hardening phase) |
 | `deferred` | `plan/` | Items deferred during execution | `execute-write` |
@@ -119,7 +120,8 @@ Some skills write JSON state files that are not versioned artifacts:
 
 | File | Directory | Purpose |
 |------|-----------|---------|
-| `{sprint-name}-proof-state.json` | `design/` | Design Proof MCP state |
+| `{sprint-name}-understanding-state.json` | `design/` | Understanding MCP state (Understand Stage nine-dimension saturation scoring) |
+| `{sprint-name}-proof-state.json` | `design/` | Design Proof MCP state (Solve Stage necessary-conditions proof) |
 
 ## Versioning
 

@@ -38,15 +38,18 @@ if ! grep -q -i "verified anchor\|skip-list\|plan-specific additions" "$SKILL"; 
   ERRORS=$((ERRORS + 1))
 fi
 
-# Must not list archived design-specify as invoker
-if grep -q "Invoked by.*design-specify\|design-specify.*invokes" "$SKILL"; then
-  echo "FAIL: $SKILL still lists design-specify as invoker"
+# Must list design-specify as the primary invoker (canonical sequence:
+# design-experimental | design-small-task -> design-specify -> plan-build)
+if ! grep -q "Invoked by.*design-specify" "$SKILL"; then
+  echo "FAIL: $SKILL does not list design-specify as invoker"
   ERRORS=$((ERRORS + 1))
 fi
 
-# Must list design-experimental or design-small-task
-if ! grep -q "design-experimental\|design-small-task" "$SKILL"; then
-  echo "FAIL: $SKILL does not list experimental or small-task as invoker"
+# Must reference design-experimental in the ground-truth cascade context
+# (the cascade survives through design-specify because both write into the same
+# sprint subdirectory)
+if ! grep -q "design-experimental" "$SKILL"; then
+  echo "FAIL: $SKILL does not reference design-experimental in cascade context"
   ERRORS=$((ERRORS + 1))
 fi
 

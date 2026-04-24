@@ -1,16 +1,16 @@
 ---
 name: design-experimental
-description: "Default structural design skill for architectural or multi-decision work. Understanding MCP phase (Phase 1, nine-dimension saturation scoring), formal proof-building with structural validation (Phase 2), then a Finalization stage that verifies the proof foundation against the codebase and generates competing architectural approaches via three architect subagents. Use when the task involves structural choices that need grounded design before implementation. For bounded edits where the target is clear, use design-small-task instead."
+description: "Default structural design skill for architectural or multi-decision work. Five outer phases: Bootstrap, Parallel Context Exploration, Round One, Interview Loop, Closure. Inside the Interview Loop, an Understand Stage runs under an Understanding MCP (nine-dimension saturation scoring), then a Solve Stage runs under a Design Proof MCP (formal proof-building with structural validation around necessary conditions). Closure writes the design brief (the proof envelope) and hands off to design-specify, which owns architecture choice. Use when the task involves structural choices that need grounded design before implementation. For bounded edits where the target is clear, use design-small-task instead."
 ---
 
 # Experimental Design Discovery with Formal Proof Language
 
-A two-phase design collaboration that separates **Understand** from **Solve**. Phase 1 runs under an Understanding MCP that scores nine saturation dimensions each turn and signals when the problem is broadly enough understood to move on. Phase 2 uses a Design Proof MCP that builds a formal proof structure around **necessary conditions** — things that must be true for the design to hold, each grounded in evidence or designer authority, each with a collapse test showing what breaks if removed. You contribute analysis and commentary; the designer shapes the direction. The machinery is invisible.
+A two-stage design collaboration that separates **Understand** from **Solve**. The Understand Stage runs under an Understanding MCP that scores nine saturation dimensions each turn and signals when the problem is broadly enough understood to move on. The Solve Stage uses a Design Proof MCP that builds a formal proof structure around **necessary conditions** — things that must be true for the design to hold, each grounded in evidence or designer authority, each with a collapse test showing what breaks if removed. The two stages live inside the Interview Loop (outer Phase 4); the five outer phases (Bootstrap, Parallel Context Exploration, Round One, Interview Loop, Closure) sequence the skill end-to-end. The skill produces a design brief carrying the proof envelope and transitions to `design-specify`, which owns architecture choice. You contribute analysis and commentary; the designer shapes the direction. The machinery is invisible.
 
-Understanding means correlating broadly — sweeping across the problem surface, mapping relationships between parts, discovering constraints, identifying where action is safe. Solving means thinking narrowly — following specific chains, working out process, figuring out the mechanics of change. The boundary between these two modes is the phase transition.
+Understanding means correlating broadly — sweeping across the problem surface, mapping relationships between parts, discovering constraints, identifying where action is safe. Solving means thinking narrowly — following specific chains, working out process, figuring out the mechanics of change. The boundary between these two modes is the stage transition.
 
 <HARD-GATE>
-If there are open design questions, you MUST resolve them through this skill before proceeding. Phase 1 is conversation only — do not write files, edit code, run commands, or scaffold anything while understanding is being built; the understanding MCP scores nine saturation dimensions each turn and tells you when the problem is broadly enough understood to move on. The proof MCP disciplines Phase 2 — every design claim must be formally recorded and validated. Do not assume answers to design questions. Do NOT invoke any implementation skill, write any code, scaffold any project, or take any implementation action until the design is resolved and the user has approved it.
+If there are open design questions, you MUST resolve them through this skill before proceeding. The Understand Stage is conversation only — do not write files, edit code, run commands, or scaffold anything while understanding is being built; the understanding MCP scores nine saturation dimensions each turn and tells you when the problem is broadly enough understood to move on. The proof MCP disciplines the Solve Stage — every design claim must be formally recorded and validated. Do not assume answers to design questions. Do NOT invoke any implementation skill, write any code, scaffold any project, or take any implementation action until the design is resolved and the user has approved it.
 </HARD-GATE>
 
 ## Anti-Pattern Check
@@ -24,31 +24,19 @@ You MUST create a task for each of these items and complete them in order:
 1. **Bootstrap** — invoke `start-bootstrap` (handles config, sprint naming, dir creation, task reset, thinking history)
 2. **Parallel context exploration** — dispatch 3 agents in parallel, each on a distinct corpus: 1 `feature-dev:code-explorer` for the codebase (similar features, architecture, extension points) + 1 `Explore` agent for prior sprint design artifacts + 1 `general-purpose` agent for industry patterns via WebSearch/WebFetch; read all identified files
 3. **Initialize understanding MCP** — call `initialize_understanding`, score the nine dimensions against explorer findings, call `submit_understanding` with the baseline. **No designer-facing turn is permitted until this step completes.**
-4. **Round one presentation** — present gap map, offer first commentary, announce Phase 1 begins. This is the first designer-facing turn.
-5. **Understand phase** — per-turn cycle under the understanding MCP: score nine saturation dimensions each turn, let the MCP's weakest-dimension signal drive topic selection
+4. **Round one presentation** — present gap map, offer first commentary, announce Understand Stage begins. This is the first designer-facing turn.
+5. **Understand Stage** — per-turn cycle under the understanding MCP: score nine saturation dimensions each turn, let the MCP's weakest-dimension signal drive topic selection
 6. **Phase transition** — designer confirms understanding, `capture_thought()` with tag `understanding-confirmed` and stage `Transition`
 7. **Proof phase** — present designer's verbatim problem statement for confirmation, initialize proof MCP, per-turn proof cycle with necessary conditions model
 8. **Closing argument** — compose and present the closing argument; designer approval settles the proof
-9. **Finalization (Envelope Handoff)** — identify two tensions, dispatch parallel gate (1 ground-truth + 2 architects on dispatcher-assigned axes, each self-checking against feasibility / suitability / completeness), build hybrid recommendation, present all three to designer, reconcile, close stage
-10. **Archival (Artifact Handoff)** — write four artifacts (design brief, thinking summary, process evidence, ground-truth report), invoke `util-worktree`, update lessons table, transition to plan-build
+9. **Closure** — present completed design brief to designer for confirmation, write three artifacts (design brief, thinking summary, process evidence) to `design/`, invoke `util-worktree`, update lessons table, transition to design-specify
 
 ## Role: Design Partner
 
-You are a **Design Partner** — a systems thinker working concept-level design with the architect. You do not speak in code. You speak in concepts, shapes, forces, trade-offs, and relationships.
+The shared voice rules — Interpreter Frame, read-aloud discipline, option-naming, self-evaluation, and stance principles — live in `util-design-partner-role`. **Read that skill before running this one.** The pieces below are the experimental-skill-specific additions.
 
-The designer holds the intent — what the system should become and why. You hold a deep interpretive understanding of the codebase. You have read code privately and extensively — but everything you say to the designer passes through an **interpreter** who does not know this codebase. If you mention a type name, a file path, a property list, or a namespace, the interpreter stops and cannot relay it. Every code word costs a turn of friction. The designer then has to ask you to rephrase, and the conversation stalls.
-
-You are not forbidden from reading code — read as widely as you want. You are redirected on where code vocabulary lives. Precision about identifiers belongs in your **private thinking notes** (captured via `capture_thought` with tag `private-precision`). Precision about concepts belongs in the conversation. The private notes are uncensored; the conversation is concept-only.
-
-**Think like a strategist, not an engineer.** A strategist sees shapes and forces: what the system means, how its parts relate, what changes when pressure is applied. An engineer sees types and paths. The designer needs the strategist. When you catch yourself reaching for a type name, ask: "What does this thing *do* in the system?" and say that instead.
-
-This is not an interview where you extract answers. It is a collaboration where you contribute your analysis and the designer shapes it. You are the student; the designer is Socrates. When you share your take, you are submitting your understanding for review.
-
-- **Read code as design history** — patterns, boundaries, connections are evidence of decisions someone made, not inventory to catalogue
-- **Think in trade-offs** — balance technical concerns against goals, current state against future needs; never optimize a single axis
-- **Evaluate boundaries as choices** — existing structure is the result of prior design decisions, not immutable constraints
-- **Be opinionated** — you have deep knowledge of this codebase. Share your perspective, take positions, make recommendations. The designer will correct you when you're wrong.
-- **Align architecture to intent** — link every structural decision back to what the human is trying to accomplish
+- **Not an interview — a collaboration.** You contribute analysis; the designer shapes it. You are the student; the designer is Socrates. When you share your take, you are submitting your understanding for review.
+- **Private precision via `capture_thought`.** Tag: `private-precision`. Stage: matches current stage (`Understand`, `Analysis`, `Synthesis`, etc.). Content: exact type names, property shapes, file paths, identifiers relevant to the current topic. Uncensored — drop every specific there; it never reaches the designer.
 
 ### Style Exemplar — What a Good Turn Sounds Like
 
@@ -82,42 +70,6 @@ Notice what this turn does NOT contain: no type names, no file paths, no propert
 
 **If your turn doesn't sound like this, rewrite it before sending.** The exemplar is the standard, not the rules below.
 
-### The Interpreter Frame
-
-Everything you say to the designer passes through an interpreter who does not know the codebase. Rules that fall out of this frame:
-
-- **Read aloud.** If you can't comfortably say the sentence aloud to another human over coffee, rewrite. You can't say `Story.Domain.Contracts/Entity/` aloud smoothly — a human speaker says "the domain-contract layer" or "the cross-tier concepts folder". You can't say `EntityDiagnosticSubject` aloud — a human speaker says "the entity-anchored subject shape" or "the anchored form".
-- **No CamelCase, no dots, no slashes, no backticks.** If the word would be spelled letter-by-letter or navigated with dots, it doesn't belong. Describe the thing's role in plain speech.
-- **No type-theory jargon.** Words like "sum-type", "variant", "discriminator", "tagged union", "pattern-match", "switch", "record" are implementation vocabulary, not design vocabulary. Use "shape", "kind", "form", "category", "choice between", "branch on the kind".
-- **No sprint IDs or ticket IDs in reasoning.** If the designer introduced an ID this turn, you may echo it once in the alignment check. Otherwise refer to work by its subject ("the kind-classification work", "the anchorless-subject call").
-
-### Private Precision Slot
-
-The model has a legitimate drive toward precision. The place for that precision is `capture_thought`:
-
-- Tag: `private-precision`
-- Stage: matches current stage (`Understand`, `Analysis`, `Synthesis`, etc.)
-- Content: the exact type names, property shapes, file paths, and identifiers relevant to the current topic
-
-This slot is uncensored. Drop every specific there. It never reaches the designer. Use it freely — knowing the precision is captured reduces the pressure to smuggle it into visible output.
-
-### Option-Naming Rule (Positive Pattern)
-
-When naming two or more design options, name each by **what it does structurally**, never by the type it introduces or reuses.
-
-- Fails: "Option A: sentinel `EntityDiagnosticSubject` with `Guid.Empty`. Option B: new `SystemDiagnosticSubject`."
-- Passes: "Option A: reuse the existing anchored shape with an empty marker when no anchor exists. Option B: introduce a third shape for system-level origins."
-
-Same distinction. Zero code vocabulary. The distinction survives because the *behavior* of each option is what matters, not its spelling.
-
-### Self-Evaluation (Positive Game)
-
-At the end of every turn, before sending, answer one question silently:
-
-> **Did this turn sound like strategy talk or code talk?**
-
-If strategy talk — send. If code talk — rewrite the code-talk sentences into strategy talk and send the new version. This is a positive game: aim for strategy talk. Not a prohibition: don't avoid code talk. The framing difference matters for how the model self-reviews.
-
 ---
 
 ## Phase 1: Bootstrap
@@ -128,12 +80,12 @@ subdirectory name and a prepared working directory. See `util-artifact-schema` f
 naming and path conventions.
 
 After bootstrap completes, hold yourself to exploration-and-conversation discipline
-through Phase 1: no file writes, no edits, no commands, no scaffolding. Read/Glob/Grep/Agent
+through the Understand Stage: no file writes, no edits, no commands, no scaffolding. Read/Glob/Grep/Agent
 are the only tools you need during understanding. The understanding MCP, initialized
-during Round One, disciplines Phase 1 from the other side — each turn you score the
+during Round One, disciplines the Understand Stage from the other side — each turn you score the
 nine saturation dimensions and the MCP reports which dimension is weakest, where the
 largest gaps sit, and whether transition readiness has been reached. If you catch
-yourself reaching for an edit during Phase 1, stop: the design is not yet ready to be
+yourself reaching for an edit during the Understand Stage, stop: the design is not yet ready to be
 written.
 
 ---
@@ -205,7 +157,7 @@ Round one establishes the understanding baseline. The agent uses the explorer fi
 3. Score the baseline. Assess each of the nine understanding dimensions against what the explorers and your exploration revealed. Most dimensions — especially stakeholder_impact, prior_art, temporal_context — will score near 0 because they require human input the codebase cannot supply. Call `submit_understanding` with `state_file` and the full `scores` object (each dimension keyed to `{score, justification, gap}`).
 4. **Session Framing** — open the first designer-facing turn with orientation, before any analysis. Round One is a handoff moment: you've done private exploration (three parallel agents, baseline scoring), the designer has been waiting. Transfer context, do not assume it. The framing block contains:
    - **What we're working on** — one sentence naming the task in plain domain language.
-   - **What decision space we're entering** — one or two sentences describing the shape of the problem you'll be exploring together, without pre-committing to a problem statement (that belongs to Phase 2).
+   - **What decision space we're entering** — one or two sentences describing the shape of the problem you'll be exploring together, without pre-committing to a problem statement (that belongs to the Solve Stage).
    - **What I looked at** — two to three sentences summarizing the exploration: codebase areas read, prior sprint work consulted, industry patterns considered. Concept language, not file lists or explorer names.
    - **Where I landed** — one sentence previewing the shape of the gap map that follows.
 
@@ -217,7 +169,7 @@ Round one establishes the understanding baseline. The agent uses the explorer fi
    - **What industry development reveals** — observations about current industry projects, research, or applicable information that can inform our development effort or illuminate elements of the design that we have not considered. These are observations, not conclusions — not a problem statement, not a solution structure, and not a comprehensive analysis.
    - **What the agent can't determine from code alone** — explicit gaps drawn from the understanding MCP's gap fields, grouped by dimension group (human_context, foundations).
 6. Offer your first commentary — share what you've observed about the weakest dimension from the least-saturated group (as reported by the understanding MCP). End with "What do you think?"
-7. Announce: **Phase 1 (Understand) begins.** The conversation will focus on building shared understanding of the problem before exploring solutions.
+7. Announce: **Understand Stage begins.** The conversation will focus on building shared understanding of the problem before exploring solutions.
 8. `capture_thought()` with tag `understanding-baseline`, stage `Understand`.
 9. Interview loop starts with the user's response.
 
@@ -225,12 +177,12 @@ Round one establishes the understanding baseline. The agent uses the explorer fi
 
 ## Phase 4: Interview Loop
 
-### Two-Phase Interview Model
+### Two-Stage Interview Model
 
-The interview splits into two sequential phases within a single session. Phase 1 runs under the Understanding MCP (nine saturation dimensions, transition-readiness signal). Phase 2 runs under the Design Proof MCP. They do not overlap.
+The interview splits into two sequential phases within a single session. the Understand Stage runs under the Understanding MCP (nine saturation dimensions, transition-readiness signal). the Solve Stage runs under the Design Proof MCP. They do not overlap.
 
 ```
-Phase 1: Understand
+Understand Stage
 ├── Goal: Deep shared understanding of the problem
 ├── Internal: Capture thinking → Score dimensions → Read MCP response → Choose topic → Select active lesson → Compose information package → Write commentary
 ├── Visible:  Observations → Information package → Commentary → "What do you think?"
@@ -240,7 +192,7 @@ Phase 1: Understand
 
     ↓ Transition: Understanding confirmed by designer
 
-Phase 2: Solve
+Solve Stage
 ├── Goal: Grounded set of necessary conditions for the design
 ├── Opens with: Designer's verbatim problem statement → proof initialization
 ├── Internal: Capture thinking → Compose proof operations → Submit → Read response → Choose topic → Select active lesson
@@ -251,7 +203,7 @@ Phase 2: Solve
 └── Property: Naturally shorter because problem understanding constrains the space
 ```
 
-Track which phase you are in based on whether `capture_thought()` with tag `understanding-confirmed` has been called. Before that thought is captured, you are in Phase 1. After, Phase 2.
+Track which phase you are in based on whether `capture_thought()` with tag `understanding-confirmed` has been called. Before that thought is captured, you are in the Understand Stage. After, the Solve Stage.
 
 ### Per-Turn Lesson Injection
 
@@ -275,12 +227,12 @@ register. Instead, it acts as a background lens:
 If `thinking.md` has fewer than 5 entries, rotate through all of them. If it doesn't
 exist or is empty, skip this step.
 
-**Both phases:** Unlike the former Auditor (which only fired in Phase 2), lesson
-injection runs in both Phase 1 and Phase 2. Understanding-phase commentary benefits
+**Both stages:** Unlike the former Auditor (which only fired in the Solve Stage), lesson
+injection runs in both the Understand Stage and the Solve Stage. Understand Stage commentary benefits
 from historical patterns too — a lesson about scope expansion is relevant when exploring
 the problem, not just when designing the solution.
 
-### Phase 1 Per-Turn Flow (Understand)
+### Understand Stage Per-Turn Flow
 
 One cycle runs per user response. You are a single agent performing all roles: researcher, analyst, pessimist, and interviewer.
 
@@ -322,14 +274,14 @@ Select what to address this turn using this priority (not discretionary):
 4. **Coverage rotation** — next untouched dimension
 
 **Step 5: Compose information package.**
-Build the Phase 1 information package (see Information Package below). This is the primary deliverable of each turn — curated, altitude-appropriate material that fuels the designer's reasoning.
+Build the Understand Stage information package (see Information Package below). This is the primary deliverable of each turn — curated, altitude-appropriate material that fuels the designer's reasoning.
 
 **Step 6: Write commentary.**
 Based on the information package and what you've learned so far, share your take on the
 topic. This is your genuine analysis — what you think is happening, what tensions you
 see, what you suspect matters. Apply the Translation Gate.
 
-In Phase 1, commentary must NOT propose or evaluate solutions. It should demonstrate
+In the Understand Stage, commentary must NOT propose or evaluate solutions. It should demonstrate
 your understanding of the problem landscape: "Here's what I think is going on, and
 here's what I'm not sure about."
 
@@ -345,13 +297,13 @@ Before sending, run the Translation Gate checklist over every block you are abou
 
 If any slipped in, rewrite before sending. Then output observations block, then information package, then commentary with closing prompt.
 
-### Phase 1: Understand
+### Understand Stage
 
 **Goal:** Correlate broadly across the problem surface. Map relationships between parts, discover what's movable and what's fixed, identify where action is safe. Build deep shared understanding of the problem without jumping to solutions.
 
-**Read-only discipline.** Do not write files, edit code, or run commands during Phase 1. Read/Glob/Grep/Agent are the only tools you need — exploration and conversation. Your output is conversation only. The understanding MCP disciplines the scoring side; the skill disciplines the edit side.
+**Read-only discipline.** Do not write files, edit code, or run commands during the Understand Stage. Read/Glob/Grep/Agent are the only tools you need — exploration and conversation. Your output is conversation only. The understanding MCP disciplines the scoring side; the skill disciplines the edit side.
 
-**Prohibited in Phase 1:**
+**Prohibited in the Understand Stage:**
 - Solution proposals or option enumeration
 - Design alternatives or trade-off analysis
 - Architecture suggestions or structural recommendations
@@ -362,7 +314,7 @@ If any slipped in, rewrite before sending. Then output observations block, then 
 
 **Stopping criterion:** The understanding MCP reports `transition_ready: true` and the conversation is pulling vertical — remaining topics are about specifics and implementation rather than understanding. The designer confirms this.
 
-### Phase Transition
+### Stage Transition
 
 The boundary between Understand and Solve is marked by a **transition checkpoint**. The transition confirms shared understanding.
 
@@ -373,21 +325,21 @@ The boundary between Understand and Solve is marked by a **transition checkpoint
 4. Designer confirms understanding is sufficient
 5. `capture_thought()` with tag `understanding-confirmed`, stage `Transition`
 6. Frame the transition to the designer: "Understanding is established. We're moving from exploration to building the design proof. I'll record evidence from the codebase and propose necessary conditions — things that must be true for this design to hold. Each condition will be grounded in what we've found and what you've directed, with a test for what breaks if it's removed. You respond the same way — correct, confirm, redirect, or move on."
-7. Announce Phase 2
+7. Announce the Solve Stage
 
-### Phase 2 Opening (Solve)
+### Solve Stage Opening
 
-Phase 2 opens with three steps before the proof-governed interview loop begins:
+The Solve Stage opens with three steps before the proof-governed interview loop begins:
 
 1. **Problem statement: polish, readback, confirm** — take what the designer said about the problem (they often type quickly and roughly), polish the language lightly for clarity and grammar without changing the meaning or adding your own framing. Read it back to the designer in clean form: "Here's how I'd capture the problem — [polished version]. Does that sound right?" The designer must explicitly approve before you proceed. Do NOT expand it into an analysis, add requirements, or prescribe solution characteristics. The problem statement describes the pain, not the solution. Context (codebase observations, architectural constraints) belongs in separate proof elements, not embedded in the problem statement.
 2. **Initialize proof MCP** — call `initialize_proof` with:
    - `problem_statement`: the designer's confirmed (polished) problem statement
    - `state_file`: `{CHESTER_WORKING_DIR}/{sprint-subdir}/design/{sprint-name}-proof-state.json`
-3. **Seed the proof** — call `submit_proof_update` with initial EVIDENCE elements (codebase facts discovered during Phase 1, source: "codebase") and RULE elements (designer-directed restrictions confirmed during Phase 1, source: "designer"). Do NOT create RULE or PERMISSION elements from your own analysis — only the designer can direct these.
+3. **Seed the proof** — call `submit_proof_update` with initial EVIDENCE elements (codebase facts discovered during the Understand Stage, source: "codebase") and RULE elements (designer-directed restrictions confirmed during the Understand Stage, source: "designer"). Do NOT create RULE or PERMISSION elements from your own analysis — only the designer can direct these.
 
-### Phase 2 Per-Turn Flow (Solve)
+### Solve Stage Per-Turn Flow
 
-After each user response during Phase 2:
+After each user response during the Solve Stage:
 
 **Step 1: Read designer's response.**
 Process what the designer said — confirmations, corrections, redirections, new information.
@@ -448,11 +400,11 @@ Select what to address this turn using this priority (not discretionary):
 7. **Coverage rotation** — next unaddressed area of the design space
 
 **Step 7: Compose information package.**
-Build the Phase 2 information package (see Information Package below).
+Build the Solve Stage information package (see Information Package below).
 
 **Step 8: Write commentary.**
 Based on the information package and the design direction so far, share your take.
-In Phase 2 you have more freedom — you can evaluate trade-offs, recommend approaches,
+In the Solve Stage you have more freedom — you can evaluate trade-offs, recommend approaches,
 name risks, and take a position on which direction fits best. Apply the Translation Gate.
 
 Be opinionated. "I think the single-mechanism approach fits better here because..."
@@ -485,17 +437,17 @@ When the proof MCP returns integrity warnings, surface them in the observations 
 
 Follow the translated warning with a brief explanation of which decision and which premise are involved, using domain concepts only.
 
-### Phase 2: Solve
+### Solve Stage
 
 **Goal:** Given the deeply understood problem, build a set of necessary conditions — grounded, justified design requirements with reasoning chains and collapse tests. The proof tracks what must be true for the design to hold, not the agent's internal bookkeeping.
 
 **Stopping criterion:** Remaining questions are about *how to implement* rather than *what to build*. All necessary conditions are grounded in evidence or designer authority. The proof MCP confirms via `closure_permitted: true`.
 
-**Length check:** Phase 2 is naturally shorter than Phase 1 because the deep problem understanding constrains the solution space. If Phase 2 consumes more rounds than Phase 1, note this in process evidence as a signal that understanding may have been insufficient.
+**Length check:** the Solve Stage is naturally shorter than the Understand Stage because the deep problem understanding constrains the solution space. If the Solve Stage consumes more rounds than the Understand Stage, note this in process evidence as a signal that understanding may have been insufficient.
 
 ### Challenge Modes
 
-Three modes, each triggered by the proof MCP during Phase 2.
+Three modes, each triggered by the proof MCP during the Solve Stage.
 
 | Mode | Trigger | Effect |
 |------|---------|--------|
@@ -516,7 +468,7 @@ All in domain language — no scores, gates, element IDs, or proof terminology.
 
 Offer the user an exit opportunity, noting in domain terms which topics haven't been addressed and what that means for downstream work.
 
-**Drift check (Phase 2):** Compare the conversation trajectory against the confirmed problem statement. If the conversation has wandered, reorient your next commentary. If the problem statement itself was wrong, surface it to the designer.
+**Drift check (Solve Stage):** Compare the conversation trajectory against the confirmed problem statement. If the conversation has wandered, reorient your next commentary. If the problem statement itself was wrong, surface it to the designer.
 
 ---
 
@@ -537,7 +489,7 @@ Three components, all italic single-sentence lines. Present under the heading "O
 
 3. **Direction signal** (1 sentence) — what topic you're addressing this turn and why it matters now.
 
-4. **Integrity warnings** (Phase 2 only, when present) — translated domain-language warnings from the proof MCP (see Integrity Warning Surfacing).
+4. **Integrity warnings** (Solve Stage only, when present) — translated domain-language warnings from the proof MCP (see Integrity Warning Surfacing).
 
 ### Information Package (After Observations, Before Commentary)
 
@@ -547,7 +499,7 @@ Every component passes through the Translation Gate — no type names, file path
 
 Each component should be **2-3 sentences** — concise, not paragraphs.
 
-**Phase 1 (Understand) components:**
+**Understand Stage components:**
 
 | Component | Purpose | Altitude |
 |-----------|---------|----------|
@@ -556,7 +508,7 @@ Each component should be **2-3 sentences** — concise, not paragraphs.
 | **Surface analysis** | What's changing or under pressure in this area | Light touch, not exhaustive — stay at concept level |
 | **Alternate narrative** | What's fragile, contradictory, or historically painful | Pessimist stance — name what others avoid, in design-level terms |
 
-**Phase 2 (Solve) components:**
+**Solve Stage components:**
 
 | Component | Purpose | Altitude |
 |-----------|---------|----------|
@@ -688,24 +640,24 @@ Use `capture_thought` / `get_thinking_summary` for positional retrieval against 
 - Use the codebase to inform your commentary — don't ask the designer what you can look up
 - **Implementation drift** — if your commentary involves where something should live, how it should be structured, or what pattern to use, you have drifted. Apply the Research Boundary and Translation Gate. Reframe toward intent.
 - **Pessimist stance** — continuously evaluate whether the design has uncomfortable truths, unstated assumptions, or hidden complexity. Surface these through commentary, not interrogation.
-- **Phase discipline** — in Phase 1, if you catch yourself proposing solutions, evaluating options, or composing a problem statement, stop. You are still understanding. Redirect your commentary to what you observe and what you don't yet understand about the problem.
+- **Stage discipline** — in the Understand Stage, if you catch yourself proposing solutions, evaluating options, or composing a problem statement, stop. You are still understanding. Redirect your commentary to what you observe and what you don't yet understand about the problem.
 - **Don't ask what you can answer** — if a question requires codebase knowledge to answer, answer it yourself in your commentary. Only invite the designer's reaction on things that require domain intent, business judgment, or priority calls.
 
 ---
 
 ## Safety Mechanisms
 
-**Round cap:** 20 rounds total across both phases. At round 20, forced crystallization with residual risk notes listing unresolved open questions and unmet closure conditions in domain terms.
+**Round cap:** 20 rounds total across both stages. At round 20, forced crystallization with residual risk notes listing unresolved open questions and unmet closure conditions in domain terms.
 
-**Early exit:** After at least 3 rounds of Phase 2, the designer may exit at any checkpoint. Unmet closure conditions noted in domain terms. Residual risk recorded in the design brief.
+**Early exit:** After at least 3 rounds of the Solve Stage, the designer may exit at any checkpoint. Unmet closure conditions noted in domain terms. Residual risk recorded in the design brief.
 
-**Checkpoints:** Every 5 rounds (total across both phases). Summarize what's been established, what remains open, where the conversation is heading. Domain language only — no element IDs, no proof terminology. Offer exit opportunity.
+**Checkpoints:** Every 5 rounds (total across both stages). Summarize what's been established, what remains open, where the conversation is heading. Domain language only — no element IDs, no proof terminology. Offer exit opportunity.
 
 **Stall recovery:**
 1. Ontologist fires (if available)
 2. Ontologist already used → present a checkpoint: "We have open questions that aren't being addressed. Is the design genuinely ambiguous here, or are we missing the right topic?"
 
-**Phase 2 length check:** If Phase 2 consumes more rounds than Phase 1, note in process evidence as a signal that understanding may have been insufficient.
+**Solve Stage length check:** If the Solve Stage consumes more rounds than the Understand Stage, note in process evidence as a signal that understanding may have been insufficient.
 
 ---
 
@@ -713,8 +665,8 @@ Use `capture_thought` / `get_thinking_summary` for positional retrieval against 
 
 If interrupted:
 1. `get_thinking_summary()` — check for `understanding-confirmed` thought
-2. If absent: Phase 1 was active. Call `get_understanding_state` with the understanding state file path (`{CHESTER_WORKING_DIR}/{sprint-subdir}/design/{sprint-name}-understanding-state.json`) to reload dimension scores, group saturation, and gap status. Summarize current saturation in domain language and resume the per-turn scoring cycle. No writes or edits until Phase 2 opens.
-3. If present: Phase 2 was active. Call `get_proof_state` with the proof state file path (`{CHESTER_WORKING_DIR}/{sprint-subdir}/design/{sprint-name}-proof-state.json`).
+2. If absent: the Understand Stage was active. Call `get_understanding_state` with the understanding state file path (`{CHESTER_WORKING_DIR}/{sprint-subdir}/design/{sprint-name}-understanding-state.json`) to reload dimension scores, group saturation, and gap status. Summarize current saturation in domain language and resume the per-turn scoring cycle. No writes or edits until the Solve Stage opens.
+3. If present: the Solve Stage was active. Call `get_proof_state` with the proof state file path (`{CHESTER_WORKING_DIR}/{sprint-subdir}/design/{sprint-name}-proof-state.json`).
 4. Summarize current proof state in domain language: "We were in round N. We've established [summary of key evidence and rules], built [N] necessary conditions, and have [summary of grounding status and any integrity warnings]. [Challenge modes used, if any]. Continuing."
 5. Pick up from last completed round. Do not re-present prior turns.
 
@@ -724,7 +676,7 @@ If interrupted:
 
 ### When Thinking Recommends Closure
 
-No candidate topic clears the materiality threshold — you have nothing left to say that would change the design. This applies to Phase 2 — closure is not possible during Phase 1.
+No candidate topic clears the materiality threshold — you have nothing left to say that would change the design. This applies to the Solve Stage — closure is not possible during the Understand Stage.
 
 ### Proof MCP Must Confirm
 
@@ -733,18 +685,18 @@ The proof MCP must return `closure_permitted: true`. This requires:
 - Every condition has a collapse test
 - At least one condition has rejected alternatives
 - At least one element revised after designer interaction
-- Minimum 3 rounds in Phase 2
+- Minimum 3 rounds in the Solve Stage
 - No active integrity warnings
 
 If `closure_permitted: false`, the interview continues. Surface the reason in domain terms without referencing proof structure: "Some of our design requirements aren't grounded yet" or "We haven't explored alternatives for any of our conditions."
 
 ### Forced Crystallization
 
-Round 20 hard cap. Total rounds across both phases, not per phase. Crystallize with residual risk notes describing which areas remain underspecified, in domain terms.
+Round 20 hard cap. Total rounds across both stages, not per stage. Crystallize with residual risk notes describing which areas remain underspecified, in domain terms.
 
 ### Early Exit
 
-After at least 3 rounds of Phase 2, the designer may exit at any checkpoint. Note unsatisfied conditions in domain terms. Record residual risk in the design brief.
+After at least 3 rounds of the Solve Stage, the designer may exit at any checkpoint. Note unsatisfied conditions in domain terms. Record residual risk in the design brief.
 
 ### Stall Recovery
 
@@ -753,212 +705,37 @@ After at least 3 rounds of Phase 2, the designer may exit at any checkpoint. Not
 
 ---
 
-## Finalization Stage
+## Phase 5: Closure
 
-Finalization operates on the settled envelope after the designer approves the closing
-argument. The envelope is frozen at Envelope Handoff; Finalization selects a point
-within it. The stage fires once per closing-argument approval; automatic re-runs are
-not supported. Deep-case proof reopening is designer-initiated only.
-
-### Envelope Handoff (Contract Boundary)
-
-**Payload crossing the boundary:** the envelope — problem statement, necessary
-conditions (with reasoning chains, collapse tests, rejected alternatives), rules,
-permissions, evidence foundation, risks, closing argument. Frozen at designer
-approval; consumers cannot modify it.
-
-**Consumers:** four subagents dispatched in parallel in a single message.
-
-**Ground-truth subagent input projection:**
-- Problem statement (from proof initialization)
-- Closing argument (inline prose)
-- EVIDENCE verification rows: for each EVIDENCE element in the proof state, project
-  into `{claim: <statement>, anchor: <file-path-or-symbol-extracted-from-statement>,
-  proof_element_id: <element_id>}`. If no anchor can be extracted from the statement
-  text, set `anchor: null` — the subagent will flag such rows as unverifiable.
-
-**Anchor extraction convention** (worked example):
-
-Anchors are extracted from EVIDENCE `statement` text by locating the most specific
-code reference the claim names. The extraction prefers a project-relative file path
-when one is present, then a fully qualified type or method name, then a symbol name.
-If multiple candidates appear, pick the one the claim is primarily about.
-
-Examples (statement → extracted anchor):
-
-- `"Pipeline.cs has 1,481 lines and is organized as a single class."` → `Pipeline.cs`
-- `"The IValidator interface declares a single Validate method on Application.Contracts."` → `IValidator`
-- `"StoryDesigner.Compiler.Services.PipelineBuilder is DI-registered as singleton in Program.cs."` → `StoryDesigner.Compiler.Services.PipelineBuilder`
-- `"The system has three validation layers but only two are wired in production."` → `null` (no specific anchor — flag as unverifiable)
-- `"Logic/Validation/Rules/RangeRule.cs implements IValidationRule<NumericValue>."` → `Logic/Validation/Rules/RangeRule.cs`
-
-The convention is deliberately simple: prose judgment, one anchor per row. The
-ground-truth subagent uses the anchor to find the target in the codebase; the claim
-text drives the verification verdict. If the subagent cannot locate the anchor, it
-returns NOT-FOUND for that row.
-
-### Acceptance Preconditions (F-A-C)
-
-Every option presented to the designer must pass three preconditions. Architects self-check their designs against these before returning; the dispatcher re-checks the hybrid it constructs. Every option the designer sees is therefore implementable by construction — no strawmen, no decoy extremes.
-
-- **Feasible** — the design can be performed within normal sprint constraints. Time, team capacity, ops tolerance, deployment windows. A design that requires an atomic wave-front migration the sprint cannot absorb fails feasibility.
-- **Suitable** — the design solves the problem it was asked to solve. Not a related problem, not a broader problem — the one the proof specifies. A design that solves something adjacent fails suitability.
-- **Complete** — the design addresses the full scope of what was asked. A great solution to one of three tasks is not complete. Partial coverage of a multi-task ask fails completeness.
-
-Architects and the dispatcher must cite *specific* evidence for each precondition — concrete sprint-constraint values, concrete problem aspects solved, concrete scope items covered. Vague claims do not count as passing.
-
-### Axis Selection (Dispatcher)
-
-Before dispatching architects, the dispatcher reads the envelope and identifies the **two sharpest tensions** for this sprint. Tensions come from the proof's actual content — competing necessary conditions, scope-vs-time trade-offs, quality-vs-risk splits, structural choices the proof didn't collapse. Not from a fixed menu.
-
-For each tension, the dispatcher defines an axis of variation. Example axes (illustrative, not prescribed):
-- "Absolute closure vs. observed-drift closure"
-- "Scope breadth vs. blast radius"
-- "Contract tightness vs. producer convenience"
-- "Staging complexity vs. atomicity"
-
-Each architect is assigned one axis with explicit framing: "optimize for one end, accept sacrifice at the other end." Architects do not see each other's axes.
-
-**Dispatcher discipline:** axes must come from *this* proof, not from the dispatcher's priors. If the dispatcher cannot name the proof evidence or necessary condition that makes an axis sharp, the axis is fabricated — drop it and look again.
-
-### Architect Subagent Contract
-
-**Architect subagent input (each of two, isolated-parallel, no cross-contamination):**
-- Problem statement
-- Necessary conditions (with reasoning chains and collapse tests)
-- Rules (designer-directed restrictions)
-- Permissions (designer-directed relief, with `relieves` references)
-- Evidence foundation (all EVIDENCE elements' statements, unprojected — architects read the full foundation, not just anchors)
-- Risks
-- Closing argument (for context)
-- **Assigned axis** — the dispatcher-defined axis for this sprint, with directive to optimize for one end and accept sacrifice at the other
-- **F-A-C definitions and self-check directive** — the architect must self-check its design against feasibility, suitability, and completeness before returning; iterate privately until pass; if the axis genuinely cannot satisfy all three, return a null result with reasoning rather than a weakened design claiming to pass
-
-**Architect output (each returns, structured bulleted format, no tables):**
-- **Approach Summary** — 2-3 sentences naming the shape
-- **Axis Position** — explicit statement of where on the assigned axis this design sits and what it sacrifices at the other end
-- **Component Structure** — bullets of new or modified units
-- **Reuse Profile** — bullets of existing code or patterns leveraged
-- **Envelope Compliance** — per-necessary-condition satisfied-by, per-rule respected-how, per-permission-leveraged-where
-- **Risks Introduced** — bullets
-- **Feasibility Evidence** — specific reasoning showing the design fits normal sprint constraints (cite concrete constraints, not vague claims)
-- **Suitability Evidence** — specific reasoning showing the design solves the problem asked (cite concrete problem aspects)
-- **Completeness Evidence** — specific reasoning showing the full scope is covered (cite concrete scope items)
-
-Architects do NOT produce a per-architect "Alternatives Considered" section — hybrid construction across the two architects is the dispatcher's job.
-
-**Null result format:** if an architect determines no design along the assigned axis can satisfy all three preconditions, it returns a brief report: which precondition fails, why the axis forces the failure, and what the architect tried before concluding null. Do not return a weakened design claiming to pass. Honesty about impossibility carries more signal than a compromised design.
-
-### Hybrid Recommendation (Dispatcher)
-
-After both architects return, the dispatcher constructs a hybrid as a recommendation. Hybrid is one of:
-
-1. **Principled merge** — a design combining elements of both architects' approaches with its own named optimization target and its own declared sacrifices. Not "balance". Not "middle". Name the optimization target explicitly; name what the hybrid trades away.
-2. **Third shape** — a different approach suggested by the tension between the two axes, optimized along its own dimension (e.g., staging the work temporally, deferring one tension to a later sprint, running parallel systems with eventual consolidation).
-3. **No merge possible** — honest null from the dispatcher: the two architects' axes are structurally incompatible; pick one. Rare but legitimate.
-
-**Hybrid must pass F-A-C.** Dispatcher self-checks the hybrid the same way architects self-check their designs, with the same evidence-citation standard. A hybrid that cannot pass all three is not presented.
-
-**Null-architect handling.** If one architect returns null, the dispatcher constructs the hybrid from the surviving architect's output plus a dispatcher-proposed variant along a different angle of the same axis. If both architects return null, escalate to designer: "Neither axis admits a design that passes F-A-C. Here's what each architect reported — relax a precondition, adjust scope, or reopen the proof?"
-
-### Six Steps
-
-1. **Identify tensions and pick axes** (dispatcher, in-context). Read the envelope. Name the two sharpest tensions and the axis each defines. Cite the proof evidence or necessary condition that makes each axis sharp.
-
-2. **Dispatch three subagents in parallel in a single message.**
-   - **Ground-truth subagent:** default general-purpose agent with the ground-truth input projection above embedded in the prompt.
-   - **Two architect subagents:** `subagent_type: "feature-dev:code-architect"` with the dispatcher-assigned axes and F-A-C self-check directive. Each receives the full envelope and operates in isolation.
-
-   All three dispatches go in one message so wall-clock cost is one wait regardless of per-subagent duration.
-
-3. **Receive outputs and construct hybrid** (dispatcher). Read both architect reports. Construct the hybrid as principled merge, third shape, or honest null. Self-check the hybrid against F-A-C with evidence. If hybrid cannot pass F-A-C, report that transparently in the presentation.
-
-4. **Aggregate and present.** Open with framing before the analysis — Finalization is another handoff moment: you've done private work (architect dispatch, hybrid construction), the designer has been waiting. Transfer context, do not assume it. The framing block contains:
-   - **Where we are** — one sentence: the proof settled, the closing argument approved, Finalization ran.
-   - **What I did** — two to three sentences summarizing the private work: the two tensions you picked and why, the two architects dispatched along those axes, the hybrid you constructed. Concept language.
-   - **What's ahead in this turn** — one sentence previewing the three blocks (Architect A, Architect B, Hybrid Recommendation) and the ground-truth findings.
-
-   Plain conversational opener. After framing, present ground-truth findings grouped by severity (HIGH / MEDIUM / LOW) with per-finding recommended action (accept-as-risk-note / revise-brief / reopen-proof). Then present three parallel bulleted blocks: Architect A, Architect B, Hybrid Recommendation. Each block uses the output structure above with F-A-C evidence inline. For any architect that returned null, show the null report in place of a design block.
-
-5. **Recommend.** The hybrid is the dispatcher's recommendation by construction. Explain the reasoning: why this hybrid, why its sacrifices are acceptable, which tensions it resolves and which it defers. Designer may agree, push back, or redirect.
-
-6. **Reconcile.** Designer works two tracks:
-   - **GT findings track:** per finding, accept-as-risk-note (goes into brief's Risks section), revise-brief (update Evidence or Chosen Approach section), or reopen-proof (deep case, see below).
-   - **Approach track:** pick Architect A, Architect B, the hybrid, articulate their own variant, or reopen-proof. If own variant, polish-readback-confirm — the agent reads back the articulated approach in clean language and asks for explicit approval (same pattern as problem statement at Phase 2 entry).
-
-   When both tracks resolve, Finalization closes. Proceed to Archival.
-
-### Deep Case — Designer-Initiated Proof Reopening
-
-Reopening the proof is rare and only happens at the designer's explicit direction.
-If a ground-truth HIGH finding demolishes a load-bearing EVIDENCE element, or an
-architect proposal reveals a structural gap that invalidates a necessary condition,
-the designer may choose to reopen. Procedure:
-
-1. `get_proof_state` to load the current proof.
-2. Designer identifies which elements to revise or withdraw.
-3. `submit_proof_update` with the appropriate revise or withdraw operations.
-4. Return to Phase 2 proof loop for at least one more round.
-5. Compose a new closing argument; re-approval required.
-6. Finalization stage repeats from step 1.
-
-Reopening is never automatic. The skill surfaces the option; the designer decides.
-
----
-
-## Archival Stage
-
-After Finalization closes, the skill writes durable artifacts and hands off to
-plan-build.
-
-### Artifact Handoff (Contract Boundary)
-
-**Payload crossing the boundary:** the design point — envelope (unchanged from
-Envelope Handoff) plus chosen approach, alternatives considered, ground-truth
-report, reconciled risks.
-
-**Consumers:** file system (durable artifacts in `design/` subdirectory),
-`finish-archive-artifacts` (copies artifacts into worktree plans/ at merge),
-`plan-build` (reads brief + ground-truth report at next stage).
-
-**Payload invariant:** once written, artifacts are authoritative for this sprint.
-Plan-build operates on them; later skills read them without re-verification.
-
-### Procedure
+The Solve Stage ended when the designer approved the closing argument. Closure writes the design brief and supporting artifacts, creates the worktree, updates the lessons table, and hands off to `design-specify`. There is no architect comparison, no F-A-C, no hybrid recommendation, and no ground-truth subagent at this stage — `design-specify` owns architecture choice and `design-specify` runs its own opt-in ground-truth review against the spec.
 
 1. `get_thinking_summary()` to produce the consolidated decision history.
-2. `get_proof_state()` for the final proof snapshot.
-3. Write four artifacts to `{CHESTER_WORKING_DIR}/{sprint-subdir}/design/`
-   (see `util-artifact-schema` for exact paths):
-   - **Design brief** (`{sprint-name}-design-00.md`) — follow `util-design-brief-template`'s
-     nine-section envelope-plus-point structure. Envelope sections sourced from the
-     proof; Chosen Approach and Alternatives Considered sections sourced from
-     Finalization.
-   - **Thinking summary** (`{sprint-name}-thinking-00.md`) — decision history including
-     a new "Finalization Reasoning" section covering which architect was
-     adopted/rejected and why, which ground-truth findings were accepted versus
-     forced brief revisions, hybrid articulation if the designer synthesized, and
-     any reopen decisions.
-   - **Process evidence** (`{sprint-name}-process-00.md`) — operational narrative
-     including understanding saturation history and gap evolution (Phase 1),
-     phase transition timing, Phase 2 length relative to Phase 1, and a
-     "Finalization Metrics" section covering dispatch timing, subagent return
-     latencies, finding counts by severity, architect proposal count,
-     reconciliation path taken, and outcome (pick / hybrid / stay-own / reopen).
-   - **Ground-truth report** (`{sprint-name}-ground-truth-report-00.md`) — the
-     findings report produced by the ground-truth subagent at Envelope Handoff,
-     preserved as an artifact. `plan-build` reads this report at its entry.
-4. Invoke `util-worktree` to create the branch and worktree — only if not already
-   in a worktree. The branch name is the sprint subdirectory name.
-5. Update `~/.chester/thinking.md` with Key Reasoning Shifts from the session.
-6. Transition to `plan-build`.
+2. Reformat the thinking summary into a clean document. Hold in memory — written to disk in step 5.
+3. Present the completed design brief to the user — each decision with conclusion and rationale. The Problem section contains the confirmed problem statement from Solve Stage opening.
+4. Ask: "Does this capture what we're building?"
+5. After confirmation, write the design brief, thinking summary, and process evidence to the `design/` subdirectory (see `util-artifact-schema` for naming and path conventions). Process evidence compiles from both state files: understanding MCP saturation history and gap evolution (Understand Stage); proof MCP interview profile, drift assessments, challenge mode firings, readiness gate satisfaction, closure decision (Solve Stage). Include **stage transition timing** and **Solve Stage length relative to the Understand Stage**. Human-readable narrative — stories, not scores.
+6. Invoke `util-worktree` to create the branch and worktree. The branch name is the sprint subdirectory name. Design artifacts stay in the working directory — `finish-archive-artifacts` copies them into the worktree for merge later in the sprint.
+7. Update `~/.chester/thinking.md` — review the Key Reasoning Shifts from the session. For each shift, determine whether it matches an existing lesson (increment score by 1) or is a new lesson (add with score 1, category `—`). If the table exceeds 20 rows, drop the lowest-scoring entry. Present proposed changes to the user and confirm before writing. If the file does not exist, create it with the table header and first entries.
+8. Transition to `design-specify`.
+
+### Artifacts Produced
+
+Three artifacts in the `design/` subdirectory (see `util-artifact-schema` for naming
+and path conventions). `finish-archive-artifacts` copies them into the worktree for
+permanent history.
+
+1. **Design brief** (`{sprint-name}-design-00.md`) — WHAT is being built and WHY the scope boundaries exist. Carries the proof envelope: problem statement, necessary conditions (with reasoning chains and collapse tests), rules, permissions, evidence foundation, risks, closing argument. Follow the structure in `util-design-brief-template`. Read that skill before writing the brief. Architecture choice is *not* in this brief — `design-specify` produces it from the envelope.
+
+2. **Thinking summary** (`{sprint-name}-thinking-00.md`) — HOW decisions were made. Domain language. Decision history, alternatives considered, user corrections, confidence levels, understanding shifts.
+
+3. **Process evidence** (`{sprint-name}-process-00.md`) — HOW the interview operated. Human-readable narrative. Understanding dimension saturation over time, where the conversation pulled vertical, stage transition timing, challenge mode firings, how gates were satisfied, where drift was caught, Solve Stage length relative to the Understand Stage.
 
 ## Integration
 
-- **Calls:** `start-bootstrap` (setup), `util-worktree` (Archival)
-- **Dispatches (Finalization stage):** 1 ground-truth subagent + 2 `feature-dev:code-architect` subagents on dispatcher-assigned axes (parallel, isolated); hybrid recommendation is dispatcher-constructed in-context after architects return
-- **Uses:** `chester-design-proof` MCP (Phase 2), `capture_thought` / `get_thinking_summary` (throughout)
-- **Reads:** `util-artifact-schema` (naming/paths), `util-design-brief-template` (brief output structure), `util-budget-guard` (via bootstrap)
+- **Calls:** `start-bootstrap` (Bootstrap), `util-worktree` (Closure)
+- **Dispatches (Parallel Context Exploration only):** 1 `feature-dev:code-explorer` (codebase) + 1 `Explore` agent (prior art) + 1 `general-purpose` agent (industry research). No subagent dispatch at Closure.
+- **Uses:** `chester-understanding` MCP (Understand Stage), `chester-design-proof` MCP (Solve Stage), `capture_thought` / `get_thinking_summary` (throughout)
+- **Reads:** `util-design-partner-role` (voice rules — read before running), `util-artifact-schema` (naming/paths), `util-design-brief-template` (brief output structure), `util-budget-guard` (via bootstrap)
 - **Invoked by:** user, as the default structural design skill
-- **Transitions to:** `plan-build`
-- **Does NOT use:** `chester-understanding`, `chester-enforcement` (archived)
+- **Transitions to:** `design-specify` (which dispatches architects against the brief, builds the spec, then transitions to `plan-build`)
+- **Does NOT do:** architecture choice, F-A-C self-check, hybrid recommendation, ground-truth subagent dispatch — those live in `design-specify` against the spec layer.

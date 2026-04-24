@@ -170,33 +170,7 @@ At the start of every session:
 
 **Invoke relevant or requested skills BEFORE any response or action.** Even a 1% chance a skill might apply means that you should invoke the skill to check. If an invoked skill turns out to be wrong for the situation, you don't need to use it.
 
-```dot
-digraph skill_flow {
-    "User message received" [shape=doublecircle];
-    "About to EnterPlanMode?" [shape=doublecircle];
-    "Already brainstormed?" [shape=diamond];
-    "Invoke brainstorming skill" [shape=box];
-    "Might any skill apply?" [shape=diamond];
-    "Invoke Skill tool" [shape=box];
-    "Has checklist?" [shape=diamond];
-    "Create TodoWrite todo per item" [shape=box];
-    "Follow skill exactly" [shape=box];
-    "Respond (including clarifications)" [shape=doublecircle];
-
-    "About to EnterPlanMode?" -> "Already brainstormed?";
-    "Already brainstormed?" -> "Invoke brainstorming skill" [label="no"];
-    "Already brainstormed?" -> "Might any skill apply?" [label="yes"];
-    "Invoke brainstorming skill" -> "Might any skill apply?";
-
-    "User message received" -> "Might any skill apply?";
-    "Might any skill apply?" -> "Invoke Skill tool" [label="yes, even 1%"];
-    "Might any skill apply?" -> "Respond (including clarifications)" [label="definitely not"];
-    "Invoke Skill tool" -> "Has checklist?";
-    "Has checklist?" -> "Create TodoWrite todo per item" [label="yes"];
-    "Has checklist?" -> "Follow skill exactly" [label="no"];
-    "Create TodoWrite todo per item" -> "Follow skill exactly";
-}
-```
+At every user message: ask "might any skill apply?" — if yes (even 1%), invoke the Skill tool before replying. If the skill has a checklist, create one TodoWrite item per checklist step, then follow the skill exactly. Clarifying questions count as responses — check for skills before asking them. If you're about to enter plan mode and haven't brainstormed yet, invoke the brainstorming skill first.
 
 ## Red Flags
 
@@ -217,19 +191,6 @@ These thoughts mean STOP — you're rationalizing:
 | "This feels productive" | Undisciplined action wastes time. Skills prevent this. |
 | "I know what that means" | Knowing the concept ≠ using the skill. Invoke it. |
 
-## Skill Priority
-
-When multiple skills could apply, use this order:
-
-1. **Gate skills first** (`design-experimental`, `design-small-task`, `plan-build`, `execute-write`, `execute-verify-complete`, `finish-close-worktree`) — these define the overall pipeline stage and determine HOW to approach the task
-2. **Review skills second** (`plan-attack`, `plan-smell`, `util-codereview`) — these harden and validate the work
-3. **Behavioral skills third** (`execute-test`, `execute-debug`, `execute-prove`, `execute-review`) — these guide specific execution disciplines
-4. **Utility skills fourth** (`util-worktree`, `util-dispatch`) — these support workflow mechanics
-
-"Let's build X with architectural choices" → `design-experimental` first, then `plan-build`.
-"Quick design check for X" → `design-small-task` first, then `plan-build`.
-"Fix this bug" → `execute-debug` first, then domain-specific skills.
-
 ## Skill Types
 
 **Rigid** (`execute-test`, `execute-debug`): Follow exactly. Don't adapt away discipline.
@@ -238,40 +199,9 @@ When multiple skills could apply, use this order:
 
 The skill itself tells you which.
 
-## Available Chester Skills
+## Choosing Between Skills
 
-### Pipeline Skills (define the workflow stage)
-- `setup-start` — Entry point; establishes the pipeline and skill usage rules (this skill)
-- `start-bootstrap` — Mechanical session setup: config, sprint naming, dir creation, task reset, thinking history
-- `design-experimental` — Default structural design skill: understanding phase under a nine-dimension saturation MCP (Phase 1), followed by formal proof-building (Phase 2), with a Finalization stage that verifies the proof foundation and generates competing architectural approaches via three architect subagents.
-- `design-small-task` — Lightweight design conversation for well-bounded tasks. Surfaces considerations through structured Q&A, produces a brief for plan-build. No MCP, no spec step.
-- `plan-build` — Write and harden implementation plans
-- `execute-write` — Execute plans, request code review, and perform subagent-driven development
-- `execute-verify-complete` — Capstone of execution: prove tests, clean tree, checkpoint commit
-
-### Finish Skills (close out a sprint)
-- `finish-write-records` — Session summary, reasoning audit, cache analysis (also handles refactor summaries)
-- `finish-archive-artifacts` — Copy working dir artifacts to tracked plans dir and commit
-- `finish-close-worktree` — Branch integration (merge/PR/keep/discard) and worktree cleanup
-
-### Review Skills (harden and validate)
-- `plan-attack` — Adversarial review of plans for structural gaps, execution risks, and assumptions
-- `plan-smell` — Forward-looking code smell analysis of an implementation plan
-- `util-codereview` — Lightweight code smell review of existing code scoped to a directory or path
-
-### Behavioral Skills (execution disciplines)
-- `execute-test` — Test-driven development discipline
-- `execute-debug` — Systematic debugging workflow
-- `execute-prove` — Verification before completion
-- `execute-review` — Receiving and acting on code review feedback
-
-### Utility Skills (workflow mechanics and reference)
-- `util-worktree` — Git worktree workflow for parallel branches
-- `util-dispatch` — Dispatching parallel subagents
-- `util-budget-guard` — Token budget check procedure (read, don't invoke)
-- `util-artifact-schema` — Artifact naming, versioning, and directory layout (read, don't invoke)
-- `util-design-brief-template` — Design brief output structure and section requirements (read, don't invoke)
-- `util-design-brief-small-template` — Lightweight design brief template for bounded tasks (6 sections vs 13). Read, don't invoke.
+When multiple skills could apply, or when you need to look up what a named skill does, read [`references/skill-index.md`](references/skill-index.md). It contains the priority order (gate > review > behavioral > utility), dispatch patterns for common prompts, and the full skill catalog grouped by role.
 
 ## User Instructions
 

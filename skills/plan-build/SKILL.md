@@ -82,66 +82,9 @@ review loop to catch structural drift that can be caught here.
 - "Run the tests and make sure they pass" - step
 - "Commit" - step
 
-## Plan Document Header
+## Plan Document Structure
 
-**Every plan MUST start with this header:**
-
-```markdown
-# [Feature Name] Implementation Plan
-
-> **For agentic workers:** REQUIRED SUB-SKILL: Use execute-write (recommended) or execute-write in inline mode to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
-
-**Goal:** [One sentence describing what this builds]
-
-**Architecture:** [2-3 sentences about approach]
-
-**Tech Stack:** [Key technologies/libraries]
-
----
-```
-
-## Task Structure
-
-````markdown
-### Task N: [Component Name]
-
-**Files:**
-- Create: `exact/path/to/file.py`
-- Modify: `exact/path/to/existing.py:123-145`
-- Test: `tests/exact/path/to/test.py`
-
-- [ ] **Step 1: Write the failing test**
-
-```python
-def test_specific_behavior():
-    result = function(input)
-    assert result == expected
-```
-
-- [ ] **Step 2: Run test to verify it fails**
-
-Run: `pytest tests/path/test.py::test_name -v`
-Expected: FAIL with "function not defined"
-
-- [ ] **Step 3: Write minimal implementation**
-
-```python
-def function(input):
-    return expected
-```
-
-- [ ] **Step 4: Run test to verify it passes**
-
-Run: `pytest tests/path/test.py::test_name -v`
-Expected: PASS
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add tests/path/test.py src/path/file.py
-git commit -m "feat: add specific feature"
-```
-````
+Read [`references/plan-template.md`](references/plan-template.md) for the exact Markdown template the plan document follows. Two parts: the document header (once at the top) and the per-task structure (repeated for each task in the plan). The reference also documents the conventions execute-write and plan-attack rely on — checkbox syntax, exact file paths, five-step TDD shape, one-commit-per-task — so changes to the template should go through that file rather than diverging here.
 
 ## Remember
 - Exact file paths always
@@ -212,30 +155,36 @@ When adding new triggers, keep the category split and the inclusive bias.
 
 ## Ground-Truth Report Cascade
 
-When plan-build is invoked after `design-experimental`, the design directory
-contains a ground-truth report produced at Envelope Handoff. The report verifies
-EVIDENCE claims the design rests on and is a trusted input at the plan stage.
+When `design-specify` ran an opt-in ground-truth review against the spec, the
+`spec/` subdirectory contains a report verifying spec claims against the codebase.
+The report is a trusted input at the plan stage — `plan-attack` does not need to
+re-verify what design-specify already verified.
+
+`design-experimental` no longer produces a design-stage ground-truth report
+(architecture choice and ground-truth verification are owned by `design-specify`).
+The cascade reads only the spec-stage report when present.
 
 ### Input Contract
 
-If the current sprint's `design/` subdirectory contains files matching
-`*-ground-truth-report-*.md`, read the **highest-numbered version** (the latest
+If the current sprint's `spec/` subdirectory contains files matching
+`*-spec-ground-truth-report-*.md`, read the **highest-numbered version** (the latest
 revision per `util-artifact-schema` versioning — `-01.md` wins over `-00.md`, etc.).
 Extract the list of verified anchors — file paths, type names, method names that
-the ground-truth subagent confirmed exist as the design describes. This list
-becomes the **verified-anchor skip-list**.
+the ground-truth-reviewer confirmed exist as the spec describes. This list becomes
+the **verified-anchor skip-list**.
 
-If no ground-truth report exists (e.g., the design came from `design-small-task`),
-skip this cascade. `plan-attack` performs its own full codebase verification in
-that case.
+If no spec-stage ground-truth report exists (the user declined the opt-in review at
+design-specify, or the spec is greenfield with no existing code references), skip
+this cascade. `plan-attack` performs its own full codebase verification in that
+case.
 
-**Error-path handling.** If the ground-truth report exists but contains zero
-verified anchors (all findings are NOT-FOUND or UNVERIFIABLE, or all anchors are
-`null`), pass an empty skip-list to `plan-attack`. Do not skip the cascade
-entirely — the empty skip-list tells `plan-attack` that the foundation check ran
-but produced no trusted anchors, which is different from "no design-stage
-verification was performed." Note this condition in the combined threat report so
-the designer sees that the ground-truth pass produced no usable trust boundary.
+**Error-path handling.** If the report exists but contains zero verified anchors
+(all findings are NOT-FOUND or UNVERIFIABLE, or all anchors are `null`), pass an
+empty skip-list to `plan-attack`. Do not skip the cascade entirely — the empty
+skip-list tells `plan-attack` that ground-truth ran but produced no trusted
+anchors, which is different from "no ground-truth was performed." Note this
+condition in the combined threat report so the designer sees that the spec-stage
+pass produced no usable trust boundary.
 
 ### Passing the Skip-List to plan-attack
 
@@ -301,9 +250,9 @@ Which approach?
 
 ## Integration
 
-- **Invoked by:** `design-experimental` (primary — with ground-truth report cascade), `design-small-task` (bounded briefs — no cascade), or user directly (standalone)
+- **Invoked by:** `design-specify` (primary — with spec input; cascades the spec-stage ground-truth report from `design-specify` when the user accepted the opt-in review), or user directly (standalone, when a spec already exists)
 - **Calls:** `plan-attack` (unconditional), `plan-smell` (conditional — only when Smell Heuristic Pre-Check matches)
-- **Reads:** `util-artifact-schema` (naming/paths), `util-budget-guard`, ground-truth report from upstream `design/` subdirectory (when present)
+- **Reads:** `util-artifact-schema` (naming/paths), `util-budget-guard`, the spec from upstream `spec/` subdirectory, the spec-stage ground-truth report from upstream `spec/` subdirectory (when present)
 - **Transitions to:** `execute-write` (subagent or inline mode)
-- **Does NOT call:** `start-bootstrap` (inherits sprint context from upstream design)
-- **Brief compatibility:** reads nine-section briefs from `design-experimental` and six-section briefs from `design-small-task` by section heading; no branching on source skill
+- **Does NOT call:** `start-bootstrap` (inherits sprint context from upstream design and spec stages)
+- **Spec compatibility:** reads spec documents written by `design-specify`, regardless of whether the upstream brief came from `design-experimental` (nine-section) or `design-small-task` (six-section) — design-specify normalizes both into the spec contract

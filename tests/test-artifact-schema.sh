@@ -4,20 +4,26 @@ set -euo pipefail
 SCHEMA="skills/util-artifact-schema/SKILL.md"
 ERRORS=0
 
-for archived in "design-figure-out" "design-specify"; do
+# design-specify is reinstated as a producer (spec artifact + spec-ground-truth-report).
+# design-figure-out remains archived.
+for archived in "design-figure-out"; do
   if grep -q "$archived" "$SCHEMA"; then
     echo "FAIL: $SCHEMA references archived skill: $archived"
     ERRORS=$((ERRORS + 1))
   fi
 done
 
-if ! grep -q "design-experimental" "$SCHEMA"; then
-  echo "FAIL: $SCHEMA does not list design-experimental as producer"
-  ERRORS=$((ERRORS + 1))
-fi
+# Canonical sequence producers must all appear
+for producer in "design-experimental" "design-small-task" "design-specify" "plan-build" "execute-write" "finish-write-records"; do
+  if ! grep -q "$producer" "$SCHEMA"; then
+    echo "FAIL: $SCHEMA does not list $producer as producer"
+    ERRORS=$((ERRORS + 1))
+  fi
+done
 
-if ! grep -q "ground-truth" "$SCHEMA"; then
-  echo "FAIL: $SCHEMA missing ground-truth artifact type"
+# Ground-truth artifact now lives at spec/ under design-specify.
+if ! grep -q "spec-ground-truth-report\|ground-truth" "$SCHEMA"; then
+  echo "FAIL: $SCHEMA missing spec-ground-truth-report artifact type"
   ERRORS=$((ERRORS + 1))
 fi
 

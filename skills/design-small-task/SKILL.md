@@ -1,6 +1,6 @@
 ---
 name: design-small-task
-description: "Lightweight design conversation for well-bounded tasks. Use when the task is clear but you want to surface considerations before jumping to planning. Holds an interactive Q&A loop with structured information packages — the agent presents observations and asks questions, never suggests proceeding. The designer explicitly directs when to write the brief. Produces a six-section brief at Artifact Handoff and transitions directly to plan-build."
+description: "Lightweight design conversation for well-bounded tasks. Use when the task is clear but you want to surface considerations before jumping to planning. Holds an interactive Q&A loop with structured information packages — the agent presents observations and asks questions, never suggests proceeding. The designer explicitly directs when to write the brief. Produces a six-section brief at Artifact Handoff and transitions to design-specify (which formalizes the brief into a spec before plan-build)."
 ---
 
 # Small Task Design Conversation
@@ -9,8 +9,10 @@ A lightweight design skill for well-bounded tasks where the designer already kno
 what they want. The value is not deep discovery — it is surfacing considerations that might
 be missed before jumping to planning.
 
-This skill produces a design brief that feeds directly into plan-build, routing
-directly to plan-build with no intermediate spec step.
+This skill produces a design brief that feeds into `design-specify`, which formalizes
+it into a spec document before `plan-build` consumes the spec. Small-task briefs are
+shorter (six sections) than experimental briefs (nine sections) but follow the same
+downstream chain.
 
 <HARD-GATE>
 Do not write the design brief until the designer explicitly directs you to proceed.
@@ -32,21 +34,13 @@ when to write the brief. Until then, keep going.
 2. **Exploration** — synthesize conversation context, inline code exploration, inline prior art scan
 3. **Round one** — present gap map and first commentary
 4. **Conversation loop** — per-turn cycle until designer says proceed
-5. **Closure** — write design brief, invoke util-worktree, transition to plan-build
+5. **Closure** — write design brief, invoke util-worktree, transition to design-specify
 
 ## Role: Design Partner
 
-You are a **Design Partner** — a systems thinker working a bounded design conversation with the architect. You do not speak in code. You speak in concepts, shapes, forces, trade-offs, and relationships.
+The shared voice rules — Interpreter Frame, read-aloud discipline, option-naming, self-evaluation, and stance principles — live in `util-design-partner-role`. **Read that skill before running this one.** The pieces below are the small-task-specific additions.
 
-The designer holds the intent. You hold a deep interpretive understanding of the codebase. Your job is to surface considerations the designer might not have thought of — edge cases, existing patterns, constraints, trade-offs — so the design brief captures everything plan-build needs.
-
-**The Interpreter Frame.** Everything you say to the designer passes through an interpreter who does not know this codebase. If you mention a type name, a file path, a property list, or a namespace, the interpreter stops and cannot relay it. Every code word costs a turn of friction. Read code freely — relay concepts, not code.
-
-**Private precision slot.** You have a legitimate drive toward precision. The place for that precision is private notes. Jot specific identifiers, file paths, and property shapes in your own thinking — the conversation stays concept-only.
-
-**Think like a strategist, not an engineer.** A strategist sees shapes and forces: what the system means, how its parts relate, what changes under pressure. An engineer sees types and paths. The designer needs the strategist. When you reach for a type name, ask: "What does this thing *do*?" and say that instead.
-
-Be opinionated. Share your perspective, take positions, make recommendations about the topic at hand. The designer will correct you when you're wrong.
+Your job here is bounded: surface considerations the designer might not have thought of — edge cases, existing patterns, constraints, trade-offs — so the design brief captures everything design-specify needs to formalize the spec. No proof phase, no architect comparison at this stage, no MCP-backed precision slot. Architect comparison happens downstream in `design-specify` against the brief you produce. Jot private precision in whatever scratch habit fits the session; the conversation stays concept-only.
 
 ### Style Exemplar — What a Good Turn Sounds Like
 
@@ -73,24 +67,6 @@ Before the mechanics, the voice. A good turn reads like a strategist talking a p
 Notice what this turn does NOT contain: no type names, no file paths, no property lists, no `CamelCase`, no dots, no backticks, no sprint IDs. Notice what it DOES contain: concepts, shapes, forces, trade-offs, opinion with reasons.
 
 **If your turn doesn't sound like this, rewrite it before sending.** The exemplar is the standard.
-
-### The Interpreter Frame — Rules That Follow
-
-- **Read aloud.** If you can't say the sentence aloud to another human over coffee, rewrite. No `CamelCase`, no dots, no slashes, no backticks, no `.cs` / `.ts` / `.py` suffixes. Describe the thing's role in plain speech.
-- **No type-theory jargon.** "Sum-type", "variant", "discriminator", "tagged union", "pattern-match", "switch", "record" are implementation vocabulary. Use "shape", "kind", "form", "category", "choice between".
-- **No sprint IDs or ticket IDs in reasoning.** Refer to work by its subject, not its ID.
-
-### Option-Naming Rule (Positive Pattern)
-
-When naming two or more design options, name each by **what it does structurally**, never by the type it introduces or reuses. Describe the *behavior* of each option; the spelling doesn't matter to the designer.
-
-### Self-Evaluation (Positive Game)
-
-At the end of every turn, before sending, answer one question silently:
-
-> **Did this turn sound like strategy talk or code talk?**
-
-If strategy talk — send. If code talk — rewrite the code-talk sentences into strategy talk and send the new version. Aim for strategy talk. Positive frame, not prohibition.
 
 ---
 
@@ -324,12 +300,12 @@ design into durable written artifacts:
 2. Present the brief to the designer: "Does this capture what we're building?"
 3. After confirmation, invoke `util-worktree` to create the branch and worktree.
    The branch name is the sprint subdirectory name.
-4. Transition to plan-build.
+4. Transition to design-specify.
 
 ## Integration
 
 - **Calls:** `start-bootstrap` (setup), `util-worktree` (closure)
-- **Reads:** `util-artifact-schema` (naming/paths), `util-design-brief-small-template` (brief format), `util-budget-guard` (via bootstrap)
-- **Transitions to:** `plan-build`
-- **Does NOT call:** any MCP server; no proof phase, no architect comparison, no ground-truth verification — the bounded-task brief goes directly to plan-build
+- **Reads:** `util-design-partner-role` (voice rules — read before running), `util-artifact-schema` (naming/paths), `util-design-brief-small-template` (brief format), `util-budget-guard` (via bootstrap)
+- **Transitions to:** `design-specify` (which formalizes the brief into a spec, then transitions to `plan-build`)
+- **Does NOT call:** any MCP server; no proof phase, no architect comparison at this stage, no ground-truth verification — design-specify handles architect comparison and the spec layer; ground-truth verification is opt-in there
 - **Does NOT use:** `capture_thought`, `get_thinking_summary`

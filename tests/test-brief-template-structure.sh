@@ -4,15 +4,15 @@ set -euo pipefail
 TPL="skills/util-design-brief-template/SKILL.md"
 ERRORS=0
 
-# Required nine sections, in order
+# Required eight sections, in order. Architecture choice (Chosen Approach,
+# Alternatives Considered) moved to design-specify; brief is envelope-only.
 REQUIRED_SECTIONS=(
   "## Goal"
   "## Necessary Conditions"
   "## Rules"
   "## Permissions"
   "## Evidence"
-  "## Chosen Approach"
-  "## Alternatives Considered"
+  "## Industry Context"
   "## Risks"
   "## Acceptance Criteria"
 )
@@ -36,13 +36,21 @@ for section in "${REQUIRED_SECTIONS[@]}"; do
   prev_line=$line
 done
 
-# Must not reference archived skills
-for archived in "design-figure-out" "design-specify"; do
+# design-specify is the consumer of the brief and is referenced intentionally.
+# Only design-figure-out remains archived.
+for archived in "design-figure-out"; do
   if grep -q "$archived" "$TPL"; then
     echo "FAIL: $TPL still references archived skill: $archived"
     ERRORS=$((ERRORS + 1))
   fi
 done
+
+# Brief must reference design-specify as the consumer (self-containment test
+# is now framed against design-specify, not plan-build)
+if ! grep -q "design-specify" "$TPL"; then
+  echo "FAIL: $TPL does not reference design-specify (the brief's consumer)"
+  ERRORS=$((ERRORS + 1))
+fi
 
 # Line-count sanity — target is roughly 250 lines, allow 180-320 range
 line_count=$(wc -l < "$TPL")

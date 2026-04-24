@@ -14,7 +14,14 @@ if ! grep -q "plan-build" "$SKILL"; then
   ERRORS=$((ERRORS + 1))
 fi
 
-for archived in "design-figure-out" "design-specify"; do
+# design-small-task now transitions to design-specify (which then chains into plan-build)
+if ! grep -q "design-specify" "$SKILL"; then
+  echo "FAIL: $SKILL does not reference design-specify (the new downstream skill)"
+  ERRORS=$((ERRORS + 1))
+fi
+
+# design-figure-out remains archived
+for archived in "design-figure-out"; do
   if grep -q "$archived" "$SKILL"; then
     echo "FAIL: $SKILL references archived skill: $archived"
     ERRORS=$((ERRORS + 1))
