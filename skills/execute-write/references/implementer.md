@@ -76,6 +76,22 @@ Task tool (general-purpose):
     The controller can provide more context, re-dispatch with a more capable model,
     or break the task into smaller pieces.
 
+    ## Decision-Record Loop Artifacts (code-producing tasks)
+
+    **Observable behaviors artifact (Mod 2).** For code-producing tasks, emit a
+    canonical-form list of observable behaviors in your diff to
+    `observable-behaviors.md` in the current task's scratch area. Canonical form:
+    one line per behavior, structured as
+    `{function_signature_or_state_transition} -> {invariant_or_outcome}`. Include
+    one example per language supported by skeleton-generator (Rust, TypeScript,
+    Python, Bash).
+
+    **Skeleton coverage check.** Read the spec's skeleton manifest (`spec-skeleton`
+    artifact — find the path via `util-artifact-schema`'s artifact-type table).
+    Note which observable behaviors from your diff are not covered by existing
+    skeletons. Flag gaps in your DONE_WITH_CONCERNS report so execute-write's
+    trigger-check can decide FIRE vs NO_FIRE.
+
     ## Before Reporting Back: Self-Review
 
     Review your work with fresh eyes. Ask yourself:

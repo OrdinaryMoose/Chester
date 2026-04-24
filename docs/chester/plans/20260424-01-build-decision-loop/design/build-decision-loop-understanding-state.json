@@ -1,0 +1,408 @@
+{
+  "contextType": "brownfield",
+  "round": 6,
+  "userPrompt": "Design a decision-record / constraint-triangle system for Chester: a mechanism that captures in-flight implementation decisions and keeps spec ↔ tests ↔ code in sync, addressing the specification-drift failure mode identified in the April 2026 agentic-skills industry survey. Inputs: agentic-skills-industry-survey.md (eight-framework landscape analysis with converged frustration: no framework keeps spec/tests/code coherent over time) and context-handover-constraint-triangle.md (proposes spec/tests/code as a constraint triangle with structured decision records capturing implementation-time discoveries; distinguishes spec-level vs plan-level discovery; four-way bidirectional traceability; supersedes lifecycle pattern).",
+  "scores": {
+    "surface_coverage": {
+      "score": 0.85,
+      "justification": "New material from the chat dump adds: four-phase operational shape, rate-limiter walkthrough, validation asymmetry model (code-test deterministic / spec-test structural / spec-code probabilistic), spec-vs-plan hierarchy, three distinct feedback channels, decision record trigger criterion, supersede-chain mechanics. The problem surface is now broadly mapped at the mechanism level, not just the frame level.",
+      "gap": "Still open: does decision-record as persistent memory conflict with the 'KB is separate artifact' position from previous turn, or does the separation resolve through location-only (decision records live at /docs/chester/decision-record)? Curation question remains designer-flagged-open."
+    },
+    "relationship_mapping": {
+      "score": 0.8,
+      "justification": "Major reframe: spec and plan are a hierarchy, not peer triangle vertices. Spec above plan within a sprint. Discoveries at spec level force plan changes; plan-level discoveries stay local. This is sharper than my prior 'spec-level vs plan-level discovery' dichotomy. PCR maps to finish-plan coherence audit (already conceptually in Chester via attack-plan/smell-code cousin).",
+      "gap": "Mechanism for propagating spec update into remaining plan tasks within the same sprint. Consumption mechanism for decision records at plan-build time of future sprints."
+    },
+    "constraint_discovery": {
+      "score": 0.7,
+      "justification": "Trigger criterion is a real constraint: 'two or more valid implementations exist and existing artifacts don't determine.' Bounds when a decision record is created — not every commit. Validation asymmetry constrains what can gate what: deterministic for code-test, structural for spec-test, probabilistic for spec-code (LLM pressure-test only, never gate).",
+      "gap": "Token budget for decision-record reads at plan-build time. Write-path mechanism for decision records into the KB file."
+    },
+    "risk_topology": {
+      "score": 0.65,
+      "justification": "Cross-sprint supersede risk RESOLVED by append-only chain discipline (new record supersedes old, both preserved, chain is the archaeology). Scale failure risk still stands — the chat material doesn't address flat-file growth. Curation-mode risk still open per designer flag.",
+      "gap": "Flat-file scale over time — still unaddressed by the new material."
+    },
+    "stakeholder_impact": {
+      "score": 0.4,
+      "justification": "Designer's ceremony tolerance signal clarifying: willing to commit to per-decision records with structured fields (identifier, trigger, context, options considered, chosen, rationale, spec update, test, code, supersedes). That's moderate ceremony. But trigger criterion ('two or more valid implementations exist') means ceremony fires only when ambiguity actually surfaces, not per-commit. Amortized cost low.",
+      "gap": "External plugin user stakeholder status still unconfirmed but low-salience."
+    },
+    "prior_art": {
+      "score": 0.85,
+      "justification": "Rich anchors now fully articulated. dbreunig's triangle is the structural frame. Rate limiter walkthrough is the canonical example. Chester's own attack-plan/smell-code named as the closest field analog for pressure-testing spec quality. PCR named as the aggregate-level coherence check already in Chester. TDR-vs-decision-record distinction explicit (architectural-pre vs discovery-during).",
+      "gap": "None major — prior art very well-anchored now."
+    },
+    "temporal_context": {
+      "score": 0.2,
+      "justification": "No new signal.",
+      "gap": "Priority, ship cadence, relation to KB if separate."
+    },
+    "problem_boundary": {
+      "score": 0.75,
+      "justification": "Scope clarifies: the four-phase shape is spread across existing Chester skills — build-spec (auto-scaffold tests), build-plan (traceability + decision-budget concept), write-code (per-decision capture + spec/test propagation before commit), finish-plan (coherence audit which is PCR analog). Chester architecture table's Missing row fits inside the write-code phase. If decision records ARE the persistent memory (append-only chain), there is no separate KB curation layer.",
+      "gap": "Whether designer's 'KB is separate artifact' position survives once they see decision-records-as-persistent from the new material, or if the separation holds at the file-location level only. Curation-mode still open."
+    },
+    "assumption_inventory": {
+      "score": 0.7,
+      "justification": "Tested by new material: (1) supersede-across-sprints works via append-only chain; (2) spec-plan is hierarchy not peer triangle; (3) decision records ARE the persistent artifact by default per the chat dump; (4) trigger criterion is ambiguity, not every task; (5) PCR analog already exists in Chester via attack-plan/smell-code. Still untested: flat-file scale; whether designer accepts decision-records-as-persistent or wants a separate distilled layer above them.",
+      "gap": "Flat-file scale, curation layer necessity."
+    }
+  },
+  "scoreHistory": [
+    {
+      "surface_coverage": {
+        "score": 0.55,
+        "justification": "Industry survey covers eight frameworks and the converged frustration; supplementary research added ADR tradition, formal methods, design-rationale history, LangGraph interrupt pattern, and post-April-2026 shipped competitors (speckit.reconcile, opsx:sync, Tessl). Chester pipeline mapped end-to-end with extension points identified. Concept doc proposes concrete workflow mechanisms (test-scaffold-at-spec, decision-budget-per-task, decision-gate-at-commit, coherence-audit-at-finish).",
+        "gap": "Unclear which insertion point the designer prefers — new skill in execute-write's per-task loop, extension to finish-write-records' reasoning-audit, a new MCP analogous to the proof MCP, or an ambient hook mechanism. Also unclear whether all four mechanisms from the concept doc are in scope, or just a subset."
+      },
+      "relationship_mapping": {
+        "score": 0.45,
+        "justification": "Clear that decision records would sit between spec criteria, plan tasks, and commits — leveraging existing BASE_SHA/HEAD_SHA per-task tracking and the proof MCP's element-graph pattern. finish-write-records already does retrospective decision capture from the JSONL transcript. The pending KB brief (2026-04-23) proposes a persistent design-knowledge layer using the same proof grammar, a potential sibling or merge candidate.",
+        "gap": "Unknown: does a decision record replace, supplement, or merge with the existing reasoning-audit? Does it share storage with the proposed KB or stay distinct? How do decisions link to spec criteria when specs today have no criterion IDs? What happens across sprints — does sprint N+1's first decision inherit sprint N's ending state?"
+      },
+      "constraint_discovery": {
+        "score": 0.4,
+        "justification": "Chester has only SessionStart hook today — no PreToolCall/PostToolCall/PreCommit/PostCommit, which is a hard constraint on any ambient-capture approach. Structured state uses JSON (understanding-state, proof-state) in design/; prose artifacts are Markdown. Sprint schema is rigid. finish-archive-artifacts is copy-once. Rigid-vs-flexible skill distinction shapes how prescriptive the new skill can be.",
+        "gap": "Claude Code platform hook support as of 2026-04 — has PreToolUse / PostToolUse become available for plugins since the compaction-hook revert? This directly determines whether ambient capture is feasible. Designer's tolerance for ceremony per task is unknown; the solo-developer context suggests low tolerance but isn't confirmed."
+      },
+      "risk_topology": {
+        "score": 0.5,
+        "justification": "Design-rationale capture has a 35-year adoption-failure record (IBIS → gIBIS → QOC) with identified root cause: asymmetric cost — capture is expensive at author-time, benefit is deferred and diffuse. ADRs documented to go stale, get retrofitted as justification, or become checkbox exercises. Jupyter-style narratives force linear records onto non-linear processes. Chester's own compaction-hooks reverted recently, showing experimental infrastructure can be abandoned if it doesn't pay off.",
+        "gap": "Unknown whether LLM-in-the-loop materially changes the economic calculus that killed prior decision-rationale systems. Unknown which failure mode is most salient for solo-dev Chester use vs multi-user. Unknown whether the designer sees the precedent of prior failures as binding or as opportunity."
+      },
+      "stakeholder_impact": {
+        "score": 0.25,
+        "justification": "Memory indicates Mike is sole developer; Chester is published as a marketplace plugin so there may be external users, but primary workflow is single-author. The designer's acceptance of extra per-task ceremony is the main impact vector.",
+        "gap": "Unknown: how much ceremony is acceptable per task? Is this primarily for solo-dev use or must it scale to external plugin users with different workflows? Does the designer want the system invisible-by-default (ambient) or visible-by-design (explicit prompts/gates)?"
+      },
+      "prior_art": {
+        "score": 0.5,
+        "justification": "Prior-art explorer found substantive internal precedent: pending KB brief (2026-04-23) proposes persistent proof-grammar knowledge layer — potential sibling; reverted compaction hooks show hook-driven state persistence pattern exists; optimize-throughput sprint proves manual decision logs at authoring time are feasible; proof MCP grammar is the canonical decision vocabulary. Industry-side: ADR tradition, design rationale research, LangGraph interrupt pattern all found and characterized.",
+        "gap": "Unknown whether the KB brief and this design are same-track or separate tracks per the designer's plan. Unknown whether the designer has already rejected any candidate approach in prior conversations not captured in artifacts. Unknown whether the designer considers the dbreunig SDD triangle post (direct prior sibling) significant context."
+      },
+      "temporal_context": {
+        "score": 0.15,
+        "justification": "Sprint-level task; two input files placed in Pending/ feature-definition directory; no explicit deadline or priority ranking.",
+        "gap": "Priority relative to other pending briefs (KB brief is adjacent and pending). Whether the designer wants MVP-first-pass-ship-soon or full-vision-take-weeks. Whether this ships before or after the KB work. Whether there's an external driver (a session that blew up from spec drift? a planned talk?)."
+      },
+      "problem_boundary": {
+        "score": 0.3,
+        "justification": "Concept doc lists four mechanisms: test-scaffold at spec generation, decision-budget per plan task, decision-gate per execute commit, coherence-audit at finish. These are the author's proposals, not the designer's committed scope. The industry survey identifies specification drift as the frontier problem — the frame the designer has adopted.",
+        "gap": "Which of the four mechanisms are in scope for this sprint vs deferred. Whether decision records apply at only execute-write or also upstream (design/spec/plan). Cross-sprint decision handling — out of scope for now, or in? Detection of exploratory vs necessary decisions — the open question the concept doc flagged as unresolved — in scope? What happens if the designer later reframes the problem (a real possibility given the meta-review pattern in the survey: ADRs, SDD, decision rationale all went through multiple reframings)."
+      },
+      "assumption_inventory": {
+        "score": 0.2,
+        "justification": "Load-bearing assumptions detected but UNTESTED: (1) that specification drift is the right problem to solve, (2) that structured decision capture at author-time is economically viable when 35 years of prior attempts failed, (3) that the spec-as-contract framing (gotalab cc-sdd) fits better than spec-as-master, (4) that the constraint-triangle decomposition (three equal nodes) is correct vs code-centric or test-centric framings, (5) that decision records are a different artifact from ADRs and from the existing reasoning-audit.",
+        "gap": "Each of the five listed assumptions needs explicit designer confirmation or challenge. Particularly: is specification drift even the right problem to solve first, given the solo-dev context? Or is the real gap something smaller (e.g., spec criteria lack IDs, so traceability is impossible before decision records are even on the table)?"
+      }
+    },
+    {
+      "surface_coverage": {
+        "score": 0.6,
+        "justification": "Rereading the context-handover with the designer's redirect clarifies that the problem surface is tighter than I was treating it. The doc establishes the frame (spec drift), the structural diagnosis (feedback loop via dbreunig), the abstraction discipline (spec-as-contract via gotalab cc-sdd), the operational mechanisms (four workflow points), and the open question (necessary vs exploratory decisions). Chester's own architecture table in the doc names the exact missing piece.",
+        "gap": "Still unknown: which of the four workflow points (test scaffolds at spec-time, decision budget at plan-time, decision gate at commit-time, coherence audit at finish-time) are in scope for this sprint vs deferred. The doc proposes all four."
+      },
+      "relationship_mapping": {
+        "score": 0.55,
+        "justification": "The doc's final architecture table is the explicit mapping: Chester's current skills one-to-one to constraint-triangle analogs, with a single explicit Missing row (\"Decision record propagation: spec-level discovery during write-code → spec update → test update → decision log, before task is marked complete\"). That row IS the sprint's scope anchor.",
+        "gap": "Relationship to the pending knowledge-base proposal (from 2026-04-23) still unclear — the doc doesn't mention it, so the question of co-dependency vs separate track remains open."
+      },
+      "constraint_discovery": {
+        "score": 0.5,
+        "justification": "New constraint surfaced by designer feedback: work from the doc's own established prior art (dbreunig, gotalab, Chester's architecture table), not re-derive from external history. The doc's Chester architecture table is the constraint scaffold — each row except the Missing one is already built, so the sprint's scope is the one missing mechanism, not a system-wide redesign.",
+        "gap": "Platform hook availability (PreToolUse/PostToolUse/PreCommit) still unknown and would shape whether the decision gate is explicit (agent prompts user) or ambient (hook intercepts). Designer ceremony tolerance still unconfirmed."
+      },
+      "risk_topology": {
+        "score": 0.4,
+        "justification": "Downgraded from 0.5. My prior risk-topology reading leaned heavily on the 35-year design-rationale adoption-failure record — which was the wandering. The doc does not treat that history as the operative risk; the operative risks are narrower: necessary-vs-exploratory discrimination, test skeleton brittleness, plan/spec altitude confusion.",
+        "gap": "What failure modes does the designer actually fear? The doc's explicit open question is one (necessary vs exploratory). Others worth probing: how does a superseded decision propagate through cross-sprint plans; what happens when a decision record is written but the spec update is botched."
+      },
+      "stakeholder_impact": {
+        "score": 0.25,
+        "justification": "No new signal. Still unknown whether this is optimized for solo-dev workflow or must scale to external plugin users.",
+        "gap": "Unchanged: ceremony tolerance, visible-vs-ambient preference, external-user priority."
+      },
+      "prior_art": {
+        "score": 0.65,
+        "justification": "Recalibrated upward. The doc identifies three established priors the design should lean on: dbreunig's SDD Triangle (structural diagnosis), gotalab cc-sdd (spec-as-contract), and the Chester architecture table at the doc's end (the in-house mapping with one named missing piece). These are the anchors, not the wider design-rationale-capture literature.",
+        "gap": "Pending knowledge-base proposal from 2026-04-23 — is it in this prior-art set or a separate track? Designer's stance on whether other Chester skills already do partial work here (reasoning-audit, proof grammar reuse) is still implicit."
+      },
+      "temporal_context": {
+        "score": 0.15,
+        "justification": "No signal received on priority or timing yet.",
+        "gap": "Priority relative to KB brief, ship cadence, external driver."
+      },
+      "problem_boundary": {
+        "score": 0.5,
+        "justification": "Sharpened by designer's endorsement of the doc's own problem statement and the loop-closure framing. Scope anchor is the 'Decision record propagation' missing row. Problem is not just capture (retrospective); it's capture + loop-back into future plans (prospective closure).",
+        "gap": "Still unknown which of the doc's four workflow points are in vs out of scope for this sprint. The 'Decision record propagation' row specifically names the write-code mechanism; the other three (spec-time scaffolds, plan-time decision budget, finish-time coherence audit) may be in or out."
+      },
+      "assumption_inventory": {
+        "score": 0.4,
+        "justification": "One previously untested assumption flipped: the designer endorsed the spec-drift framing and the doc's structural diagnosis as the operative frame. The 'is drift the right frame' question is now settled — yes, work from the doc's framing. Three other assumptions still untested: (1) spec-as-contract is right for Chester; (2) test skeleton is a workable arbiter for necessary vs exploratory; (3) decision records are distinct from the existing reasoning-audit.",
+        "gap": "Designer's stance on spec-as-contract discipline (does Chester buy this over spec-as-master?); workability of test-skeleton-as-arbiter; distinction between decision record and reasoning audit."
+      }
+    },
+    {
+      "surface_coverage": {
+        "score": 0.6,
+        "justification": "No new surface. Designer redirect is about altitude, not new territory.",
+        "gap": "Which altitude of evolution the designer wants: within-sprint loop closure, or cross-sprint memory + loop closure. Unknown."
+      },
+      "relationship_mapping": {
+        "score": 0.55,
+        "justification": "Chester-as-pipeline vs Chester-as-loop is now the governing relationship. Decision record + KB are the two mechanisms that convert pipeline into loop; they are related parts of the same evolution, not separate features.",
+        "gap": "Whether the KB brief and this sprint are in or out of scope together — designer has not confirmed."
+      },
+      "constraint_discovery": {
+        "score": 0.5,
+        "justification": "Unchanged.",
+        "gap": "Platform hook availability, ceremony tolerance."
+      },
+      "risk_topology": {
+        "score": 0.4,
+        "justification": "Unchanged. Operative risks still: necessary-vs-exploratory discrimination, altitude confusion, superseded decision propagation across sprints. The cross-sprint propagation risk now more salient given the pipeline-to-loop framing.",
+        "gap": "Designer's actual fears beyond the doc's open question."
+      },
+      "stakeholder_impact": {
+        "score": 0.25,
+        "justification": "Unchanged.",
+        "gap": "Ceremony tolerance, visible-vs-ambient preference."
+      },
+      "prior_art": {
+        "score": 0.65,
+        "justification": "Unchanged. dbreunig, gotalab, Chester architecture table remain the anchors. Pending KB brief now centrally relevant.",
+        "gap": "KB brief's status relative to this sprint — co-designed, sequential, separate tracks?"
+      },
+      "temporal_context": {
+        "score": 0.15,
+        "justification": "Unchanged.",
+        "gap": "Priority, ship cadence, relation to KB work."
+      },
+      "problem_boundary": {
+        "score": 0.45,
+        "justification": "Downgraded slightly from 0.5. My prior scope-lock to the Missing row was too narrow if the evolution is cross-sprint. The real boundary question is altitude: within-sprint loop closure vs cross-sprint learning system. Scope-lock depends on altitude choice.",
+        "gap": "Altitude of evolution — narrow (close the write-code loop within sprint) or wide (turn Chester into a learning system across sprints). Downstream scope depends on this answer."
+      },
+      "assumption_inventory": {
+        "score": 0.45,
+        "justification": "Tested assumption: my sharpened problem statement was solution-shaped, not problem-shaped. Designer flagged this. Structural problem is pipeline-vs-loop mismatch, not 'missing capture mechanism'. Still untested: is cross-sprint accumulation (KB-scale evolution) in scope, or is this within-sprint only?",
+        "gap": "Altitude; spec-as-contract discipline as Chester convention; test-skeleton-as-arbiter workability."
+      }
+    },
+    {
+      "surface_coverage": {
+        "score": 0.65,
+        "justification": "New option surfaces under designer pressure: cross-sprint learning could be emergent (prior-art explorer reads decision records from plans/) rather than structural (curated KB). This is a third shape the prior-art framing had not named. Both-altitudes reframing clean: inner and outer loops share decision record as atom, differ in lifecycle phase.",
+        "gap": "Which of the three outer-loop shapes (none/emergent/curated) is the designer's target. Decision record promotion mechanism (if any)."
+      },
+      "relationship_mapping": {
+        "score": 0.65,
+        "justification": "Decision record is the shared atom. Inner loop: during write-code, record updates spec/tests/remaining-tasks. Outer loop: at sprint close, record archives; next sprint plan-build consults. The relationship between decision record and KB becomes lifecycle-phase question, not two-artifact question.",
+        "gap": "Is the KB a distilled/curated layer above decision records (ADR-style) or are decision records themselves the memory?"
+      },
+      "constraint_discovery": {
+        "score": 0.55,
+        "justification": "Existing prior-art explorer in design-specify and in plan-build already sweeps plans/ and working/. If decision records live in plans/{sprint}/plan/decisions/ (standard location), the explorer reaches them by default — no new substrate required for emergent outer loop. This is a constraint the designer needs to know.",
+        "gap": "Platform hook availability; designer ceremony tolerance for decision-record promotion ceremony at sprint close."
+      },
+      "risk_topology": {
+        "score": 0.45,
+        "justification": "Narrow scope + emergent outer loop is the cheapest path and least risky — uses existing machinery. Wide scope + curated KB is highest-leverage but highest cost and forces KB brief into critical path.",
+        "gap": "Designer's fear of overengineering vs underengineering. Whether distillation is a feature or a failure mode (ADR literature says curation is where decision systems die)."
+      },
+      "stakeholder_impact": {
+        "score": 0.3,
+        "justification": "Slight gain: ceremony tolerance is now the key lever because emergent-vs-curated is a ceremony choice. Curated KB = explicit promotion step at sprint close. Emergent = no promotion step, cross-sprint learning is a search at plan-time.",
+        "gap": "Designer's preference on ceremony weight, and whether the KB brief's pending status means it's ready to graduate to structural or whether it was always intended as an exploration."
+      },
+      "prior_art": {
+        "score": 0.7,
+        "justification": "ADR/commit tradition now relevant: ADRs are curated, commits are tactical captures. Maps cleanly onto the decision-record/KB question — tactical capture during sprint vs curated distillation at sprint close. Chester's own prior-art explorer mechanism is itself the answer to the emergent-outer-loop option.",
+        "gap": "Designer's read on the ADR tradition's applicability here."
+      },
+      "temporal_context": {
+        "score": 0.2,
+        "justification": "Slight gain: the emergent-outer-loop option means this sprint can ship without the KB brief as a prerequisite. Priority question softens.",
+        "gap": "Still no explicit driver or deadline."
+      },
+      "problem_boundary": {
+        "score": 0.55,
+        "justification": "Problem boundary now has three candidate shapes: (1) narrow — inner loop only, decision records archive with other artifacts; (2) middle — inner loop + emergent outer loop via prior-art explorer reading decision records from plans/; (3) wide — inner loop + curated outer loop via structural KB. Middle option did not exist in prior framing.",
+        "gap": "Which of the three shapes is the sprint's actual scope."
+      },
+      "assumption_inventory": {
+        "score": 0.55,
+        "justification": "Tested: altitude is layered not exclusive (both). Tested: decision records and KB are related by lifecycle, not by separate-artifact choice. Still untested: whether emergent outer loop is sufficient, or whether distillation/curation adds enough value to justify KB as separate structural layer.",
+        "gap": "Designer's position on emergent-vs-curated outer loop. Whether decision records and KB should be the same artifact or linked by promotion."
+      }
+    },
+    {
+      "surface_coverage": {
+        "score": 0.7,
+        "justification": "Designer commits KB shape: separate artifact, flat markdown at /docs/chester/decision-record, memory.md-style. Known shape now narrows the design space — no more deciding on substrate, just on contents and mechanism.",
+        "gap": "Promotion trigger, curation mechanism (if any), plan-build consumption pattern."
+      },
+      "relationship_mapping": {
+        "score": 0.7,
+        "justification": "Decision record (per-sprint) and KB (persistent flat file) are now confirmed as two distinct artifacts. Relationship between them is the open question — direct copy or transformed.",
+        "gap": "Supersede chain mechanics across the sprint boundary. Plan-build's consumption integration."
+      },
+      "constraint_discovery": {
+        "score": 0.6,
+        "justification": "KB location outside sprint dirs means write path is new — finish-archive-artifacts does not handle it. Something new must run at sprint close to append/promote into KB. Flat-file constraint limits how large KB can grow before it becomes unreadable or token-prohibitive.",
+        "gap": "Token budget for plan-build reading KB. Write-path mechanism."
+      },
+      "risk_topology": {
+        "score": 0.55,
+        "justification": "Red-team findings sharpen the risk map: scale failure (flat file growing unboundedly), curation decay (manual promotion decays), signal/noise (direct copy floods KB), supersede-chain break across sprints. Each has a known failure pattern in prior art systems.",
+        "gap": "Designer's own risk tolerance on these specific failures."
+      },
+      "stakeholder_impact": {
+        "score": 0.3,
+        "justification": "Designer's proposal signals low ceremony — flat markdown, memory.md-style. Bias toward simplicity; bias against curation ceremony.",
+        "gap": "Still unconfirmed on whether external plugin users are a stakeholder group."
+      },
+      "prior_art": {
+        "score": 0.75,
+        "justification": "memory.md is the referenced analog. It works because it's auto-loaded and small. Flat-file knowledge stores at larger scale have the well-documented readability-collapse failure.",
+        "gap": "None major. Prior art well-anchored."
+      },
+      "temporal_context": {
+        "score": 0.2,
+        "justification": "Unchanged.",
+        "gap": "Priority, ship cadence."
+      },
+      "problem_boundary": {
+        "score": 0.6,
+        "justification": "KB scope now pinned: separate artifact, flat markdown, known location. Remaining scope questions narrow to: curation mechanism, promotion trigger, plan-build integration.",
+        "gap": "Which curation mode (none/distillation/synthesis); promotion trigger (sprint-close auto, sprint-close designer-approved, ad-hoc); plan-build consumption (full read, search, filter)."
+      },
+      "assumption_inventory": {
+        "score": 0.6,
+        "justification": "Designer made concrete structural commitment (flat markdown, separate artifact, specific path). Curation-transformation question explicitly flagged as open. Red-team surfaced the hidden-assumption: flat-file scale works.",
+        "gap": "Whether the flat-file assumption holds at Chester's sprint cadence. Whether curation is feature or rot."
+      }
+    },
+    {
+      "surface_coverage": {
+        "score": 0.85,
+        "justification": "New material from the chat dump adds: four-phase operational shape, rate-limiter walkthrough, validation asymmetry model (code-test deterministic / spec-test structural / spec-code probabilistic), spec-vs-plan hierarchy, three distinct feedback channels, decision record trigger criterion, supersede-chain mechanics. The problem surface is now broadly mapped at the mechanism level, not just the frame level.",
+        "gap": "Still open: does decision-record as persistent memory conflict with the 'KB is separate artifact' position from previous turn, or does the separation resolve through location-only (decision records live at /docs/chester/decision-record)? Curation question remains designer-flagged-open."
+      },
+      "relationship_mapping": {
+        "score": 0.8,
+        "justification": "Major reframe: spec and plan are a hierarchy, not peer triangle vertices. Spec above plan within a sprint. Discoveries at spec level force plan changes; plan-level discoveries stay local. This is sharper than my prior 'spec-level vs plan-level discovery' dichotomy. PCR maps to finish-plan coherence audit (already conceptually in Chester via attack-plan/smell-code cousin).",
+        "gap": "Mechanism for propagating spec update into remaining plan tasks within the same sprint. Consumption mechanism for decision records at plan-build time of future sprints."
+      },
+      "constraint_discovery": {
+        "score": 0.7,
+        "justification": "Trigger criterion is a real constraint: 'two or more valid implementations exist and existing artifacts don't determine.' Bounds when a decision record is created — not every commit. Validation asymmetry constrains what can gate what: deterministic for code-test, structural for spec-test, probabilistic for spec-code (LLM pressure-test only, never gate).",
+        "gap": "Token budget for decision-record reads at plan-build time. Write-path mechanism for decision records into the KB file."
+      },
+      "risk_topology": {
+        "score": 0.65,
+        "justification": "Cross-sprint supersede risk RESOLVED by append-only chain discipline (new record supersedes old, both preserved, chain is the archaeology). Scale failure risk still stands — the chat material doesn't address flat-file growth. Curation-mode risk still open per designer flag.",
+        "gap": "Flat-file scale over time — still unaddressed by the new material."
+      },
+      "stakeholder_impact": {
+        "score": 0.4,
+        "justification": "Designer's ceremony tolerance signal clarifying: willing to commit to per-decision records with structured fields (identifier, trigger, context, options considered, chosen, rationale, spec update, test, code, supersedes). That's moderate ceremony. But trigger criterion ('two or more valid implementations exist') means ceremony fires only when ambiguity actually surfaces, not per-commit. Amortized cost low.",
+        "gap": "External plugin user stakeholder status still unconfirmed but low-salience."
+      },
+      "prior_art": {
+        "score": 0.85,
+        "justification": "Rich anchors now fully articulated. dbreunig's triangle is the structural frame. Rate limiter walkthrough is the canonical example. Chester's own attack-plan/smell-code named as the closest field analog for pressure-testing spec quality. PCR named as the aggregate-level coherence check already in Chester. TDR-vs-decision-record distinction explicit (architectural-pre vs discovery-during).",
+        "gap": "None major — prior art very well-anchored now."
+      },
+      "temporal_context": {
+        "score": 0.2,
+        "justification": "No new signal.",
+        "gap": "Priority, ship cadence, relation to KB if separate."
+      },
+      "problem_boundary": {
+        "score": 0.75,
+        "justification": "Scope clarifies: the four-phase shape is spread across existing Chester skills — build-spec (auto-scaffold tests), build-plan (traceability + decision-budget concept), write-code (per-decision capture + spec/test propagation before commit), finish-plan (coherence audit which is PCR analog). Chester architecture table's Missing row fits inside the write-code phase. If decision records ARE the persistent memory (append-only chain), there is no separate KB curation layer.",
+        "gap": "Whether designer's 'KB is separate artifact' position survives once they see decision-records-as-persistent from the new material, or if the separation holds at the file-location level only. Curation-mode still open."
+      },
+      "assumption_inventory": {
+        "score": 0.7,
+        "justification": "Tested by new material: (1) supersede-across-sprints works via append-only chain; (2) spec-plan is hierarchy not peer triangle; (3) decision records ARE the persistent artifact by default per the chat dump; (4) trigger criterion is ambiguity, not every task; (5) PCR analog already exists in Chester via attack-plan/smell-code. Still untested: flat-file scale; whether designer accepts decision-records-as-persistent or wants a separate distilled layer above them.",
+        "gap": "Flat-file scale, curation layer necessity."
+      }
+    }
+  ],
+  "saturationHistory": [
+    0.368,
+    0.445,
+    0.445,
+    0.51,
+    0.553,
+    0.653
+  ],
+  "groupSaturation": {
+    "landscape": 0.75,
+    "human_context": 0.625,
+    "foundations": 0.55
+  },
+  "overallSaturation": 0.653,
+  "weakest": {
+    "group": "foundations",
+    "dimension": {
+      "name": "temporal_context",
+      "score": 0.2
+    }
+  },
+  "gapsSummary": [
+    {
+      "dimension": "temporal_context",
+      "gap": "Priority, ship cadence, relation to KB if separate.",
+      "score": 0.2
+    },
+    {
+      "dimension": "stakeholder_impact",
+      "gap": "External plugin user stakeholder status still unconfirmed but low-salience.",
+      "score": 0.4
+    },
+    {
+      "dimension": "risk_topology",
+      "gap": "Flat-file scale over time — still unaddressed by the new material.",
+      "score": 0.65
+    },
+    {
+      "dimension": "constraint_discovery",
+      "gap": "Token budget for decision-record reads at plan-build time. Write-path mechanism for decision records into the KB file.",
+      "score": 0.7
+    },
+    {
+      "dimension": "assumption_inventory",
+      "gap": "Flat-file scale, curation layer necessity.",
+      "score": 0.7
+    },
+    {
+      "dimension": "problem_boundary",
+      "gap": "Whether designer's 'KB is separate artifact' position survives once they see decision-records-as-persistent from the new material, or if the separation holds at the file-location level only. Curation-mode still open.",
+      "score": 0.75
+    },
+    {
+      "dimension": "relationship_mapping",
+      "gap": "Mechanism for propagating spec update into remaining plan tasks within the same sprint. Consumption mechanism for decision records at plan-build time of future sprints.",
+      "score": 0.8
+    },
+    {
+      "dimension": "surface_coverage",
+      "gap": "Still open: does decision-record as persistent memory conflict with the 'KB is separate artifact' position from previous turn, or does the separation resolve through location-only (decision records live at /docs/chester/decision-record)? Curation question remains designer-flagged-open.",
+      "score": 0.85
+    },
+    {
+      "dimension": "prior_art",
+      "gap": "None major — prior art very well-anchored now.",
+      "score": 0.85
+    }
+  ],
+  "transition": {
+    "ready": true,
+    "reasons": []
+  }
+}

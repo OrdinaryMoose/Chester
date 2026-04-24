@@ -7,6 +7,10 @@
     "chester-design-understanding": {
       "command": "node",
       "args": ["${CLAUDE_PLUGIN_ROOT}/skills/design-large-task/understanding-mcp/server.js"]
+    },
+    "chester-decision-record": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/mcp/chester-decision-record/server.js"]
     }
   }
 }

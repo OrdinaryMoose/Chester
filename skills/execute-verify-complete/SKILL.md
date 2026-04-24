@@ -39,7 +39,32 @@ Cannot proceed until tests pass.
 
 **If tests pass:** Continue.
 
-## Step 2: Verify Clean Tree
+## Step 2: Verify Decision-Record Linkage
+
+After the suite passes, confirm that every decision record produced during this sprint is fully linked to its test and code. Invoke the `dr_verify_tests(current_sprint)` tool on the `chester-decision-record` MCP.
+
+The tool returns `{sprint, per_record: [{id, test, exists, passes, sha_finalized}], aggregate: "pass" | "fail"}`. `sha_finalized=true` confirms the implementer called `dr_finalize_refs` after commit; `aggregate="pass"` means every record carries the SHA suffix and the test exists.
+
+**If `aggregate="fail"` or any record has `sha_finalized=false` or `passes=false`:**
+
+```
+Decision-record linkage failed. Cannot mark sprint complete:
+
+[Show failing record IDs, test names, and missing SHA fields]
+
+Fix required:
+- sha_finalized=false → re-run the task that created the record, ensure execute-write called dr_finalize_refs after commit
+- passes=false → the linked test is failing; fix the code or the test
+- exists=false → the referenced test is missing from the corpus; generate it via propagation-procedure
+```
+
+Stop. Resolve every failing record before continuing. Do NOT proceed to the clean-tree check until `aggregate="pass"`.
+
+**Rationale for ordering (step 2 here, not later):** Step 1 must confirm suite-pass first so `dr_verify_tests`'s per-test status is reliable. The clean-tree check (now Step 3) comes after because fixes to broken records may produce uncommitted changes.
+
+**If `aggregate="pass"`:** Continue.
+
+## Step 3: Verify Clean Tree
 
 ```bash
 git status --porcelain
@@ -61,7 +86,7 @@ to this work. Only proceed after the user responds.
 
 **If output is empty or shows only untracked files (`??`):** Continue.
 
-## Step 3: Checkpoint
+## Step 4: Checkpoint
 
 Commit a marker that execution is complete:
 

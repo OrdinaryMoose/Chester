@@ -141,9 +141,18 @@ This step exists because humans evaluate *comparisons* far better than *single p
 
 - Read the design brief from disk (if it exists) and conversation context
 - Using the user's chosen architecture as the structural foundation, synthesize into a structured spec document covering: architecture, components, data flow, error handling, testing strategy, constraints, non-goals
+- Follow the loop-optimized spec format at `references/spec-template.md` — every acceptance criterion carries a stable `AC-{N.M}` ID, an observable-boundary declaration, a Given/When/Then block, and placeholders for `Implementing tasks` (populated by plan-build) and `Decisions` (populated by execute-write).
 - Scale each section to its complexity — a few sentences if straightforward, detailed if nuanced
 - No YAML frontmatter is needed in spec documents. All skills read output paths from the project config, not from document frontmatter.
 - Write to the `spec/` subdirectory (see `util-artifact-schema` for exact path and naming)
+
+### Scaffold test skeletons (per acceptance criterion)
+
+For each acceptance criterion, after its observable-boundary declaration is written, invoke the skeleton-generator procedure at `references/skeleton-generator.md` to produce a concrete test stub in the project's test framework. The generator detects the target language (Rust / TypeScript / Python / Bash) from project-root markers and emits a language-appropriate pending stub keyed by the criterion's `ac-{N-M}-{slug}` skeleton ID.
+
+Write a skeleton manifest alongside the spec — the `spec-skeleton` artifact type in `util-artifact-schema` (produced by this skill, consumed by `execute-write`). The manifest indexes skeleton IDs to their criterion references; the actual stub files land in the project's test directory. Do not hardcode the manifest path — `util-artifact-schema` is the canonical source for its filename and location.
+
+The skeleton manifest is execute-write's structural discriminator: its trigger-check step compares implementer-emitted observable behaviors against the skeleton coverage map. Skeletons that are missing or under-specified at spec-write time cause downstream drift, so treat scaffolding as a first-class spec-writing step, not an afterthought.
 
 ## Spec Fidelity Review (single pass)
 
