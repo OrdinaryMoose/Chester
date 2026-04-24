@@ -114,7 +114,7 @@ Dispatch one `general-purpose` agent with access to `WebSearch` and `WebFetch`. 
 
 Prompt guidance: "For [user's request], research how this class of problem is approached in the broader industry. Use WebSearch to find authoritative discussions (technical blogs, conference talks, well-regarded articles, standards documents, language/framework maintainer guidance). Use WebFetch to read the sources that look substantive. Report: (1) named patterns and approaches commonly used for this problem class, each with a one-paragraph description, (2) common pitfalls and modes of failure for each pattern, (3) the conditions under which each pattern tends to fail. Cite every claim with a source URL. Report patterns and tradeoffs, not recommendations — the designer will decide what fits. If the signal is thin (niche problem, obscure stack, nothing substantive found), say so explicitly rather than padding the report with low-confidence material."
 
-The guardrail matters. Without it, web content smuggles in as authority and foreign patterns get grafted onto a codebase they don't suit. With it, external patterns stay as input the designer evaluates, not prescriptions the architect accepts. The industry explorer's findings feed the **Industry Context** section of the design brief (see `util-design-brief-template`).
+The guardrail matters. Without it, web content smuggles in as authority and foreign patterns get grafted onto a codebase they don't suit. With it, external patterns stay as input the designer evaluates, not prescriptions the architect accepts. The industry explorer's findings feed the **Industry Context** section of the design brief (see [`references/design-brief-template.md`](references/design-brief-template.md)).
 
 ### After all explorers complete
 
@@ -724,7 +724,7 @@ Three artifacts in the `design/` subdirectory (see `util-artifact-schema` for na
 and path conventions). `finish-archive-artifacts` copies them into the worktree for
 permanent history.
 
-1. **Design brief** (`{sprint-name}-design-00.md`) — WHAT is being built and WHY the scope boundaries exist. Carries the proof envelope: problem statement, necessary conditions (with reasoning chains and collapse tests), rules, permissions, evidence foundation, risks, closing argument. Follow the structure in `util-design-brief-template`. Read that skill before writing the brief. Architecture choice is *not* in this brief — `design-specify` produces it from the envelope.
+1. **Design brief** (`{sprint-name}-design-00.md`) — WHAT is being built and WHY the scope boundaries exist. Carries the proof envelope: problem statement, necessary conditions (with reasoning chains and collapse tests), rules, permissions, evidence foundation, risks, closing argument. Follow the structure in [`references/design-brief-template.md`](references/design-brief-template.md). Read that file before writing the brief. Architecture choice is *not* in this brief — `design-specify` produces it from the envelope.
 
 2. **Thinking summary** (`{sprint-name}-thinking-00.md`) — HOW decisions were made. Domain language. Decision history, alternatives considered, user corrections, confidence levels, understanding shifts.
 
@@ -735,7 +735,7 @@ permanent history.
 - **Calls:** `start-bootstrap` (Bootstrap), `util-worktree` (Closure)
 - **Dispatches (Parallel Context Exploration only):** 1 `feature-dev:code-explorer` (codebase) + 1 `Explore` agent (prior art) + 1 `general-purpose` agent (industry research). No subagent dispatch at Closure.
 - **Uses:** `chester-understanding` MCP (Understand Stage), `chester-design-proof` MCP (Solve Stage), `capture_thought` / `get_thinking_summary` (throughout)
-- **Reads:** `util-design-partner-role` (voice rules — read before running), `util-artifact-schema` (naming/paths), `util-design-brief-template` (brief output structure), `util-budget-guard` (via bootstrap)
+- **Reads:** `util-design-partner-role` (voice rules — read before running), `util-artifact-schema` (naming/paths), `references/design-brief-template.md` (brief output structure)
 - **Invoked by:** user, as the default structural design skill
 - **Transitions to:** `design-specify` (which dispatches architects against the brief, builds the spec, then transitions to `plan-build`)
 - **Does NOT do:** architecture choice, F-A-C self-check, hybrid recommendation, ground-truth subagent dispatch — those live in `design-specify` against the spec layer.

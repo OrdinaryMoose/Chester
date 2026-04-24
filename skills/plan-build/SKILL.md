@@ -5,10 +5,6 @@ description: Use when you have a spec or requirements for a multi-step task, bef
 
 # Chester Build Plan
 
-## Budget Guard
-
-Run the budget guard check (see `util-budget-guard`) at skill entry and again before dispatching plan-attack and plan-smell during Plan Hardening — those are expensive parallel subagent calls.
-
 ## Overview
 
 Write comprehensive implementation plans assuming the engineer has zero context for our codebase and questionable taste. Document everything they need to know: which files to touch for each task, code, testing, docs they might need to check, how to test it. Give them the whole plan as bite-sized tasks. DRY. YAGNI. TDD.
@@ -122,34 +118,10 @@ subagent dispatch on non-triggering sprints.
 ### Procedure
 
 1. Read the plan text.
-2. Match case-insensitively against the five trigger categories below. If any match,
-   `plan-smell` fires in parallel with `plan-attack`. If no match, `plan-smell` is
-   skipped and `plan-attack` runs alone.
-3. Include the list of matched triggers verbatim in the combined threat report so
-   the designer sees why smell fired (or didn't).
+2. Match case-insensitively against the five trigger categories defined in [`references/smell-triggers.md`](references/smell-triggers.md) (DI registrations, new abstractions, async/concurrency primitives, new persistence pathways, new contract surfaces). If any trigger matches, `plan-smell` fires in parallel with `plan-attack`. If no match, `plan-smell` is skipped and `plan-attack` runs alone.
+3. Include the list of matched triggers verbatim in the combined threat report so the designer sees why smell fired (or didn't).
 
-### Trigger Categories
-
-The list is deliberately inclusive. False positives cost one extra parallel dispatch;
-misses cost an uncaught real bug. Tune toward over-firing.
-
-**DI registrations:** `AddScoped`, `AddSingleton`, `AddTransient`, `services.Add`,
-`IServiceCollection`, `composition root`
-
-**New abstractions:** `new interface`, `abstract class`, `new service class`,
-`public interface I[A-Z]`, `public abstract`
-
-**Async / concurrency primitives:** `async`, `await`, `Task.`, `Task<`,
-`SemaphoreSlim`, `Semaphore`, `lock (`, `Interlocked.`, `ConcurrentDictionary`,
-`ConcurrentBag`, `Channel<`
-
-**New persistence pathways:** `SaveAsync`, `DbContext`, `IRepository`, `Repository`,
-`sqlite`, `persistence`, `IDbConnection`, `SqlConnection`, `serialize`, `deserialize`
-
-**New contract surfaces:** `new contract`, `new DTO`, `new record`, `public record`,
-`public class.*Dto`, `boundary contract`
-
-When adding new triggers, keep the category split and the inclusive bias.
+Add new triggers in the reference file, not here — this section owns the decision procedure; the reference owns the pattern library.
 
 ---
 
@@ -252,7 +224,7 @@ Which approach?
 
 - **Invoked by:** `design-specify` (primary — with spec input; cascades the spec-stage ground-truth report from `design-specify` when the user accepted the opt-in review), or user directly (standalone, when a spec already exists)
 - **Calls:** `plan-attack` (unconditional), `plan-smell` (conditional — only when Smell Heuristic Pre-Check matches)
-- **Reads:** `util-artifact-schema` (naming/paths), `util-budget-guard`, the spec from upstream `spec/` subdirectory, the spec-stage ground-truth report from upstream `spec/` subdirectory (when present)
+- **Reads:** `util-artifact-schema` (naming/paths), the spec from upstream `spec/` subdirectory, the spec-stage ground-truth report from upstream `spec/` subdirectory (when present)
 - **Transitions to:** `execute-write` (subagent or inline mode)
 - **Does NOT call:** `start-bootstrap` (inherits sprint context from upstream design and spec stages)
 - **Spec compatibility:** reads spec documents written by `design-specify`, regardless of whether the upstream brief came from `design-experimental` (nine-section) or `design-small-task` (six-section) — design-specify normalizes both into the spec contract

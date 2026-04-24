@@ -29,9 +29,7 @@ If CLAUDE.md says "don't use TDD" and a skill says "always use TDD," follow the 
 
 At the start of every session:
 
-1. **Verify jq availability:** Run `which jq`. If jq is not installed, warn: "Budget guard requires jq for JSON parsing. Install jq for token budget monitoring." Continue without the guard.
-
-2. **First-run project configuration:** Check for project-scoped Chester config:
+1. **First-run project configuration:** Check for project-scoped Chester config:
    ```bash
    eval "$(chester-config-read)"
    ```
@@ -193,7 +191,7 @@ These thoughts mean STOP — you're rationalizing:
 
 ## Skill Types
 
-**Rigid** (`execute-test`, `execute-debug`): Follow exactly. Don't adapt away discipline.
+**Rigid** (`execute-test`, `execute-prove`): Follow exactly. Don't adapt away discipline.
 
 **Flexible** (patterns): Adapt principles to context.
 

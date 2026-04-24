@@ -5,10 +5,6 @@ description: Use when you have a written implementation plan to execute — prov
 
 # execute-write
 
-## Budget Guard
-
-Run the budget guard check (see `util-budget-guard`) at skill entry and before dispatching each task's implementer subagent (Section 2.1 step 0). This catches budget breaches between tasks during long implementation runs.
-
 ## Section 1: Common Setup
 
 Before executing in either mode, complete these setup steps.
@@ -55,8 +51,6 @@ This is the recommended execution mode. Each task is dispatched to a fresh subag
 ### 2.1 Dispatch Pattern
 
 For each task in order:
-
-0. **Budget guard check** — Before dispatching this task's implementer, run the budget guard check (see Budget Guard Check section above). If PAUSE is triggered, report progress using the current task list and wait for user decision. If CONTINUE, proceed to dispatch.
 
 1. **Dispatch implementer subagent** using the template at `execute-write/implementer.md`
    - Paste the FULL task text into the prompt — do not make the subagent read a file
@@ -211,9 +205,7 @@ steps and ask "Want to proceed?" — just proceed.
   - `finish-write-records` — session summary and reasoning audit
   - `execute-test` — can be invoked per task when TDD is required by the plan
   - `execute-prove` — can be invoked per task for verification checkpoints
-  - `execute-debug` — invoked when a task hits a failure that needs root-cause investigation
-  - `execute-review` — invoked when receiving code review feedback mid-task
-- **Reads:** `util-artifact-schema` (for deferred items path), `util-budget-guard`
+- **Reads:** `util-artifact-schema` (for deferred items path)
 - **Template files (in this skill directory):**
   - `implementer.md` — prompt template for implementer subagents
   - `spec-reviewer.md` — prompt template for spec compliance review subagents

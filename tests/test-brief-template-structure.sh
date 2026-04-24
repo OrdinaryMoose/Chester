@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-TPL="skills/util-design-brief-template/SKILL.md"
+TPL="skills/design-experimental/references/design-brief-template.md"
 ERRORS=0
 
 # Required eight sections, in order. Architecture choice (Chosen Approach,

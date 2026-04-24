@@ -1,14 +1,9 @@
----
-name: util-design-brief-template
-description: >
-  Canonical template for design brief output. Read this skill (don't invoke it)
-  when writing the design brief artifact at Closure of `design-experimental`.
-  The brief carries the proof envelope — what the proof established — and feeds
-  `design-specify`, which dispatches architects against this envelope to choose
-  the architectural approach.
----
-
 # Design Brief Output Template
+
+Canonical template for design brief output. Read this file when writing the design
+brief artifact at Closure of `design-experimental`. The brief carries the proof
+envelope — what the proof established — and feeds `design-specify`, which dispatches
+architects against this envelope to choose the architectural approach.
 
 This document defines the required structure for design brief artifacts produced by
 `design-experimental` at Closure. It is the single source of truth for what a design
@@ -224,7 +219,7 @@ sections are incomplete.
 
 ## Lightweight Alternative
 
-`design-small-task` uses `util-design-brief-small-template` instead of this template.
+`design-small-task` uses its own lightweight template at `../../design-small-task/references/design-brief-small-template.md` instead of this one.
 The small template has six sections (Goal, Prior Art, Scope, Key Decisions,
 Constraints, Acceptance Criteria) optimized for bounded-task briefs that skip the
 proof phase. Both templates feed `design-specify` — `design-specify` reads both by

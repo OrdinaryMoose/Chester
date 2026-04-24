@@ -31,11 +31,7 @@ eval "$(chester-config-read)"
 If `CHESTER_CONFIG_PATH` is `none`, warn: "No Chester config found. Run setup-start
 first or accept defaults." Use defaults from `util-artifact-schema`.
 
-### Step 2: Run Budget Guard
-
-Follow the procedure in `util-budget-guard`.
-
-### Step 3: Reset Tasks
+### Step 2: Reset Tasks
 
 Clear any tasks left over from a previous skill:
 
@@ -44,7 +40,7 @@ Clear any tasks left over from a previous skill:
 
 This is housekeeping — the calling skill will create its own tasks after bootstrap completes.
 
-### Step 4: Establish Sprint Name
+### Step 3: Establish Sprint Name
 
 Derive a three-word verb-noun-noun sprint name from the user's intent (lowercase,
 hyphenated — the verb is the action, the two nouns are the target). Construct the
@@ -59,7 +55,7 @@ ls "$CHESTER_WORKING_DIR/" 2>/dev/null | grep "^$(date +%Y%m%d)" | sort | tail -
 
 If no directories exist for today, use `01`.
 
-### Step 5: Create Working Directory
+### Step 4: Create Working Directory
 
 ```bash
 mkdir -p "{CHESTER_WORKING_DIR}/{sprint-subdir}/design" \
@@ -68,7 +64,7 @@ mkdir -p "{CHESTER_WORKING_DIR}/{sprint-subdir}/design" \
          "{CHESTER_WORKING_DIR}/{sprint-subdir}/summary"
 ```
 
-### Step 5b: Write Active Sprint Breadcrumb
+### Step 4b: Write Active Sprint Breadcrumb
 
 Write the sprint subdirectory name to a breadcrumb file so that compaction hooks can discover the active sprint without conversation context:
 
@@ -78,7 +74,7 @@ echo "{sprint-subdir}" > "{CHESTER_WORKING_DIR}/.active-sprint"
 
 This file is read by `pre-compact.sh` and `post-compact.sh` to locate MCP state files during compaction events.
 
-### Step 6: Initialize Thinking History
+### Step 5: Initialize Thinking History
 
 1. Call `clear_thinking_history()` to reset structured thinking for the session
 2. Read `~/.chester/thinking.md` if it exists — identify the top 5 highest-scoring

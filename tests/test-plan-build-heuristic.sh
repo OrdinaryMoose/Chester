@@ -2,29 +2,43 @@
 set -euo pipefail
 
 SKILL="skills/plan-build/SKILL.md"
+TRIGGERS_REF="skills/plan-build/references/smell-triggers.md"
 ERRORS=0
 
-# Smell heuristic section
+# Smell heuristic section must stay in SKILL.md (decision procedure belongs here,
+# not in the reference file)
 if ! grep -q -i "smell heuristic\|smell pre-check\|Smell Trigger" "$SKILL"; then
   echo "FAIL: $SKILL missing smell heuristic pre-check section"
   ERRORS=$((ERRORS + 1))
 fi
 
-# Trigger categories
-for category in "DI" "abstraction" "async" "persistence" "contract"; do
-  if ! grep -q -i "$category" "$SKILL"; then
-    echo "FAIL: $SKILL missing smell trigger category: $category"
-    ERRORS=$((ERRORS + 1))
-  fi
-done
+# SKILL.md must cite the reference file (where the trigger list now lives)
+if ! grep -q "references/smell-triggers.md" "$SKILL"; then
+  echo "FAIL: $SKILL does not cite references/smell-triggers.md"
+  ERRORS=$((ERRORS + 1))
+fi
 
-# Specific keywords
-for keyword in "AddScoped" "SemaphoreSlim" "DbContext"; do
-  if ! grep -q "$keyword" "$SKILL"; then
-    echo "FAIL: $SKILL missing specific trigger keyword: $keyword"
-    ERRORS=$((ERRORS + 1))
-  fi
-done
+# The reference file must exist and carry the trigger library
+if [ ! -f "$TRIGGERS_REF" ]; then
+  echo "FAIL: $TRIGGERS_REF does not exist"
+  ERRORS=$((ERRORS + 1))
+else
+  # Trigger categories present in the reference
+  for category in "DI" "abstraction" "async" "persistence" "contract"; do
+    if ! grep -q -i "$category" "$TRIGGERS_REF"; then
+      echo "FAIL: $TRIGGERS_REF missing smell trigger category: $category"
+      ERRORS=$((ERRORS + 1))
+    fi
+  done
+
+  # Specific keywords present in the reference
+  for keyword in "AddScoped" "SemaphoreSlim" "DbContext"; do
+    if ! grep -q "$keyword" "$TRIGGERS_REF"; then
+      echo "FAIL: $TRIGGERS_REF missing specific trigger keyword: $keyword"
+      ERRORS=$((ERRORS + 1))
+    fi
+  done
+fi
 
 # Ground-truth cascade
 if ! grep -q -i "ground-truth" "$SKILL"; then

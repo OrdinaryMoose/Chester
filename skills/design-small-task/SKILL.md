@@ -267,7 +267,7 @@ When the designer explicitly directs you to proceed (e.g., "go ahead," "write it
 design into durable written artifacts:
 
 1. Write the design brief to `{CHESTER_WORKING_DIR}/{sprint-subdir}/design/{sprint-name}-design-00.md`
-   following the template in `util-design-brief-small-template`:
+   following the template in [`references/design-brief-small-template.md`](references/design-brief-small-template.md):
 
    ```markdown
    # [Feature Name] — Design Brief
@@ -305,7 +305,7 @@ design into durable written artifacts:
 ## Integration
 
 - **Calls:** `start-bootstrap` (setup), `util-worktree` (closure)
-- **Reads:** `util-design-partner-role` (voice rules — read before running), `util-artifact-schema` (naming/paths), `util-design-brief-small-template` (brief format), `util-budget-guard` (via bootstrap)
+- **Reads:** `util-design-partner-role` (voice rules — read before running), `util-artifact-schema` (naming/paths), `references/design-brief-small-template.md` (brief format)
 - **Transitions to:** `design-specify` (which formalizes the brief into a spec, then transitions to `plan-build`)
 - **Does NOT call:** any MCP server; no proof phase, no architect comparison at this stage, no ground-truth verification — design-specify handles architect comparison and the spec layer; ground-truth verification is opt-in there
 - **Does NOT use:** `capture_thought`, `get_thinking_summary`

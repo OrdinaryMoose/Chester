@@ -40,7 +40,7 @@ fi
 # Test 2: User-level config only — directory paths ignored, config path set
 echo "--- Test: user-level config only (dirs ignored) ---"
 cat > "$HOME/.claude/settings.chester.json" << 'CONF'
-{"plans_dir": "user/plans", "budget_guard": {"threshold_percent": 90, "enabled": true}}
+{"plans_dir": "user/plans", "notes": "user-level config ignored for directory paths"}
 CONF
 OUTPUT=$(bash "$SCRIPT" 2>/dev/null)
 if echo "$OUTPUT" | grep -q "CHESTER_PLANS_DIR='docs/chester/plans'"; then
@@ -83,7 +83,7 @@ fi
 # Test 4: Project config partial — missing key falls back to default
 echo "--- Test: partial project config uses defaults for missing keys ---"
 cat > "$TMPDIR/.claude/settings.chester.local.json" << 'CONF'
-{"budget_guard": {"threshold_percent": 75}}
+{"notes": "partial config — no directory keys"}
 CONF
 OUTPUT=$(bash "$SCRIPT" 2>/dev/null)
 if echo "$OUTPUT" | grep -q "CHESTER_PLANS_DIR='docs/chester/plans'"; then

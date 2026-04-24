@@ -52,9 +52,7 @@ audit explaining why the code works the way it does.
 | Skill | What it does |
 |-------|-------------|
 | `chester-execute-test` | Enforces TDD: failing test before any code |
-| `chester-execute-debug` | Root cause investigation before any fix attempt |
 | `chester-execute-prove` | Runs verification fresh before claiming it works |
-| `chester-execute-review` | Handles code review feedback with technical rigor |
 
 ### Utilities
 

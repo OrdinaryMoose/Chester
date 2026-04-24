@@ -27,7 +27,7 @@ Chester then enforces discipline during implementation: tests before code, root 
 
 Chester skills fall into two categories:
 
-- **Rigid skills** — follow the process exactly. These have Iron Laws and explicit anti-rationalization sections. Deviating from the process is treated as a process violation, not a reasonable adaptation. Skills in this category: `execute-test`, `execute-debug`, `execute-prove`.
+- **Rigid skills** — follow the process exactly. These have Iron Laws and explicit anti-rationalization sections. Deviating from the process is treated as a process violation, not a reasonable adaptation. Skills in this category: `execute-test`, `execute-prove`.
 - **Flexible skills** — adapt the principles to context. These provide frameworks and structure, but the agent uses judgment about how to apply them. Skills in this category: `design-experimental`, `design-figure-out`, `design-small-task`, `plan-build`, `execute-write`.
 
 When you are using a rigid skill and find yourself thinking "just this once" or "this is different because…" — that is rationalization. The skill documentation says so explicitly. Follow the process.
@@ -61,9 +61,8 @@ These live in `docs/chester/plans/` alongside the code they document.
 - Git
 
 **Strongly recommended:**
-- `jq` — required for the token budget guard. Without it, budget monitoring is disabled and long sessions have no automatic checkpoint warnings. Install with `brew install jq` (macOS) or `sudo apt install jq` (Linux).
 - **Sequential Thinking MCP** — provides `capture_thought`, `get_thinking_summary`, and `clear_thinking_history`. Used throughout the design skills to anchor key decisions against the U-shaped context attention curve, preventing important early findings from being lost as the conversation grows. Without it, design skills fall back to context-only reasoning and reasoning checkpoints are less reliable. Install and configure this MCP separately and confirm it appears in `/mcp` before running design sessions.
-- **GitHub CLI (`gh`)** — used by `finish-close-worktree` to create pull requests and by `execute-review` to reply to inline GitHub review comments. Chester works without it, but the PR creation step will require you to create PRs manually. Install with `brew install gh` (macOS) or `sudo apt install gh` (Linux), then authenticate with `gh auth login`.
+- **GitHub CLI (`gh`)** — used by `finish-close-worktree` to create pull requests. Chester works without it, but the PR creation step will require you to create PRs manually. Install with `brew install gh` (macOS) or `sudo apt install gh` (Linux), then authenticate with `gh auth login`.
 
 ### Step 1: Clone to a permanent location
 
@@ -174,7 +173,7 @@ plan-build
     (plan-attack + plan-smell run automatically as part of plan hardening)
     ↓
 execute-write
-    (execute-test per task, execute-debug for issues, execute-prove for verification)
+    (execute-test per task, execute-prove for verification)
     ↓
 execute-verify-complete
     ↓
@@ -195,14 +194,13 @@ You do not call most of these manually — they chain automatically. The pipelin
 
 ### `chester:setup-start`
 
-**What it does:** Loads at the start of every session via a hook. Establishes the skill system, verifies `jq` is available for the budget guard, reads project config, and confirms directories are set up.
+**What it does:** Loads at the start of every session via a hook. Establishes the skill system, reads project config, and confirms directories are set up.
 
 **When it runs:** Automatically at session start. You do not invoke this manually.
 
 **Tips:**
 - If Chester does not load in a session, run `/reload-plugins` to refresh.
 - The setup hook injects the full skill list into the session context. If you see Chester listing available skills at the start of a session, that is this skill running.
-- If `jq` is not installed, the budget guard will not function. Install it: `sudo apt install jq` / `brew install jq`.
 
 ---
 
@@ -460,28 +458,6 @@ No exceptions without explicit human permission.
 
 ---
 
-### `chester:execute-debug`
-
-**What it does:** Systematic root cause investigation before any fix attempt. Four phases: root cause investigation, pattern analysis, hypothesis testing, and implementation. The Iron Law: no fixes without root cause investigation first.
-
-**When to invoke:** When encountering any bug, test failure, unexpected behavior, build failure, or integration issue — before proposing any fix.
-
-**The four phases:**
-1. **Root cause investigation** — read errors carefully, reproduce consistently, check recent changes, gather evidence in multi-component systems, trace data flow
-2. **Pattern analysis** — find working examples, compare against references, identify differences, understand dependencies
-3. **Hypothesis testing** — form one specific hypothesis, test minimally (one variable at a time), verify before continuing
-4. **Implementation** — create a failing test first, implement the single fix, verify, repeat
-
-**The 3+ fixes rule:** If you have tried three or more fixes without success, stop. This is an architectural problem, not a bug fix problem. Question the fundamental approach before attempting fix number four.
-
-**Tips:**
-- "Just try changing X and see if it works" is the single most expensive debugging strategy. It creates new bugs, obscures root causes, and compounds with each iteration. It is explicitly named as a red flag in the skill.
-- In multi-component systems (CI → build → signing, API → service → database), add diagnostic instrumentation at each boundary before proposing any fix. One instrumentation run reveals which layer fails. Then investigate that layer.
-- The data flow tracing technique: start from where the error manifests and trace backward through the call stack to where the bad value originates. Fix at the origin, not at the symptom.
-- If your human partner says "stop guessing" or "is that not happening?" — those are signals to return to Phase 1.
-
----
-
 ### `chester:execute-prove`
 
 **What it does:** Enforces evidence before completion claims. The Iron Law: no completion claims without fresh verification evidence. If you haven't run the verification command in the current message, you cannot claim it passes.
@@ -502,38 +478,6 @@ No exceptions without explicit human permission.
 - Agent success reports are not evidence. Verify independently by checking what actually changed in the VCS.
 - Expressions of satisfaction ("Great!", "Done!", "Perfect!") before verification are red flags. The skill explicitly prohibits them.
 - Regression tests must go through a full Red-Green cycle: write → run (pass) → revert fix → run (MUST FAIL) → restore → run (pass). If you skip the revert step, you don't know if the test actually catches the bug.
-
----
-
-### `chester:execute-review`
-
-**What it does:** Code review reception with technical rigor. Evaluate feedback technically before implementing it. Verify against the codebase. Push back when technically incorrect. Implement one item at a time, test each.
-
-**When to invoke:** When receiving code review feedback, especially if unclear or technically questionable.
-
-**The response pattern:**
-1. Read complete feedback without reacting
-2. Restate the requirement in your own words (or ask for clarification)
-3. Verify against codebase reality
-4. Evaluate: is this technically sound for this codebase?
-5. Respond: technical acknowledgment or reasoned pushback
-6. Implement: one item at a time, test each
-
-**Source-specific handling:**
-- **From your human partner:** Trusted — implement after understanding. Still ask if scope is unclear.
-- **From external reviewers:** Skeptical. Check: Does this break existing functionality? Does the reviewer understand the full context? Does this violate YAGNI?
-
-**Forbidden responses:**
-- "You're absolutely right!" (explicit prohibition)
-- "Great point!" / "Excellent feedback!" (performative)
-- "Thanks for catching that!" / any gratitude expression
-
-**YAGNI check:** If an external reviewer suggests implementing a feature "properly," grep the codebase for actual usage first. If nothing calls the endpoint, the correct response is "This isn't used. Remove it?" not implementing it properly.
-
-**Tips:**
-- If any feedback item is unclear, stop. Do not implement anything until all items are understood. Items may be related — partial understanding leads to wrong implementations.
-- When you push back and turn out to be wrong: state the correction factually and move on. No long apologies, no defensive explaining.
-- The prohibition on gratitude expressions is strict. If you catch yourself about to write "Thanks," delete it. The code fix is the acknowledgment.
 
 ---
 
@@ -679,19 +623,6 @@ summary/  (session summary, reasoning audit, cache analysis)
 
 ---
 
-### `chester:util-budget-guard`
-
-**What it does:** Monitors the five-hour token budget against a configurable threshold (default 85%). When the threshold is exceeded, the skill pauses and reports current task status with options.
-
-**When it runs:** Called at skill entry by `plan-build` and `execute-write`, and before expensive parallel subagent dispatches. Read internally by other skills — not directly invoked by the user.
-
-**Tips:**
-- Install `jq` before your first session. The budget guard requires it for JSON parsing. Without it, budget monitoring is disabled.
-- The threshold is configurable in the project Chester config.
-- When the budget guard triggers, you see current task status and options. This is intentional — it gives you a chance to checkpoint and decide whether to continue or split the work across sessions.
-
----
-
 ### `chester:util-artifact-schema`
 
 **What it does:** Reference document for artifact naming, versioning, directory layout, and path resolution. Not directly invoked — read internally by skills that create or reference artifacts.
@@ -705,21 +636,14 @@ summary/  (session summary, reasoning audit, cache analysis)
 
 ---
 
-### `chester:util-design-brief-template`
+### Design brief templates
 
-**What it does:** Canonical template for design brief output. Read internally by `design-experimental` and `design-figure-out` before writing the design brief. Not directly invoked.
+Brief templates are not standalone skills — they live as reference files inside each design skill:
 
-**Sections (13 total):** Header, Problem Statement, Prior Art, Logic Trail (conditional), Design Decisions, Scope (in/out with annotations), Dependencies (conditional), Current State Inventory, Constraints, Assumptions, Residual Risks, Acceptance Criteria, Follow-on Work (conditional).
+- `skills/design-experimental/references/design-brief-template.md` — 8-section envelope (Goal, Necessary Conditions, Rules, Permissions, Evidence, Industry Context, Risks, Acceptance Criteria). Read by `design-experimental` before writing the brief at Closure.
+- `skills/design-small-task/references/design-brief-small-template.md` — 6-section lightweight (Goal, Prior Art, Scope, Key Decisions, Constraints, Acceptance Criteria). Read by `design-small-task` before writing the brief at Closure.
 
-**Tip:** The design brief is written in domain language — no type names, file paths, or implementation details. It should be readable by someone who understands the domain but has never opened the codebase.
-
----
-
-### `chester:util-design-brief-small-template`
-
-**What it does:** Lightweight design brief template for bounded tasks. Used by `design-small-task` instead of the full 13-section template. Six sections: Goal, Prior Art, Scope, Key Decisions, Constraints, Acceptance Criteria.
-
-**Tip:** The self-containment test for this brief is whether `plan-build` can consume it without reading the conversation. If you're not sure whether the brief passes, ask: could a fresh engineer start planning from this document alone?
+**Tip:** Design briefs are written in domain language — no type names, file paths, or implementation details. The self-containment test is whether `design-specify` can dispatch architects from the brief alone.
 
 ---
 
@@ -803,15 +727,6 @@ When multiple tests are failing across different files or subsystems:
 
 Chester will identify which failures are independent, craft focused agent prompts for each, and dispatch them simultaneously.
 
-### Token budget management
-
-For long sessions, the budget guard triggers before expensive operations and gives you a chance to checkpoint. When it triggers:
-- Review the current task status
-- Decide whether to continue or split the remaining work into a new session
-- If splitting, use `finish-write-records` to document where things stand
-
----
-
 ## Skill Quick Reference
 
 | Skill | Phase | When to use |
@@ -827,9 +742,7 @@ For long sessions, the budget guard triggers before expensive operations and giv
 | `plan-smell` | Plan | Smell forecast — auto-runs in plan hardening |
 | `execute-write` | Execute | Execute a written implementation plan |
 | `execute-test` | Execute | Enforce TDD before writing any code |
-| `execute-debug` | Execute | Systematic debugging before proposing any fix |
 | `execute-prove` | Execute | Evidence-based verification before any claim |
-| `execute-review` | Execute | Technical evaluation of code review feedback |
 | `execute-verify-complete` | Execute | Gate between implementation and finishing |
 | `finish-write-records` | Finish | Session documentation — summary and audit |
 | `finish-archive-artifacts` | Finish | Copy artifacts from working dir to plans dir |
@@ -837,7 +750,6 @@ For long sessions, the budget guard triggers before expensive operations and giv
 | `util-worktree` | Utility | Create isolated git worktrees |
 | `util-dispatch` | Utility | Coordinate parallel subagents |
 | `util-codereview` | Utility | Smell review of existing code |
-| `util-budget-guard` | Utility | Token budget monitoring |
 | `util-artifact-schema` | Reference | Artifact naming and path conventions |
-| `util-design-brief-template` | Reference | Full 13-section design brief template |
-| `util-design-brief-small-template` | Reference | Lightweight 6-section brief for small tasks |
+| `design-experimental/references/design-brief-template.md` | Reference | 8-section envelope brief (read by design-experimental) |
+| `design-small-task/references/design-brief-small-template.md` | Reference | 6-section lightweight brief (read by design-small-task) |

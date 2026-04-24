@@ -9,14 +9,13 @@ When multiple skills could apply, use this order:
 
 1. **Gate skills first** (`design-experimental`, `design-small-task`, `plan-build`, `execute-write`, `execute-verify-complete`, `finish-close-worktree`) — these define the overall pipeline stage and determine HOW to approach the task
 2. **Review skills second** (`plan-attack`, `plan-smell`, `util-codereview`) — these harden and validate the work
-3. **Behavioral skills third** (`execute-test`, `execute-debug`, `execute-prove`, `execute-review`) — these guide specific execution disciplines
+3. **Behavioral skills third** (`execute-test`, `execute-prove`) — these guide specific execution disciplines
 4. **Utility skills fourth** (`util-worktree`, `util-dispatch`) — these support workflow mechanics
 
 ### Common Dispatch Patterns
 
 - "Let's build X with architectural choices" → `design-experimental` first, then `plan-build`.
 - "Quick design check for X" → `design-small-task` first, then `plan-build`.
-- "Fix this bug" → `execute-debug` first, then domain-specific skills.
 
 ## Skill Catalog
 
@@ -46,16 +45,16 @@ When multiple skills could apply, use this order:
 ### Behavioral Skills (execution disciplines)
 
 - `execute-test` — Test-driven development discipline
-- `execute-debug` — Systematic debugging workflow
 - `execute-prove` — Verification before completion
-- `execute-review` — Receiving and acting on code review feedback
 
 ### Utility Skills (workflow mechanics and reference)
 
 - `util-worktree` — Git worktree workflow for parallel branches
 - `util-dispatch` — Dispatching parallel subagents
-- `util-budget-guard` — Token budget check procedure (read, don't invoke)
 - `util-artifact-schema` — Artifact naming, versioning, and directory layout (read, don't invoke)
-- `util-design-brief-template` — Design brief output structure and section requirements (read, don't invoke)
-- `util-design-brief-small-template` — Lightweight design brief template for bounded tasks (6 sections vs 13). Read, don't invoke.
 - `util-design-partner-role` — Canonical voice rules for design skills (Interpreter Frame, option-naming, self-evaluation). Read, don't invoke.
+
+Brief templates are **not** standalone skills — they live inside each design skill as references:
+
+- `design-experimental/references/design-brief-template.md` — 8-section envelope (proof-driven briefs)
+- `design-small-task/references/design-brief-small-template.md` — 6-section lightweight (bounded-task briefs)

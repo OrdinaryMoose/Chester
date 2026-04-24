@@ -103,7 +103,7 @@ mkdir -p "{CHESTER_WORKING_DIR}/{sprint-subdir}/design" \
 
 | Artifact | Directory | Purpose | Produced by |
 |----------|-----------|---------|-------------|
-| `design` | `design/` | Design brief — proof envelope (goal, necessary conditions, rules, permissions, evidence, industry context, risks, acceptance criteria). See `util-design-brief-template` for full structure. | `design-experimental` (8-section envelope), `design-small-task` (6-section lightweight) |
+| `design` | `design/` | Design brief — proof envelope (goal, necessary conditions, rules, permissions, evidence, industry context, risks, acceptance criteria). Templates live in each design skill: `design-experimental/references/design-brief-template.md` (8-section envelope) and `design-small-task/references/design-brief-small-template.md` (6-section lightweight). | `design-experimental` (8-section envelope), `design-small-task` (6-section lightweight) |
 | `thinking` | `design/` | Thinking summary — decision history of how the proof reached its necessary conditions | `design-experimental` |
 | `process` | `design/` | Process evidence — operational narrative (Understand Stage saturation history, Stage Transition timing, Solve Stage length) | `design-experimental` |
 | `spec` | `spec/` | Specification document — architecture chosen from the brief's envelope, component structure, reuse profile, trade-off profile | `design-specify` |

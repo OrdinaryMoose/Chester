@@ -64,7 +64,7 @@ Sprint name format: `YYYYMMDD-##-verb-noun-noun` where `##` is the next availabl
 
 Run individual tests: `bash tests/test-<name>.sh`
 
-Tests are self-contained bash scripts. They validate hooks, config resolution, budget guards, and integration behavior.
+Tests are self-contained bash scripts. They validate hooks, config resolution, and integration behavior.
 
 ## Key Scripts
 

@@ -227,4 +227,4 @@ handles committing them.
 
 - **Called after:** `execute-verify-complete` (feature mode) or standalone (refactor mode)
 - **Leads to:** `finish-archive-artifacts` (feature mode) or done (refactor mode)
-- **Reads:** `util-artifact-schema` for naming and paths, `util-budget-guard` if needed
+- **Reads:** `util-artifact-schema` for naming and paths

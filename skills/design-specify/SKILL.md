@@ -151,7 +151,7 @@ This step exists because humans evaluate *comparisons* far better than *single p
 
 After writing the spec:
 
-1. Dispatch spec-document-reviewer subagent **once** (see `spec-reviewer.md` in this skill directory).
+1. Dispatch spec-document-reviewer subagent **once** (see [`references/spec-reviewer.md`](references/spec-reviewer.md) for the prompt template).
    - Provide both the spec path AND the design brief path.
    - If no design brief exists (standalone invocation), dispatch with spec only — the reviewer falls back to internal-consistency checking.
 2. The reviewer checks: goals coverage, constraints respected, no untraceable additions, internal consistency.
@@ -182,7 +182,7 @@ If the user requests changes at the user review gate and the flow loops back thr
 
 If the user accepts:
 
-1. Dispatch ground-truth-reviewer subagent (see ground-truth-reviewer.md in this skill directory)
+1. Dispatch ground-truth-reviewer subagent (see [`references/ground-truth-reviewer.md`](references/ground-truth-reviewer.md) for the prompt template)
    - Provide: spec path AND design brief path
    - The subagent reads source files to verify every claim the spec makes about existing code
 2. On return, evaluate findings by severity:
@@ -222,7 +222,7 @@ After the user approves the spec, it remains in the working directory. The spec 
 
 - **Calls:** `start-bootstrap` (standalone only)
 - **Dispatches:** spec-document-reviewer subagent (single pass, fidelity), ground-truth-reviewer subagent (opt-in, after both reviews)
-- **Reads:** `references/adversarial-spec-review.md` (inline adversarial review pattern, modeled on `chester:plan-attack`), `util-artifact-schema` (naming/paths), `util-design-brief-template` (brief structure reference), `util-budget-guard`
+- **Reads:** `references/adversarial-spec-review.md` (inline adversarial review pattern, modeled on `chester:plan-attack`), `util-artifact-schema` (naming/paths), `util-design-brief-template` (brief structure reference)
 - **Invoked by:** `design-experimental` or `design-small-task` (mandatory in the canonical sequence), or user directly (standalone)
 - **Transitions to:** `plan-build`
 - **Does NOT invoke as a separate skill flow:** plan-attack (used inline only — spec stage), plan-smell (deferred to plan-build's hardening gate), or any implementation skill
