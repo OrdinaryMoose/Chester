@@ -13,6 +13,8 @@ When you have multiple unrelated failures (different test files, different subsy
 
 **Core principle:** Dispatch one agent per independent problem domain. Let them work concurrently.
 
+**Fork policy: forked when `CLAUDE_CODE_FORK_SUBAGENT=1`.** This skill's dispatches use `general-purpose` and benefit from fork mode — problems are explicitly independent and self-contained, so cache-prefix reuse is pure cost win with no bias risk. With fork mode on, N parallel investigations cost ~1× the parent prompt + small per-child deltas instead of N× full dispatches.
+
 ## When to Use
 
 ```dot

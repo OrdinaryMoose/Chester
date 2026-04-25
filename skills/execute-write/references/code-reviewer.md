@@ -1,5 +1,7 @@
 # Code Review Agent
 
+**Fork policy: forked when `CLAUDE_CODE_FORK_SUBAGENT=1`.** This full-codebase review (run after all tasks complete) keeps `general-purpose` so it auto-forks under fork mode. Cache-prefix reuse across BASE_SHA..HEAD_SHA range is high-value here, and the review reads the actual diff so bias risk from the parent's "we built it well" narrative is mitigated.
+
 {PLAN_OR_REQUIREMENTS}
 
 ---

@@ -148,7 +148,7 @@ Read [`references/plan-template.md`](references/plan-template.md) for the exact 
 
 After writing the complete plan:
 
-1. Dispatch a single plan-reviewer subagent (see plan-reviewer.md) with precisely crafted review context — never your session history. This keeps the reviewer focused on the plan, not your thought process.
+1. Dispatch a single `chester:plan-build-plan-reviewer` subagent (see plan-reviewer.md) with precisely crafted review context — never your session history. This keeps the reviewer focused on the plan, not your thought process. The reviewer is a named subagent and never forks — spec-fidelity review requires independence from the planner's framing.
    - Provide: path to the plan document, path to spec document
 2. If Issues Found: fix the issues, re-dispatch reviewer for the whole plan
 3. If Approved: proceed to plan hardening
@@ -235,17 +235,15 @@ explicitly — the subagent must understand which anchors moved from "trusted" t
 
 After the plan review loop approves the plan:
 
-1. Read the skill files `plan-attack/SKILL.md` and `plan-smell/SKILL.md` from the Chester skills directory
-2. Consult the Smell Heuristic Pre-Check result. If smell did NOT trigger, dispatch
-   only `plan-attack`. If smell DID trigger, dispatch `plan-attack` and `plan-smell`
+1. Consult the Smell Heuristic Pre-Check result. If smell did NOT trigger, dispatch
+   only the plan-attacker. If smell DID trigger, dispatch attacker and smeller
    in parallel in a single message.
 
    For each dispatched subagent:
-   - Embed the full skill instructions from the SKILL.md you just read into the Agent prompt
+   - Use the named Chester subagents — `chester:plan-build-plan-attacker` and (if smell triggered) `chester:plan-build-plan-smeller`. Their system prompts are loaded from their plugin definitions; you do not embed skill instructions into the Agent prompt.
    - Include the plan file path so the subagent knows what to review
-   - For `plan-attack`: include the verified-anchor skip-list (from the Ground-Truth
-     Report Cascade above) and the trust-boundary instruction
-   - Do NOT use `feature-dev:code-reviewer` or any other subagent_type — use the default general-purpose agent with the Chester skill instructions as the prompt
+   - For `chester:plan-build-plan-attacker`: include the verified-anchor skip-list (from the Ground-Truth Report Cascade above) and the trust-boundary instruction
+   - **Fork policy: isolated.** Both are named subagents and never fork — adversarial review and forward-looking smell analysis require fresh, independent perspectives. Do NOT downgrade to `general-purpose`; that would silently fork these critics under `CLAUDE_CODE_FORK_SUBAGENT=1` and defeat the whole hardening gate.
 
    When `plan-smell` is skipped, note this in the combined threat report: "Smell
    skipped — heuristic matched zero triggers. Plan-attack was sufficient for
@@ -276,7 +274,7 @@ Which approach?
 ## Integration
 
 - **Invoked by:** `design-specify` (primary — with spec input; cascades the spec-stage ground-truth report from `design-specify` when the user accepted the opt-in review), or user directly (standalone, when a spec already exists)
-- **Calls:** `plan-attack` (unconditional), `plan-smell` (conditional — only when Smell Heuristic Pre-Check matches), `dr_query` on the `chester-decision-record` MCP (at plan-start, to populate `## Prior Decisions`)
+- **Calls:** `chester:plan-build-plan-reviewer` (Plan Review Loop), `chester:plan-build-plan-attacker` (Plan Hardening, unconditional), `chester:plan-build-plan-smeller` (Plan Hardening, conditional — only when Smell Heuristic Pre-Check matches), `dr_query` on the `chester-decision-record` MCP (at plan-start, to populate `## Prior Decisions`). All three reviewer subagents are named — none fork.
 - **Reads:** `util-artifact-schema` (naming/paths), the spec from upstream `spec/` subdirectory, the spec-stage ground-truth report from upstream `spec/` subdirectory (when present)
 - **Transitions to:** `execute-write` (subagent or inline mode)
 - **Does NOT call:** `start-bootstrap` (inherits sprint context from upstream design and spec stages)

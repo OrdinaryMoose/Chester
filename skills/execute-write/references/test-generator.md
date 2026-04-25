@@ -21,8 +21,10 @@ If the controller is tempted to include "just a bit" of implementation context "
 
 ## Template
 
+**Fork policy: isolated — MANDATORY.** Dispatch via the named `chester:execute-write-test-generator` subagent. Named subagents do not fork. Forking would defeat the input restriction (the agent must NOT see implementer code) and break the loop's anti-drift lock. Any change to fork mode here is a contract violation.
+
 ```
-Task tool (general-purpose):
+Task tool (chester:execute-write-test-generator):
   description: "Generate test for {skeleton-id}"
   prompt: |
     Generate a single test that verifies the acceptance criterion described below.

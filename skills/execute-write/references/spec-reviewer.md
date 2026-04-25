@@ -4,8 +4,10 @@ Use this template when dispatching a spec compliance reviewer subagent.
 
 **Purpose:** Verify implementer built what was requested (nothing more, nothing less)
 
+**Fork policy: isolated.** Dispatch via the named `chester:execute-write-spec-reviewer` subagent so this review never inherits the implementer's framing — independence is the whole safeguard. Named subagents do not fork even when `CLAUDE_CODE_FORK_SUBAGENT=1` is set.
+
 ```
-Task tool (general-purpose):
+Task tool (chester:execute-write-spec-reviewer):
   description: "Review spec compliance for Task N"
   BASE_SHA: [commit before task]
   HEAD_SHA: [current commit]
