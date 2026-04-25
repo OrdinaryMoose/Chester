@@ -56,6 +56,7 @@ For each task in order:
    - Paste the FULL task text into the prompt — do not make the subagent read a file
    - Include all context: where this fits, dependencies, architectural constraints
    - Record BASE_SHA before dispatch (the commit before the task starts)
+   - **Fork policy: forked when `CLAUDE_CODE_FORK_SUBAGENT=1`.** Implementer keeps `general-purpose`. Under fork mode, each implementer auto-forks and inherits the parent's plan + spec via cache prefix — high context fidelity, low marginal token cost across N tasks. With fork mode off, behaves as a normal subagent.
 
 2. **Handle implementer status codes:**
    - **DONE:** Proceed to the decision-record trigger check (step 3)
@@ -78,21 +79,23 @@ For each task in order:
    - Skip if the current task's Type is `docs-producing` or `config-producing` (no skeleton diff runs for non-code tasks).
    - Read the implementer's `observable-behaviors.md` artifact (Mod 2) and the spec's skeleton manifest (`spec-skeleton` artifact type per `util-artifact-schema`).
    - Run the skeleton-coverage diff: for each observable behavior in the artifact, check whether an existing skeleton's declared boundary covers it. Behaviors with no skeleton coverage trigger FIRE.
-   - On FIRE: call `dr_capture` via the `chester-decision-record` MCP with the full field set (Test = test name only, Code = file:line only — SHAs appended post-commit). Then run the propagation procedure per `references/propagation-procedure.md` (spec-clause update → spec-driven test generation via `test-generator.md` subagent → full suite run via `execute-prove`). Task is BLOCKED until the suite passes including the new test(s).
+   - On FIRE: call `dr_capture` via the `chester-decision-record` MCP with the full field set (Test = test name only, Code = file:line only — SHAs appended post-commit). Then run the propagation procedure per `references/propagation-procedure.md` (spec-clause update → spec-driven test generation via the `chester:execute-write-test-generator` subagent → full suite run via `execute-prove`). Task is BLOCKED until the suite passes including the new test(s). **Fork policy for the test generator: isolated — MANDATORY.** Named subagent never forks; forking would defeat the input restriction (no implementer code) that prevents code-fit bias.
    - After the task commits, call `dr_finalize_refs(record_id, test_sha, code_sha)` to append commit SHAs to the record's Test and Code fields. Finalize happens within the same task execution, after commit, before the task is marked DONE in TodoWrite.
    - Backward reach: failing tests on earlier-task code trigger existing BLOCKED-status handling (re-dispatch implementer scoped to failing-test files, updated spec clause as context).
 
-4. **Dispatch spec compliance reviewer** using the template at `execute-write/references/spec-reviewer.md`
+4. **Dispatch spec compliance reviewer** as `chester:execute-write-spec-reviewer` (template at `execute-write/references/spec-reviewer.md`)
    - Provide the full task requirements AND the implementer's report
    - Include BASE_SHA and HEAD_SHA for commit verification
    - If reviewer finds issues: fix them (re-dispatch implementer or fix inline) and re-review
+   - **Fork policy: isolated.** Named subagent — never forks. Independence from the implementer's framing is the safeguard.
 
-5. **Dispatch code quality reviewer** using the template at `execute-write/references/quality-reviewer.md`
+5. **Dispatch code quality reviewer** as `chester:execute-write-quality-reviewer` (template at `execute-write/references/quality-reviewer.md`)
    - Only dispatch after spec compliance passes
    - Handle severity-based results:
      - **Critical:** Must fix before proceeding
      - **Important:** Should fix; use judgment on whether to fix now or defer
      - **Minor:** Note and move on
+   - **Fork policy: isolated.** Named subagent — never forks.
 
 6. **Record HEAD_SHA** after task is complete and all reviews pass
 7. **Update TodoWrite** — mark task DONE, move next task to IN_PROGRESS
@@ -165,6 +168,8 @@ Use the template at `execute-write/references/code-reviewer.md` with:
 - BASE_SHA: commit before first task
 - HEAD_SHA: current commit
 - DESCRIPTION: high-level summary of the implementation
+
+**Fork policy: forked when `CLAUDE_CODE_FORK_SUBAGENT=1`.** Full code review keeps `general-purpose`. Cache-prefix reuse over the BASE_SHA..HEAD_SHA range is high-value; bias risk from inheriting the cumulative "we built it well" narrative is mitigated because the reviewer reads the actual diff.
 
 ### 4.3 Severity-Based Action
 

@@ -6,8 +6,10 @@ Use this template when dispatching a plan document reviewer subagent.
 
 **Dispatch after:** The complete plan is written.
 
+**Fork policy: isolated.** Dispatch via the named `chester:plan-build-plan-reviewer` subagent. Named subagents never fork — spec-fidelity review must not inherit the planner's framing.
+
 ```
-Task tool (general-purpose):
+Task tool (chester:plan-build-plan-reviewer):
   description: "Review plan document"
   prompt: |
     You are a plan document reviewer. Verify this plan faithfully implements the spec.

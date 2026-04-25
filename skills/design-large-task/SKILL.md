@@ -22,7 +22,7 @@ If you think this is too simple for discovery, check: are there design decisions
 You MUST create a task for each of these items and complete them in order:
 
 1. **Bootstrap** — invoke `start-bootstrap` (handles config, sprint naming, dir creation, task reset, thinking history)
-2. **Parallel context exploration** — dispatch 3 agents in parallel, each on a distinct corpus: 1 `feature-dev:code-explorer` for the codebase (similar features, architecture, extension points) + 1 `Explore` agent for prior sprint design artifacts + 1 `general-purpose` agent for industry patterns via WebSearch/WebFetch; read all identified files
+2. **Parallel context exploration** — dispatch 3 agents in parallel, each on a distinct corpus: 1 `feature-dev:code-explorer` for the codebase (similar features, architecture, extension points) + 1 `Explore` agent for prior sprint design artifacts + 1 `chester:design-large-task-industry-explorer` agent for industry patterns via WebSearch/WebFetch; read all identified files. All three are named subagents and never fork — exploration value depends on independent perspectives.
 3. **Initialize understanding MCP** — call `initialize_understanding`, score the nine dimensions against explorer findings, call `submit_understanding` with the baseline. **No designer-facing turn is permitted until this step completes.**
 4. **Round one presentation** — present framing and gap map only. No commentary, no "what do you think?" Ask the designer if they are ready to move into the Understand Stage. This is the first designer-facing turn; it is information transfer, not interview.
 5. **Understand Stage** — designer confirms readiness; per-turn cycle under the understanding MCP begins on the next response: score nine saturation dimensions each turn, let the MCP's weakest-dimension signal drive topic selection
@@ -110,7 +110,9 @@ The prior art explorer's findings inform the interview — discoveries from prio
 
 ### Industry Explorer
 
-Dispatch one `general-purpose` agent with access to `WebSearch` and `WebFetch`. This agent researches how others outside this codebase have approached the class of problem in the user's request — named patterns, common pitfalls, modes of failure — so the design conversation benefits from the broader field's experience rather than rediscovering known approaches internally.
+Dispatch one `chester:design-large-task-industry-explorer` agent. This is a named subagent — its system prompt and tool restrictions (`WebSearch`, `WebFetch`, `Read`, `Glob`, `Grep`) are loaded from its plugin definition. Named subagents never fork even when `CLAUDE_CODE_FORK_SUBAGENT=1` is enabled, so this exploration stays independent of the design conversation's framing.
+
+The agent researches how others outside this codebase have approached the class of problem in the user's request — named patterns, common pitfalls, modes of failure — so the design conversation benefits from the broader field's experience rather than rediscovering known approaches internally.
 
 Prompt guidance: "For [user's request], research how this class of problem is approached in the broader industry. Use WebSearch to find authoritative discussions (technical blogs, conference talks, well-regarded articles, standards documents, language/framework maintainer guidance). Use WebFetch to read the sources that look substantive. Report: (1) named patterns and approaches commonly used for this problem class, each with a one-paragraph description, (2) common pitfalls and modes of failure for each pattern, (3) the conditions under which each pattern tends to fail. Cite every claim with a source URL. Report patterns and tradeoffs, not recommendations — the designer will decide what fits. If the signal is thin (niche problem, obscure stack, nothing substantive found), say so explicitly rather than padding the report with low-confidence material."
 
@@ -734,7 +736,7 @@ permanent history.
 ## Integration
 
 - **Calls:** `start-bootstrap` (Bootstrap), `util-worktree` (Closure)
-- **Dispatches (Parallel Context Exploration only):** 1 `feature-dev:code-explorer` (codebase) + 1 `Explore` agent (prior art) + 1 `general-purpose` agent (industry research). No subagent dispatch at Closure.
+- **Dispatches (Parallel Context Exploration only):** 1 `feature-dev:code-explorer` (codebase) + 1 `Explore` agent (prior art) + 1 `chester:design-large-task-industry-explorer` agent (industry research). All three are named subagents — none fork. No subagent dispatch at Closure.
 - **Uses:** `chester-understanding` MCP (Understand Stage), `chester-design-proof` MCP (Solve Stage), `capture_thought` / `get_thinking_summary` (throughout)
 - **Reads:** `util-design-partner-role` (voice rules — read before running), `util-artifact-schema` (naming/paths), `references/design-brief-template.md` (brief output structure)
 - **Invoked by:** user, as the default structural design skill

@@ -6,10 +6,11 @@ Use this template when dispatching a code quality reviewer subagent.
 
 **Only dispatch after spec compliance review passes.**
 
-```
-Task tool (chester-code-reviewer):
-  Use template at execute-write/references/code-reviewer.md
+**Fork policy: isolated.** Dispatch via the named `chester:execute-write-quality-reviewer` subagent. Named subagents do not fork — quality review needs to evaluate the diff without inheriting the implementer's "we built it well" narrative.
 
+```
+Task tool (chester:execute-write-quality-reviewer):
+  description: "Quality review for Task N"
   WHAT_WAS_IMPLEMENTED: [from implementer's report]
   PLAN_OR_REQUIREMENTS: Task N from [plan-file]
   BASE_SHA: [commit before task]
