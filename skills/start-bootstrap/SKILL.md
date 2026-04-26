@@ -74,6 +74,24 @@ echo "{sprint-subdir}" > "{CHESTER_WORKING_DIR}/.active-sprint"
 
 This file is read by `pre-compact.sh` and `post-compact.sh` to locate MCP state files during compaction events.
 
+### Step 4c: Write Session Metadata
+
+Write session metadata to enable future retrospective analysis linking sprint artifacts to JSONL transcripts:
+
+```bash
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+bash "$REPO_ROOT/chester-util-config/write-session-metadata.sh" \
+  "{CHESTER_WORKING_DIR}/{sprint-subdir}/design" \
+  "{sprint-subdir}" \
+  "$REPO_ROOT"
+```
+
+(Brace-template style matches existing Steps 4 and 4b — the agent substitutes `{CHESTER_WORKING_DIR}` and `{sprint-subdir}` before running.)
+
+The helper writes `design/{sprint-name}-session-meta.json` with sprintName, branchName, sessionStartTimestamp (ISO 8601 UTC), jsonlSessionId (best-effort from `CLAUDE_SESSION_ID`; null if unavailable), and skillVersion (commit hashes for `util-design-partner-role` and `design-large-task` SKILL.md files).
+
+The file lives in the tracked `design/` subdirectory and is copied to `plans/` at sprint close by `finish-archive-artifacts`. Do NOT add to `.gitignore`.
+
 ### Step 5: Initialize Thinking History
 
 1. Call `clear_thinking_history()` to reset structured thinking for the session
