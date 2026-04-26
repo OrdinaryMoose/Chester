@@ -144,6 +144,8 @@ Based on the information package and what you've learned, share your take on the
 Use the commentary registers: demonstrating understanding, surfacing tension, taking a
 position, admitting uncertainty, or flagging risk.
 
+Before sending, verify C1 and C2 from `util-design-partner-role` — every load-bearing premise is visible in the information package; every Assumption and Opinion is marked.
+
 **Step 4: Present to designer.**
 Before sending, run the Translation Gate checklist over every block you are about to output (observations, information package, commentary):
 - No type names, class names, interface names, enum names, property names, method names, file paths, namespace names, folder names, or project names

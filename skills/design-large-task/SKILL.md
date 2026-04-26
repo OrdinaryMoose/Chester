@@ -292,6 +292,8 @@ End with **"What do you think?"** or a natural variant ("Does that match your se
 of it?", "Am I reading this right?", "What am I missing?"). The designer will correct
 you, confirm you, or redirect you. All three are productive.
 
+Before sending, verify C1 and C2 from `util-design-partner-role` — every load-bearing premise is visible in the information package; every Assumption and Opinion is marked.
+
 **Step 7: Present to user.**
 Before sending, run the Translation Gate checklist over every block you are about to output (observations, information package, commentary):
 - No type names, class names, property names, method names, file paths, or module names
@@ -417,6 +419,8 @@ either way, but I lean toward X because..." is honest and still gives the design
 something to react to.
 
 End with **"What do you think?"** or a natural variant.
+
+Before sending, verify C1 and C2 from `util-design-partner-role` — every load-bearing premise is visible in the information package; every Assumption and Opinion is marked.
 
 **Step 9: Present to user.**
 Before sending, run the Translation Gate checklist over every block you are about to output (observations, information package, commentary):
