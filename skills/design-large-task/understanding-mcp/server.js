@@ -143,7 +143,7 @@ function handleSubmitUnderstanding({ state_file, scores }) {
   }
 
   // Update state with new scores
-  state = updateState(state, scores);
+  state = updateState(state, scores, validation.warnings);
 
   // Persist
   saveState(state, state_file);

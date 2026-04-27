@@ -25,12 +25,15 @@ export function initializeState(contextType, userPrompt) {
     scores,
     scoreHistory: [],
     saturationHistory: [],
+    groupSaturationHistory: [],
+    transitionHistory: [],
+    warningsHistory: [],
   };
 }
 
 // ── Update ────────────────────────────────────────────────────────
 
-export function updateState(state, newScores) {
+export function updateState(state, newScores, warnings = []) {
   const next = structuredClone(state);
   next.round += 1;
 
@@ -55,6 +58,15 @@ export function updateState(state, newScores) {
   next.weakest = findWeakestDimension(next.scores, groupSaturation);
   next.gapsSummary = collectGaps(next.scores);
   next.transition = checkTransitionReady(next);
+
+  // Defensive init — in-flight state files written before this change lack these arrays
+  next.groupSaturationHistory ??= [];
+  next.transitionHistory ??= [];
+  next.warningsHistory ??= [];
+
+  next.groupSaturationHistory.push(structuredClone(groupSaturation));
+  next.transitionHistory.push(structuredClone(next.transition));
+  next.warningsHistory.push(structuredClone(warnings));
 
   return next;
 }
