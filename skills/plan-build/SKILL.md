@@ -180,10 +180,10 @@ Add new triggers in the reference file, not here — this section owns the decis
 
 ## Ground-Truth Report Cascade
 
-When `design-specify` ran an opt-in ground-truth review against the spec, the
-`spec/` subdirectory contains a report verifying spec claims against the codebase.
-The report is a trusted input at the plan stage — `plan-attack` does not need to
-re-verify what design-specify already verified.
+`design-specify` runs ground-truth review automatically (skipped only for greenfield
+specs), so the `spec/` subdirectory normally contains a report verifying spec claims
+against the codebase. The report is a trusted input at the plan stage — `plan-attack`
+does not need to re-verify what design-specify already verified.
 
 `design-large-task` no longer produces a design-stage ground-truth report
 (architecture choice and ground-truth verification are owned by `design-specify`).
@@ -198,8 +198,8 @@ Extract the list of verified anchors — file paths, type names, method names th
 the ground-truth-reviewer confirmed exist as the spec describes. This list becomes
 the **verified-anchor skip-list**.
 
-If no spec-stage ground-truth report exists (the user declined the opt-in review at
-design-specify, or the spec is greenfield with no existing code references), skip
+If no spec-stage ground-truth report exists (greenfield spec with no existing code
+references, or the spec was authored outside the standard design-specify flow), skip
 this cascade. `plan-attack` performs its own full codebase verification in that
 case.
 
@@ -273,7 +273,7 @@ Which approach?
 
 ## Integration
 
-- **Invoked by:** `design-specify` (primary — with spec input; cascades the spec-stage ground-truth report from `design-specify` when the user accepted the opt-in review), or user directly (standalone, when a spec already exists)
+- **Invoked by:** `design-specify` (primary — with spec input; cascades the spec-stage ground-truth report from `design-specify` when present, which is the default for non-greenfield specs), or user directly (standalone, when a spec already exists)
 - **Calls:** `chester:plan-build-plan-reviewer` (Plan Review Loop), `chester:plan-build-plan-attacker` (Plan Hardening, unconditional), `chester:plan-build-plan-smeller` (Plan Hardening, conditional — only when Smell Heuristic Pre-Check matches), `dr_query` on the `chester-decision-record` MCP (at plan-start, to populate `## Prior Decisions`). All three reviewer subagents are named — none fork.
 - **Reads:** `util-artifact-schema` (naming/paths), the spec from upstream `spec/` subdirectory, the spec-stage ground-truth report from upstream `spec/` subdirectory (when present)
 - **Transitions to:** `execute-write` (subagent or inline mode)

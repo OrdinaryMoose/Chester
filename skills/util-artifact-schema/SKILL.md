@@ -76,7 +76,7 @@ Each sprint gets four subdirectories under the working directory:
 ```
 {CHESTER_WORKING_DIR}/{sprint-subdir}/
 ├── design/     ← design briefs (proof envelope), thinking summaries, process evidence
-├── spec/       ← specification documents, spec-stage ground-truth reports (opt-in)
+├── spec/       ← specification documents, spec-stage ground-truth reports (automatic; skipped only for greenfield)
 ├── plan/       ← implementation plans, threat reports, deferred items
 └── summary/    ← session summaries, reasoning audits, cache analysis
 ```
@@ -107,7 +107,7 @@ mkdir -p "{CHESTER_WORKING_DIR}/{sprint-subdir}/design" \
 | `thinking` | `design/` | Thinking summary — decision history of how the proof reached its necessary conditions | `design-large-task` |
 | `process` | `design/` | Process evidence — operational narrative (Understand Stage saturation history, Stage Transition timing, Solve Stage length) | `design-large-task` |
 | `spec` | `spec/` | Specification document — architecture chosen from the brief's envelope, component structure, reuse profile, trade-off profile | `design-specify` |
-| `spec-ground-truth-report` | `spec/` | Ground-truth findings — codebase verification of spec claims about existing code (opt-in review) | `design-specify` (ground-truth review stage) |
+| `spec-ground-truth-report` | `spec/` | Ground-truth findings — codebase verification of spec claims about existing code (automatic review; skipped only for greenfield specs) | `design-specify` (ground-truth review stage) |
 | `spec-skeleton` | `spec/` | Skeleton manifest — indexes test stubs by acceptance criterion ID (`AC-N.M`) for execute-write's structural trigger-check coverage diff. Filename: `{sprint-name}-spec-skeleton-{nn}.md`. | `design-specify` (scaffolding step); consumed by `execute-write` (trigger-check step) |
 | `plan` | `plan/` | Implementation plan — task-by-task build instructions | `plan-build` |
 | `plan-threat-report` | `plan/` | Combined plan-attack + plan-smell findings | `plan-build` (hardening phase) |

@@ -710,7 +710,7 @@ After at least 3 rounds of the Solve Stage, the designer may exit at any checkpo
 
 ## Phase 5: Closure
 
-The Solve Stage ended when the designer approved the closing argument. Closure writes the design brief and supporting artifacts, creates the worktree, updates the lessons table, and hands off to `design-specify`. There is no architect comparison, no F-A-C, no hybrid recommendation, and no ground-truth subagent at this stage — `design-specify` owns architecture choice and `design-specify` runs its own opt-in ground-truth review against the spec.
+The Solve Stage ended when the designer approved the closing argument. Closure writes the design brief and supporting artifacts, creates the worktree, updates the lessons table, and hands off to `design-specify`. There is no architect comparison, no F-A-C, no hybrid recommendation, and no ground-truth subagent at this stage — `design-specify` owns architecture choice and `design-specify` runs its own ground-truth review against the spec automatically (skipped only for greenfield specs).
 
 1. `get_thinking_summary()` to produce the consolidated decision history.
 2. Reformat the thinking summary into a clean document. Hold in memory — written to disk in step 5.

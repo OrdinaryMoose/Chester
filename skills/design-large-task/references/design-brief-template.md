@@ -112,9 +112,9 @@ where the claim references specific elements.
 - {Claim about the current system} ({file path or type name if anchored})
 ```
 
-`design-specify` runs an opt-in ground-truth review against the spec it produces from
-this brief; that review will re-verify these evidence anchors against the codebase.
-Be precise here so that downstream verification has clean targets.
+`design-specify` runs a ground-truth review automatically against the spec it produces from
+this brief (skipped only for greenfield specs); that review will re-verify these evidence
+anchors against the codebase. Be precise here so that downstream verification has clean targets.
 
 ---
 

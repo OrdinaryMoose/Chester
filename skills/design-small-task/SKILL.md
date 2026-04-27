@@ -307,5 +307,5 @@ design into durable written artifacts:
 - **Calls:** `start-bootstrap` (setup), `util-worktree` (closure)
 - **Reads:** `util-design-partner-role` (voice rules — read before running), `util-artifact-schema` (naming/paths), `references/design-brief-small-template.md` (brief format)
 - **Transitions to:** `design-specify` (which formalizes the brief into a spec, then transitions to `plan-build`)
-- **Does NOT call:** any MCP server; no proof phase, no architect comparison at this stage, no ground-truth verification — design-specify handles architect comparison and the spec layer; ground-truth verification is opt-in there
+- **Does NOT call:** any MCP server; no proof phase, no architect comparison at this stage, no ground-truth verification — design-specify handles architect comparison and the spec layer; ground-truth verification runs automatically there (skipped only for greenfield specs)
 - **Does NOT use:** `capture_thought`, `get_thinking_summary`

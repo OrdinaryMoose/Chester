@@ -1,6 +1,6 @@
 ---
 name: design-specify
-description: "Formalize an approved design brief into a durable spec document. Use when a design brief exists (from design-large-task, design-small-task, a whiteboard, a previous session, or a human-written brief) and needs to be written as a formal spec with competing-architecture review, automated fidelity review, and optional codebase ground-truth verification before plan-build."
+description: "Formalize an approved design brief into a durable spec document. Use when a design brief exists (from design-large-task, design-small-task, a whiteboard, a previous session, or a human-written brief) and needs to be written as a formal spec with competing-architecture review, automated fidelity review, and codebase ground-truth verification before plan-build."
 ---
 
 # Build Spec
@@ -30,13 +30,15 @@ You MUST create a task for each of these items and complete them in order:
 4. **Write spec document** — synthesize design into structured spec based on chosen architecture (see `util-artifact-schema` for output path and naming)
 5. **Spec fidelity review (single pass)** — dispatch spec-document-reviewer subagent once with the design brief, address any returned issues inline (no loop, no iteration cap)
 6. **Adversarial spec review (inline)** — read `references/adversarial-spec-review.md` and apply the spec-flavored adversarial pattern (modeled on `chester:plan-attack` but tuned for the spec stage). No subagent dispatch. Address findings inline.
-7. **Ground-truth review (opt-in)** — after the two reviews pass, offer codebase verification; if accepted, dispatch ground-truth-reviewer subagent, fix HIGH/MEDIUM findings, write report to `spec/` subdirectory
-8. **User review gate** — present clean spec (and ground-truth report if generated) to user for review; if changes requested, apply changes and ask user which review(s) to re-run (fidelity / adversarial / both / neither). User dictates re-run scope.
+7. **Ground-truth review (automatic)** — runs inline after fidelity + adversarial pass. Dispatch ground-truth-reviewer subagent, fix HIGH/MEDIUM findings, write report to `spec/` subdirectory. No user prompt before dispatch.
+8. **User review gate** — present clean spec and ground-truth report to user for review; if changes requested, apply changes and ask user which review(s) to re-run (fidelity / adversarial / ground-truth / any combo / none). User dictates re-run scope.
 9. **Transition** — invoke plan-build (spec is NOT committed here — `finish-archive-artifacts` copies all artifacts into the worktree for merge)
 
 ## Process Flow
 
-If invoked standalone, ask for the output directory and create subdirectories first; otherwise the sprint context already exists. Read the design brief. Dispatch the three parallel agents (two architects on dispatcher-assigned axes plus one prior-art explorer), build the hybrid recommendation, and present all three blocks for the user to pick a direction. Write the spec. Run the spec fidelity reviewer once (subagent dispatch, single pass, address findings inline). Then run the adversarial spec review inline (no subagent — see `references/adversarial-spec-review.md` for the procedure). Once both reviews are clean, offer the opt-in ground-truth review; on findings, fix HIGH/MEDIUM, write the report. Present the spec (and report, if any) to the user — on changes-requested, apply changes and ask the user which review(s) to re-run; on approval, invoke plan-build.
+If invoked standalone, ask for the output directory and create subdirectories first; otherwise the sprint context already exists. Read the design brief. Dispatch the three parallel agents (two architects on dispatcher-assigned axes plus one prior-art explorer), build the hybrid recommendation, and present all three blocks for the user to pick a direction. Write the spec. Run the spec fidelity reviewer once (subagent dispatch, single pass, address findings inline). Then run the adversarial spec review inline (no subagent — see `references/adversarial-spec-review.md` for the procedure). Then run the ground-truth review automatically (no opt-in prompt) — dispatch the subagent, fix HIGH/MEDIUM findings, write the report. Present the spec and the ground-truth report to the user in one combined gate — on changes-requested, apply changes and ask the user which review(s) to re-run; on approval, invoke plan-build.
+
+The three reviews chain without user stops between them. Stops happen only when (a) a review surfaces so many critical findings that confidence in the spec is shaken — escalate to user with the report — or (b) the final user review gate. Intermediate "want me to run the next one?" prompts have been removed because they did not present information the user could act on.
 
 **The terminal state is invoking plan-build.** Do NOT invoke any other implementation skill.
 
@@ -176,20 +178,15 @@ After spec fidelity passes, run this review inline (no subagent dispatch). Read 
 
 The single inline pass is the gate. If findings are so numerous that confidence in the spec is shaken, escalate to the user with the review notes; do not loop.
 
-## Ground-Truth Review (Opt-In)
+## Ground-Truth Review (Automatic)
 
-After the fidelity review and the adversarial spec review both pass, offer the ground-truth review:
+After the fidelity review and the adversarial spec review both pass, run the ground-truth review automatically. No opt-in prompt — codebase verification is part of the standard chain.
 
-> "Spec fidelity and adversarial reviews passed. Would you like to run a ground-truth
-> review to verify spec claims against the actual codebase? This is recommended for
-> specs that reference existing types, APIs, file paths, or runtime behavior. Skip
-> for greenfield specs with no existing code references."
+Skip only when the spec is greenfield with zero references to existing types, APIs, file paths, or runtime behavior. In that case, write a one-line note in place of the report ("greenfield spec — no codebase references to verify") and proceed to the user review gate.
 
-If the user declines, proceed directly to the user review gate.
+If the user requests changes at the user review gate and the flow loops back through upstream reviews, re-run the ground-truth review only if the user's changes materially alter code references; otherwise skip the re-run.
 
-If the user requests changes at the user review gate and the flow loops back through the two upstream reviews, do not re-offer the ground-truth review if it already ran in this session — proceed directly to the user review gate unless the user's changes materially alter code references.
-
-If the user accepts:
+Procedure:
 
 1. Dispatch ground-truth-reviewer subagent (see [`references/ground-truth-reviewer.md`](references/ground-truth-reviewer.md) for the prompt template)
    - Provide: spec path AND design brief path
@@ -208,15 +205,13 @@ plan stage — but that is out of scope for this change.
 
 ## User Review Gate
 
-After the fidelity and adversarial reviews pass (and ground-truth review if accepted):
+After all three reviews pass (fidelity, adversarial, ground-truth):
 
-> "Spec written and reviewed at `{path}`. Please review and let me know if you want changes before we proceed to the implementation plan."
+> "Spec at `{path}`. Ground-truth report at `{report-path}` — [N] findings ([breakdown by severity]). [1-sentence risk summary]. Review and let me know if you want changes before we proceed to the implementation plan."
 
-If a ground-truth review was performed, also present:
+For greenfield specs (ground-truth skipped), drop the report line and state "greenfield spec — no codebase references to verify".
 
-> "Ground-truth review report at `{report-path}`. [N] findings ([breakdown by severity]). [1-sentence risk summary from report]."
-
-Wait for the user's response. If they request changes, apply them, then ask the user which review(s) to re-run: fidelity, adversarial, both, or neither. The user dictates the re-run scope — do not assume. Only proceed to plan-build once the user approves the spec.
+Wait for the user's response. If they request changes, apply them, then ask the user which review(s) to re-run: fidelity, adversarial, ground-truth, any combination, or none. The user dictates the re-run scope — do not assume. Only proceed to plan-build once the user approves the spec.
 
 ## Post-Approval
 
@@ -230,7 +225,7 @@ After the user approves the spec, it remains in the working directory. The spec 
 ## Integration
 
 - **Calls:** `start-bootstrap` (standalone only)
-- **Dispatches:** spec-document-reviewer subagent (single pass, fidelity), ground-truth-reviewer subagent (opt-in, after both reviews)
+- **Dispatches:** spec-document-reviewer subagent (single pass, fidelity), ground-truth-reviewer subagent (automatic, after fidelity + adversarial pass; skipped only for greenfield specs)
 - **Reads:** `references/adversarial-spec-review.md` (inline adversarial review pattern, modeled on `chester:plan-attack`), `util-artifact-schema` (naming/paths), the upstream brief's source template: `../design-large-task/references/design-brief-template.md` (8-section envelope) or `../design-small-task/references/design-brief-small-template.md` (6-section lightweight) — read whichever matches the upstream design skill that produced the brief
 - **Invoked by:** `design-large-task` or `design-small-task` (mandatory in the canonical sequence), or user directly (standalone)
 - **Transitions to:** `plan-build`

@@ -25,7 +25,7 @@ When multiple skills could apply, use this order:
 - `start-bootstrap` — Mechanical session setup: config, sprint naming, dir creation, task reset, thinking history
 - `design-large-task` — Default structural design skill: five outer phases (Bootstrap, Parallel Context Exploration, Round One, Interview Loop, Closure). Inside the Interview Loop, an Understand Stage runs under a nine-dimension saturation MCP, then a Solve Stage builds a formal proof of necessary conditions. Closure writes the design brief (the proof envelope) and transitions to design-specify. Architecture choice lives in design-specify, not here.
 - `design-small-task` — Lightweight design conversation for well-bounded tasks. Surfaces considerations through structured Q&A, produces a brief for plan-build. No MCP, no spec step.
-- `design-specify` — Formalize an approved design brief into a durable spec document. Two-architect competing-architecture review on dispatcher-assigned axes (with F-A-C self-check), automated fidelity review, and optional codebase ground-truth verification before plan-build.
+- `design-specify` — Formalize an approved design brief into a durable spec document. Two-architect competing-architecture review on dispatcher-assigned axes (with F-A-C self-check), automated fidelity review, inline adversarial review, and automatic codebase ground-truth verification (skipped only for greenfield specs) before plan-build.
 - `plan-build` — Write and harden implementation plans
 - `execute-write` — Execute plans, request code review, and perform subagent-driven development
 - `execute-verify-complete` — Capstone of execution: prove tests, clean tree, checkpoint commit
