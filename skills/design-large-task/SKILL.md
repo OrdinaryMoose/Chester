@@ -1,7 +1,7 @@
 ---
 name: design-large-task
 description: "Default structural design skill for architectural or multi-decision work. Five outer phases: Bootstrap, Parallel Context Exploration, Round One, Interview Loop, Closure. Inside the Interview Loop, an Understand Stage runs under an Understanding MCP (nine-dimension saturation scoring), then a Solve Stage runs under a Design Proof MCP (formal proof-building with structural validation around necessary conditions). Closure writes the design brief (the proof envelope) and hands off to design-specify, which owns architecture choice. Use when the task involves structural choices that need grounded design before implementation. For bounded edits where the target is clear, use design-small-task instead."
-version: v0003
+version: v0004
 ---
 
 # Large-Task Design Discovery with Formal Proof Language
@@ -80,11 +80,11 @@ If there are open design questions, you MUST resolve them through this skill bef
 
 If you think this is too simple for discovery, check: are there design decisions embedded in this task that you're making implicitly? If yes, surface them. If the task is genuinely mechanical (rename, move, delete with no design choices), this skill doesn't apply.
 
-## Checklist
+## Phase Map
 
-You MUST create a task for each of these items and complete them in order:
+Reference list of the phases the skill runs through. **Do not create a task list for these.** Progress is communicated to the designer via a one-line status indicator at the end of each turn (see "Status Line" below). Run the phases in order:
 
-1. **Bootstrap** — invoke `start-bootstrap` (handles config, sprint naming, dir creation, task reset, thinking history)
+1. **Bootstrap** — invoke `start-bootstrap` (handles config, sprint naming, dir creation, thinking history)
 2. **Parallel context exploration** — dispatch 3 agents in parallel, each on a distinct corpus: 1 `feature-dev:code-explorer` for the codebase (similar features, architecture, extension points) + 1 `Explore` agent for prior sprint design artifacts + 1 `chester:design-large-task-industry-explorer` agent for industry patterns via WebSearch/WebFetch; read all identified files. All three are named subagents and never fork — exploration value depends on independent perspectives.
 3. **Load active MCP-flow reference** — read the swap line at the top of this skill (`ACTIVE_UNDERSTANDING_MCP`) and read `references/{ACTIVE_UNDERSTANDING_MCP}-mcp-flow.md`. That file owns the MCP-specific init steps, per-turn cycle, transition criteria, and tool-call patterns. **No designer-facing turn is permitted until this file has been read.**
 4. **Initialize understanding MCP** — execute the Round-Zero / Round-One initialization steps described in the active flow reference. **No designer-facing turn is permitted until initialization completes.**
@@ -94,6 +94,33 @@ You MUST create a task for each of these items and complete them in order:
 8. **Proof phase** — present designer's verbatim problem statement for confirmation, initialize proof MCP, per-turn proof cycle with necessary conditions model
 9. **Closing argument** — compose and present the closing argument; designer approval settles the proof
 10. **Closure** — present completed design brief to designer for confirmation, write three artifacts (design brief, thinking summary, process evidence) to `design/`, invoke `util-worktree`, update lessons table, transition to design-specify. Brief render shape comes from the active flow reference.
+
+## Status Line
+
+Each turn ends with a single-line status indicator at the **bottom of the scroll**, after all other output (after commentary, after the closing prompt). The status line is for the designer's awareness — visible but not intrusive. It replaces the prior task-list discipline.
+
+**Format:** `→ <Phase or step name>`
+
+**Examples:**
+- `→ Bootstrap`
+- `→ Parallel Exploration`
+- `→ Round One — Initial Information Presentation`
+- `→ Understanding Step 1`
+- `→ Understanding Step 4`
+- `→ Stage Transition`
+- `→ Solve Step 01`
+- `→ Solve Step 04`
+- `→ Closing Argument`
+- `→ Closure`
+
+**Numbering inside per-turn-cycle phases:** *Understanding Step N* is the N-th turn within the Understand Stage (round counter). *Solve Step NN* is the N-th turn within the Solve Stage. Use zero-padded two-digit numbers for Solve, plain digits for Understanding.
+
+**Augmentation when useful:** add a brief informative tail when the work shape benefits from it — but stay plain-language, no MCP terminology, no scores, no internal jargon (Translation Gate applies to status lines too):
+- `→ Understanding Step 4 — narrowing scope`
+- `→ Solve Step 02 — building first conditions`
+- `→ Closing Argument — drafting`
+
+**Single line, last in the response.** The status is the last thing the designer sees. No extra blank lines after it; no decorative markers around it. One line, clearly labeled, end of scroll.
 
 ## Role: Design Partner
 
