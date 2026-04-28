@@ -1,7 +1,7 @@
 ---
 name: design-large-task
 description: "Default structural design skill for architectural or multi-decision work. Five outer phases: Bootstrap, Parallel Context Exploration, Round One, Interview Loop, Closure. Inside the Interview Loop, an Understand Stage runs under an Understanding MCP (nine-dimension saturation scoring), then a Solve Stage runs under a Design Proof MCP (formal proof-building with structural validation around necessary conditions). Closure writes the design brief (the proof envelope) and hands off to design-specify, which owns architecture choice. Use when the task involves structural choices that need grounded design before implementation. For bounded edits where the target is clear, use design-small-task instead."
-version: v0004
+version: v0005
 ---
 
 # Large-Task Design Discovery with Formal Proof Language
@@ -250,7 +250,7 @@ Round one establishes the understanding baseline and hands the shared context to
 
    Plain conversational opener. No "alignment check" language yet — there is nothing to align to at Round One. The framing *builds* the shared model; subsequent turns align against it.
 
-4. **Active-flow framing additions.** The active flow reference may specify *additional* framing blocks beyond the four above (e.g., glossary-ratification block for problemfocused). Consult the active flow reference's "Round-One framing additions" section if present and include those blocks.
+4. **Active-flow framing additions.** The active flow reference may specify *additional* framing blocks beyond the four above (e.g., glossary-ratification block for problemfocused). Consult the active flow reference's "Round-One framing additions" section if present and include those blocks. The active flow may also split Round One into a **multi-turn sequence** (e.g., framing + vocabulary stop in turn A, gap map + ready-check in turn B). Follow the sequencing the flow file specifies — steps 5–8 below may execute in a separate turn from steps 3–4 if the active flow requires it.
 5. Present the gap map to the user (after framing):
    - **What the codebase reveals** — observations about the current system, its structure, patterns, and constraints. These are observations, not conclusions — not a problem statement, not a solution structure, and not a comprehensive analysis.
    - **What the prior art reveals** — observations about the designer's intent or vision of the architecture or system, lessons or applicable knowledge from previous sprints, and/or solutions tried before and discarded that may change our understanding of the problem. These are observations, not conclusions — not a problem statement, not a solution structure, and not a comprehensive analysis.

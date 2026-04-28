@@ -51,13 +51,44 @@ input to Solve, not Understand-stage evidence.
 4. Call `seed_glossary` with the prepared seed terms. They enter as `PROPOSED-PENDING-DESIGNER`.
 5. Proceed to Round-One framing. The framing must include a **glossary ratification** section presenting the seeded terms for designer confirmation, correction, or rejection. (See "Round-One framing additions" below.)
 
-### Round-One framing additions
+### Round-One framing additions — Two-Turn Sequence
 
-Beyond SKILL.md's standard Round-One framing structure, add one block:
+Round One in problemfocused is a **two-turn sequence with a vocabulary-ratification stop in the middle**. SKILL.md's standard Phase 3 steps are split across the two turns.
 
-- **Vocabulary I'm starting from** — present the seeded terms in plain language. *"Here's the working vocabulary I'm carrying in: I'm calling X 'story' (top-level narrative unit, from the codebase explorer's report on file Y), and Z 'session' (a runtime instance, from prior-sprint W). Tell me if any of these names or definitions don't match how you think about it — we lock these in before going further."*
+**Turn A — Framing + Vocabulary Stop**
 
-This surfaces the vocabulary up front for ratification rather than letting it drift implicitly. Designer's response will produce vocabulary actions: ADD (with quote ratification → `DEFINED`), RENAME, MERGE if conflicts, DEFER if uncertain.
+1. Present SKILL.md's four standard framing blocks (What we're working on / What decision space we're entering / What I looked at / Where I landed).
+2. Present the **Vocabulary I'm starting from** block — seeded terms in plain language. Example wording:
+
+   > *"Before we go any further, here's the working vocabulary I'm carrying in. I'm calling X 'story' — top-level narrative unit, from the codebase. I'm calling Z 'session' — a runtime instance, from prior-sprint W. Tell me if any of these names or definitions don't match how you think about it. We lock these in before moving on to the rest of what I've found."*
+
+3. **Stop here. Do NOT present the gap map. Do NOT enter the standard ready-check.** End the turn after the vocabulary block with a vocabulary-ratification prompt — designer either confirms en bloc, corrects specific entries, or proposes alternatives.
+
+4. Status line: `→ Round One — Vocabulary Ratification`
+
+**Designer response → Vocabulary actions**
+
+Process the designer's response by issuing `apply_vocabulary_action` calls:
+- En-bloc confirmation → `ADD` per term with designer quote → status becomes `DEFINED`
+- "Call X 'storyform' instead" → `RENAME`
+- "Y and Z are the same thing, just call them Y" → `MERGE`
+- "These are actually different concepts" → `SPLIT`
+- "Drop W — not load-bearing" → `REMOVE`
+- "Not sure yet, let's leave it open" → `DEFER`
+
+If the designer raises a vocabulary point not on the seeded list, that's a fresh `PROPOSE` → `ADD`.
+
+After all actions are applied, the active glossary is updated; proceed to Turn B.
+
+**Turn B — Gap Map + Ready Check**
+
+1. Present SKILL.md Phase 3's gap map (the four observation sections + "what the agent can't determine from code alone").
+2. Standard ready-check for entering the Understand Stage (per SKILL.md step 6).
+3. Status line: `→ Round One — Initial Information Presentation`
+
+**Why two turns:** vocabulary alignment is load-bearing for everything that follows — the gap map and all subsequent observations should use canonical names from the locked glossary, not provisional names. Stopping for ratification before the rest of the information lands ensures the agent's gap-map prose uses the designer's vocabulary, not the agent's seeded guesses.
+
+**Vocabulary actions can also fire from Turn A's framing blocks themselves** if the designer's correction reveals a vocabulary issue with the framing's word choice. Apply those actions during the Turn A → Turn B handoff alongside the seeded-term ratifications.
 
 ### Gap-map data shape
 
