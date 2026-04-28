@@ -4,9 +4,13 @@
       "command": "node",
       "args": ["${CLAUDE_PLUGIN_ROOT}/skills/design-large-task/proof-mcp/server.js"]
     },
-    "chester-design-understanding": {
+    "chester-design-understanding-classic": {
       "command": "node",
       "args": ["${CLAUDE_PLUGIN_ROOT}/skills/design-large-task/understanding-mcp/server.js"]
+    },
+    "chester-design-understanding-problemfocused": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/skills/design-large-task/understanding-mcp-problemfocused/server.js"]
     },
     "chester-decision-record": {
       "command": "node",

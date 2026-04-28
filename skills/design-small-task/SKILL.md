@@ -1,6 +1,7 @@
 ---
 name: design-small-task
 description: "Lightweight design conversation for well-bounded tasks. Use when the task is clear but you want to surface considerations before jumping to planning. Holds an interactive Q&A loop with structured information packages — the agent presents observations and asks questions, never suggests proceeding. The designer explicitly directs when to write the brief. Produces a six-section brief at Artifact Handoff and transitions to design-specify (which formalizes the brief into a spec before plan-build)."
+version: v0001
 ---
 
 # Small Task Design Conversation

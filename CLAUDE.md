@@ -22,10 +22,13 @@ Every skill lives in `skills/{phase}-{name}/SKILL.md` with YAML frontmatter:
 ---
 name: {phase}-{name}
 description: <one-line trigger description for the Skill tool registry>
+version: v####
 ---
 ```
 
 The `description` field is what appears in the Skill tool's available skills list. It must clearly state when to invoke the skill. Skills are invoked as `chester:{phase}-{name}` (plugin namespace prefix).
+
+The `version` field is a four-digit zero-padded counter prefixed with `v` (e.g. `v0001`). Bump it on any meaningful change to the skill's behavior or contract — not on typo fixes or comment-only edits. New skills start at `v0001`.
 
 Supporting files (reviewer templates, reference docs, scripts) go in the same directory or a `references/` or `scripts/` subdirectory.
 
@@ -75,7 +78,7 @@ Tests are self-contained bash scripts. They validate hooks, config resolution, a
 
 ## Working on Skills
 
-When editing a SKILL.md, the `description` frontmatter field and the skill's entry in `skills/setup-start/SKILL.md` (the available skills list) must stay in sync. If you change what a skill does, update both.
+When editing a SKILL.md, the `description` frontmatter field and the skill's entry in `skills/setup-start/SKILL.md` (the available skills list) must stay in sync. If you change what a skill does, update both. Also bump the `version` field (e.g. `v0001 → v0002`) for any behavior or contract change.
 
 Skill types: **rigid** (follow exactly — e.g., test-first, fix-bugs) vs **flexible** (adapt principles to context). The skill itself declares which.
 

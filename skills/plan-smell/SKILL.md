@@ -7,6 +7,7 @@ description: >
   plan-build's plan hardening gate. Can also be invoked manually via:
   "smell review", "code smell check", "will this introduce smells", "smell analysis",
   "check the plan for smells", "/plan-smell".
+version: v0001
 ---
 
 # Smell Review

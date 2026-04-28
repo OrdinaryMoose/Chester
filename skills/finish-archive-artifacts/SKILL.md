@@ -5,6 +5,7 @@ description: >
   tracked plans directory and commit them. This creates the permanent record that gets
   merged with the code. Invoke after finish-write-records (or after execute-verify-complete
   if skipping records). Single pass — everything in the working directory gets archived.
+version: v0001
 ---
 
 # Archive Artifacts

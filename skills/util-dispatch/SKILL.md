@@ -1,6 +1,7 @@
 ---
 name: util-dispatch
 description: Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies
+version: v0001
 ---
 
 # Dispatching Parallel Agents

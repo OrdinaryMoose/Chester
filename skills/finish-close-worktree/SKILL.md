@@ -4,6 +4,7 @@ description: >
   Final step of the finish phase. Presents four options for branch integration (merge
   locally, create PR, keep as-is, discard), executes the chosen option, and cleans up
   the worktree. Use after finish-archive-artifacts has committed all sprint artifacts.
+version: v0001
 ---
 
 # Close Worktree

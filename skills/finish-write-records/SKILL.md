@@ -7,6 +7,7 @@ description: >
   did", "write the summary", "session report", "reasoning audit", "write a refactor
   summary", "document this session", or when a major unit of work has just completed.
   Also trigger proactively at natural session end points.
+version: v0001
 ---
 
 # Session Records

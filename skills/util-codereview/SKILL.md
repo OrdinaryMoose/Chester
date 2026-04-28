@@ -6,6 +6,7 @@ description: >
   concerns with file:line evidence. Invoke via: "review code in src/", "smell check
   this directory", "code review src/billing", "what smells exist in lib/",
   "/util-codereview".
+version: v0001
 ---
 
 # Code Review

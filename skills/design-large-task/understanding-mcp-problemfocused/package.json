@@ -1,0 +1,18 @@
+{
+  "name": "chester-design-understanding-problemfocused",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Problem-statement-focused understanding MCP — nine tenets, vocabulary lockdown classifier, phase-vocabulary classifier, solve leakage ledger, problem-statement repeat-back gate, convention-break override rule. Solo-dev personal-project variant.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1"
+  },
+  "devDependencies": {
+    "vitest": "^3.1.1"
+  }
+}

@@ -1,6 +1,7 @@
 ---
 name: plan-build
 description: Use when you have a spec or requirements for a multi-step task, before touching code
+version: v0001
 ---
 
 # Chester Build Plan

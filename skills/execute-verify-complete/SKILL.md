@@ -6,6 +6,7 @@ description: >
   This is the gate between building and finishing. Nothing past this point is about writing
   code. Use when execute-write completes all tasks, or when any implementation work is done
   and you're ready to move to the finish phase.
+version: v0001
 ---
 
 # Verify Execution Complete

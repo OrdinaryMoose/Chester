@@ -1,6 +1,7 @@
 ---
 name: util-design-partner-role
 description: Canonical rules for the Design Partner voice — the Interpreter Frame, read-aloud discipline, option-naming rule, and self-evaluation game. Read this skill (don't invoke it) when running design-large-task or design-small-task. Both design skills import the same voice rules from here so the discipline stays in one place.
+version: v0001
 ---
 
 # Design Partner Role — Voice Rules

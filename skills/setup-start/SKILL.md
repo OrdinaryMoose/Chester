@@ -1,6 +1,7 @@
 ---
 name: setup-start
 description: Use when starting any conversation - establishes how to find and use Chester skills, requiring Skill tool invocation before ANY response including clarifying questions
+version: v0001
 ---
 
 <SUBAGENT-STOP>

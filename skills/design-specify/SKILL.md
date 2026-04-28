@@ -1,6 +1,7 @@
 ---
 name: design-specify
 description: "Formalize an approved design brief into a durable spec document. Use when a design brief exists (from design-large-task, design-small-task, a whiteboard, a previous session, or a human-written brief) and needs to be written as a formal spec with competing-architecture review, automated fidelity review, and codebase ground-truth verification before plan-build."
+version: v0001
 ---
 
 # Build Spec

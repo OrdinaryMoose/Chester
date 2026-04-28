@@ -7,6 +7,7 @@ description: >
   plan hardening gate. Can also be invoked manually via: "attack this plan",
   "adversarial review", "red-team this", "find the weaknesses", "stress test
   the plan", "what could go wrong", "/plan-attack".
+version: v0001
 ---
 
 # Adversarial Review

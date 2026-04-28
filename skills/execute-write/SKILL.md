@@ -1,6 +1,7 @@
 ---
 name: execute-write
 description: Use when you have a written implementation plan to execute — provides subagent-driven (recommended) or inline execution with review checkpoints
+version: v0001
 ---
 
 # execute-write

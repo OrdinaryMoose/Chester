@@ -6,6 +6,7 @@ description: >
   find, or reference a Chester artifact — design briefs, specs, plans, summaries, audits,
   or any other sprint artifact. If you're about to write a file path or filename for a
   Chester artifact, check here first.
+version: v0001
 ---
 
 # Artifact Schema

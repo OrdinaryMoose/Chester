@@ -5,6 +5,7 @@ description: >
   pipeline skill that needs a sprint context — config reading, sprint naming, directory
   creation, task reset, and thinking history initialization. Called by design-large-task
   and execute-write (standalone).
+version: v0001
 ---
 
 # Session Bootstrap
