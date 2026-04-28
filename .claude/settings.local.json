@@ -14,7 +14,9 @@
       "Bash(echo \"exit code: $?\")",
       "Bash(node:*)",
       "Bash(ls /home/mike/Documents/Chester/*.md)",
-      "Skill(update-config)"
+      "Skill(update-config)",
+      "Bash(cp /home/mike/Documents/CodeProjects/Chester/docs/chester/working/20260425-01-redesign-convergence-model/plan/redesign-convergence-model-plan-00.md /home/mike/Documents/CodeProjects/Chester/docs/chester/working/20260425-01-redesign-convergence-model/summary/)",
+      "Bash(cp /home/mike/.claude/projects/-home-mike-Documents-CodeProjects-Chester/eaf11901-a30f-4ffd-91c5-01694711a340.jsonl /home/mike/Documents/CodeProjects/Chester/docs/chester/working/20260425-01-redesign-convergence-model/summary/redesign-convergence-model-session-transcript.jsonl)"
     ]
   },
   "outputStyle": "Explanatory"
