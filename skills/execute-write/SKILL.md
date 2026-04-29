@@ -1,7 +1,7 @@
 ---
 name: execute-write
-description: Use when you have a written implementation plan to execute — provides subagent-driven (recommended) or inline execution with review checkpoints
-version: v0001
+description: Use when you have a written implementation plan to execute — reads the plan's `Execution mode` header field (subagent or inline) and runs the matching section, with review checkpoints
+version: v0002
 ---
 
 # execute-write
@@ -45,7 +45,34 @@ When implementing a task, if something comes up that is:
 
 Deferred items are reviewed during finish.
 
-## Section 2: Execution Mode — Subagent-Driven (Recommended)
+### 1.4 Read Execution Mode from Plan Header
+
+Read the plan document's header and look for the `Execution mode:` field. This field is set by `plan-build` at its Execution Mode Selection step — the choice has already been made (and confirmed with the user) at plan time. execute-write does not re-prompt and does not re-derive the heuristic.
+
+**Routing rule:**
+
+```
+plan header value         → run section
+─────────────────────────────────────
+Execution mode: subagent  → Section 2 (subagent-driven)
+Execution mode: inline    → Section 3 (inline)
+field missing or blank    → Section 2 (subagent-driven, safe default)
+unrecognized value        → Section 2 (safe default), warn the user
+```
+
+**Why default to subagent on missing/unrecognized.** Legacy plans pre-date this field, and hand-written specs may skip it. Subagent is the safe-side default — it preserves per-task review independence, which is the property hardest to recover if you pick wrong. Re-deriving the heuristic at execute time would force this skill to parse plan structure (task counts, types, budgets, threat report), tightly coupling it to plan-build's internal shape; defaulting keeps the contract surface to a single field read.
+
+**Announce the chosen mode to the user before running it:**
+
+```
+Execution mode: {subagent | inline} (from plan header / safe default)
+
+Running Section {2 | 3}.
+```
+
+If the field was missing or unrecognized, say so explicitly so the user can interrupt and edit the plan if the default doesn't match intent.
+
+## Section 2: Execution Mode — Subagent-Driven
 
 This is the recommended execution mode. Each task is dispatched to a fresh subagent, then reviewed in two stages.
 
@@ -116,7 +143,7 @@ Each implementer subagent should be fresh — do not reuse a subagent across tas
 
 ## Section 3: Execution Mode — Inline
 
-Use this mode when subagent dispatch is not available or for simple plans with few tasks.
+Run this section when the plan header's `Execution mode:` field is `inline`. Mode selection happens upstream in plan-build (its Execution Mode Selection step) — by the time you read the plan, the choice already encodes "small plan, low risk, narrow per-task blast radius." Don't second-guess it; just run the inline procedure.
 
 ### 3.1 Sequential Execution
 

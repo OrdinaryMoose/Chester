@@ -18,8 +18,9 @@ Every plan MUST start with this header:
 
 **Sprint:** YYYYMMDD-##-verb-noun-noun
 **Spec:** {spec file path}
+**Execution mode:** subagent | inline
 
-> **For agentic workers:** Use execute-write to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** Use execute-write to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. The `Execution mode` field selects which execute-write section runs — Section 2 (subagent-driven) or Section 3 (inline). plan-build sets this field at handoff based on the Execution Mode Selection heuristic, with human confirm/override.
 
 ## Goal
 {one sentence}

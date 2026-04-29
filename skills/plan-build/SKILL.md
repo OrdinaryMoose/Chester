@@ -1,7 +1,7 @@
 ---
 name: plan-build
 description: Use when you have a spec or requirements for a multi-step task, before touching code
-version: v0001
+version: v0002
 ---
 
 # Chester Build Plan
@@ -28,7 +28,8 @@ Use TaskCreate/TaskUpdate to give the user real-time visibility into your progre
 6. **Write plan tasks** — write each task with TDD steps, file paths, code, and commands; derive per-task `Must remain green` from Prior Decisions whose Code touches the task's files
 7. **Plan review loop** — dispatch plan-reviewer subagent; iterate until approved (max 3)
 8. **Plan hardening** — run plan-attack + plan-smell reviews, incorporate findings
-9. **Save plan document** — write to correct output path based on project config
+9. **Execution Mode Selection** — apply heuristic, present recommendation with reasoning, capture user confirm/override; record chosen mode for the plan header
+10. **Save plan document** — write to correct output path based on project config
 
 **As you work:**
 - Mark each task `in_progress` when you begin it, `completed` when you finish
@@ -37,7 +38,7 @@ Use TaskCreate/TaskUpdate to give the user real-time visibility into your progre
 - Task subjects should be short, descriptive actions
 
 **Granularity guidance:**
-- The 9 starting tasks are the baseline
+- The 10 starting tasks are the baseline
 - When writing plan tasks, you may optionally create one sub-task per plan task if the plan has many tasks, to give finer-grained progress — use your judgment based on plan size
 
 **Context:** This should be run in a dedicated worktree (created by `design-large-task` or `design-small-task` during their Archival / closure stage).
@@ -258,19 +259,71 @@ After the plan review loop approves the plan:
 6. Write the combined threat report to the `plan/` subdirectory as `{sprint-name}-plan-threat-report-00.md` (see `util-artifact-schema`).
 7. Wait for the human's decision. Do not auto-trigger any action.
 
+## Execution Mode Selection
+
+**Runs after Plan Hardening, before Save Plan Document.** The selected mode is written into the plan header so `execute-write` can read it without re-deriving the heuristic.
+
+### Why this is here
+
+`execute-write` ships two execution sections — Section 2 (subagent-driven) and Section 3 (inline). Subagent mode dispatches a fresh implementer per task and runs spec + quality reviews between tasks — high review independence, higher dispatch overhead. Inline mode executes tasks in the current session with checkpoints — lower overhead, lower review independence (the planner and the executor share context, so spec drift is harder to catch).
+
+The asymmetric cost is the load-bearing intuition. Wrong-direction inline on a complex plan corrupts review independence and lets spec drift slip through; wrong-direction subagent on a simple plan just costs a few extra dispatches. So **subagent is the safe default** — inline is the exception, taken only when the plan is genuinely small and low-risk.
+
+This selection happens once, at plan-build's tail, with all heuristic inputs known (final task list, decision budgets, threat report risk level). Doing it here keeps `execute-write`'s contract small: read one field, route to the right section.
+
+### Heuristic
+
+```
+Default: subagent
+
+Downgrade to inline ONLY when ALL of:
+  1. task count ≤ 3
+  2. threat report combined risk level ≤ Moderate (Low or Moderate)
+  3. sum of decision budgets across all tasks ≤ 4
+  4. no code-producing task touches multiple files
+     (every code-producing task's Files block has at most one Create/Modify entry,
+      OR the plan is entirely docs-producing / config-producing)
+
+If any one of (1)-(4) fails, recommend subagent.
+```
+
+The four conditions encode "small plan, well-specified, low risk, narrow per-task blast radius." When all four hold, inline's lower overhead is the right trade. When any fails, subagent's per-task review independence pays for itself.
+
+### Procedure
+
+1. Compute the heuristic against the final hardened plan and the combined threat report. Record the value of each of the four conditions (`pass`/`fail`) so the reasoning can be shown to the user.
+2. Present the recommendation to the user with this shape:
+
+   ```
+   Execution mode recommendation: {subagent | inline}
+
+   Heuristic:
+     1. Task count ≤ 3 — {pass | fail} ({N} tasks)
+     2. Threat risk ≤ Moderate — {pass | fail} ({Low | Moderate | Significant | High})
+     3. Decision-budget sum ≤ 4 — {pass | fail} ({sum})
+     4. No multi-file code-producing tasks — {pass | fail} ({offending task IDs or "—"})
+
+   Confirm recommendation, or override?
+   ```
+
+3. Accept the user's confirmation or override. If override, take the user's chosen mode verbatim (no second-guessing — the user has full context the heuristic doesn't).
+4. Carry the chosen mode forward to Save Plan Document — it gets written into the plan header's `Execution mode:` field.
+
+### Edge cases
+
+- **All-docs / all-config plans.** Condition (4) is vacuously satisfied (no code-producing tasks exist). The other three still apply. A 12-task docs sprint with sum-of-budgets 8 still recommends subagent — the issue is breadth, not code risk.
+- **Single-task plan.** Conditions (1), (3), (4) almost always pass. Risk level (condition 2) becomes the deciding signal.
+- **Threat report missing.** Should not happen — Plan Hardening is mandatory and produces the report. If somehow absent, treat risk as Significant and recommend subagent.
+
 ## Save Plan Document
 
 Write the plan to the `plan/` subdirectory (see `util-artifact-schema` for the exact path). The plan remains in the working directory (gitignored). `finish-archive-artifacts` copies all artifacts into the worktree for merge.
 
+The plan header **must** include the `Execution mode:` field with the value chosen at Execution Mode Selection (`subagent` or `inline`). Do not write the plan with the placeholder `subagent | inline` or with the field omitted — `execute-write` reads this field to select its execution section, and a missing field forces it onto the safe-default path which may not match what was discussed with the user.
+
 ## Execution Handoff
 
-Plan complete and hardened. Two execution options:
-
-**1. Subagent-Driven (recommended)** - I dispatch a fresh subagent per task, review between tasks, fast iteration. Uses execute-write.
-
-**2. Inline Execution** - Execute tasks in this session with checkpoints. Uses execute-write in inline mode.
-
-Which approach?
+Plan complete and hardened. The plan's `Execution mode:` header field carries the selection from Execution Mode Selection — `execute-write` reads it and runs the matching section automatically. Hand off to `execute-write` with the plan path; do not re-prompt the user for mode (the decision was already made and recorded in the plan).
 
 ## Integration
 
