@@ -82,7 +82,7 @@ Match the transcript-schema field shapes the lead pastes into the round block.
 **Phase 3 (Counter-arguments) — R2 only:**
 
 ```
-Counter-arguments — Conservator (S)
+**Counter-arguments** — Conservator (S)
 - vs <Opposer-1 Pole>: concede | defend | revise — <reasoning>
 - vs <Opposer-2 Pole>: concede | defend | revise — <reasoning>
 - vs <Opposer-3 Pole>: concede | defend | revise — <reasoning>
@@ -92,7 +92,7 @@ Revised statement: <integrated revised candidate>
 **Phase 5 (Synthesis attack) — R5:**
 
 ```
-Synthesis attack — Conservator (S)
+**Synthesis attack** — Conservator (S)
 <one attack on the consolidated draft from the Conservator lens; cites the clause attacked>
 ```
 

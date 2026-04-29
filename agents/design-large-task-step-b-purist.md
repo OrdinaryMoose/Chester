@@ -80,7 +80,7 @@ Match the field names in the Transcript Schema. Templates per phase:
 
 **Phase 3 — Counter (R3 only):**
 ```
-Counter-arguments — Purist (E)
+**Counter-arguments** — Purist (E)
 - vs <Opposer-1>: concede | defend | revise — <reasoning, with quoted/paraphrased opposer line>
 - vs <Opposer-2>: concede | defend | revise — <reasoning>
 - vs <Opposer-3>: concede | defend | revise — <reasoning>
@@ -89,7 +89,7 @@ Revised statement: <revised candidate, integrating concessions>
 
 **Phase 5 — Synthesis attack (R5):**
 ```
-Synthesis attack — Purist (E)
+**Synthesis attack** — Purist (E)
 <one attack: which philosophy clause does the consolidated draft fail to honor, or which derivation-from-principle is missing or weak?>
 ```
 

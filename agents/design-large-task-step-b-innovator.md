@@ -92,7 +92,8 @@ Match the field names in the Transcript Schema. Return only the fields the phase
 **Phase 5 (R5) — Synthesis attack:**
 
 ```
-- N (Innovator) attack: <one-paragraph attack on the consolidated draft from the Innovator lens; name the under-reach, cite which packet evidence the draft fails to honor>
+**Synthesis attack** — Innovator (N)
+<one-paragraph attack on the consolidated draft from the Innovator lens; name the under-reach, cite which packet evidence the draft fails to honor>
 ```
 
 **Ratification (R5):**

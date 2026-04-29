@@ -1,7 +1,7 @@
 ---
 name: design-large-task
 description: "Default structural design skill for architectural or multi-decision work. Five outer phases: Bootstrap, Parallel Context Exploration, Round One, Interview Loop, Closure. Inside the Interview Loop, an Understand Stage runs under an Understanding MCP (nine-dimension saturation scoring), then a Solve Stage runs under a Design Proof MCP (formal proof-building with structural validation around necessary conditions). Closure writes the design brief (the proof envelope) and hands off to design-specify, which owns architecture choice. Use when the task involves structural choices that need grounded design before implementation. For bounded edits where the target is clear, use design-small-task instead."
-version: v0007
+version: v0008
 ---
 
 # Large-Task Design Discovery with Formal Proof Language
@@ -411,7 +411,7 @@ The Solve Stage opens with three steps before the proof-governed interview loop 
 
 1. **Problem statement: polish, readback, confirm** — take what the designer said about the problem (they often type quickly and roughly), polish the language lightly for clarity and grammar without changing the meaning or adding your own framing. Read it back to the designer in clean form: "Here's how I'd capture the problem — [polished version]. Does that sound right?" The designer must explicitly approve before you proceed. Do NOT expand it into an analysis, add requirements, or prescribe solution characteristics. The problem statement describes the pain, not the solution. Context (codebase observations, architectural constraints) belongs in separate proof elements, not embedded in the problem statement.
 
-   **When `team-interview` was the active flow,** the problem statement was already polished and ratified during Round 5 synthesis — it is the team-ratified statement carried forward as the team consensus output. Replace polish/readback/confirm with a single confirmation prompt: "The team ratified this statement — confirm or revise?" If the designer revises, re-enter Round 5 synthesis with the revision; otherwise proceed to step 2.
+   **When `team-interview` was the active flow,** the problem statement was already polished and ratified during Round 5 synthesis — it is the team-ratified statement carried forward as the team consensus output. Replace polish/readback/confirm with a single confirmation prompt: "The team ratified this statement — confirm or revise?" If the designer revises, treat the revision as a designer-authored override of the ratified statement: capture the original ratified statement and the revision side-by-side under a `*Designer revision at Solve Stage opening:*` line in the handoff artifact's Ratification block (so the override is logged and the dissent trail is preserved per the flow file's Ratification section), then proceed to step 2 with the designer's revised statement. Do not re-enter the four-pole debate — the designer's revision is the final authority and Solve Stage continues against it.
 2. **Initialize proof MCP** — call `initialize_proof` with:
    - `problem_statement`: the designer's confirmed (polished) problem statement
    - `state_file`: `{CHESTER_WORKING_DIR}/{sprint-subdir}/design/{sprint-name}-proof-state.json`

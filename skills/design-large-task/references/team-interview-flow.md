@@ -161,7 +161,7 @@ If a round ends Phase 3 with **no real attacks landing** — every opposer produ
 
 ## Proof Seeding
 
-When Phase 4 Solve Stage runs `submit_proof_update` with the seed call (per `SKILL.md:403`), the consensus evidence and exit criteria from the handoff artifact map onto proof MCP elements per the table below. The mapping is mechanical — Solve Stage applies it without re-interviewing.
+When Phase 4 Solve Stage runs `submit_proof_update` with the seed call (per the **Solve Stage Opening — Seed the proof** step in `skills/design-large-task/SKILL.md`), the consensus evidence and exit criteria from the handoff artifact map onto proof MCP elements per the table below. The mapping is mechanical — Solve Stage applies it without re-interviewing.
 
 | Handoff content | Proof element | `source` field |
 |---|---|---|
@@ -174,7 +174,7 @@ When Phase 4 Solve Stage runs `submit_proof_update` with the seed call (per `SKI
 
 ### Designer-authority rationale for RULE seeding
 
-The proof MCP locks RULE elements to `source: "designer"` because RULEs encode designer-authorized restrictions on the design space. `SKILL.md:445` states: *"You must NOT create RULE or PERMISSION elements from your own analysis. These are designer-sourced only."*
+The proof MCP locks RULE elements to `source: "designer"` because RULEs encode designer-authorized restrictions on the design space. The **Element Types and Operations** section of `skills/design-large-task/SKILL.md` states: *"You must NOT create RULE or PERMISSION elements from your own analysis. These are designer-sourced only."*
 
 Team-interview satisfies this constraint via the **Round 5 ratification block**: the designer's ratification of the consolidated problem statement — which includes the philosophy bullets and the exit criteria — IS the designer direction. The ratification block IS the designer-authority signal. Without a complete ratification block (per the Ratification section), Solve Stage refuses to seed philosophy bullets or exit criteria as RULEs.
 
@@ -214,7 +214,7 @@ At the close of each round's **Recommendation** phase (Phase 5 for R1–R4; the 
 
 These captures are incremental writes during Understand Stage — `capture_thought` is allowed during Understand (read-only discipline applies to the saturated-state surface, not to the thought log). They give Resume Protocol a recoverable trail without introducing a process-evidence file before Closure.
 
-After R5 ratification, the lead also writes the standard `understanding-confirmed` capture (per Proof Seeding section) with stage `Transition`. This is the marker that signals the Understand Stage is complete.
+After R5 ratification, the lead also writes the standard `understanding-confirmed` capture with stage `Transition` — `capture_thought({ tag: "understanding-confirmed", stage: "Transition", content: "<one-line summary of the ratified problem statement>" })`. This is the marker `design-large-task/SKILL.md` Stage Transition logic uses to signal the Understand Stage is complete; without it, Solve Stage cannot open.
 
 ### Recovery procedure (when invoked)
 
