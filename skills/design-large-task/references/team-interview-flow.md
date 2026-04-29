@@ -161,11 +161,45 @@ If a round ends Phase 3 with **no real attacks landing** — every opposer produ
 
 ## Proof Seeding
 
-(content added in Task 6)
+When Phase 4 Solve Stage runs `submit_proof_update` with the seed call (per `SKILL.md:403`), the consensus evidence and exit criteria from the handoff artifact map onto proof MCP elements per the table below. The mapping is mechanical — Solve Stage applies it without re-interviewing.
+
+| Handoff content | Proof element | `source` field |
+|---|---|---|
+| Codebase grounding bullets | EVIDENCE | `"codebase"` |
+| Industry prior art bullets | EVIDENCE | `"industry"` |
+| Practitioner friction bullets | EVIDENCE | `"friction"` |
+| Philosophy bullets | RULE | `"designer"` |
+| Exit Criteria | RULE | `"designer"` |
+| Ratification dissent (logged blocks) | RISK | (basis-points to disputed clause) |
+
+### Designer-authority rationale for RULE seeding
+
+The proof MCP locks RULE elements to `source: "designer"` because RULEs encode designer-authorized restrictions on the design space. `SKILL.md:445` states: *"You must NOT create RULE or PERMISSION elements from your own analysis. These are designer-sourced only."*
+
+Team-interview satisfies this constraint via the **Round 5 ratification block**: the designer's ratification of the consolidated problem statement — which includes the philosophy bullets and the exit criteria — IS the designer direction. The ratification block IS the designer-authority signal. Without a complete ratification block (per the Ratification section), Solve Stage refuses to seed philosophy bullets or exit criteria as RULEs.
+
+### EVIDENCE source-field constraint
+
+The proof MCP's EVIDENCE element accepts any non-null `source` string that is not `"designer"` (per `proof-mcp/proof.js:38-46` — there is no enum constraint). The values `"codebase"`, `"industry"`, and `"friction"` therefore pass without a fallback. RULE elements have `source` locked to `"designer"`; team-interview's seeding satisfies this via the ratification authority above.
+
+### RISK seeding for ratification dissent
+
+When the Ratification block records a designer-forced ratification over a pole's surviving dissent, the dissent maps to a RISK element. The RISK basis-points to the disputed clause in the consolidated problem statement, with the dissenting pole and reason recorded. Solve Stage uses RISK elements to surface known fragility into the design without blocking convergence.
 
 ## Brief-Render Read Shape
 
-(content added in Task 6)
+team-interview runs no MCP server, so there is **no understanding-state file** for Phase 5 Closure to read — the absence of `{sprint-name}-understanding-state.json` for team-interview sprints is by design, not by failure. Closure renders the design brief from a different read source.
+
+### Read source
+
+The Phase 5 Closure brief renderer reads the **process-evidence transcript** in place of an Understanding-MCP saturation history. The process-evidence transcript is written at Closure (not incrementally during the Understand Stage); it captures the full per-round transcript blocks (per Transcript Schema), the validity-test checklist results, the handoff artifact, and the ratification block.
+
+### Render guidance
+
+- **Thinking summary** — captures debate evolution per round. For each R1–R4 round, summarize opener pole, surviving statement, and round status (alive/wounded/dead). For R5, summarize the consolidated draft, synthesis attacks, revisions applied, and per-pole ratification outcomes.
+- **Design brief** — frames the ratified consensus problem statement as the brief's problem section. Consensus evidence (the four-type bullets with source-pole attribution) feeds the brief's evidence section. Exit criteria become the brief's necessary-conditions or scope-bounds section. Any logged dissent (designer-forced ratification reasons) is captured verbatim under a "Known dissent" subsection so downstream readers see the unresolved contention.
+
+The renderer must not silently drop the dissent log — designer-arbitrated ratification with logged dissent is signal Solve Stage and downstream skills depend on. If the dissent log is empty (all four poles ratified cleanly), the renderer may omit the "Known dissent" subsection.
 
 ## Resume Protocol
 
