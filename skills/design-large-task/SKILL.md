@@ -39,6 +39,14 @@ version: v0007
                                      resolve_override,
                                      get_understanding_state
 
+       team-interview  — Four-pole Cartesian debate over five rounds with
+                         agent-consensus convergence. No MCP server. Pole
+                         subagents (innovator/conservator/purist/pragmatist)
+                         debate the problem framing; lead orchestrates the
+                         sequential chain per references/team-interview-flow.md.
+                         MCP server: none (consensus-based)
+                         Tools:      none (lead orchestrates pole subagents)
+
        architectural   — ARCHIVED (see understanding-mcp-architectural/ARCHIVED.md).
                          Six architectural-tenet scoring. Drifts the
                          Understanding phase into Solve work; the six axes
@@ -63,6 +71,7 @@ version: v0007
      Per-MCP per-turn flows live in:
        references/classic-mcp-flow.md
        references/problemfocused-mcp-flow.md
+       references/team-interview-flow.md
      The skill body above is MCP-agnostic. The active flow file is loaded
      as part of Checklist step 3 and drives the Understand-Stage cycle.
      Change the ACTIVE_UNDERSTANDING_MCP value above to swap.
