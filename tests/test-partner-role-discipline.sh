@@ -54,10 +54,10 @@ grep -qE '^## Stance Principles' "$PARTNER" || { echo "FAIL AC-5.2: Stance Princ
 
 # AC-4.1: design-large-task per-turn flow contains C1+C2 cross-references
 LARGE="$REPO_ROOT/skills/design-large-task/SKILL.md"
-US_BLOCK=$(awk '/Step 6: Write commentary/,/Step 7:/' "$LARGE" | head -100)
+US_BLOCK=$(awk '/Invariant 3: Write commentary/,/Invariant 4:/' "$LARGE" | head -100)
 SS_BLOCK=$(awk '/Step 8: Write commentary/,/Step 9:/' "$LARGE" | head -100)
-echo "$US_BLOCK" | grep -qE 'C1.*C2|C2.*C1' || { echo "FAIL AC-4.1: Understand Stage Step 6 missing C1/C2 cross-reference"; exit 1; }
-echo "$US_BLOCK" | grep -qi "util-design-partner-role" || { echo "FAIL AC-4.1: Understand Stage Step 6 cross-reference does not name util-design-partner-role"; exit 1; }
+echo "$US_BLOCK" | grep -qE 'C1.*C2|C2.*C1' || { echo "FAIL AC-4.1: Understand Stage Invariant 3 missing C1/C2 cross-reference"; exit 1; }
+echo "$US_BLOCK" | grep -qi "util-design-partner-role" || { echo "FAIL AC-4.1: Understand Stage Invariant 3 cross-reference does not name util-design-partner-role"; exit 1; }
 echo "$SS_BLOCK" | grep -qE 'C1.*C2|C2.*C1' || { echo "FAIL AC-4.1: Solve Stage Step 8 missing C1/C2 cross-reference"; exit 1; }
 echo "$SS_BLOCK" | grep -qi "util-design-partner-role" || { echo "FAIL AC-4.1: Solve Stage Step 8 cross-reference does not name util-design-partner-role"; exit 1; }
 
