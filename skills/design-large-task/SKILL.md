@@ -1,7 +1,7 @@
 ---
 name: design-large-task
 description: "Default structural design skill for architectural or multi-decision work. Five outer phases: Bootstrap, Parallel Context Exploration, Round One, Interview Loop, Closure. Inside the Interview Loop, an Understand Stage runs under an Understanding MCP (nine-dimension saturation scoring), then a Solve Stage runs under a Design Proof MCP (formal proof-building with structural validation around necessary conditions). Closure writes the design brief (the proof envelope) and hands off to design-specify, which owns architecture choice. Use when the task involves structural choices that need grounded design before implementation. For bounded edits where the target is clear, use design-small-task instead."
-version: v0007
+version: v0008
 ---
 
 # Large-Task Design Discovery with Formal Proof Language
@@ -39,6 +39,14 @@ version: v0007
                                      resolve_override,
                                      get_understanding_state
 
+       team-interview  — Four-pole Cartesian debate over five rounds with
+                         agent-consensus convergence. No MCP server. Pole
+                         subagents (innovator/conservator/purist/pragmatist)
+                         debate the problem framing; lead orchestrates the
+                         sequential chain per references/team-interview-flow.md.
+                         MCP server: none (consensus-based)
+                         Tools:      none (lead orchestrates pole subagents)
+
        architectural   — ARCHIVED (see understanding-mcp-architectural/ARCHIVED.md).
                          Six architectural-tenet scoring. Drifts the
                          Understanding phase into Solve work; the six axes
@@ -63,12 +71,13 @@ version: v0007
      Per-MCP per-turn flows live in:
        references/classic-mcp-flow.md
        references/problemfocused-mcp-flow.md
+       references/team-interview-flow.md
      The skill body above is MCP-agnostic. The active flow file is loaded
      as part of Checklist step 3 and drives the Understand-Stage cycle.
      Change the ACTIVE_UNDERSTANDING_MCP value above to swap.
      ═══════════════════════════════════════════════════════════════════ -->
 
-A two-stage design collaboration that separates **Understand** from **Solve**. The Understand Stage runs under a pluggable Understanding MCP (selected via the swap line at the top of this skill); the active MCP's per-turn cycle and transition criteria are specified in `references/{ACTIVE_UNDERSTANDING_MCP}-mcp-flow.md`. The Solve Stage uses a Design Proof MCP that builds a formal proof structure around **necessary conditions** — things that must be true for the design to hold, each grounded in evidence or designer authority, each with a collapse test showing what breaks if removed. The two stages live inside the Interview Loop (outer Phase 4); the five outer phases (Bootstrap, Parallel Context Exploration, Round One, Interview Loop, Closure) sequence the skill end-to-end. The skill produces a design brief carrying the proof envelope and transitions to `design-specify`, which owns architecture choice. You contribute analysis and commentary; the designer shapes the direction. The machinery is invisible.
+A two-stage design collaboration that separates **Understand** from **Solve**. The Understand Stage runs under a pluggable Understanding MCP (selected via the swap line at the top of this skill); the active flow's per-turn cycle and transition criteria are specified in `references/{ACTIVE_UNDERSTANDING_MCP}-mcp-flow.md` (or `references/team-interview-flow.md` when `ACTIVE_UNDERSTANDING_MCP=team-interview` — first non-MCP flow file uses no `-mcp-` infix). The Solve Stage uses a Design Proof MCP that builds a formal proof structure around **necessary conditions** — things that must be true for the design to hold, each grounded in evidence or designer authority, each with a collapse test showing what breaks if removed. The two stages live inside the Interview Loop (outer Phase 4); the five outer phases (Bootstrap, Parallel Context Exploration, Round One, Interview Loop, Closure) sequence the skill end-to-end. The skill produces a design brief carrying the proof envelope and transitions to `design-specify`, which owns architecture choice. You contribute analysis and commentary; the designer shapes the direction. The machinery is invisible.
 
 Understanding means correlating broadly — sweeping across the problem surface, mapping relationships between parts, discovering constraints, identifying where action is safe. Solving means thinking narrowly — following specific chains, working out process, figuring out the mechanics of change. The boundary between these two modes is the stage transition.
 
@@ -86,8 +95,8 @@ Reference list of the phases the skill runs through. **Do not create a task list
 
 1. **Bootstrap** — invoke `start-bootstrap` (handles config, sprint naming, dir creation, thinking history)
 2. **Parallel context exploration** — dispatch 3 agents in parallel, each on a distinct corpus: 1 `feature-dev:code-explorer` for the codebase (similar features, architecture, extension points) + 1 `Explore` agent for prior sprint design artifacts + 1 `chester:design-large-task-industry-explorer` agent for industry patterns via WebSearch/WebFetch; read all identified files. All three are named subagents and never fork — exploration value depends on independent perspectives.
-3. **Load active MCP-flow reference** — read the swap line at the top of this skill (`ACTIVE_UNDERSTANDING_MCP`) and read `references/{ACTIVE_UNDERSTANDING_MCP}-mcp-flow.md`. That file owns the MCP-specific init steps, per-turn cycle, transition criteria, and tool-call patterns. **No designer-facing turn is permitted until this file has been read.**
-4. **Initialize understanding MCP** — execute the Round-Zero / Round-One initialization steps described in the active flow reference. **No designer-facing turn is permitted until initialization completes.**
+3. **Load active flow reference** — read the swap line at the top of this skill (`ACTIVE_UNDERSTANDING_MCP`) and read `references/{ACTIVE_UNDERSTANDING_MCP}-mcp-flow.md` (or `references/team-interview-flow.md` when `ACTIVE_UNDERSTANDING_MCP=team-interview` — the first non-MCP flow file uses no `-mcp-` infix). That file owns the flow-specific init steps, per-turn cycle, transition criteria, and tool-call patterns (or, for team-interview, pole-orchestration patterns). **No designer-facing turn is permitted until this file has been read.**
+4. **Initialize understanding flow** — execute the Round-Zero / Round-One initialization steps described in the active flow reference (MCP `initialize_understanding` call for classic / problemfocused / architectural; context-packet construction for team-interview). **No designer-facing turn is permitted until initialization completes.** When `team-interview` is the active flow, no MCP `initialize_understanding` call runs (no MCP server). Round-Zero context-packet construction still executes per the flow reference's Round-Zero Initialization section.
 5. **Round one presentation** — present framing and gap map only. No commentary, no "what do you think?" Ask the designer if they are ready to move into the Understand Stage. This is the first designer-facing turn; it is information transfer, not interview. Framing structure is in this skill (Phase 3); MCP-specific data shapes feeding the gap map come from the active flow reference.
 6. **Understand Stage** — designer confirms readiness; per-turn cycle begins on the next response per the active flow reference's instructions. Topic selection follows the priority list in the active flow.
 7. **Phase transition** — transition criteria per the active flow reference; designer confirms understanding, `capture_thought()` with tag `understanding-confirmed` and stage `Transition`
@@ -216,6 +225,8 @@ Scope-down guidance. All three explorers run by default. Skip an explorer only w
 <HARD-GATE>
 **Your next action is `initialize_understanding`. Nothing else.**
 
+**Conditional for `team-interview`:** when `ACTIVE_UNDERSTANDING_MCP=team-interview`, your next action is loading `references/team-interview-flow.md` and constructing the Round-Zero context packet from Phase 1–3 exploration outputs — there is no `initialize_understanding` call to make (team-interview has no MCP server). The HARD-GATE still applies: no designer-facing turn is permitted until that loading and packet construction is complete.
+
 Once all explorers complete, you are NOT permitted to:
 - Write commentary to the designer
 - Ask the designer any question
@@ -223,9 +234,9 @@ Once all explorers complete, you are NOT permitted to:
 - Do further exploration or read more files
 - Mark the Parallel Context Exploration task complete and stop
 
-You MUST read the active MCP-flow reference (`references/{ACTIVE_UNDERSTANDING_MCP}-mcp-flow.md`, where `ACTIVE_UNDERSTANDING_MCP` is the value at the top of this file) and complete the Round-Zero / Round-One initialization steps it specifies before any designer-facing turn. The MCP initialization is the gate between exploration and the conversation. No turn to the designer exists until the MCP is live.
+You MUST read the active flow reference (`references/{ACTIVE_UNDERSTANDING_MCP}-mcp-flow.md`, or `references/team-interview-flow.md` when `ACTIVE_UNDERSTANDING_MCP=team-interview`) and complete the Round-Zero / Round-One initialization steps it specifies before any designer-facing turn. For MCP-backed flows the initialization is an `initialize_understanding` call; for `team-interview` it is context-packet construction (no MCP server, no `initialize_understanding` call). Either way, initialization is the gate between exploration and the conversation. No turn to the designer exists until the active flow is live.
 
-If you catch yourself composing a turn without having read the flow reference and initialized the MCP, stop mid-compose. Read the flow file. Initialize per its instructions. Then build the Round One turn. Bypassing initialization is the single most common failure mode of this skill — falling into an informal conversation loop that never lights up the scoring machinery.
+If you catch yourself composing a turn without having read the flow reference and completed its initialization (MCP `initialize_understanding` call, or context-packet construction for team-interview), stop mid-compose. Read the flow file. Initialize per its instructions. Then build the Round One turn. Bypassing initialization is the single most common failure mode of this skill — falling into an informal conversation loop that never engages the structured cycle.
 
 **Check before every turn in this phase:** has the active flow reference been read AND has its initialization been completed? If no to either, that is your next action. If yes, proceed with the Round One presentation per the steps below (framing structure here; data shapes from the active flow).
 </HARD-GATE>
@@ -234,14 +245,14 @@ If you catch yourself composing a turn without having read the flow reference an
 
 ## Phase 3: Round One
 
-Round one establishes the understanding baseline and hands the shared context to the designer. It is **information transfer only** — no commentary, no interview question, no "what do you think?" The interview begins in the Understand Stage, governed by the understanding MCP's per-turn scoring cycle. Round One exists so the designer enters that stage on the same page you are.
+Round one establishes the understanding baseline and hands the shared context to the designer. It is **information transfer only** — no commentary, no interview question, no "what do you think?" The interview begins in the Understand Stage, governed by the active flow's per-turn cycle (the understanding MCP's scoring cycle for classic / problemfocused / architectural; the four-pole sequential-chain debate per `references/team-interview-flow.md` for team-interview). Round One exists so the designer enters that stage on the same page you are.
 
-**Ordering is strict.** MCP initialization and baseline scoring happen *before* the first turn to the designer. The framing and gap map are the *output* of Round One. If the MCP is not initialized, you are not in Round One yet; you are still in the setup gate above.
+**Ordering is strict.** Flow initialization (MCP init, or context-packet construction for team-interview) happens *before* the first turn to the designer. The framing and gap map are the *output* of Round One. If the active flow is not initialized, you are not in Round One yet; you are still in the setup gate above.
 
 **No interview in Round One.** Do not offer commentary on the weakest area. Do not ask the designer to react to your take. Do not probe any gap. Those are Understand Stage moves and require the active flow's per-turn cycle to drive topic selection. Round One ends with a single ready-check question; the first real turn is the designer's first Understand Stage response.
 
 1. Explore codebase for relevant context, building on what the explorers found. Classify **brownfield** (existing codebase target) vs **greenfield**. This classification is internal — do not present it to the user.
-2. **Execute initialization per the active flow reference.** The exact tool calls, baseline shape, and any glossary-seeding step are specified in `references/{ACTIVE_UNDERSTANDING_MCP}-mcp-flow.md` under "Round-Zero / Round-One Initialization." Use the state file path: `{CHESTER_WORKING_DIR}/{sprint-subdir}/design/{sprint-name}-understanding-state.json`.
+2. **Execute initialization per the active flow reference.** The exact tool calls, baseline shape, and any glossary-seeding step are specified in `references/{ACTIVE_UNDERSTANDING_MCP}-mcp-flow.md` (or `references/team-interview-flow.md` when `ACTIVE_UNDERSTANDING_MCP=team-interview`) under "Round-Zero / Round-One Initialization." Use the state file path: `{CHESTER_WORKING_DIR}/{sprint-subdir}/design/{sprint-name}-understanding-state.json`. (For `team-interview`, no state file is created — there is no Understanding MCP. The flow file's Round-Zero Initialization section specifies what to do instead: build the context packet from Phase 1–3 outputs.)
 3. **Session Framing** — open the first designer-facing turn with orientation, before any analysis. Round One is a handoff moment: you've done private exploration (three parallel agents, plus per-MCP initialization). The designer has been waiting. Transfer context, do not assume it. The framing block contains:
    - **What we're working on** — one sentence naming the task in plain domain language.
    - **What decision space we're entering** — one or two sentences describing the shape of the problem you'll be exploring together, without pre-committing to a problem statement (that belongs to the Solve Stage).
@@ -266,7 +277,7 @@ Round one establishes the understanding baseline and hands the shared context to
 
 ### Two-Stage Interview Model
 
-The interview splits into two sequential phases within a single session. The Understand Stage runs under the active Understanding MCP (selected via the swap line at the top of this skill; per-turn cycle and transition criteria specified in `references/{ACTIVE_UNDERSTANDING_MCP}-mcp-flow.md`). The Solve Stage runs under the Design Proof MCP. They do not overlap.
+The interview splits into two sequential phases within a single session. The Understand Stage runs under the active Understanding flow (selected via the swap line at the top of this skill; per-turn cycle and transition criteria specified in `references/{ACTIVE_UNDERSTANDING_MCP}-mcp-flow.md`, or `references/team-interview-flow.md` when `ACTIVE_UNDERSTANDING_MCP=team-interview`). The Solve Stage runs under the Design Proof MCP. They do not overlap.
 
 ```
 Understand Stage
@@ -323,7 +334,7 @@ the problem, not just when designing the solution.
 
 One cycle runs per designer response. You are a single agent performing all roles: researcher, analyst, pessimist, interviewer.
 
-**The MCP-specific per-turn cycle is owned by the active flow reference: `references/{ACTIVE_UNDERSTANDING_MCP}-mcp-flow.md`.** Read it. Follow its numbered steps for each cycle. The flow reference specifies:
+**The flow-specific per-turn cycle is owned by the active flow reference: `references/{ACTIVE_UNDERSTANDING_MCP}-mcp-flow.md` (or `references/team-interview-flow.md` when `ACTIVE_UNDERSTANDING_MCP=team-interview`).** Read it. Follow its numbered steps for each cycle. The flow reference specifies:
 - Tool calls and their order
 - Tenet/dimension scoring or evidence-composition shape
 - Topic-selection priority list
@@ -362,6 +373,8 @@ If any slipped in, rewrite before sending. Then output observations block, then 
 
 ### Understand Stage
 
+**Note for `team-interview`:** when `team-interview` is the active flow, the per-turn cycle is the four-pole sequential-chain debate per `references/team-interview-flow.md`, not single-agent saturation scoring. The MCP-specific guidance below — read-only discipline scoring side, `transition_ready` stopping criterion, transition-ready MCP report — does not apply; team-interview's stopping criterion is Round 5 ratification completion per the flow file (no `transition_ready` signal exists). The Stage Transition logic (`understanding-confirmed` thought capture) is the same — `team-interview-flow.md` fires that capture at the end of Round 5 ratification.
+
 **Goal:** Correlate broadly across the problem surface. Map relationships between parts, discover what's movable and what's fixed, identify where action is safe. Build deep shared understanding of the problem without jumping to solutions.
 
 **Read-only discipline.** Do not write files, edit code, or run commands during the Understand Stage. Read/Glob/Grep/Agent are the only tools you need — exploration and conversation. Your output is conversation only. The understanding MCP disciplines the scoring side; the skill disciplines the edit side.
@@ -397,6 +410,8 @@ The boundary between Understand and Solve is marked by a **transition checkpoint
 The Solve Stage opens with three steps before the proof-governed interview loop begins:
 
 1. **Problem statement: polish, readback, confirm** — take what the designer said about the problem (they often type quickly and roughly), polish the language lightly for clarity and grammar without changing the meaning or adding your own framing. Read it back to the designer in clean form: "Here's how I'd capture the problem — [polished version]. Does that sound right?" The designer must explicitly approve before you proceed. Do NOT expand it into an analysis, add requirements, or prescribe solution characteristics. The problem statement describes the pain, not the solution. Context (codebase observations, architectural constraints) belongs in separate proof elements, not embedded in the problem statement.
+
+   **When `team-interview` was the active flow,** the problem statement was already polished and ratified during Round 5 synthesis — it is the team-ratified statement carried forward as the team consensus output. Replace polish/readback/confirm with a single confirmation prompt: "The team ratified this statement — confirm or revise?" If the designer revises, treat the revision as a designer-authored override of the ratified statement: capture the original ratified statement and the revision side-by-side under a `*Designer revision at Solve Stage opening:*` line in the handoff artifact's Ratification block (so the override is logged and the dissent trail is preserved per the flow file's Ratification section), then proceed to step 2 with the designer's revised statement. Do not re-enter the four-pole debate — the designer's revision is the final authority and Solve Stage continues against it.
 2. **Initialize proof MCP** — call `initialize_proof` with:
    - `problem_statement`: the designer's confirmed (polished) problem statement
    - `state_file`: `{CHESTER_WORKING_DIR}/{sprint-subdir}/design/{sprint-name}-proof-state.json`
@@ -733,7 +748,7 @@ Use `capture_thought` / `get_thinking_summary` for positional retrieval against 
 
 If interrupted:
 1. `get_thinking_summary()` — check for `understanding-confirmed` thought
-2. If absent: the Understand Stage was active. Call `get_understanding_state` with the understanding state file path (`{CHESTER_WORKING_DIR}/{sprint-subdir}/design/{sprint-name}-understanding-state.json`) to reload dimension scores, group saturation, and gap status. Summarize current saturation in domain language and resume the per-turn scoring cycle. No writes or edits until the Solve Stage opens.
+2. If absent AND `ACTIVE_UNDERSTANDING_MCP` is `classic` / `problemfocused` / `architectural`, the Understand Stage was active under an MCP — call `get_understanding_state` with the understanding state file path (`{CHESTER_WORKING_DIR}/{sprint-subdir}/design/{sprint-name}-understanding-state.json`) to reload dimension scores, group saturation, and gap status. Summarize current saturation in domain language and resume the per-turn scoring cycle. No writes or edits until the Solve Stage opens. **If absent AND `ACTIVE_UNDERSTANDING_MCP=team-interview`, the team debate was in progress** — call `get_thinking_summary()` and read the `team-interview-r{N}-recommendation` thoughts captured incrementally during the rounds (per the flow file's per-round `capture_thought` step). Reconstruct from the most recent recommendation: which round was active, which poles had spoken, which statements were alive/wounded/dead. Summarize current debate state in domain language and resume the next round per `references/team-interview-flow.md`. (No process-evidence transcript file is read — that file is written only at Phase 5 Closure, not incrementally during the Understand Stage.)
 3. If present: the Solve Stage was active. Call `get_proof_state` with the proof state file path (`{CHESTER_WORKING_DIR}/{sprint-subdir}/design/{sprint-name}-proof-state.json`).
 4. Summarize current proof state in domain language: "We were in round N. We've established [summary of key evidence and rules], built [N] necessary conditions, and have [summary of grounding status and any integrity warnings]. [Challenge modes used, if any]. Continuing."
 5. Pick up from last completed round. Do not re-present prior turns.
