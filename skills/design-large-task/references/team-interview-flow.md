@@ -90,11 +90,65 @@ This applies to every per-phase pole dispatch in R1–R4 (Phase 1 opener, Phase 
 
 ## Handoff Artifact
 
-(content added in Task 4)
+After Round 5 ratifies, the lead constructs the handoff artifact. Format mirrors the three-section shape adopted in sprint **20260417-03** (Optimize Throughput) so downstream Solve Stage seeding is mechanical. Three sections, in this order:
+
+### Problem Statement
+
+A **single sentence** describing the essential task to solve. Constraints on phrasing:
+
+- **Solution-free.** The sentence describes the problem, not how to fix it.
+- **Falsifiable.** The sentence states what would change if the problem were solved, in language a reader can check.
+- **Specific.** Domain-grounded; avoids generic verbs like "improve" or "optimize" without a measurable target.
+- **Bounded.** Names the surface the design must address; does not sprawl into adjacent surfaces.
+
+If the team cannot collapse to one sentence after R5, the lead reports stalled deadlock and designer arbitrates per the Termination Rules.
+
+### Consensus Evidence
+
+Evidence the four poles agree the problem statement rests on. Bullets are organized into **four evidence types**, each bullet **attributed to its source pole** (the pole whose round originated the evidence):
+
+- **Codebase grounding** — verified facts about the existing system (files, types, runtime behaviors). Source: typically S (Conservator) or grounded by Phase 3 codebase findings.
+- **Practitioner friction** — concrete frictions or observations from delivery and operation. Source: typically W (Pragmatist).
+- **Philosophy** — design-philosophy clauses from Chester or the parent project that constrain the problem framing. Source: typically E (Purist), authorized by designer ratification.
+- **Industry prior art** — patterns, named approaches, or external solutions relevant to the framing. Source: typically N (Innovator).
+
+Each bullet uses the form: `- [{N|S|E|W}] <evidence statement>`. If a category produced no surviving bullets, the lead writes `*(none — disclaimed during debate)*` under that subheading rather than omitting it. Empty categories are signal, not noise — they indicate the team explicitly rejected that line of evidence.
+
+### Exit Criteria
+
+Testable properties any subsequent design must satisfy, derived from the consensus that emerged across rounds. Each criterion is one bullet, falsifiable, and bounded to design-time verification (not runtime). If the debate produced no exit criteria, write `*None derived during debate.*` under the heading rather than omitting it.
+
+The handoff artifact is the entire interface to Phase 4 Solve Stage — Solve reads this in place of an Understanding-MCP saturation history.
 
 ## Ratification
 
-(content added in Task 4)
+After the handoff artifact is drafted, the lead requests ratification from each pole and records the result as a Ratification block beneath the three sections.
+
+Format — one line per pole:
+
+```
+- N (Innovator): ratified
+- S (Conservator): ratified
+- E (Purist): blocked: <reason>
+- W (Pragmatist): ratified
+```
+
+Ratification is binary per pole: `ratified` or `blocked: <reason>`. Procedure:
+
+1. Lead dispatches each pole one final time with the consolidated problem statement plus the consensus evidence and exit criteria. Pole returns its ratification line.
+2. If any pole returns `blocked`, the lead applies **one revision pass** — revises the consolidated statement (and evidence/criteria as needed) addressing the block reason, then re-requests ratification from the previously-blocking pole only.
+3. If the block survives the one revision pass, the lead **escalates to designer**. Designer arbitrates: either rules in favor of the blocking pole (reopen with a new round, possibly killing the consolidated draft) or forces ratification with the dissent logged verbatim under the Ratification block as `*Designer-forced ratification over <pole> dissent: <reason>*`.
+
+The ratification block — including any logged dissent — is the designer-authority signal that authorizes Solve Stage to seed philosophy bullets and exit criteria as RULE elements. Without a ratification block, the handoff artifact is incomplete and Solve Stage refuses to seed.
+
+## Voice Discipline
+
+Pole transcripts and the handoff artifact apply the voice-discipline conventions defined in `util-design-partner-role`. Two markers govern this flow:
+
+- **C1 (Externalized Coverage)** — every load-bearing premise must be visible in the transcript. Pole arguments cannot rest on unstated reasoning; if a pole concedes, defends, or revises, the prior statement that the move references must be quoted or paraphrased explicitly. Phase 4 idea-collapse must cite which opposer concession or counter survives. The `source pole` attribution on consensus-evidence bullets is the C1 trail externalized into the handoff artifact.
+- **C2 (Fact Default with Marked Departures)** — the default voice is fact (verified or grounded). Departures from fact are marked: `Assumption:` for working hypotheses the team does not have evidence for, `Opinion:` for stance-driven claims (typical in philosophy bullets and ratification dissent reasons). Ratification `blocked: <reason>` lines apply C2 — the reason must mark itself if it leans on Assumption or Opinion rather than verified Fact.
+
+Both markers are normative for transcripts and for the handoff artifact. Designers reading the transcript should be able to follow the chain of premises (C1) and distinguish what is grounded from what is asserted (C2) without external context.
 
 ## Validity-Test Checklist
 
