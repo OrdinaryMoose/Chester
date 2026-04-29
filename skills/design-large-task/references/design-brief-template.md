@@ -46,23 +46,30 @@ States the problem from the user's or system's perspective. Does not prescribe H
 ### Necessary Conditions (REQUIRED)
 
 The necessary conditions (WHAT) established in the proof. Each condition is something
-that must be true for the design to hold. Numbered, with reasoning chain and collapse
-test per condition.
+that must be true for the design to hold. Identified by stable `NC-XX` tag (zero-padded
+two-digit, assigned in the order conditions were established in the proof — never
+renumbered when conditions are added or removed later) so downstream artifacts (specs,
+plans, reviews, decisions) can reference them by tag. Each entry carries a reasoning
+chain and a collapse test.
 
 ```markdown
 ## Necessary Conditions
 
-1. **{Condition}.** {Reasoning chain — what premises in the envelope make this
-   condition necessary.} Collapse test: {what breaks if this condition is removed}.
-2. ...
+- **NC-01 — {Condition}.** {Reasoning chain — what premises in the envelope make this
+  condition necessary.} Collapse test: {what breaks if this condition is removed}.
+- **NC-02 — {Condition}.** ...
 ```
 
 If the proof captured rejected alternatives for a condition, note them inline:
 
 ```markdown
-1. **{Condition}.** {Reasoning.} Collapse test: {what breaks}.
-   Rejected alternatives: {alt 1 — why rejected}; {alt 2 — why rejected}.
+- **NC-03 — {Condition}.** {Reasoning.} Collapse test: {what breaks}.
+  Rejected alternatives: {alt 1 — why rejected}; {alt 2 — why rejected}.
 ```
+
+Tag stability rule: once `NC-XX` is assigned and the brief is written, the tag is
+permanent. Superseded conditions are marked `NC-XX (superseded by NC-YY)` rather than
+renumbered. Gaps in the sequence are fine; downstream references must not break.
 
 ---
 
