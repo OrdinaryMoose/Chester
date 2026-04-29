@@ -14,6 +14,10 @@ Chester uses this distinction deliberately. The implementer and other context-fi
 | 1a | `design-large-task` codebase explorer | `feature-dev:code-explorer` | No | Independent perspectives are the point of fan-out. |
 | 1b | `design-large-task` prior-art explorer | `Explore` | No | Same — divergent corpus search. |
 | 1c | `design-large-task` industry explorer | `chester:design-large-task-industry-explorer` | No | External research must not inherit design framing. |
+| 1d | `design-large-task` step-b innovator | `chester:design-large-task-step-b-innovator` | No | Framing-side dispatch — pole must not inherit sibling poles' framing or lead's analysis. |
+| 1e | `design-large-task` step-b conservator | `chester:design-large-task-step-b-conservator` | No | Framing-side dispatch — same rationale as 1d. |
+| 1f | `design-large-task` step-b purist | `chester:design-large-task-step-b-purist` | No | Framing-side dispatch — same rationale as 1d. |
+| 1g | `design-large-task` step-b pragmatist | `chester:design-large-task-step-b-pragmatist` | No | Framing-side dispatch — same rationale as 1d. |
 | 2 | `plan-build` plan reviewer | `chester:plan-build-plan-reviewer` | No | Spec-fidelity review needs independence from planner. |
 | 3 | `plan-build` plan attacker | `chester:plan-build-plan-attacker` | No | Adversarial review requires fresh skepticism. |
 | 4 | `plan-build` plan smeller | `chester:plan-build-plan-smeller` | No | Forward-looking critique requires independence. |
