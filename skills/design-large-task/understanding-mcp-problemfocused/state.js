@@ -244,6 +244,7 @@ export function submitRoundEvidence(state, submission) {
 
   const acceptedEntries = {};
   const leakedEntries = [];
+  const rejectedEntries = [];
 
   // Process each tenet's entries
   for (const tenet of TENETS) {
@@ -252,12 +253,19 @@ export function submitRoundEvidence(state, submission) {
     for (const entry of incoming) {
       const v = validateEntry(entry, tenet);
       if (v.errors.length > 0) {
-        // Phase-vocabulary violations and structural errors → solve leakage if vocab-related, else hold
+        // Phase-vocabulary violations route to solve leakage; structural errors route to rejected_entries
         const phaseViolation = v.errors.some(e => e.includes('phase-vocabulary'));
         if (phaseViolation) {
           leakedEntries.push({
             origin_tenet: tenet,
             entry,
+            errors: v.errors,
+            round,
+          });
+        } else {
+          rejectedEntries.push({
+            tenet,
+            entry_summary: entry.text?.slice(0, 100) ?? '',
             errors: v.errors,
             round,
           });
@@ -327,6 +335,7 @@ export function submitRoundEvidence(state, submission) {
     state: next,
     accepted_entries: acceptedEntries,
     leaked_entries: leakedEntries,
+    rejected_entries: rejectedEntries,
     flags: validation.flags,
   };
 }

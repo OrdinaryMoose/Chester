@@ -89,20 +89,126 @@ const TOOLS = [
   },
   {
     name: 'submit_round_evidence',
-    description: 'Submit a round of problem-focused understanding evidence across the nine tenets. Phase-vocabulary classifier and Convention-Break Override Rule apply at the API boundary; offending entries route to Solve Leakage Ledger or pending_override.',
+    description: 'Submit a round of problem-focused understanding evidence across the nine tenets. Phase-vocabulary classifier and Convention-Break Override Rule apply at the API boundary; offending entries route to Solve Leakage Ledger or pending_override. Structurally-invalid entries (missing required fields, bad enum values) are reported in rejected_entries_this_round so the caller can correct and retry.',
     inputSchema: {
       type: 'object',
       properties: {
         state_file: { type: 'string' },
-        problem_articulation: { type: 'array', items: { type: 'object' } },
-        success_criteria: { type: 'array', items: { type: 'object' } },
-        done_state_vision: { type: 'array', items: { type: 'object' } },
-        constraint_envelope: { type: 'array', items: { type: 'object' } },
-        scope_boundary: { type: 'array', items: { type: 'object' } },
-        personal_use_case_map: { type: 'array', items: { type: 'object' } },
-        cost_energy_budget: { type: 'array', items: { type: 'object' } },
-        project_fit: { type: 'array', items: { type: 'object' } },
-        open_questions_ledger: { type: 'array', items: { type: 'object' } },
+        problem_articulation: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              text: { type: 'string' },
+              current_behavior: { type: 'string' },
+              desired_behavior: { type: 'string' },
+            },
+            required: ['text'],
+          },
+        },
+        success_criteria: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              text: { type: 'string' },
+              measurement: { type: 'string' },
+              observable: { type: 'string' },
+              anti_goal: { type: 'string' },
+            },
+            required: ['text'],
+          },
+        },
+        done_state_vision: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              text: { type: 'string' },
+              imagined_moment: { type: 'string', description: 'Concrete picture of the moment when done — not abstract criterion' },
+            },
+            required: ['text', 'imagined_moment'],
+          },
+        },
+        constraint_envelope: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              text: { type: 'string' },
+              constraint_type: { type: 'string', enum: ['hard_limit', 'inheritance'] },
+              source: { type: 'string' },
+            },
+            required: ['text', 'constraint_type', 'source'],
+          },
+        },
+        scope_boundary: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              text: { type: 'string' },
+              placement: { type: 'string', enum: ['IN', 'OUT', 'BORDERLINE'] },
+              source: { type: 'string' },
+            },
+            required: ['text', 'placement', 'source'],
+          },
+        },
+        personal_use_case_map: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              text: { type: 'string' },
+              role: { type: 'string', enum: ['current_me', 'future_me'] },
+              scenario: { type: 'string' },
+              context_assumed_lost: { type: 'string', description: 'Required for future_me entries' },
+            },
+            required: ['text', 'role', 'scenario'],
+          },
+        },
+        cost_energy_budget: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              text: { type: 'string' },
+              dimension: { type: 'string', enum: ['effort_tolerance', 'complexity_ceiling', 'maintenance_budget', 'why_now'] },
+            },
+            required: ['text', 'dimension'],
+          },
+        },
+        project_fit: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              text: { type: 'string' },
+              alignment: { type: 'string', enum: ['ALIGNED', 'NEUTRAL', 'MISFIT'] },
+              project_convention_referenced: { type: 'string', description: 'Name a project convention/aesthetic/philosophy' },
+              override_reason: { type: 'string', description: 'Required when alignment=MISFIT (Convention-Break Override Rule)' },
+            },
+            required: ['text', 'alignment', 'project_convention_referenced'],
+          },
+        },
+        open_questions_ledger: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              text: { type: 'string' },
+              question_source: {
+                type: 'string',
+                enum: ['designer_hesitation', 'agent_uncertainty', 'ambiguous_term', 'leaked_solve_item'],
+              },
+              status: {
+                type: 'string',
+                enum: ['OPEN', 'RESOLVED-VIA-QUOTE', 'DEFERRED-TO-SOLVE', 'INVALIDATED'],
+              },
+            },
+            required: ['text', 'question_source', 'status'],
+          },
+        },
         repeat_back_statement: { type: 'string', description: 'Agent restated problem statement (designer ratification expected)' },
         repeat_back_designer_quote: { type: 'string', description: 'Designer quote ratifying the restatement' },
       },
@@ -240,6 +346,10 @@ function handleSubmitRound({ state_file, ...submission }) {
         pending_vocab_dispositions: result.state.pendingVocabDispositions.filter(p => !p.resolved),
         solve_leakage_this_round: result.leaked_entries,
         solve_leakage_total: result.state.solveLeakageLedger.length,
+        rejected_entries_this_round: result.rejected_entries,
+        accepted_entry_counts: Object.fromEntries(
+          Object.entries(result.accepted_entries).map(([t, list]) => [t, list.length])
+        ),
         term_drift_candidates: drift,
         repeat_back_history: result.state.repeatBackHistory.slice(-3),
         transition: result.state.transition,

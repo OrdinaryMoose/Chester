@@ -368,6 +368,37 @@ describe('Round submission and Solve Leakage Ledger', () => {
     expect(result.state.repeatBackHistory[0].designer_ratified).toBe(true);
   });
 
+  it('surfaces structurally-invalid entries in rejected_entries (no silent drop)', () => {
+    let s = initializeState('test');
+    const result = submitRoundEvidence(s, {
+      open_questions_ledger: [
+        // question_source="agent" is invalid — must be one of the four enum values
+        { text: 'is the apparatus shape stable?', question_source: 'agent', status: 'OPEN' },
+        { text: 'will the brief close cleanly?', question_source: 'agent', status: 'OPEN' },
+      ],
+    });
+    expect(result.rejected_entries).toHaveLength(2);
+    expect(result.rejected_entries[0].tenet).toBe('open_questions_ledger');
+    expect(result.rejected_entries[0].errors.some(e => e.includes('question_source'))).toBe(true);
+    expect(result.state.tenetScores.open_questions_ledger).toBe(0);
+    expect(result.accepted_entries.open_questions_ledger).toHaveLength(0);
+  });
+
+  it('separates phase-vocab leakage from structural rejection', () => {
+    let s = initializeState('test');
+    const result = submitRoundEvidence(s, {
+      problem_articulation: [
+        { text: 'we need a REST endpoint here' },  // phase-vocab → leakage
+      ],
+      success_criteria: [
+        { text: 'criteria with no measurement field' },  // structural → rejected
+      ],
+    });
+    expect(result.leaked_entries.length).toBeGreaterThan(0);
+    expect(result.rejected_entries).toHaveLength(1);
+    expect(result.rejected_entries[0].tenet).toBe('success_criteria');
+  });
+
   it('flags MISFIT project_fit entry with pending override', () => {
     let s = initializeState('test');
     const result = submitRoundEvidence(s, {
