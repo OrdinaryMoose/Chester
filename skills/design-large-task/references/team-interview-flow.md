@@ -86,7 +86,116 @@ This applies to every per-phase pole dispatch in R1–R4 (Phase 1 opener, Phase 
 
 ## Transcript Schema
 
-(content added in Task 5)
+Each round produces one transcript block, written progressively as the phases run. The block is the user-visible record presented in the designer-facing turn. Layout per round:
+
+```
+### Round {N} — Opener: {Pole} ({lens-letter})
+
+**Opening argument** — {Pole}
+<3–5 sentence candidate problem statement>
+*Per-lens grounding:* <which Round-Zero packet bullets back this statement>
+
+**Opposing arguments (sequential chain)**
+- {Opposer-1 Pole}: <opposition statement>
+- {Opposer-2 Pole}: <opposition statement; references opposer-1 prior-chain context>
+- {Opposer-3 Pole}: <opposition statement; references opposer-1 + opposer-2 prior-chain context>
+
+**Counter-arguments** — {Opener Pole}
+- vs {Opposer-1}: concede | defend | revise — <reasoning>
+- vs {Opposer-2}: concede | defend | revise — <reasoning>
+- vs {Opposer-3}: concede | defend | revise — <reasoning>
+*Revised statement:* <opener's revised candidate>
+
+**Idea collapse** — Lead synthesis
+<surviving statement after revisions; cite which opposer concession or counter survives>
+
+**Recommendation** — {alive | wounded | dead}
+<one-paragraph rationale>
+```
+
+R5 deviates: there is no opener, no per-round phase loop. R5 transcript records the consolidated draft, the four parallel synthesis attacks, lead's revisions, and the ratification block (per the Ratification section).
+
+## Validity-Test Checklist
+
+After R5 ratification, the lead runs the validity-test checklist against the consolidated problem statement. The checklist is **informational** — failures do not gate the handoff, but each failure is recorded in the transcript so the designer sees the quality flag. Designer can override any failure with a logged reason.
+
+Four categories:
+
+- **Structural** — falsifiable (states what changes when solved); specific (domain-grounded, not generic); bounded (named surface, no sprawl); solution-free (describes the problem, not the fix); generative (admits multiple design responses, not pre-chosen).
+- **Grounding** — codebase grounding present-or-disclaimed; practitioner-friction present-or-disclaimed; philosophy present-or-disclaimed; industry prior art present-or-disclaimed. **Silence on a grounding type fails this test** — the handoff artifact must explicitly mark `*(none — disclaimed during debate)*` for empty categories rather than omit them.
+- **Survival** — four-pole ratification (each pole returned `ratified` after at most one revision pass); reverse test (statement remains coherent if every clause is read with "would not change if we did nothing" — sniff-test that the problem actually exists); substitution test (statement remains valid if a key noun is replaced with its closest synonym — sniff-test that the framing isn't accidental jargon-pinning).
+- **Handoff** — necessary-conditions derivable (the statement plus consensus evidence is enough that Solve Stage can derive at least one necessary-condition tag without re-interviewing); scope-bounded (Solve Stage will not need to reopen scope mid-design); Solve-time estimable (the team can sketch a sprint shape from the statement, not just a research project).
+
+Result format: each test is a checklist item per category, written into the transcript at R5 close. Failures appear as `- [ ] <test name> — <one-line reason>`; passes appear as `- [x] <test name>`.
+
+## Termination Rules
+
+The flow runs at most five rounds. Termination paths:
+
+- **Normal termination** — R1, R2, R3, R4, R5 each complete; R5 ratification succeeds (with at most one revision pass and at most one designer-arbitrated dissent). Handoff artifact is written and Phase 4 Solve Stage opens.
+- **Early termination — skip to synthesis** — if **3 or more** of the R1–R4 statements end status `dead`, the lead skips remaining R1–R4 rounds and goes straight to R5 with the surviving candidate(s). The synthesis runs against whatever survived (alive or wounded); if only one candidate survived, R5 ratifies that candidate directly rather than merging.
+- **Stage failure — all four dead** — if **all four** R1–R4 statements end `dead`, the lead reports "no problem statement survived debate" in the next designer-facing turn. **Escalate to designer** for full reframe: designer either rewrites the original sprint scope, accepts the finding (sprint paused), or directs a re-run of the round that came closest to surviving with adjusted poles or context.
+- **Stalled deadlock at R5** — ratification still blocked after one revision pass; designer arbitrates per the Ratification section.
+
+Termination decisions are recorded as a final transcript block (`### Termination — {path}`) with a one-paragraph rationale.
+
+## Error Handling
+
+Two procedural handlers are scoped to mid-flow recovery (additional handlers — stalled deadlock at R5, stage failure — live under Termination Rules and Ratification).
+
+### Mid-chain failure recovery
+
+If a pole subagent returns an error during a Phase 2 sequential chain dispatch:
+
+1. Lead retries the failed pole **once** with the same chain context (opener statement plus prior opposer statements).
+2. If the retry also fails, lead writes the failure into the transcript at the failed pole's slot, **skips the failed pole's opposition**, and continues to the next chain step. Subsequent opposers receive the prior-chain content they would have received minus the failed pole's contribution.
+3. The Recommendation phase records `"chain partial"` as a quality flag in the round transcript. The flag is informational and does not gate progression.
+
+### Polite-collapse re-prompt
+
+If a round ends Phase 3 with **no real attacks landing** — every opposer produced an "agreed" or near-agreed statement; counter-arguments are all `concede` or `defend` with no `revise` — the lead detects polite collapse and applies one corrective re-prompt:
+
+1. Lead re-prompts the **weakest opposer** (the one whose statement most closely tracked the opener) with a directive to defend its lens position from first principles and *not* respond to the opener.
+2. The re-prompted statement replaces the original opposer-N entry in the chain, and Phase 3 counter-arguments are regenerated against the revised chain.
+3. **One re-prompt per round.** If the re-prompt also produces a polite statement, the Recommendation phase marks the round as `"shallow"` and continues. Shallow rounds are flagged in the transcript so the designer sees that pole differentiation was weak in this round.
+
+## Proof Seeding
+
+(content added in Task 6)
+
+## Brief-Render Read Shape
+
+(content added in Task 6)
+
+## Resume Protocol
+
+The flow runs no MCP server, so resume cannot read `get_understanding_state`. Recovery uses the `capture_thought` history written incrementally during the Understand Stage.
+
+### Per-round capture (procedural)
+
+At the close of each round's **Recommendation** phase (Phase 5 for R1–R4; the ratification close for R5), the lead writes a `capture_thought` entry summarizing the round:
+
+- R1–R4 close: `capture_thought({ tag: "team-interview-r{N}-recommendation", stage: "Understand", content: "<opener pole>: <surviving statement>; status: <alive|wounded|dead>" })`.
+- R5 ratification close: `capture_thought({ tag: "team-interview-r5-ratification", stage: "Understand", content: "<consolidated statement>; per-pole signoff: <ratification block>" })`.
+
+These captures are incremental writes during Understand Stage — `capture_thought` is allowed during Understand (read-only discipline applies to the saturated-state surface, not to the thought log). They give Resume Protocol a recoverable trail without introducing a process-evidence file before Closure.
+
+After R5 ratification, the lead also writes the standard `understanding-confirmed` capture (per Proof Seeding section) with stage `Transition`. This is the marker that signals the Understand Stage is complete.
+
+### Recovery procedure (when invoked)
+
+When the lead resumes a stalled session and `ACTIVE_UNDERSTANDING_MCP` is `team-interview`:
+
+1. Call `get_thinking_summary()` and filter for tags matching `team-interview-r{N}-*`.
+2. If the most recent matching tag is `team-interview-r5-ratification` and an `understanding-confirmed` (stage `Transition`) tag also exists, the Understand Stage already completed — skip ahead to Phase 4 Solve Stage opening.
+3. Otherwise the most recent `team-interview-r{N}-recommendation` tag identifies which round was last closed. Reconstruct debate state from the captured contents:
+   - Opener pole and surviving statement per round.
+   - Round status (alive / wounded / dead).
+   - Whether the count of `dead` statements has reached the early-termination threshold (3+).
+4. Lead writes a one-paragraph "current debate state" summary in domain language (which rounds completed, which statements survived, what the next round is) and presents it to the designer in the next designer-facing turn before resuming.
+5. Resume the next round per the Per-Round Phases procedure. If the early-termination threshold is met (3+ dead among the captured rounds), proceed straight to R5 synthesis instead of the next R{N}.
+
+The Resume Protocol does **not** read a process-evidence transcript file — that file is written only at Phase 5 Closure and does not exist during the Understand Stage. The `capture_thought` log is the sole resume surface.
 
 ## Handoff Artifact
 
@@ -149,23 +258,3 @@ Pole transcripts and the handoff artifact apply the voice-discipline conventions
 - **C2 (Fact Default with Marked Departures)** — the default voice is fact (verified or grounded). Departures from fact are marked: `Assumption:` for working hypotheses the team does not have evidence for, `Opinion:` for stance-driven claims (typical in philosophy bullets and ratification dissent reasons). Ratification `blocked: <reason>` lines apply C2 — the reason must mark itself if it leans on Assumption or Opinion rather than verified Fact.
 
 Both markers are normative for transcripts and for the handoff artifact. Designers reading the transcript should be able to follow the chain of premises (C1) and distinguish what is grounded from what is asserted (C2) without external context.
-
-## Validity-Test Checklist
-
-(content added in Task 5)
-
-## Termination Rules
-
-(content added in Task 5)
-
-## Proof Seeding
-
-(content added in Task 6)
-
-## Brief-Render Read Shape
-
-(content added in Task 6)
-
-## Resume Protocol
-
-(content added in Task 5)
