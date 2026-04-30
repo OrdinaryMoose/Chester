@@ -91,3 +91,36 @@ claude --plugin-dir /home/mike/Documents/CodeProjects/Chester
 ```
 
 Skills are live-reloaded — edit SKILL.md files and use `/reload-plugins` to pick up changes.
+
+## Master Plan Mode
+
+Some pieces of Chester work span multiple sub-sprints under one umbrella plan (e.g. `20260430-02-rebuild-design-derivation` with three cluster sub-sprints). Master Plan Mode is a breadcrumb-toggled overlay over the default sprint conventions.
+
+At session start, check for an active master plan breadcrumb:
+
+```
+docs/chester/working/.active-master
+```
+
+If the file **exists**, read its single-line content — that is the **active master sprint name** (e.g. `20260430-02-rebuild-design-derivation`). While the breadcrumb is present, operate in **Master Plan Mode** and override the default sprint-directory conventions as follows:
+
+- **Master root:** `docs/chester/working/<master-sprint-name>/` holds `master-plan.md`, the master-level `CLAUDE.md` (master-specific commitments), master-level `design/ spec/ plan/ summary/` directories, and all sub-sprint subdirectories nested inside it.
+- **Sub-sprint naming uses master-plan-derived IDs, not the default `YYYYMMDD-##-verb-noun-noun`:**
+  - Cluster sub-sprints: `cluster-<letter>-<verb-slug>` (e.g. `cluster-a-define-solve`, `cluster-b-define-transition`).
+  - Other sub-sprint types (LBDs, follow-up cycles, etc.) follow whatever pattern the master plan defines.
+- **New sub-sprint creation:**
+  - Derive the ID from `master-plan.md` (next pending cluster or open LBD).
+  - Create `docs/chester/working/<master-sprint-name>/<sub-sprint-id>/` with `design/ spec/ plan/ summary/`.
+  - Branch and worktree names mirror the sub-sprint dir name.
+  - Do **not** create top-level `docs/chester/working/YYYYMMDD-##-*` dirs while in this mode.
+- **Plans archive:** `finish-archive-artifacts` copies the entire master working tree (master-level files + all nested sub-sprints) to `docs/chester/plans/<master-sprint-name>/` at each sub-sprint merge. The plans archive accumulates closed sub-sprints over time. Each merge carries the latest cumulative state. Plans remain archive-only — never write there outside the archive step.
+- **Skill redirection:** when `start-bootstrap` or any `design-*` / `plan-*` / `execute-*` skill tries to follow the default sprint-naming or top-level-dir convention, redirect it to the master-plan naming rules above. Skill files are **not** modified for this — override by prompt.
+- **Master-level CLAUDE.md:** `docs/chester/working/<master-sprint-name>/CLAUDE.md` (when present) is normative for sub-sprints inside that master. Read it after the root `CLAUDE.md` and before reading the master plan.
+
+If the breadcrumb file **does not exist**, ignore this section entirely and use the default sprint conventions in `Session Artifact Conventions` above.
+
+**Exiting Master Plan Mode:** delete `docs/chester/working/.active-master`. This section becomes inert automatically.
+
+**Starting a new master plan later:** recreate the breadcrumb with the new master sprint name and create the corresponding master working directory with its `master-plan.md` and (optionally) its master-scoped `CLAUDE.md`.
+
+**Known gap — living-document persistence.** `master-plan.md` and any cross-sprint living document (e.g. a master deferments tracker) currently reach git only via `finish-archive-artifacts` at sub-sprint merge. Intermediate edits between merges have no commit-level history. See `docs/chester/working/master-plan-skill-living-document-problem-brief.md` (when present) for the candidate-solution survey. This gap is acknowledged, not yet addressed.
