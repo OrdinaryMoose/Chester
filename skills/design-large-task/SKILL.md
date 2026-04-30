@@ -560,16 +560,16 @@ Offer the user an exit opportunity, noting in domain terms which topics haven't 
 
 Three components, all italic single-sentence lines. Present under the heading "Observations":
 
-1. **Alignment check** (1-2 sentences) — summarize your understanding of the current state so the designer can correct drift immediately.
+1. **Summary** (1 sentence) — summarize your understanding of the current state so the designer can correct drift immediately.
 
-2. **Metacognitive reflection** (1-2 sentences) — selected from rotating angles:
+2. **Comments** (1 sentence) — selected from rotating angles:
    - What did this response change about our understanding, and why does that matter?
    - What existing decision in the architecture does this touch or silently depend on?
    - What is the most fragile assumption in the current thinking?
    - Where does this sit uncomfortably against the current state of the system?
    - What is the single most important thing we still need to resolve?
 
-3. **Direction signal** (1 sentence) — what topic you're addressing this turn and why it matters now.
+3. **Approach** (1 sentence) — what topic you're addressing this turn and why it matters now.
 
 4. **Integrity warnings** (Solve Stage only, when present) — translated domain-language warnings from the proof MCP (see Integrity Warning Surfacing).
 
@@ -579,7 +579,7 @@ Each turn presents a curated information package between the observations and th
 
 Every component passes through the Translation Gate — no type names, file paths, element IDs, or structured data in any component, regardless of its "expert-level factual" altitude. Altitude refers to conceptual depth, not vocabulary source.
 
-Each component should be **2-3 sentences** — concise, not paragraphs.
+Each component should be **1-2 sentences** — concise, not paragraphs.
 
 **Understand Stage components:**
 
