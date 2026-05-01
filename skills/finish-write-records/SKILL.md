@@ -188,7 +188,7 @@ Order entries by significance (most consequential first), not chronologically.
 After Fork A writes the audit file, it stamps the trailer:
 
 ```bash
-chester-trailer-write stamp finish-write-records@<this-skill-version> "<audit-path>"
+chester-trailer-write stamp finish-write-records@v0003 "<audit-path>"
 ```
 
 #### Records-altitude filter (Fork B guidance)
