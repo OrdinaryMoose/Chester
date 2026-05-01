@@ -212,6 +212,7 @@ export function detectChallenge(state) {
  * @returns {{ covered: string[], uncovered: string[] }}
  */
 export function checkConcernCoverage(state) {
+  if (!state.concerns) return { covered: [], uncovered: [] };
   const covered = [];
   const uncovered = [];
   for (const concern of state.concerns) {
