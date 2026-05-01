@@ -5,6 +5,7 @@ import { dirname, resolve as resolvePath } from 'path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const TEMPLATE_PATH = resolvePath(__dirname, '../../references/design-brief-template.md');
+const SPECIFY_PATH = resolvePath(__dirname, '../../../design-specify/SKILL.md');
 
 // ---------------------------------------------------------------------------
 // AC-1.x — RESOLVE_CONDITION element type
@@ -184,6 +185,11 @@ describe('AC-7.1 five existing element types unchanged', () => {
 
 describe('AC-8.1 design-specify SKILL.md references new sections', () => {
   it('ac-8-1-specify-skill-references-new-sections', () => {
-    throw new Error('pending: filled in Task 11');
+    const content = readFileSync(SPECIFY_PATH, 'utf-8');
+    expect(content).toMatch(/9-section envelope/);
+    expect(content).not.toMatch(/8-section envelope/);
+    expect(content).toMatch(/Resolve Conditions/);
+    expect(content).toMatch(/Concerns/);
+    expect(content).toMatch(/RCON-.*AC-/s);
   });
 });
