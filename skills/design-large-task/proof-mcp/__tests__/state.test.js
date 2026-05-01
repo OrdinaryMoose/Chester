@@ -19,7 +19,7 @@ describe('initializeState', () => {
     expect(state.elements).toBeInstanceOf(Map);
     expect(state.elements.size).toBe(0);
     expect(state.elementCounters).toEqual({
-      EVIDENCE: 0, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 0, RISK: 0,
+      EVIDENCE: 0, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 0, RISK: 0, RESOLVE_CONDITION: 0,
     });
     expect(state.conditionCountHistory).toEqual([]);
     expect(state.elementCountHistory).toEqual([]);
@@ -27,6 +27,19 @@ describe('initializeState', () => {
     expect(state.challengeLog).toEqual([]);
     expect(state.revisionLog).toEqual([]);
     expect(state.phaseTransitionRound).toBe(0);
+  });
+
+  it('includes RESOLVE_CONDITION in elementCounters', () => {
+    const state = initializeState('Design a widget');
+    expect(state.elementCounters).toEqual({
+      EVIDENCE: 0, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 0, RISK: 0, RESOLVE_CONDITION: 0,
+    });
+  });
+
+  it('generates RCON- prefixed IDs for RESOLVE_CONDITION', () => {
+    const state = initializeState('test');
+    const [id] = generateId(state, 'RESOLVE_CONDITION');
+    expect(id).toBe('RCON-1');
   });
 });
 

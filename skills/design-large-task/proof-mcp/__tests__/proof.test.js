@@ -12,9 +12,9 @@ import {
 } from '../proof.js';
 
 describe('ELEMENT_TYPES', () => {
-  it('contains all five types', () => {
+  it('contains all six types', () => {
     expect(ELEMENT_TYPES).toEqual([
-      'EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK',
+      'EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK', 'RESOLVE_CONDITION',
     ]);
   });
 });
@@ -171,6 +171,44 @@ describe('createElement', () => {
     expect(el.basis).toEqual([]);
     expect(el.revision).toBe(0);
     expect(el.revisedInRound).toBeNull();
+  });
+});
+
+describe('createElement RESOLVE_CONDITION', () => {
+  it('creates a RESOLVE_CONDITION with statement and problem_anchor', () => {
+    const el = createElement(
+      { type: 'RESOLVE_CONDITION', statement: 'System rejects empty input', problem_anchor: 'CERN-1' },
+      'RCON-1', 1,
+    );
+    expect(el.id).toBe('RCON-1');
+    expect(el.type).toBe('RESOLVE_CONDITION');
+    expect(el.statement).toBe('System rejects empty input');
+    expect(el.problem_anchor).toBe('CERN-1');
+    expect(el.ratification).toBeNull();
+    expect(el.status).toBe('active');
+  });
+
+  it('rejects RESOLVE_CONDITION without problem_anchor', () => {
+    expect(() => createElement(
+      { type: 'RESOLVE_CONDITION', statement: 'X' },
+      'RCON-1', 1,
+    )).toThrow(/problem_anchor/);
+  });
+
+  it('rejects RESOLVE_CONDITION with designer source', () => {
+    expect(() => createElement(
+      { type: 'RESOLVE_CONDITION', statement: 'X', problem_anchor: 'CERN-1', source: 'designer' },
+      'RCON-1', 1,
+    )).toThrow(/source/);
+  });
+
+  it('initializes problem_anchor and ratification fields to null on non-RC elements', () => {
+    const el = createElement(
+      { type: 'EVIDENCE', statement: 'x', source: 'codebase' },
+      'EVID-1', 1,
+    );
+    expect(el.problem_anchor).toBeNull();
+    expect(el.ratification).toBeNull();
   });
 });
 

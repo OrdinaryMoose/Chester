@@ -11,7 +11,7 @@
  */
 
 export const ELEMENT_TYPES = [
-  'EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK',
+  'EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK', 'RESOLVE_CONDITION',
 ];
 
 /**
@@ -26,6 +26,7 @@ export function createElement(input, id, round) {
     type, statement, source,
     grounding, collapse_test, reasoning_chain, rejected_alternatives,
     relieves, basis,
+    problem_anchor,
   } = input;
 
   if (!ELEMENT_TYPES.includes(type)) {
@@ -75,6 +76,16 @@ export function createElement(input, id, round) {
     }
   }
 
+  // RESOLVE_CONDITION: agent-proposes-PM-validates — requires problem_anchor; refuses designer source
+  if (type === 'RESOLVE_CONDITION') {
+    if (!problem_anchor) {
+      throw new Error('RESOLVE_CONDITION requires problem_anchor (Concern ID)');
+    }
+    if (source === 'designer') {
+      throw new Error('RESOLVE_CONDITION cannot have source "designer" — RC is agent-proposes-PM-validates; ratification is captured via the ratify_resolve_condition tool');
+    }
+  }
+
   return {
     id,
     type,
@@ -86,6 +97,8 @@ export function createElement(input, id, round) {
     rejected_alternatives: Array.isArray(rejected_alternatives) ? rejected_alternatives : [],
     relieves: relieves ?? null,
     basis: Array.isArray(basis) ? basis : [],
+    problem_anchor: problem_anchor ?? null,
+    ratification: null,
     status: 'active',
     addedInRound: round,
     revisedInRound: null,
