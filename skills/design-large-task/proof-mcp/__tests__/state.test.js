@@ -9,6 +9,8 @@ import {
   markChallengeUsed,
   saveState,
   loadState,
+  addConcern,
+  lockConcerns,
 } from '../state.js';
 
 describe('initializeState', () => {
@@ -40,6 +42,69 @@ describe('initializeState', () => {
     const state = initializeState('test');
     const [id] = generateId(state, 'RESOLVE_CONDITION');
     expect(id).toBe('RCON-1');
+  });
+
+  it('initializes Concerns lifecycle fields', () => {
+    const state = initializeState('test');
+    expect(state.concerns).toEqual([]);
+    expect(state.concernsLocked).toBe(false);
+    expect(state.concernCounter).toBe(0);
+  });
+});
+
+describe('addConcern', () => {
+  it('appends Concern with sequential CERN- ID', () => {
+    let state = initializeState('test');
+    const [id1, state1, err1] = addConcern(state, { label: 'First', description: 'D1' });
+    expect(err1).toBeNull();
+    expect(id1).toBe('CERN-1');
+    expect(state1.concerns).toHaveLength(1);
+    expect(state1.concerns[0]).toEqual({ id: 'CERN-1', label: 'First', description: 'D1' });
+    expect(state1.concernCounter).toBe(1);
+
+    const [id2, state2, err2] = addConcern(state1, { label: 'Second' });
+    expect(err2).toBeNull();
+    expect(id2).toBe('CERN-2');
+    expect(state2.concerns).toHaveLength(2);
+    expect(state2.concerns[1].description).toBeNull();
+    expect(state2.concernCounter).toBe(2);
+  });
+
+  it('refuses to add when concernsLocked is true', () => {
+    let state = initializeState('test');
+    [, state] = addConcern(state, { label: 'A' });
+    [state] = lockConcerns(state);
+    const [id, sameState, err] = addConcern(state, { label: 'B' });
+    expect(id).toBeNull();
+    expect(err).toMatch(/locked/i);
+    expect(sameState.concerns).toHaveLength(1);
+    expect(sameState.concernCounter).toBe(1);
+  });
+});
+
+describe('lockConcerns', () => {
+  it('flips concernsLocked to true after at least one Concern', () => {
+    let state = initializeState('test');
+    [, state] = addConcern(state, { label: 'A' });
+    const [locked, err] = lockConcerns(state);
+    expect(err).toBeNull();
+    expect(locked.concernsLocked).toBe(true);
+  });
+
+  it('refuses to lock an empty Concerns list', () => {
+    const state = initializeState('test');
+    const [sameState, err] = lockConcerns(state);
+    expect(err).toMatch(/empty/i);
+    expect(sameState.concernsLocked).toBe(false);
+  });
+
+  it('refuses to lock an already-locked list', () => {
+    let state = initializeState('test');
+    [, state] = addConcern(state, { label: 'A' });
+    [state] = lockConcerns(state);
+    const [sameState, err] = lockConcerns(state);
+    expect(err).toMatch(/already/i);
+    expect(sameState.concernsLocked).toBe(true);
   });
 });
 

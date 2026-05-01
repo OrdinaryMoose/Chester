@@ -41,7 +41,46 @@ export function initializeState(problemStatement) {
     challengeLog: [],
     revisionLog: [],
     phaseTransitionRound: 0,
+    concerns: [],
+    concernsLocked: false,
+    concernCounter: 0,
   };
+}
+
+/**
+ * Append a Concern to state. Refuses if Concerns list is locked.
+ * @param {object} state
+ * @param {{label: string, description?: string}} input
+ * @returns {[string|null, object, string|null]} [concernId, newState, error]
+ */
+export function addConcern(state, { label, description }) {
+  if (state.concernsLocked) {
+    return [null, state, 'Concerns are locked; cannot add'];
+  }
+  const newState = structuredClone(state);
+  newState.elements = cloneElements(state.elements);
+  newState.concernCounter++;
+  const id = `CERN-${newState.concernCounter}`;
+  newState.concerns.push({ id, label, description: description ?? null });
+  return [id, newState, null];
+}
+
+/**
+ * Lock the Concerns list. Refuses on empty list or already-locked list.
+ * @param {object} state
+ * @returns {[object, string|null]} [newState, error]
+ */
+export function lockConcerns(state) {
+  if (state.concernsLocked) {
+    return [state, 'Concerns already locked'];
+  }
+  if (state.concerns.length === 0) {
+    return [state, 'Cannot lock empty Concerns list'];
+  }
+  const newState = structuredClone(state);
+  newState.elements = cloneElements(state.elements);
+  newState.concernsLocked = true;
+  return [newState, null];
 }
 
 /**
