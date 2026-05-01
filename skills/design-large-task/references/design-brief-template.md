@@ -167,16 +167,32 @@ cross-hierarchy dependency" is.
 
 ---
 
-### Acceptance Criteria (REQUIRED)
+### Concerns (REQUIRED)
 
-Observable, testable conditions for completion. Each criterion is something a
-developer can verify by running a test or check. Subjective criteria ("code is
-clean") and restatements of the design ("the canonical form exists") do not belong.
+PM-ratified enumeration of named aspects of the problem statement. Each Concern
+has a stable ID and PM-readable label (and optional one-sentence description).
+Concerns are locked at Solve Stage opening; the locked list anchors all subsequent
+Resolve Condition coverage and the closure-coverage check.
 
 ```markdown
-## Acceptance Criteria
+## Concerns
 
-- {Observable condition that must be true when the work is complete}
+- **CERN-1 — {short label}**: {optional description}
+- **CERN-2 — {short label}**
+```
+
+### Resolve Conditions (REQUIRED)
+
+Designer-ratified observable outcomes that certify the design space's exit
+condition. Each entry carries a `statement` (PM-readable observable), a
+`problem_anchor` (Concern ID), and a `ratification` quote. Sequential
+ratification: PM signs off on each entry individually. Revising a ratified
+RC's statement or anchor invalidates the ratification automatically.
+
+```markdown
+## Resolve Conditions
+
+- **RCON-1** — {observable outcome}. Anchored to CERN-1 ({label}). Ratification: "{PM quote}" (round {n}).
 ```
 
 ---
@@ -190,9 +206,10 @@ clean") and restatements of the design ("the canonical form exists") do not belo
 5. Evidence
 6. Industry Context
 7. Risks
-8. Acceptance Criteria
+8. Concerns
+9. Resolve Conditions
 
-All eight sections are required. If a section would be empty, include it with an
+All nine sections are required. If a section would be empty, include it with an
 explicit "None" statement rather than omitting it — this tells the reader you
 considered it.
 
