@@ -174,3 +174,76 @@ Separate entries with horizontal rules (`---`).
 - **Inferred content:** always marked `(inferred)` inline
 - **Invisible rationale:** use "not visible in context" rather than speculating
 - **Decision titles:** noun phrases, not sentences
+
+---
+
+# Decision Record Format
+
+The records-fork at `finish-write-records` Step 3 emits records to `docs/chester/decision-record/decision-record.md` in this exact YAML-frontmatter shape. See `decision-record-filter.md` for the discrimination criteria, canonical tag list, id format, and supersession procedure.
+
+## Shape
+
+Each record is a YAML frontmatter block separated from neighbors by exactly one blank line. The eleven required fields appear in this order:
+
+```yaml
+---
+id: dr-YYYYMMDD-NN-<slug>
+date: YYYY-MM-DD
+sprint: YYYYMMDD-##-verb-noun-noun
+stage: design-large-task | design-small-task | design-specify | plan-build | execute-write | finish-write-records
+title: Short noun phrase
+decision: One sentence capturing what was decided
+rationale: Two-to-four sentences explaining why
+alternatives:
+  - Alternative A — rejected because <reason>
+  - Alternative B — rejected because <reason>
+tags: [architecture, convention]
+supersedes: null
+artifact_refs:
+  - working/<sprint>/design/<file>.md
+  - working/<sprint>/spec/<file>.md
+---
+```
+
+## Field semantics
+
+- **id** — globally unique, follows `dr-YYYYMMDD-NN-<slug>` (see `decision-record-filter.md`).
+- **date** — emission date (ISO 8601, `YYYY-MM-DD`).
+- **sprint** — the sprint in which the decision was made.
+- **stage** — the skill where the decision crystallized (e.g., the design-large-task Solve Stage round, or the plan-build task-mapping step).
+- **title** — short noun phrase (5-10 words). Not a sentence.
+- **decision** — one declarative sentence. Active voice. No hedging.
+- **rationale** — two-to-four sentences. Explains why the decision was made; references constraints, evidence, prior art if relevant.
+- **alternatives** — list of considered-and-rejected options with one-line rejection rationale each. May be empty list `[]` if no real alternatives existed.
+- **tags** — list of canonical tags (see `decision-record-filter.md`). Minimum one tag.
+- **supersedes** — either `null` (no prior record) or the `id` of the record this one supersedes. Forward-only; the prior record is not modified.
+- **artifact_refs** — list of session-artifact paths whose content corroborates the record. May be empty list `[]`.
+
+## Example record
+
+```yaml
+---
+id: dr-20260501-01-fork-pattern-emission
+date: 2026-05-01
+sprint: 20260501-01-fix-decision-record
+stage: design-large-task
+title: Audit-time records emission via parallel fork
+decision: Records are emitted at finish-write-records Step 3 via a second forked subagent that inherits the parent's JSONL transcript and applies an independent records-altitude filter.
+rationale: The audit fork already discriminates substantive decisions from the JSONL transcript. Forking a second subagent from the same parent reuses the discrimination machinery while letting each filter tune to its own altitude. Avoids MCP cost (RULE-9) and TDD-loop participation (RULE-11).
+alternatives:
+  - Per-decision MCP capture at each substantive moment in design-specify and plan-build — rejected because it requires new skill steps at every decision point and duplicates the audit's discrimination judgment.
+  - Single-fork emission at end of design-specify only — rejected because it fragments capture across skill points and misses execute-write decisions.
+tags: [architecture, capture, mcp]
+supersedes: null
+artifact_refs:
+  - working/20260501-01-fix-decision-record/design/fix-decision-record-design-00.md
+  - working/20260501-01-fix-decision-record/spec/fix-decision-record-spec-00.md
+---
+```
+
+## Append discipline
+
+- New records append at the end of the corpus file. Prior records are never modified.
+- Within a single emission pass, records are written in chronological order (oldest decision first).
+- Exactly one blank line between adjacent records. The first record in the file follows the file's existing `.gitkeep`-replacing header (if any) by one blank line; alternatively the file may have no header and start directly with the first record's `---` line.
+- Do not validate the file end with a trailing newline beyond what the editor naturally produces; AC-3.2 requires byte-identical preservation of prior records, not byte-identical file tail.
