@@ -186,13 +186,36 @@ export function applyOperations(state, operations) {
           errors.push(`Cannot revise "${op.target}": element not found or not active`);
           break;
         }
+        // Detect ratification-clearing fields BEFORE applying changes
+        const semanticFieldsChanged = [];
+        if (op.statement !== undefined && target.statement !== op.statement) {
+          semanticFieldsChanged.push('statement');
+        }
+        if (op.problem_anchor !== undefined && target.problem_anchor !== op.problem_anchor) {
+          semanticFieldsChanged.push('problem_anchor');
+        }
         if (op.statement !== undefined) target.statement = op.statement;
+        if (op.problem_anchor !== undefined) target.problem_anchor = op.problem_anchor;
         if (op.grounding !== undefined) target.grounding = op.grounding;
         if (op.basis !== undefined) target.basis = op.basis;
         if (op.collapse_test !== undefined) target.collapse_test = op.collapse_test;
         if (op.reasoning_chain !== undefined) target.reasoning_chain = op.reasoning_chain;
         if (op.rejected_alternatives !== undefined) target.rejected_alternatives = op.rejected_alternatives;
         if (op.relieves !== undefined) target.relieves = op.relieves;
+        // Clear ratification if a ratified RESOLVE_CONDITION had statement or problem_anchor revised
+        if (
+          target.type === 'RESOLVE_CONDITION' &&
+          target.ratification !== null &&
+          semanticFieldsChanged.length > 0
+        ) {
+          target.ratification = null;
+          current.ratificationLog.push({
+            event: 'cleared-on-revise',
+            target: op.target,
+            round: current.round,
+            fields: semanticFieldsChanged,
+          });
+        }
         target.revision++;
         target.revisedInRound = current.round;
         current.revisionLog.push({

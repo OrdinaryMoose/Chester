@@ -549,3 +549,55 @@ describe('saveState / loadState', () => {
     expect(() => JSON.parse(raw)).not.toThrow();
   });
 });
+
+describe('applyOperations — revise on RESOLVE_CONDITION clears ratification', () => {
+  function buildRatifiedRC() {
+    let state = initializeState('test');
+    [, state] = addConcern(state, { label: 'C1' });
+    [, state] = addConcern(state, { label: 'C2' });
+    [state] = lockConcerns(state);
+    const result = applyOperations(state, [
+      { op: 'add', type: 'RESOLVE_CONDITION', statement: 'original', problem_anchor: 'CERN-1' },
+    ]);
+    state = result.state;
+    [state] = ratifyResolveCondition(state, { elementId: 'RCON-1', ratificationText: 'PM approves' });
+    return state;
+  }
+
+  it('clears ratification and logs when statement is revised', () => {
+    const state = buildRatifiedRC();
+    const result = applyOperations(state, [
+      { op: 'revise', target: 'RCON-1', statement: 'updated' },
+    ]);
+    const rc = result.state.elements.get('RCON-1');
+    expect(rc.statement).toBe('updated');
+    expect(rc.ratification).toBeNull();
+    const lastLog = result.state.ratificationLog[result.state.ratificationLog.length - 1];
+    expect(lastLog).toMatchObject({ event: 'cleared-on-revise', target: 'RCON-1' });
+    expect(lastLog.fields).toContain('statement');
+  });
+
+  it('clears ratification and logs when problem_anchor is revised', () => {
+    const state = buildRatifiedRC();
+    const result = applyOperations(state, [
+      { op: 'revise', target: 'RCON-1', problem_anchor: 'CERN-2' },
+    ]);
+    const rc = result.state.elements.get('RCON-1');
+    expect(rc.problem_anchor).toBe('CERN-2');
+    expect(rc.ratification).toBeNull();
+    const lastLog = result.state.ratificationLog[result.state.ratificationLog.length - 1];
+    expect(lastLog).toMatchObject({ event: 'cleared-on-revise', target: 'RCON-1' });
+    expect(lastLog.fields).toContain('problem_anchor');
+  });
+
+  it('preserves ratification when revise touches no semantic field', () => {
+    const state = buildRatifiedRC();
+    const ratificationLogLength = state.ratificationLog.length;
+    const result = applyOperations(state, [
+      { op: 'revise', target: 'RCON-1', grounding: [] },
+    ]);
+    const rc = result.state.elements.get('RCON-1');
+    expect(rc.ratification).toEqual({ ratifiedAtRound: 1, text: 'PM approves' });
+    expect(result.state.ratificationLog).toHaveLength(ratificationLogLength);
+  });
+});
