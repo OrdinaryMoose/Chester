@@ -52,7 +52,8 @@ fi
 REQUIRED_FIELDS=(id date sprint stage title decision rationale alternatives tags supersedes artifact_refs)
 RECORD_COUNT=$((DELIM_COUNT / 2))
 for field in "${REQUIRED_FIELDS[@]}"; do
-  field_count=$(grep -c "^${field}:" "$CORPUS")
+  # grep -c exits non-zero when zero matches; trap with || true so set -e doesn't abort before the diagnostic.
+  field_count=$(grep -c "^${field}:" "$CORPUS" || true)
   if [ "$field_count" -ne "$RECORD_COUNT" ]; then
     echo "FAIL: field '$field' appears $field_count times, expected $RECORD_COUNT (one per record)" >&2
     exit 1
