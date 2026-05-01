@@ -148,7 +148,7 @@ After writing the summary file, stamp it (see `util-artifact-schema`
 `## Provenance Trailers`):
 
 ```bash
-chester-trailer-write stamp finish-write-records@v0002 "<summary-path>"
+chester-trailer-write stamp finish-write-records@v0003 "<summary-path>"
 ```
 
 ### Reasoning Audit and Decision Records (both modes — parallel fork)
@@ -229,7 +229,7 @@ After writing the brief file, stamp it (see `util-artifact-schema`
 `## Provenance Trailers`):
 
 ```bash
-chester-trailer-write stamp finish-write-records@v0002 "<brief-path>"
+chester-trailer-write stamp finish-write-records@v0003 "<brief-path>"
 ```
 
 ### Cache Analysis (optional, both modes)
@@ -253,7 +253,7 @@ If the cache-analysis file was written, stamp it (see `util-artifact-schema`
 `## Provenance Trailers`):
 
 ```bash
-chester-trailer-write stamp finish-write-records@v0002 "<cache-analysis-path>"
+chester-trailer-write stamp finish-write-records@v0003 "<cache-analysis-path>"
 ```
 
 ## Step 4: Copy Implementation Plan (feature mode only)
