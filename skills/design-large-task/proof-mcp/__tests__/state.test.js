@@ -404,6 +404,27 @@ describe('applyOperations', () => {
   });
 });
 
+describe('applyOperations — RESOLVE_CONDITION add anchor validation', () => {
+  it('accepts RESOLVE_CONDITION add when problem_anchor matches a Concern', () => {
+    let state = initializeState('test');
+    [, state] = addConcern(state, { label: 'C1' });
+    const result = applyOperations(state, [
+      { op: 'add', type: 'RESOLVE_CONDITION', statement: 'X', problem_anchor: 'CERN-1' },
+    ]);
+    expect(result.errors).toEqual([]);
+    expect(result.added).toEqual(['RCON-1']);
+  });
+
+  it('rejects RESOLVE_CONDITION add when problem_anchor does not match any Concern', () => {
+    const state = initializeState('test');
+    const result = applyOperations(state, [
+      { op: 'add', type: 'RESOLVE_CONDITION', statement: 'X', problem_anchor: 'CERN-99' },
+    ]);
+    expect(result.errors.some(e => /CERN-99/.test(e) && /Concern/i.test(e))).toBe(true);
+    expect(result.added).toEqual([]);
+  });
+});
+
 describe('markChallengeUsed', () => {
   it('adds mode to challengeModesUsed and challengeLog', () => {
     const state = initializeState('test');

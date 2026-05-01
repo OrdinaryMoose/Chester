@@ -130,6 +130,14 @@ export function applyOperations(state, operations) {
           errors.push(...refErrors);
           break;
         }
+        // RESOLVE_CONDITION: validate problem_anchor references an existing Concern
+        if (op.type === 'RESOLVE_CONDITION' && op.problem_anchor) {
+          const anchorExists = current.concerns.some(c => c.id === op.problem_anchor);
+          if (!anchorExists) {
+            errors.push(`Resolve Condition problem_anchor "${op.problem_anchor}" does not reference an existing Concern`);
+            break;
+          }
+        }
         const [id, newState] = generateId(current, op.type);
         current = newState;
         const element = createElement(op, id, current.round);
