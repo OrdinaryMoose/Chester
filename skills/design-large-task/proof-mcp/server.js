@@ -4,11 +4,17 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { ListToolsRequestSchema, CallToolRequestSchema } from '@modelcontextprotocol/sdk/types.js';
-import { initializeState, applyOperations, markChallengeUsed, saveState, loadState } from './state.js';
+import {
+  initializeState, applyOperations, markChallengeUsed, saveState, loadState,
+  addConcern, lockConcerns, ratifyResolveCondition,
+} from './state.js';
 import { checkAllIntegrity } from './proof.js';
-import { computeCompleteness, computeGroundingCoverage, detectChallenge, checkClosure } from './metrics.js';
+import {
+  computeCompleteness, computeGroundingCoverage, detectChallenge, checkClosure,
+  checkConcernCoverage,
+} from './metrics.js';
 
-const ELEMENT_TYPES = ['EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK'];
+const ELEMENT_TYPES = ['EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK', 'RESOLVE_CONDITION'];
 
 const server = new Server(
   { name: 'chester-design-proof', version: '2.0.0' },
@@ -58,6 +64,7 @@ const TOOLS = [
                 description: 'Alternatives considered and rejected (for NECESSARY_CONDITION)',
               },
               relieves: { type: 'string', description: 'What restriction is relaxed (for PERMISSION)' },
+              problem_anchor: { type: 'string', description: 'Concern ID anchor (for RESOLVE_CONDITION add/revise)' },
               basis: {
                 type: 'array', items: { type: 'string' },
                 description: 'Basis element IDs (for RISK — conditions it attaches to)',
@@ -87,6 +94,33 @@ const TOOLS = [
       required: ['state_file'],
     },
   },
+  {
+    name: 'manage_concerns',
+    description: 'Add or lock Concerns attached to the problem statement. Concerns anchor Resolve Conditions for closure coverage.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        state_file: { type: 'string', description: 'Absolute path to state JSON' },
+        op: { type: 'string', enum: ['add', 'lock'] },
+        label: { type: 'string', description: 'Concern label (required for op=add)' },
+        description: { type: 'string', description: 'Optional Concern description (op=add only)' },
+      },
+      required: ['state_file', 'op'],
+    },
+  },
+  {
+    name: 'ratify_resolve_condition',
+    description: 'Ratify a single Resolve Condition. Sequential by design — accepts one element_id per call; batch shapes are not supported.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        state_file: { type: 'string', description: 'Absolute path to state JSON' },
+        element_id: { type: 'string', description: 'RCON-N ID of the Resolve Condition to ratify' },
+        ratification: { type: 'string', description: "PM's sign-off text" },
+      },
+      required: ['state_file', 'element_id', 'ratification'],
+    },
+  },
 ];
 
 // ── Request Handlers ─────────────────────────────────────────────
@@ -106,6 +140,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         return handleSubmitProofUpdate(args);
       case 'get_proof_state':
         return handleGetProofState(args);
+      case 'manage_concerns':
+        return handleManageConcerns(args);
+      case 'ratify_resolve_condition':
+        return handleRatifyResolveCondition(args);
       default:
         return { content: [{ type: 'text', text: `Unknown tool: ${name}` }], isError: true };
     }
@@ -127,6 +165,8 @@ function handleInitialize({ problem_statement, state_file }) {
         status: 'initialized',
         element_types: ELEMENT_TYPES,
         operations: ['add', 'revise', 'withdraw'],
+        concerns: [],
+        tools_added: ['manage_concerns', 'ratify_resolve_condition'],
         state_file,
       }),
     }],
@@ -194,16 +234,61 @@ function handleGetProofState({ state_file }) {
   };
   const challengeTrigger = detectChallenge(state);
   const closure = checkClosure(state);
+  const response = {
+    ...state,
+    elements: Object.fromEntries(state.elements),
+    integrity_warnings: integrityWarnings,
+    completeness,
+    challenge_trigger: challengeTrigger,
+    closure_permitted: closure.permitted,
+    closure_reasons: closure.reasons,
+  };
+  if (state.concernsLocked) {
+    response.concernCoverage = checkConcernCoverage(state);
+  }
+  return { content: [{ type: 'text', text: JSON.stringify(response) }] };
+}
 
+function handleManageConcerns({ state_file, op, label, description }) {
+  let state = loadState(state_file);
+  if (op === 'add') {
+    if (!label) {
+      return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: 'label required for op=add' }) }], isError: true };
+    }
+    const [concernId, newState, err] = addConcern(state, { label, description });
+    if (err) {
+      return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: err }) }], isError: true };
+    }
+    saveState(newState, state_file);
+    return { content: [{ type: 'text', text: JSON.stringify({ status: 'accepted', concern_id: concernId, concerns_count: newState.concerns.length }) }] };
+  }
+  if (op === 'lock') {
+    const [newState, err] = lockConcerns(state);
+    if (err) {
+      return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: err }) }], isError: true };
+    }
+    saveState(newState, state_file);
+    return { content: [{ type: 'text', text: JSON.stringify({ status: 'accepted', locked: true, concerns_count: newState.concerns.length }) }] };
+  }
+  return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: `Unknown op: ${op}` }) }], isError: true };
+}
+
+function handleRatifyResolveCondition({ state_file, element_id, ratification }) {
+  let state = loadState(state_file);
+  const [newState, err] = ratifyResolveCondition(state, { elementId: element_id, ratificationText: ratification });
+  if (err) {
+    return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: err }) }], isError: true };
+  }
+  saveState(newState, state_file);
+  const target = newState.elements.get(element_id);
+  const closure = checkClosure(newState);
   return {
     content: [{
       type: 'text',
       text: JSON.stringify({
-        ...state,
-        elements: Object.fromEntries(state.elements),
-        integrity_warnings: integrityWarnings,
-        completeness,
-        challenge_trigger: challengeTrigger,
+        status: 'accepted',
+        element_id,
+        ratification: target.ratification,
         closure_permitted: closure.permitted,
         closure_reasons: closure.reasons,
       }),
