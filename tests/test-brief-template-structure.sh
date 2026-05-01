@@ -4,8 +4,10 @@ set -euo pipefail
 TPL="skills/design-large-task/references/design-brief-template.md"
 ERRORS=0
 
-# Required eight sections, in order. Architecture choice (Chosen Approach,
+# Required nine sections, in order. Architecture choice (Chosen Approach,
 # Alternatives Considered) moved to design-specify; brief is envelope-only.
+# Acceptance Criteria moved to spec stage; the brief now closes with the
+# Concerns + Resolve Conditions pair (cluster-a Resolve-Conditions feature).
 REQUIRED_SECTIONS=(
   "## Goal"
   "## Necessary Conditions"
@@ -14,7 +16,8 @@ REQUIRED_SECTIONS=(
   "## Evidence"
   "## Industry Context"
   "## Risks"
-  "## Acceptance Criteria"
+  "## Concerns"
+  "## Resolve Conditions"
 )
 
 for section in "${REQUIRED_SECTIONS[@]}"; do
