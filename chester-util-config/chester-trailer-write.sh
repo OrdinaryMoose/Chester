@@ -58,8 +58,34 @@ do_stamp() {
 # --- harvest subcommand (added in Task 2) -------------------------------------
 
 do_harvest() {
-  echo "harvest: not yet implemented" >&2
-  exit 99
+  [ "$#" -eq 1 ] || usage
+  local sprint_dir="$1"
+  [ -d "$sprint_dir" ] || { echo "chester-trailer-write: dir not found: $sprint_dir" >&2; exit 1; }
+
+  # Walk all .md files in sprint_dir. For each, extract the artifact's created-at
+  # (one per file) and the in-file order of produced-by entries.
+  # Emit lines: <created_at>\t<file_path>\t<position>\t<full produced-by line>
+  # Sort by (created_at, file_path, position) — file_path is the secondary key
+  # so that artifacts sharing a created-at second produce a deterministic order
+  # rather than depending on filesystem traversal. Dedupe by produced-by line
+  # keeping the first occurrence, then strip the sort prefix.
+
+  local tmp
+  tmp="$(mktemp)"
+  trap 'rm -f "$tmp"' RETURN
+
+  while IFS= read -r -d '' file; do
+    local created
+    created="$(grep -E '^<!-- created-at: ' "$file" | head -1 | sed -E 's/^<!-- created-at: (.*) -->$/\1/')"
+    [ -n "$created" ] || created="9999-99-99T99:99:99Z"  # files without created-at sort last
+    awk -v ts="$created" -v fp="$file" '
+      /^<!-- produced-by .* -->$/ { printf("%s\t%s\t%06d\t%s\n", ts, fp, NR, $0) }
+    ' "$file" >> "$tmp"
+  done < <(find "$sprint_dir" -type f -name '*.md' -print0)
+
+  # Sort by (timestamp, file_path, position), dedupe by produced-by line, keep first.
+  sort -t $'\t' -k1,1 -k2,2 -k3,3n "$tmp" \
+    | awk -F'\t' '!seen[$4]++ { print $4 }'
 }
 
 # --- dispatcher ---------------------------------------------------------------
