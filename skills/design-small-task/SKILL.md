@@ -1,7 +1,7 @@
 ---
 name: design-small-task
 description: "Lightweight design conversation for well-bounded tasks. Use when the task is clear but you want to surface considerations before jumping to planning. Holds an interactive Q&A loop with structured information packages — the agent presents observations and asks questions, never suggests proceeding. The designer explicitly directs when to write the brief. Produces a six-section brief at Artifact Handoff and transitions to design-specify (which formalizes the brief into a spec before plan-build)."
-version: v0001
+version: v0002
 ---
 
 # Small Task Design Conversation
@@ -300,10 +300,17 @@ design into durable written artifacts:
    - [How we know it's done]
    ```
 
-2. Present the brief to the designer: "Does this capture what we're building?"
-3. After confirmation, invoke `util-worktree` to create the branch and worktree.
+2. Stamp the provenance trailer per `util-artifact-schema` `## Provenance Trailers`:
+
+   ```bash
+   chester-trailer-write stamp design-small-task@<this-skill-version> "<brief-path>"
+   ```
+
+   Use the `<this-skill-version>` value from this skill's `version` frontmatter field. Run one stamp call against the brief path written in step 1.
+3. Present the brief to the designer: "Does this capture what we're building?"
+4. After confirmation, invoke `util-worktree` to create the branch and worktree.
    The branch name is the sprint subdirectory name.
-4. Transition to design-specify.
+5. Transition to design-specify.
 
 ## Integration
 
