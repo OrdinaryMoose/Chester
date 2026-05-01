@@ -44,6 +44,7 @@ export function initializeState(problemStatement) {
     concerns: [],
     concernsLocked: false,
     concernCounter: 0,
+    ratificationLog: [],
   };
 }
 
@@ -80,6 +81,40 @@ export function lockConcerns(state) {
   const newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
   newState.concernsLocked = true;
+  return [newState, null];
+}
+
+/**
+ * Ratify a single Resolve Condition. Refuses non-RC, withdrawn, unknown, or empty text.
+ * Sequential by design — caller passes a single elementId.
+ * @param {object} state
+ * @param {{elementId: string, ratificationText: string}} input
+ * @returns {[object, string|null]} [newState, error]
+ */
+export function ratifyResolveCondition(state, { elementId, ratificationText }) {
+  const target = state.elements.get(elementId);
+  if (!target) {
+    return [state, `Element "${elementId}" not found`];
+  }
+  if (target.type !== 'RESOLVE_CONDITION') {
+    return [state, `Element "${elementId}" is not a RESOLVE_CONDITION`];
+  }
+  if (target.status !== 'active') {
+    return [state, `Element "${elementId}" is not active`];
+  }
+  if (!ratificationText || typeof ratificationText !== 'string') {
+    return [state, 'Ratification text is required'];
+  }
+  const newState = structuredClone(state);
+  newState.elements = cloneElements(state.elements);
+  const updatedTarget = newState.elements.get(elementId);
+  updatedTarget.ratification = { ratifiedAtRound: state.round, text: ratificationText };
+  newState.ratificationLog.push({
+    event: 'ratified',
+    target: elementId,
+    round: state.round,
+    ratificationText,
+  });
   return [newState, null];
 }
 

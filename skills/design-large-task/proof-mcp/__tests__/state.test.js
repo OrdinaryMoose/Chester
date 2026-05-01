@@ -11,6 +11,7 @@ import {
   loadState,
   addConcern,
   lockConcerns,
+  ratifyResolveCondition,
 } from '../state.js';
 
 describe('initializeState', () => {
@@ -49,6 +50,60 @@ describe('initializeState', () => {
     expect(state.concerns).toEqual([]);
     expect(state.concernsLocked).toBe(false);
     expect(state.concernCounter).toBe(0);
+  });
+
+  it('initializes ratificationLog as empty array', () => {
+    const state = initializeState('test');
+    expect(state.ratificationLog).toEqual([]);
+  });
+});
+
+describe('ratifyResolveCondition', () => {
+  it('ratifies a single active RESOLVE_CONDITION', () => {
+    let state = initializeState('test');
+    [, state] = addConcern(state, { label: 'C1' });
+    [state] = lockConcerns(state);
+    const result = applyOperations(state, [
+      { op: 'add', type: 'RESOLVE_CONDITION', statement: 'X', problem_anchor: 'CERN-1' },
+    ]);
+    state = result.state;
+    const [newState, err] = ratifyResolveCondition(state, { elementId: 'RCON-1', ratificationText: 'PM approves' });
+    expect(err).toBeNull();
+    const rc = newState.elements.get('RCON-1');
+    expect(rc.ratification).toEqual({ ratifiedAtRound: state.round, text: 'PM approves' });
+    expect(newState.ratificationLog).toHaveLength(1);
+    expect(newState.ratificationLog[0]).toMatchObject({
+      event: 'ratified', target: 'RCON-1', ratificationText: 'PM approves',
+    });
+  });
+
+  it('rejects ratification of a non-RC element', () => {
+    let state = initializeState('test');
+    const result = applyOperations(state, [
+      { op: 'add', type: 'EVIDENCE', statement: 'fact', source: 'codebase' },
+    ]);
+    state = result.state;
+    const [sameState, err] = ratifyResolveCondition(state, { elementId: 'EVID-1', ratificationText: 'X' });
+    expect(err).toMatch(/RESOLVE_CONDITION/);
+    expect(sameState).toBe(state);
+  });
+
+  it('rejects ratification of unknown element', () => {
+    const state = initializeState('test');
+    const [, err] = ratifyResolveCondition(state, { elementId: 'RCON-99', ratificationText: 'X' });
+    expect(err).toMatch(/not found/i);
+  });
+
+  it('rejects empty ratificationText', () => {
+    let state = initializeState('test');
+    [, state] = addConcern(state, { label: 'C1' });
+    [state] = lockConcerns(state);
+    const result = applyOperations(state, [
+      { op: 'add', type: 'RESOLVE_CONDITION', statement: 'X', problem_anchor: 'CERN-1' },
+    ]);
+    state = result.state;
+    const [, err] = ratifyResolveCondition(state, { elementId: 'RCON-1', ratificationText: '' });
+    expect(err).toMatch(/required/i);
   });
 });
 
