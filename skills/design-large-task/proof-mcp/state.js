@@ -310,6 +310,16 @@ export function saveState(state, filePath) {
 export function loadState(filePath) {
   const raw = JSON.parse(readFileSync(filePath, 'utf-8'));
   raw.elements = new Map(Object.entries(raw.elements));
+  // Backfill cluster-A fields when loading pre-cluster-A state files
+  raw.concerns ??= [];
+  raw.concernsLocked ??= false;
+  raw.concernCounter ??= 0;
+  raw.ratificationLog ??= [];
+  raw.elementCounters.RESOLVE_CONDITION ??= 0;
+  for (const [, el] of raw.elements) {
+    el.problem_anchor ??= null;
+    el.ratification ??= null;
+  }
   return raw;
 }
 

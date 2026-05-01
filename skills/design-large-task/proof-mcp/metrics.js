@@ -211,6 +211,10 @@ export function detectChallenge(state) {
  * @param {object} state - { concerns, elements }
  * @returns {{ covered: string[], uncovered: string[] }}
  */
+function escapeRegex(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 export function checkConcernCoverage(state) {
   if (!state.concerns) return { covered: [], uncovered: [] };
   const covered = [];
@@ -228,11 +232,10 @@ export function checkConcernCoverage(state) {
         break;
       }
       if (el.type === 'RULE') {
-        const stmt = (el.statement || '').toLowerCase();
-        if (
-          stmt.includes(concern.id.toLowerCase()) ||
-          stmt.includes(concern.label.toLowerCase())
-        ) {
+        const stmt = el.statement || '';
+        const idRe = new RegExp(`\\b${escapeRegex(concern.id)}\\b`, 'i');
+        const labelRe = new RegExp(`\\b${escapeRegex(concern.label)}\\b`, 'i');
+        if (idRe.test(stmt) || labelRe.test(stmt)) {
           isCovered = true;
           break;
         }
