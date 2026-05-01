@@ -7,7 +7,7 @@ description: >
   did", "write the summary", "session report", "reasoning audit", "write a refactor
   summary", "document this session", or when a major unit of work has just completed.
   Also trigger proactively at natural session end points.
-version: v0002
+version: v0003
 ---
 
 # Session Records
@@ -151,23 +151,30 @@ After writing the summary file, stamp it (see `util-artifact-schema`
 chester-trailer-write stamp finish-write-records@v0002 "<summary-path>"
 ```
 
-### Reasoning Audit (both modes)
+### Reasoning Audit and Decision Records (both modes — parallel fork)
 
-**Source:** the session JSONL transcript is the authoritative source, not conversation
-context. Locate it:
+**Source:** the session JSONL transcript is the authoritative source for both outputs, not conversation context. Locate it once on the primary agent:
 
 ```bash
 SESSION_DIR="$HOME/.claude/projects/$(echo "$PWD" | sed 's|/|-|g; s|^-||')"
 LATEST_JSONL=$(ls -t "$SESSION_DIR"/*.jsonl 2>/dev/null | head -1)
 ```
 
-Parse chronologically. Identify 4-12 non-trivial decision points — moments where the
-agent made a real choice among alternatives. For each, reconstruct: context, information
-used, alternatives considered, decision, rationale, and confidence level.
+After resolving the path, dispatch **two subagents in parallel** in a single message — both inherit the parent transcript via `CLAUDE_CODE_FORK_SUBAGENT=1`. Each fork applies its own discrimination filter over the same JSONL source; filters are independent and may select different decisions.
+
+**Fork A — Reasoning Audit.** Applies the audit-altitude filter described below; writes `summary/<sprint>-audit-NN.md` with the existing Reasoning Audit Format from `references/record-formats.md`; stamps a provenance trailer.
+
+**Fork B — Decision Records.** Applies the records-altitude filter from `references/decision-record-filter.md`; appends one or more YAML-frontmatter record blocks to `docs/chester/decision-record/decision-record.md` (the cross-sprint corpus); does NOT stamp a provenance trailer (the corpus is cross-sprint, not a sprint artifact).
+
+The two outputs are parallel, not sequenced. A decision selected by one fork need not be selected by the other.
+
+#### Audit-altitude filter (Fork A guidance)
+
+Parse chronologically. Identify 4-12 non-trivial decision points — moments where the agent made a real choice among alternatives. For each, reconstruct: context, information used, alternatives considered, decision, rationale, and confidence level.
 
 Order entries by significance (most consequential first), not chronologically.
 
-**What qualifies as a decision point:**
+**What qualifies:**
 - Deviation from plan
 - Implementation detail choice among alternatives
 - Information-driven choice (read/grepped then chose based on findings)
@@ -178,12 +185,28 @@ Order entries by significance (most consequential first), not chronologically.
 - Tool calls with no decision content
 - Trivial style choices
 
-After writing the audit file, stamp it (see `util-artifact-schema`
-`## Provenance Trailers`):
+After Fork A writes the audit file, it stamps the trailer:
 
 ```bash
-chester-trailer-write stamp finish-write-records@v0002 "<audit-path>"
+chester-trailer-write stamp finish-write-records@<this-skill-version> "<audit-path>"
 ```
+
+#### Records-altitude filter (Fork B guidance)
+
+See `references/decision-record-filter.md` for the full discrimination criteria, canonical tag list, id format, and supersession discovery procedure. Summary: a decision belongs in the cross-sprint corpus when it sets cross-sprint precedent, makes an architectural commitment, adopts a constraint, deletes/deprecates a capability, or rejects a substantive alternative.
+
+The records corpus path is fixed at `docs/chester/decision-record/decision-record.md`. New records append at the end; older records are never modified. Each record carries the eleven structured fields documented in `references/record-formats.md` (Decision Record Format section).
+
+Fork B does NOT stamp a provenance trailer on the corpus file.
+
+#### Partial-failure handling (primary)
+
+After both forks return, the primary collects status:
+
+- **Both succeed:** continue to Step 4.
+- **One fails, one succeeds:** report which output exists, which is missing, why the failed fork errored. The succeeded artifact is not rolled back. The user can rerun the failing fork manually.
+- **Both fail:** report both errors. No partial state to roll back.
+- **JSONL transcript path resolution fails (before forking):** abort, report the resolution failure, do not dispatch either fork.
 
 ### Evaluation Brief (refactor mode only)
 
@@ -233,44 +256,7 @@ If the cache-analysis file was written, stamp it (see `util-artifact-schema`
 chester-trailer-write stamp finish-write-records@v0002 "<cache-analysis-path>"
 ```
 
-## Step 4: Decision-Record Audit and Abandonment (feature mode only)
-
-Before copying the plan and closing out, close the decision-record loop on this sprint. Invoke tools on the `chester-decision-record` MCP.
-
-### Normal completion path (sprint succeeded)
-
-Invoke `dr_audit({sprint_subject: "<sprint-name>"})`. The tool returns `{audited, drifted, findings, kinds_checked}`. Add a new section to the session summary:
-
-```markdown
-## Decision-Record Audit
-
-- Records audited: {audited}
-- Drift findings: {drifted}
-- Kinds checked: {kinds_checked joined with comma}
-
-{for each finding: - **{id}** | {kind} — {detail}}
-```
-
-If `drifted > 0`, call out the findings prominently — they indicate records whose Test/Code links have broken since capture and need either a supersede or a fix in a follow-up sprint.
-
-### Abandonment path (sprint abandoned)
-
-If the user confirms the sprint is being abandoned rather than completed, invoke `dr_abandon("<sprint-name>")`. The tool returns `{affected, skipped_superseded}`. Log the counts in the session summary:
-
-```markdown
-## Decision-Record Abandonment
-
-Sprint abandoned. Active records transitioned to Abandoned status.
-
-- Records abandoned (Active → Abandoned): {affected}
-- Records skipped (already Superseded): {skipped_superseded}
-```
-
-Do NOT call `dr_abandon` on the normal completion path — it is destructive and only appropriate when the sprint's output is being discarded.
-
----
-
-## Step 5: Copy Implementation Plan (feature mode only)
+## Step 4: Copy Implementation Plan (feature mode only)
 
 Look for the plan that drove this session in `{CHESTER_WORKING_DIR}/{sprint-subdir}/plan/`.
 Copy the most recent plan file into the summary output directory for cross-reference.
@@ -281,7 +267,7 @@ reconstructed. If no plan exists at all, skip and note its absence.
 Note: this creates a convenience copy alongside the summary. The authoritative plan
 remains in `plan/` and is archived separately by `finish-archive-artifacts`.
 
-## Step 6: Offer Session State Update
+## Step 5: Offer Session State Update
 
 If a strategy document or session state file exists for the current work, offer to
 update it:
@@ -291,7 +277,7 @@ update it:
 
 Do not update session state files automatically.
 
-## Step 7: Commit (refactor mode only)
+## Step 6: Commit (refactor mode only)
 
 Refactor artifacts are committed directly since they don't go through the archive flow:
 
