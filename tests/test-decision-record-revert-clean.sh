@@ -58,6 +58,7 @@ DELETED_PATHS=(
   "$ROOT/tests/test-reference-files.sh"
   "$ROOT/tests/test-plan-build-update.sh"
   "$ROOT/tests/test-execute-verify-complete-update.sh"
+  "$ROOT/tests/test-skill-index-update.sh"
 )
 for path in "${DELETED_PATHS[@]}"; do
   if [ -e "$path" ]; then
