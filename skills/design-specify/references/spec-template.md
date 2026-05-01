@@ -1,6 +1,6 @@
 # Spec Template (Loop-Optimized)
 
-Canonical spec document format used by `design-specify`. This template is loop-optimized: each acceptance criterion carries an observable boundary, a stable ID, and a skeleton-stub reference so that `execute-write` can couple code to tests through the spec.
+Canonical spec document format used by `design-specify`. Each acceptance criterion carries an observable boundary, a stable ID, and downstream placeholder fields populated by `plan-build` and `execute-write`.
 
 ## When to Use
 
