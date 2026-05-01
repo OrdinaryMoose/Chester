@@ -1,7 +1,7 @@
 ---
 name: design-specify
 description: "Formalize an approved design brief into a durable spec document. Use when a design brief exists (from design-large-task, design-small-task, a whiteboard, a previous session, or a human-written brief) and needs to be written as a formal spec with competing-architecture review, automated fidelity review, and codebase ground-truth verification before plan-build."
-version: v0002
+version: v0003
 ---
 
 # Build Spec
@@ -157,20 +157,6 @@ This step exists because humans evaluate *comparisons* far better than *single p
   Use the `<this-skill-version>` value from this skill's `version` frontmatter field.
 
 **Brief → spec AC derivation.** Each `AC-{N.M}` block in the spec seeds from a `RCON-N` Resolve Condition statement in the brief's Resolve Conditions section. The brief's locked Concerns section seeds the spec's coverage rationale — every Concern should be covered by at least one acceptance criterion or by a constraint. The spec's `AC-{N.M}` numbering is independent of the brief's `RCON-N` numbering — RC statements provide the seed text, not a renumbering.
-
-### Scaffold test skeletons (per acceptance criterion)
-
-For each acceptance criterion, after its observable-boundary declaration is written, invoke the skeleton-generator procedure at `references/skeleton-generator.md` to produce a concrete test stub in the project's test framework. The generator detects the target language (Rust / TypeScript / Python / Bash) from project-root markers and emits a language-appropriate pending stub keyed by the criterion's `ac-{N-M}-{slug}` skeleton ID.
-
-Write a skeleton manifest alongside the spec — the `spec-skeleton` artifact type in `util-artifact-schema` (produced by this skill, consumed by `execute-write`). The manifest indexes skeleton IDs to their criterion references; the actual stub files land in the project's test directory. Do not hardcode the manifest path — `util-artifact-schema` is the canonical source for its filename and location.
-
-The skeleton manifest is execute-write's structural discriminator: its trigger-check step compares implementer-emitted observable behaviors against the skeleton coverage map. Skeletons that are missing or under-specified at spec-write time cause downstream drift, so treat scaffolding as a first-class spec-writing step, not an afterthought.
-
-After writing the skeleton manifest, stamp its provenance trailer (independent chain per D7 — sidecar artifacts do not share trailers with the spec):
-
-```bash
-chester-trailer-write stamp design-specify@<this-skill-version> "<skeleton-manifest-path>"
-```
 
 ## Spec Fidelity Review (single pass)
 

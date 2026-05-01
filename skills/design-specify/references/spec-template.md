@@ -50,8 +50,6 @@ Leave `Implementing tasks:` and `Decisions:` empty at spec-write time — those 
 **When:** {trigger}
 **Then:** {observable result}
 
-**Test skeleton ID:** `ac-{N-M}-{slug}` (auto-scaffolded at design-specify time; skeleton stub at language-appropriate path; skeleton manifest at `spec/{sprint-name}-spec-skeleton-00.md`)
-
 **Implementing tasks:** (populated by plan-build)
 
 **Decisions:** (populated by execute-write)
@@ -61,5 +59,4 @@ Leave `Implementing tasks:` and `Decisions:` empty at spec-write time — those 
 
 - **Stable IDs:** `AC-{N.M}` IDs are immutable once the spec is approved. When `execute-write` refines an existing clause, it uses a suffix form (`AC-N.Ma`) rather than renumbering.
 - **Observable boundary** is mandatory. Every criterion must declare what a test can observe from outside the unit. If a criterion cannot be stated as an observable boundary, split or reformulate it.
-- **Skeleton IDs** match the stub emitted by `skeleton-generator.md`. The manifest file indexes every skeleton by ID so `execute-write` can look up the stub during propagation.
 - Repeat the AC block for each criterion. Numbering is per-section (`AC-1.1`, `AC-1.2`, `AC-2.1`, ...).
