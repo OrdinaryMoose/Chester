@@ -1,7 +1,7 @@
 ---
 name: plan-build
 description: Use when you have a spec or requirements for a multi-step task, before touching code
-version: v0002
+version: v0003
 ---
 
 # Chester Build Plan
@@ -256,7 +256,13 @@ After the plan review loop approves the plan:
    - The combined implementation risk level (Low / Moderate / Significant / High)
    - 3-5 statements explaining why this level was chosen
    - The human's four options: proceed, proceed with directed mitigations, return to design with additional requirements, or stop
-6. Write the combined threat report to the `plan/` subdirectory as `{sprint-name}-plan-threat-report-00.md` (see `util-artifact-schema`).
+6. Write the combined threat report to the `plan/` subdirectory as `{sprint-name}-plan-threat-report-00.md` (see `util-artifact-schema`). Then stamp its provenance trailer per `util-artifact-schema` `## Provenance Trailers`. The threat report is a sidecar artifact (D7) — it gets its own independent chain, never co-mingled with the plan's chain. plan-build owns this chain because plan-attack and plan-smell are inline-only skills (they do not write files):
+
+   ```bash
+   chester-trailer-write stamp plan-build@<this-skill-version> "<threat-report-path>"
+   ```
+
+   Use the `<this-skill-version>` value from this skill's `version` frontmatter field.
 7. Wait for the human's decision. Do not auto-trigger any action.
 
 ## Execution Mode Selection
@@ -320,6 +326,14 @@ The four conditions encode "small plan, well-specified, low risk, narrow per-tas
 Write the plan to the `plan/` subdirectory (see `util-artifact-schema` for the exact path). The plan remains in the working directory (gitignored). `finish-archive-artifacts` copies all artifacts into the worktree for merge.
 
 The plan header **must** include the `Execution mode:` field with the value chosen at Execution Mode Selection (`subagent` or `inline`). Do not write the plan with the placeholder `subagent | inline` or with the field omitted — `execute-write` reads this field to select its execution section, and a missing field forces it onto the safe-default path which may not match what was discussed with the user.
+
+After writing the plan, stamp its provenance trailer per `util-artifact-schema` `## Provenance Trailers`:
+
+```bash
+chester-trailer-write stamp plan-build@<this-skill-version> "<plan-path>"
+```
+
+Use the `<this-skill-version>` value from this skill's `version` frontmatter field.
 
 ## Execution Handoff
 
