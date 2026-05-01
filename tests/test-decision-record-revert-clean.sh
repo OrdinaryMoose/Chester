@@ -19,7 +19,11 @@ TOKENS=(
 )
 
 EXIT=0
-SCAN_DIRS=("$ROOT/skills" "$ROOT/agents" "$ROOT/tests" "$ROOT/.claude-plugin")
+# Scan live skill/agent/manifest content. tests/ is excluded because:
+#   - this test itself contains the token list (would self-match)
+#   - test fixtures legitimately reference removed systems as historical text
+#   - the DELETED_PATHS check below verifies test files are gone
+SCAN_DIRS=("$ROOT/skills" "$ROOT/agents" "$ROOT/.claude-plugin")
 
 for token in "${TOKENS[@]}"; do
   hits=""
