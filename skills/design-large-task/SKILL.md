@@ -1,7 +1,7 @@
 ---
 name: design-large-task
 description: "Default structural design skill for architectural or multi-decision work. Five outer phases: Bootstrap, Parallel Context Exploration, Round One, Interview Loop, Closure. Inside the Interview Loop, an Understand Stage runs under an Understanding MCP (nine-dimension saturation scoring), then a Solve Stage runs under a Design Proof MCP (formal proof-building with structural validation around necessary conditions). Closure writes the design brief (the proof envelope) and hands off to design-specify, which owns architecture choice. Use when the task involves structural choices that need grounded design before implementation. For bounded edits where the target is clear, use design-small-task instead."
-version: v0008
+version: v0009
 ---
 
 # Large-Task Design Discovery with Formal Proof Language
@@ -797,6 +797,14 @@ The Solve Stage ended when the designer approved the closing argument. Closure w
 3. Present the completed design brief to the user — each decision with conclusion and rationale. The Problem section contains the confirmed problem statement from Solve Stage opening.
 4. Ask: "Does this capture what we're building?"
 5. After confirmation, write the design brief, thinking summary, and process evidence to the `design/` subdirectory (see `util-artifact-schema` for naming and path conventions). Process evidence compiles from both state files: understanding MCP saturation history and gap evolution (Understand Stage); proof MCP interview profile, drift assessments, challenge mode firings, readiness gate satisfaction, closure decision (Solve Stage). Include **stage transition timing** and **Solve Stage length relative to the Understand Stage**. Human-readable narrative — stories, not scores.
+
+   **Stamp provenance.** After each artifact is written, stamp the provenance trailer per `util-artifact-schema` `## Provenance Trailers`. Each artifact gets its own independent chain (sidecars do not share trailers — see D7 of the schema):
+
+   ```bash
+   chester-trailer-write stamp design-large-task@<this-skill-version> "<artifact-path>"
+   ```
+
+   Use the `<this-skill-version>` value from this skill's `version` frontmatter field. Run one stamp call per artifact: brief, thinking summary, and process evidence each get a separate invocation with their own absolute path.
 6. Invoke `util-worktree` to create the branch and worktree. The branch name is the sprint subdirectory name. Design artifacts stay in the working directory — `finish-archive-artifacts` copies them into the worktree for merge later in the sprint.
 7. Update `~/.chester/thinking.md` — review the Key Reasoning Shifts from the session. For each shift, determine whether it matches an existing lesson (increment score by 1) or is a new lesson (add with score 1, category `—`). If the table exceeds 20 rows, drop the lowest-scoring entry. Present proposed changes to the user and confirm before writing. If the file does not exist, create it with the table header and first entries.
 8. Transition to `design-specify`.
