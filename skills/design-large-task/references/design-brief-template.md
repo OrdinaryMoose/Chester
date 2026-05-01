@@ -26,7 +26,7 @@ in the brief.
 
 ## Template Structure
 
-Eight required sections, in order.
+Nine required sections, in order.
 
 ---
 
@@ -180,6 +180,8 @@ Resolve Condition coverage and the closure-coverage check.
 - **CERN-1 — {short label}**: {optional description}
 - **CERN-2 — {short label}**
 ```
+
+---
 
 ### Resolve Conditions (REQUIRED)
 
