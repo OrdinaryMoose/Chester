@@ -279,6 +279,37 @@ export function checkStaleGrounding(elements) {
 }
 
 /**
+ * Flag active RESOLVE_CONDITIONs whose ratification field is null.
+ * @param {Map} elements
+ * @returns {Array<{type: string, element_id: string, message: string}>}
+ */
+export function checkUnratifiedResolveConditions(elements) {
+  const warnings = [];
+  for (const [id, el] of elements) {
+    if (el.status !== 'active') continue;
+    if (el.type !== 'RESOLVE_CONDITION') continue;
+    if (el.ratification === null) {
+      warnings.push({
+        type: 'unratified-rc',
+        element_id: id,
+        message: `Resolve Condition "${id}" is unratified`,
+      });
+    }
+  }
+  return warnings;
+}
+
+/**
+ * Sentinel — structurally impossible under cleared-on-revise approach (revise nulls
+ * ratification at write time). Exists for symmetry and as a tested extension callsite.
+ * @param {Map} elements
+ * @returns {Array}
+ */
+export function checkStaleRatification(_elements) {
+  return [];
+}
+
+/**
  * Run all integrity checks and return combined warnings.
  * @param {Map} elements
  * @returns {Array<object>} Combined array of all warning objects
@@ -289,5 +320,7 @@ export function checkAllIntegrity(elements) {
     ...checkUngrounded(elements),
     ...checkMissingCollapseTest(elements),
     ...checkStaleGrounding(elements),
+    ...checkUnratifiedResolveConditions(elements),
+    ...checkStaleRatification(elements),
   ];
 }
