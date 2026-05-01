@@ -5,7 +5,7 @@ description: >
   tracked plans directory and commit them. This creates the permanent record that gets
   merged with the code. Invoke after finish-write-records (or after execute-verify-complete
   if skipping records). Single pass — everything in the working directory gets archived.
-version: v0001
+version: v0002
 ---
 
 # Archive Artifacts
@@ -41,6 +41,8 @@ nothing to archive.
 mkdir -p "$WORKTREE_ROOT/$CHESTER_PLANS_DIR/{sprint-subdir}"
 cp -r "$CHESTER_WORKING_DIR/{sprint-subdir}/"* "$WORKTREE_ROOT/$CHESTER_PLANS_DIR/{sprint-subdir}/"
 ```
+
+The copy is bytewise — every artifact's provenance trailer (see `util-artifact-schema` `## Provenance Trailers`) is preserved intact in the archive. `finish-archive-artifacts` does not stamp; copy is not a modification.
 
 ## Step 3: Verify
 

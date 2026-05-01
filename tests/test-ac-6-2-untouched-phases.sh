@@ -26,10 +26,12 @@ extract_section() {
 
 # The HARD-GATE block inside Phase 2 was deliberately patched per Mitigation A
 # (plan-attack HIGH finding — added a team-interview conditional inside the block).
-# Strip the HARD-GATE block from Phase 2 comparison so the test verifies
-# "Phase 2 not accidentally touched" without flagging the intentional patch.
+# The STAMP-BLOCK inside Phase 5 was deliberately patched per sprint
+# 20260430-03-add-artifact-skill-versions to add the provenance-trailer stamp.
+# Strip both blocks from comparison so the test verifies "section not accidentally
+# touched" without flagging the intentional patches.
 strip_hardgate() {
-  awk '/<HARD-GATE>/{skip=1} !skip{print} /<\/HARD-GATE>/{skip=0}'
+  awk '/<HARD-GATE>/{skip=1} /<STAMP-BLOCK>/{skip=1} !skip{print} /<\/HARD-GATE>/{skip=0} /<\/STAMP-BLOCK>/{skip=0}'
 }
 
 git show main:"$SKILL" > /tmp/skill-main.md 2>/dev/null || { echo "FAIL: cannot read main:$SKILL"; exit 1; }

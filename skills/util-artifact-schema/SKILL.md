@@ -6,7 +6,7 @@ description: >
   find, or reference a Chester artifact — design briefs, specs, plans, summaries, audits,
   or any other sprint artifact. If you're about to write a file path or filename for a
   Chester artifact, check here first.
-version: v0001
+version: v0002
 ---
 
 # Artifact Schema
@@ -156,3 +156,94 @@ When a skill is invoked mid-pipeline (not at the start), it inherits the sprint
 subdirectory from the upstream artifact's path. For example, `plan-build` reads the
 spec and derives the sprint subdir from the spec's parent directory. Skills should
 not re-derive the sprint name when one is already established.
+
+## Provenance Trailers
+
+Every artifact produced by a stamping skill carries an HTML-comment provenance
+block at the bottom of the file, separated from content by a blank line. The
+block records when the artifact was created and which skill (by name and
+version) produced or modified it.
+
+### Trailer format
+
+```
+<!-- created-at: 2026-04-30T14:23:00Z -->
+<!-- produced-by plan-build@v0007 -->
+<!-- produced-by plan-attack@v0003 -->
+```
+
+- One `<!-- created-at: <ISO 8601 UTC> -->` line per artifact, set on first
+  write and frozen thereafter.
+- One `<!-- produced-by <skill>@<version> -->` line per participating skill,
+  in first-touch chronological order. Each `(skill, version)` tuple appears
+  at most once.
+
+### Helper script
+
+Skills do not write the trailer by hand. The shared bash helper handles all
+trailer logic — appending, deduplication, idempotency:
+
+```bash
+chester-trailer-write stamp <skill>@<version> <artifact-path>
+chester-trailer-write harvest <sprint-dir>
+```
+
+- **`stamp`** — invoked by a producer/modifier skill immediately after writing
+  an artifact. If the artifact has no trailer block, creates one with a
+  fresh `created-at` and the skill's `produced-by` line. If the artifact
+  already has a trailer block, appends the skill's `produced-by` line. If the
+  exact `<skill>@<version>` line is already present, the call is a no-op.
+- **`harvest`** — invoked by `finish-write-records` against the sprint
+  directory. Walks all `.md` files, extracts every `produced-by` line,
+  deduplicates by `(skill, version)` tuple, and emits the consolidated
+  chain in first-touch chronological order (using each artifact's
+  `created-at` as the temporal anchor and in-file position as the tiebreaker).
+
+### Stamping skills
+
+The following skills invoke `stamp` at every artifact-write site they
+own:
+
+- `design-large-task` (design briefs, thinking files)
+- `design-small-task` (design briefs)
+- `design-specify` (specs, ground-truth reports, skeleton manifests)
+- `plan-build` (plans, threat reports — `plan-build` writes the combined
+  threat report during the Plan Hardening phase, so it owns that chain)
+- `execute-write` (plan amendments)
+- `finish-write-records` (summaries, audits)
+
+### Non-stamping skills
+
+The following skills do **not** stamp:
+
+- `plan-attack`, `plan-smell` — these skills produce inline conversation
+  output only; they do not write files. Any threat or smell report file
+  is written by `plan-build` during hardening, so `plan-build` owns the
+  trailer chain on those files.
+- `execute-test`, `execute-prove`, `execute-verify-complete` — read-only
+  with respect to artifacts.
+- `finish-archive-artifacts` — bytewise copy from working to plans
+  directory. Copy is not a modification; trailer chains travel intact.
+- `start-bootstrap` — scaffolds directories; produces no artifact content.
+- All named subagents under `agents/`. The dispatching parent skill owns
+  the trailer.
+
+### Sidecar artifacts
+
+Sidecars (threat reports, smell reports, audits, thinking files) carry
+**independent** trailer chains. A skill that produces both a primary
+artifact and a sidecar in the same run calls `stamp` once on each, with
+the artifact paths kept distinct.
+
+### Manual edits
+
+User edits to an artifact never trigger re-stamping. The chain is
+provenance, not authority — it represents the last machine touch, not
+the artifact's current state.
+
+### Session-wide ledger
+
+The session summary written by `finish-write-records` includes a
+`## Session Skill Versions` section populated by the harvest subcommand.
+The section is the single consolidated record of which skill versions
+participated in the sprint.

@@ -1,7 +1,7 @@
 ---
 name: execute-write
 description: Use when you have a written implementation plan to execute — reads the plan's `Execution mode` header field (subagent or inline) and runs the matching section, with review checkpoints
-version: v0002
+version: v0003
 ---
 
 # execute-write
@@ -41,6 +41,13 @@ When implementing a task, if something comes up that is:
    - Source task
    - Description of the deferred item
    - Why it was deferred (out of scope / not in plan / needs user input)
+3. After writing the deferred items file, stamp its provenance trailer per `util-artifact-schema` `## Provenance Trailers`:
+
+   ```bash
+   chester-trailer-write stamp execute-write@<this-skill-version> "<deferred-items-path>"
+   ```
+
+   Use the `<this-skill-version>` value from this skill's `version` frontmatter field. The dedupe rule (D2 of the schema) means subsequent appends to the same deferred items file are idempotent — stamp only adds a new entry on a skill-version change.
 4. Continue with the current task
 
 Deferred items are reviewed during finish.

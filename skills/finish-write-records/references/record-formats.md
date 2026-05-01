@@ -56,6 +56,21 @@ Session type examples: `Planning and adversarial review`, `Full-stack implementa
 
 7. **Handoff Notes** — context the next session needs to pick up cleanly. Always include.
 
+8. **Session Skill Versions** — populated verbatim from
+   `chester-trailer-write harvest`. Documents which skill versions produced each
+   artifact in the sprint. See `util-artifact-schema` `## Provenance Trailers`.
+
+   ```markdown
+   ## Session Skill Versions
+
+   *(populated by `chester-trailer-write harvest`; see `util-artifact-schema` `## Provenance Trailers`)*
+
+   <!-- produced-by design-large-task@vNNNN -->
+   <!-- produced-by design-specify@vNNNN -->
+   <!-- produced-by plan-build@vNNNN -->
+   <!-- ... -->
+   ```
+
 ---
 
 ## Reasoning Audit Format
