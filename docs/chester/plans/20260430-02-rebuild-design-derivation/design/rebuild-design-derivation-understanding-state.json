@@ -1,0 +1,1762 @@
+{
+  "schemaVersion": "problemfocused-v0.1",
+  "userPrompt": "Redesign Phase 4a (Understand stage) of design-large-task and refactor Phase 4b (Solve stage) to close a structural derivation gap. The current proof produces Necessary Conditions but no Sufficient Conditions; closure does not validate that NCs collectively resolve the problem statement; Acceptance Criteria are agent-imagined at brief-render time with no upstream definition source. Continuation from prior small-task session — handoff at docs/chester/working/20260430-01-redesign-turn-package/design/session-handoff-from-small-task.md. Designer-ratified core tenets: design = problem (what), not implementation (how); agent has solve-drive that the system gives a problem to solve; Solve is not immutable. Phase 4a draft structure: three discovery lenses (Scope, Givens, Dependencies) routing to Solve element types. Open items in exam: Sufficient Conditions formal mechanism (sixth element type vs alongside vs reframe NC); loose direct-to-element entries; Provenance and Solution-Blindness as cross-cutting rules.",
+  "round": 1,
+  "overallThreshold": 0.65,
+  "tenetEntries": {
+    "problem_articulation": [
+      {
+        "text": "The Phase 4b proof structurally validates element well-formedness (grounding, collapse tests, alternatives, revision, rounds, NC count) but does not validate that the Necessary Conditions collectively prove the problem statement. The hypothesis-to-derivation link is absent. Acceptance Criteria papered over the gap with agent prose that has no upstream definition source. Phase 4a today produces saturation scoring rather than proof seed material, so the two stages do not share a continuous derivation chain.",
+        "current_behavior": "Phase 4b closure permitted with NCs grounded but with no check that NCs prove the initialized problem statement. Acceptance Criteria written by agent at brief render, not derived from any proof element.",
+        "desired_behavior": "Phase 4a produces pre-seeded proof material; Phase 4b extends and closes a proof whose closure structurally guarantees that the design solves the framed problem; what counts as resolution is explicit and load-bearing, not agent-imagined.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      }
+    ],
+    "success_criteria": [],
+    "done_state_vision": [],
+    "constraint_envelope": [
+      {
+        "text": "Existing proof element vocabulary (Necessary Condition, Evidence, Rule, Permission, Risk) and Problem statement are designer-locked as immutable. The redesign extends rather than replaces these.",
+        "constraint_type": "inheritance",
+        "source": "Designer ratification turn this session: 'Existing proof vocabulary is approved and immutable'",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Three Phase 4a flows exist today (classic, problemfocused, team-interview). The redesign must address how it relates to these existing flows — supersede, supplement, or coexist.",
+        "constraint_type": "inheritance",
+        "source": "design-large-task SKILL.md swap-line, prior-art explorer report",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "The agent's solve-drive is a designed-for property, not a flaw to suppress. The redesign must give the drive a problem-altitude target rather than prohibit drive expression.",
+        "constraint_type": "inheritance",
+        "source": "Designer-ratified core tenet from session handoff",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Design = problem (what), not implementation (how). Phase 4a cannot leak solve-side mechanism into problem framing; Phase 4b owns the solve.",
+        "constraint_type": "inheritance",
+        "source": "Designer-ratified core tenet from session handoff",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      }
+    ],
+    "scope_boundary": [
+      {
+        "text": "Phase 4a redesign — the Understand stage flow, its discovery mechanism, what it produces.",
+        "placement": "IN",
+        "source": "Designer prompt",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Phase 4b refactor — proof element types (possibly adding Sufficient Condition), closure check semantics (validating derivation against problem statement), what counts as proof completion.",
+        "placement": "IN",
+        "source": "Designer ratification: 'solve now mutable, needs to be refactored'",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Vocabulary for what done/resolved/sufficient looks like — explicitly an open design question this sprint, not a precondition.",
+        "placement": "IN",
+        "source": "Designer this turn: 'make this one of our design efforts'",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "design-specify, plan-build, execute-write skill changes — downstream consequences if Phase 4a/4b output shape changes, not direct targets of this sprint.",
+        "placement": "OUT",
+        "source": "Sprint scope; consequences flow downstream from Phase 4a/4b decisions",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Implementation of the redesigned Phase 4a/4b — design-specify and plan-build follow this sprint to formalize and implement.",
+        "placement": "OUT",
+        "source": "Sprint pipeline convention",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      }
+    ],
+    "personal_use_case_map": [],
+    "cost_energy_budget": [],
+    "project_fit": [],
+    "open_questions_ledger": [
+      {
+        "text": "How do we know the proof is actually solving the desired proof? What does it mean for a Phase 4b proof to count as a proper derivation of the problem statement? At what altitude does the link get checked, by what mechanism, with whose authority?",
+        "question_source": "designer_hesitation",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "What does end / exit / acceptance / success / sufficient look like? The vocabulary itself is open — this sprint determines which term carries which meaning, and what structural artifact (if any) encodes it.",
+        "question_source": "designer_hesitation",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Sufficient Condition mechanism choice: sixth proof element type integrated into closure, parallel artifact alongside the proof, or reframe Necessary Condition to do double duty.",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Loose direct-to-element entries vs structured-only routing through named Discovery lenses (Scope, Givens, Dependencies).",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Provenance and Solution-Blindness as cross-cutting structural rules over the proof vs as voice-discipline guidelines.",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Migration path: Phase 4a redesign supersedes the three existing flows (classic, problemfocused, team-interview), supplements one or more, or runs as a fourth option.",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Problem-statement re-validation cadence: set once at Phase 4b opening (today), or re-validated incrementally as NC and SC elements accumulate, or re-validated only at closure.",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      }
+    ]
+  },
+  "tenetScores": {
+    "problem_articulation": 1,
+    "success_criteria": 0,
+    "done_state_vision": 0,
+    "constraint_envelope": 1,
+    "scope_boundary": 1,
+    "personal_use_case_map": 0,
+    "cost_energy_budget": 0,
+    "project_fit": 0,
+    "open_questions_ledger": 1
+  },
+  "scoreHistory": [
+    {
+      "problem_articulation": 1,
+      "success_criteria": 0,
+      "done_state_vision": 0,
+      "constraint_envelope": 1,
+      "scope_boundary": 1,
+      "personal_use_case_map": 0,
+      "cost_energy_budget": 0,
+      "project_fit": 0,
+      "open_questions_ledger": 1
+    }
+  ],
+  "glossary": [
+    {
+      "canonical_name": "Necessary Condition",
+      "aliases": [
+        "NC"
+      ],
+      "definition": "Something that must be true for the design to hold. A constraint any candidate solution must satisfy. Today: an element type in the Solve proof carrying grounding, reasoning chain, and collapse test. Phase 4a redesign extends authoring to the Understand stage as well — same element type, two stages of authoring, one continuous proof ledger.",
+      "source": {
+        "explorer": "Solve proof MCP source + session handoff"
+      },
+      "sense_constraints": [
+        "NOT a sufficient condition (does not prove resolution by itself)",
+        "NOT a guarantee that the problem is solved",
+        "NOT agent-imagined (must be designer-confirmed or codebase-grounded)"
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "Solve proof MCP source + session handoff"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Sufficient Condition",
+      "aliases": [
+        "SC"
+      ],
+      "definition": "Proposed new element. What would make the problem fully resolved. The collective claim that, if every Sufficient Condition holds, the problem statement is satisfied. Closes the derivation chain that Necessary Conditions alone leave open.",
+      "source": {
+        "explorer": "session handoff Open Item 1 + industry research on V&V split"
+      },
+      "sense_constraints": [
+        "NOT a necessary condition (says what would suffice, not what is required)",
+        "NOT an acceptance criterion in the runtime-test sense (lives at problem-resolution altitude, not implementation-test altitude)",
+        "NOT agent-imagined — designer-sourced or derived from designer-ratified problem statement"
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "session handoff Open Item 1 + industry research on V&V split"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Evidence",
+      "aliases": [],
+      "definition": "Codebase, industry, or practitioner-friction facts the design rests on. Verifiable. Source must not be designer. Proof element type carrying source field.",
+      "source": {
+        "explorer": "Solve proof MCP source"
+      },
+      "sense_constraints": [
+        "NOT designer-sourced (Rules carry designer authority)",
+        "NOT agent inference (must be verifiable against an external source)"
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "Solve proof MCP source"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Rule",
+      "aliases": [
+        "designer-directed restriction"
+      ],
+      "definition": "Designer-directed restriction on the design space or problem statement. Source must be designer. Proof element type. Phase 4a collapses former Constraints tenet into Rules.",
+      "source": {
+        "explorer": "Solve proof MCP source + session handoff"
+      },
+      "sense_constraints": [
+        "NOT codebase-grounded (Evidence carries that)",
+        "NOT agent-authored",
+        "NOT a soft preference — Rules are locks"
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "Solve proof MCP source + session handoff"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Permission",
+      "aliases": [],
+      "definition": "Designer-directed relief from a previously-stated Rule. Names what restriction is being relaxed via the relieves field. Source must be designer.",
+      "source": {
+        "explorer": "Solve proof MCP source"
+      },
+      "sense_constraints": [
+        "NOT a new Rule (Permissions only relax existing ones)",
+        "NOT agent-authored"
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "Solve proof MCP source"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Risk",
+      "aliases": [],
+      "definition": "Identified hazard attached to a specific element via the basis field. A failure mode that could materialize if a Given is wrong, a Dependency fails, or a Rule's violation invalidates the problem.",
+      "source": {
+        "explorer": "Solve proof MCP source"
+      },
+      "sense_constraints": [
+        "NOT a Necessary Condition (Risks are hazards, not requirements)",
+        "NOT a generic concern (must attach to a specific basis element)"
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "Solve proof MCP source"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Problem statement",
+      "aliases": [],
+      "definition": "The designer's confirmed framing of what we are solving. Initialized at Solve stage opening; stored in proof state but currently not re-validated against the Necessary Conditions during closure. Functions as the hypothesis the design is supposed to prove.",
+      "source": {
+        "explorer": "Solve proof MCP source + handoff"
+      },
+      "sense_constraints": [
+        "NOT the goal section of the design brief (which reframes for narrative)",
+        "NOT a list of requirements",
+        "NOT a solution sketch"
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "Solve proof MCP source + handoff"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Acceptance Criteria",
+      "aliases": [
+        "AC"
+      ],
+      "definition": "Today: agent-imagined free-prose section of the design brief at Closure, no upstream definition source, no structural link to Necessary Conditions or problem statement. Downstream: design-specify formalizes them as AC-N.M with Given/When/Then blocks. Status under this redesign uncertain — likely supplemented or replaced by Sufficient Conditions.",
+      "source": {
+        "explorer": "design-brief-template + design-specify SKILL.md"
+      },
+      "sense_constraints": [
+        "NOT today derived from any proof element",
+        "NOT today validated against the problem statement"
+      ],
+      "status": "DEPRECATED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "design-brief-template + design-specify SKILL.md"
+          }
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "'acceptance criteria' is an imprecise term with a vague meaning in the proof; remove that from the approved vocab and make this one of our design efforts in determine what end or exit or acceptance or success or sufficient conditions look like",
+          "reason": "Designer-deprecated. Term semantics too vague to lock in proof. The concept it was pointing at (what does done/resolved look like) becomes an explicit design problem in this sprint, not a locked vocabulary entry."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Discovery lens",
+      "aliases": [
+        "lens",
+        "Phase 4a tenet"
+      ],
+      "definition": "An agent-side probing angle during Phase 4a. Surfaces material that routes to Solve element types. Three lenses survive after collapse: Scope, Givens, Dependencies. Each lens probes one structural angle no single element type captures alone.",
+      "source": {
+        "explorer": "session handoff Round Eight"
+      },
+      "sense_constraints": [
+        "NOT a proof element type (lenses produce element entries; lenses themselves are not in the proof)",
+        "NOT a scoring dimension"
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "session handoff Round Eight"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Scope",
+      "aliases": [],
+      "definition": "Discovery lens. What the problem covers (IN) and explicitly excludes (OUT). IN entries route to Necessary Conditions; OUT entries route to Rules with optional adjacent annotation naming the neighbor design.",
+      "source": {
+        "explorer": "session handoff"
+      },
+      "sense_constraints": [
+        "NOT a Solve-side concept",
+        "NOT the same as Boundary (Boundary collapsed into Scope-OUT)"
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "session handoff"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Givens",
+      "aliases": [
+        "working premises"
+      ],
+      "definition": "Discovery lens. Premises taken as given that could be wrong. The given itself routes to a Rule; the could-be-wrong portion routes to a Risk with basis pointing at the Rule. Renamed from Assumptions to avoid C2 voice marker collision.",
+      "source": {
+        "explorer": "session handoff"
+      },
+      "sense_constraints": [
+        "NOT the C2 Assumption voice marker (which marks runtime hedged claims)",
+        "NOT codebase-verified (Evidence carries that)"
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "session handoff"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Dependencies",
+      "aliases": [],
+      "definition": "Discovery lens. External reliance for problem existence or resolution. Existence-side entries route to Evidence; resolution-side entries route to Acceptance Criteria or Sufficient Conditions depending on Open Item 1.",
+      "source": {
+        "explorer": "session handoff"
+      },
+      "sense_constraints": [
+        "NOT internal proof references (those are grounding/basis arrays)",
+        "NOT a single-flavor concept — has both existence and resolution readings"
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "session handoff"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Derivation gap",
+      "aliases": [],
+      "definition": "The structural fault audit identified: the proof's closure check verifies element well-formedness but not that the Necessary Conditions collectively resolve the problem statement. Hypothesis-to-derivation link absent. Acceptance Criteria today paper over the gap with agent imagination.",
+      "source": {
+        "explorer": "session handoff Round Nine + proof MCP source audit"
+      },
+      "sense_constraints": [
+        "NOT a vocabulary problem",
+        "NOT a presentation problem (this is structural)"
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "session handoff Round Nine + proof MCP source audit"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Pre-seeded proof",
+      "aliases": [],
+      "definition": "Phase 4a output as direct seed material for the Solve proof. The Understand stage produces element entries that become the starting state of the proof, rather than producing scoring saturation that gets translated. One continuous proof ledger spans both stages.",
+      "source": {
+        "explorer": "session handoff Round Eight"
+      },
+      "sense_constraints": [
+        "NOT a separate artifact from the proof",
+        "NOT a translation layer between stages"
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "session handoff Round Eight"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Solve-drive",
+      "aliases": [],
+      "definition": "Designed-for property of the agent: the agent naturally wants to converge on a buildable artifact. The system gives the agent the problem we want it to solve so the drive lands on the right target. Solve stage satisfies this drive via the proof; Understand stage today does not, which is the structural source of solve-side leakage.",
+      "source": {
+        "explorer": "session handoff core tenets"
+      },
+      "sense_constraints": [
+        "NOT a flaw to suppress (designer tenet: drive is a feature)",
+        "NOT a behavioral discipline (cannot be fixed by prohibition)"
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "session handoff core tenets"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Phase 4a",
+      "aliases": [
+        "Understand stage",
+        "Phase 4 Understand"
+      ],
+      "definition": "The first stage of Phase 4 (Interview Loop). The understand stage. Builds shared problem-side understanding via a discovery process that produces element entries (Evidence, Rules, Necessary Conditions, Risks, optionally Sufficient Conditions). Closes by handing off to Phase 4b with a pre-seeded proof.",
+      "source": null,
+      "sense_constraints": [
+        "NOT the Solve stage (that is Phase 4b)",
+        "NOT a scoring stage in the redesign — produces element entries directly"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "phase 4a is understand and phase 4b is solve",
+          "reason": "Designer formalized phase naming. Phase 4a is the canonical name for the Understand stage."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Phase 4b",
+      "aliases": [
+        "Solve stage",
+        "Phase 4 Solve"
+      ],
+      "definition": "The second stage of Phase 4 (Interview Loop). The solve stage. Receives the pre-seeded proof from Phase 4a and continues authoring Necessary Conditions, Sufficient Conditions, and the closure validation. Today operates as the proof phase; refactor in this sprint extends closure to validate Sufficient Conditions and link them back to the problem statement.",
+      "source": null,
+      "sense_constraints": [
+        "NOT the Understand stage (that is Phase 4a)",
+        "NOT a fresh proof initialization — inherits the pre-seeded proof from Phase 4a"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "phase 4a is understand and phase 4b is solve",
+          "reason": "Designer formalized phase naming. Phase 4b is the canonical name for the Solve stage."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Necessary Condition",
+      "aliases": [
+        "NC"
+      ],
+      "definition": "Something that must be true for the design to hold. A constraint any candidate solution must satisfy. Today: an element type in the Solve proof carrying grounding, reasoning chain, and collapse test. Phase 4a redesign extends authoring to the Understand stage as well — same element type, two stages of authoring, one continuous proof ledger.",
+      "source": null,
+      "sense_constraints": [
+        "NOT a sufficient condition (does not prove resolution by itself)",
+        "NOT a guarantee that the problem is solved",
+        "NOT agent-imagined (must be designer-confirmed or codebase-grounded)",
+        "IMMUTABLE — designer-locked, no revision permitted"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "Existing proof vocabulary is approved and immutable",
+          "reason": "Existing proof element. Designer-locked as immutable."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Evidence",
+      "aliases": [],
+      "definition": "Codebase, industry, or practitioner-friction facts the design rests on. Verifiable. Source must not be designer. Proof element type carrying source field.",
+      "source": null,
+      "sense_constraints": [
+        "NOT designer-sourced (Rules carry designer authority)",
+        "NOT agent inference (must be verifiable against an external source)",
+        "IMMUTABLE — designer-locked, no revision permitted"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "Existing proof vocabulary is approved and immutable",
+          "reason": "Existing proof element. Designer-locked as immutable."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Rule",
+      "aliases": [
+        "designer-directed restriction"
+      ],
+      "definition": "Designer-directed restriction on the design space or problem statement. Source must be designer. Proof element type. Phase 4a collapses former Constraints tenet into Rules.",
+      "source": null,
+      "sense_constraints": [
+        "NOT codebase-grounded (Evidence carries that)",
+        "NOT agent-authored",
+        "NOT a soft preference — Rules are locks",
+        "IMMUTABLE — designer-locked, no revision permitted"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "Existing proof vocabulary is approved and immutable",
+          "reason": "Existing proof element. Designer-locked as immutable."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Permission",
+      "aliases": [],
+      "definition": "Designer-directed relief from a previously-stated Rule. Names what restriction is being relaxed via the relieves field. Source must be designer.",
+      "source": null,
+      "sense_constraints": [
+        "NOT a new Rule (Permissions only relax existing ones)",
+        "NOT agent-authored",
+        "IMMUTABLE — designer-locked, no revision permitted"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "Existing proof vocabulary is approved and immutable",
+          "reason": "Existing proof element. Designer-locked as immutable."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Risk",
+      "aliases": [],
+      "definition": "Identified hazard attached to a specific element via the basis field. A failure mode that could materialize if a Given is wrong, a Dependency fails, or a Rule's violation invalidates the problem.",
+      "source": null,
+      "sense_constraints": [
+        "NOT a Necessary Condition (Risks are hazards, not requirements)",
+        "NOT a generic concern (must attach to a specific basis element)",
+        "IMMUTABLE — designer-locked, no revision permitted"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "Existing proof vocabulary is approved and immutable",
+          "reason": "Existing proof element. Designer-locked as immutable."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Problem statement",
+      "aliases": [],
+      "definition": "The designer's confirmed framing of what we are solving. Initialized at Solve stage opening; stored in proof state but currently not re-validated against the Necessary Conditions during closure. Functions as the hypothesis the design is supposed to prove.",
+      "source": null,
+      "sense_constraints": [
+        "NOT the goal section of the design brief (which reframes for narrative)",
+        "NOT a list of requirements",
+        "NOT a solution sketch",
+        "IMMUTABLE — designer-locked, no revision permitted"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "Existing proof vocabulary is approved and immutable",
+          "reason": "Existing proof concept. Designer-locked as immutable."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Acceptance Criteria",
+      "aliases": [
+        "AC"
+      ],
+      "definition": "Today: agent-imagined free-prose section of the design brief at Closure, no upstream definition source, no structural link to Necessary Conditions or problem statement. Downstream: design-specify formalizes them as AC-N.M with Given/When/Then blocks. Status under this redesign uncertain — likely supplemented or replaced by Sufficient Conditions.",
+      "source": null,
+      "sense_constraints": [
+        "NOT today derived from any proof element",
+        "NOT today validated against the problem statement",
+        "IMMUTABLE — designer-locked term, though current mechanism remains under design review"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "Existing proof vocabulary is approved and immutable",
+          "reason": "Existing concept name. Designer-locked. Note: name is locked, but the mechanism producing them remains the open question."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Sufficient Condition",
+      "aliases": [
+        "SC"
+      ],
+      "definition": "Proposed new element. What would make the problem fully resolved. The collective claim that, if every Sufficient Condition holds, the problem statement is satisfied. Closes the derivation chain that Necessary Conditions alone leave open.",
+      "source": null,
+      "sense_constraints": [
+        "NOT a necessary condition (says what would suffice, not what is required)",
+        "NOT an acceptance criterion in the runtime-test sense (lives at problem-resolution altitude, not implementation-test altitude)",
+        "NOT agent-imagined — designer-sourced or derived from designer-ratified problem statement",
+        "REVISABLE — definition open to refinement during design"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "Proposed vocabulary is approved but subject to design revisions",
+          "reason": "Proposed term ratified into working glossary; definition remains revisable."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Discovery lens",
+      "aliases": [
+        "lens",
+        "Phase 4a tenet"
+      ],
+      "definition": "An agent-side probing angle during Phase 4a. Surfaces material that routes to Solve element types. Three lenses survive after collapse: Scope, Givens, Dependencies. Each lens probes one structural angle no single element type captures alone.",
+      "source": null,
+      "sense_constraints": [
+        "NOT a proof element type (lenses produce element entries; lenses themselves are not in the proof)",
+        "NOT a scoring dimension",
+        "REVISABLE — definition open to refinement during design"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "Proposed vocabulary is approved but subject to design revisions",
+          "reason": "Proposed term ratified into working glossary; definition remains revisable."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Scope",
+      "aliases": [],
+      "definition": "Discovery lens. What the problem covers (IN) and explicitly excludes (OUT). IN entries route to Necessary Conditions; OUT entries route to Rules with optional adjacent annotation naming the neighbor design.",
+      "source": null,
+      "sense_constraints": [
+        "NOT a Solve-side concept",
+        "NOT the same as Boundary (Boundary collapsed into Scope-OUT)",
+        "REVISABLE — definition open to refinement during design"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "Proposed vocabulary is approved but subject to design revisions",
+          "reason": "Proposed term ratified into working glossary; definition remains revisable."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Givens",
+      "aliases": [
+        "working premises"
+      ],
+      "definition": "Discovery lens. Premises taken as given that could be wrong. The given itself routes to a Rule; the could-be-wrong portion routes to a Risk with basis pointing at the Rule. Renamed from Assumptions to avoid C2 voice marker collision.",
+      "source": null,
+      "sense_constraints": [
+        "NOT the C2 Assumption voice marker (which marks runtime hedged claims)",
+        "NOT codebase-verified (Evidence carries that)",
+        "REVISABLE — definition open to refinement during design"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "Proposed vocabulary is approved but subject to design revisions",
+          "reason": "Proposed term ratified into working glossary; definition remains revisable."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Dependencies",
+      "aliases": [],
+      "definition": "Discovery lens. External reliance for problem existence or resolution. Existence-side entries route to Evidence; resolution-side entries route to Acceptance Criteria or Sufficient Conditions depending on Open Item 1.",
+      "source": null,
+      "sense_constraints": [
+        "NOT internal proof references (those are grounding/basis arrays)",
+        "NOT a single-flavor concept — has both existence and resolution readings",
+        "REVISABLE — definition open to refinement during design"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "Proposed vocabulary is approved but subject to design revisions",
+          "reason": "Proposed term ratified into working glossary; definition remains revisable."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Pre-seeded proof",
+      "aliases": [],
+      "definition": "Phase 4a output as direct seed material for the Solve proof. The Understand stage produces element entries that become the starting state of the proof, rather than producing scoring saturation that gets translated. One continuous proof ledger spans both stages.",
+      "source": null,
+      "sense_constraints": [
+        "NOT a separate artifact from the proof",
+        "NOT a translation layer between stages",
+        "REVISABLE — definition open to refinement during design"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "Proposed vocabulary is approved but subject to design revisions",
+          "reason": "Proposed term ratified into working glossary; definition remains revisable."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Derivation gap",
+      "aliases": [],
+      "definition": "The structural fault audit identified: the proof's closure check verifies element well-formedness but not that the Necessary Conditions collectively resolve the problem statement. Hypothesis-to-derivation link absent. Acceptance Criteria today paper over the gap with agent imagination.",
+      "source": null,
+      "sense_constraints": [
+        "NOT a vocabulary problem",
+        "NOT a presentation problem (this is structural)",
+        "REVISABLE — definition open to refinement during design"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "Proposed vocabulary is approved but subject to design revisions",
+          "reason": "Proposed term ratified into working glossary; definition remains revisable."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Solve-drive",
+      "aliases": [],
+      "definition": "Designed-for property of the agent: the agent naturally wants to converge on a buildable artifact. The system gives the agent the problem we want it to solve so the drive lands on the right target. Solve stage satisfies this drive via the proof; Understand stage today does not, which is the structural source of solve-side leakage.",
+      "source": null,
+      "sense_constraints": [
+        "NOT a flaw to suppress (designer tenet: drive is a feature)",
+        "NOT a behavioral discipline (cannot be fixed by prohibition)",
+        "REVISABLE — definition open to refinement during design"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "Proposed vocabulary is approved but subject to design revisions",
+          "reason": "Proposed term ratified into working glossary; definition remains revisable."
+        }
+      ]
+    }
+  ],
+  "vocabularyActionLog": [
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Phase 4a"
+      ],
+      "new_term": {
+        "canonical_name": "Phase 4a"
+      },
+      "reason": "Designer formalized phase naming. Phase 4a is the canonical name for the Understand stage.",
+      "designer_quote": "phase 4a is understand and phase 4b is solve",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-04-30T10:58:48.039Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Phase 4b"
+      ],
+      "new_term": {
+        "canonical_name": "Phase 4b"
+      },
+      "reason": "Designer formalized phase naming. Phase 4b is the canonical name for the Solve stage.",
+      "designer_quote": "phase 4a is understand and phase 4b is solve",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-04-30T10:58:52.644Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Necessary Condition"
+      ],
+      "new_term": {
+        "canonical_name": "Necessary Condition"
+      },
+      "reason": "Existing proof element. Designer-locked as immutable.",
+      "designer_quote": "Existing proof vocabulary is approved and immutable",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-04-30T10:59:41.186Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Evidence"
+      ],
+      "new_term": {
+        "canonical_name": "Evidence"
+      },
+      "reason": "Existing proof element. Designer-locked as immutable.",
+      "designer_quote": "Existing proof vocabulary is approved and immutable",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-04-30T10:59:45.793Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Rule"
+      ],
+      "new_term": {
+        "canonical_name": "Rule"
+      },
+      "reason": "Existing proof element. Designer-locked as immutable.",
+      "designer_quote": "Existing proof vocabulary is approved and immutable",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-04-30T10:59:49.869Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Permission"
+      ],
+      "new_term": {
+        "canonical_name": "Permission"
+      },
+      "reason": "Existing proof element. Designer-locked as immutable.",
+      "designer_quote": "Existing proof vocabulary is approved and immutable",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-04-30T10:59:53.777Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Risk"
+      ],
+      "new_term": {
+        "canonical_name": "Risk"
+      },
+      "reason": "Existing proof element. Designer-locked as immutable.",
+      "designer_quote": "Existing proof vocabulary is approved and immutable",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-04-30T10:59:58.388Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Problem statement"
+      ],
+      "new_term": {
+        "canonical_name": "Problem statement"
+      },
+      "reason": "Existing proof concept. Designer-locked as immutable.",
+      "designer_quote": "Existing proof vocabulary is approved and immutable",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-04-30T11:00:03.404Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Acceptance Criteria"
+      ],
+      "new_term": {
+        "canonical_name": "Acceptance Criteria"
+      },
+      "reason": "Existing concept name. Designer-locked. Note: name is locked, but the mechanism producing them remains the open question.",
+      "designer_quote": "Existing proof vocabulary is approved and immutable",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-04-30T11:00:09.552Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Sufficient Condition"
+      ],
+      "new_term": {
+        "canonical_name": "Sufficient Condition"
+      },
+      "reason": "Proposed term ratified into working glossary; definition remains revisable.",
+      "designer_quote": "Proposed vocabulary is approved but subject to design revisions",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-04-30T11:00:16.104Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Discovery lens"
+      ],
+      "new_term": {
+        "canonical_name": "Discovery lens"
+      },
+      "reason": "Proposed term ratified into working glossary; definition remains revisable.",
+      "designer_quote": "Proposed vocabulary is approved but subject to design revisions",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-04-30T11:00:21.840Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Scope"
+      ],
+      "new_term": {
+        "canonical_name": "Scope"
+      },
+      "reason": "Proposed term ratified into working glossary; definition remains revisable.",
+      "designer_quote": "Proposed vocabulary is approved but subject to design revisions",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-04-30T11:00:26.037Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Givens"
+      ],
+      "new_term": {
+        "canonical_name": "Givens"
+      },
+      "reason": "Proposed term ratified into working glossary; definition remains revisable.",
+      "designer_quote": "Proposed vocabulary is approved but subject to design revisions",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-04-30T11:00:31.054Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Dependencies"
+      ],
+      "new_term": {
+        "canonical_name": "Dependencies"
+      },
+      "reason": "Proposed term ratified into working glossary; definition remains revisable.",
+      "designer_quote": "Proposed vocabulary is approved but subject to design revisions",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-04-30T11:00:35.670Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Pre-seeded proof"
+      ],
+      "new_term": {
+        "canonical_name": "Pre-seeded proof"
+      },
+      "reason": "Proposed term ratified into working glossary; definition remains revisable.",
+      "designer_quote": "Proposed vocabulary is approved but subject to design revisions",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-04-30T11:00:40.374Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Derivation gap"
+      ],
+      "new_term": {
+        "canonical_name": "Derivation gap"
+      },
+      "reason": "Proposed term ratified into working glossary; definition remains revisable.",
+      "designer_quote": "Proposed vocabulary is approved but subject to design revisions",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-04-30T11:00:44.873Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Solve-drive"
+      ],
+      "new_term": {
+        "canonical_name": "Solve-drive"
+      },
+      "reason": "Proposed term ratified into working glossary; definition remains revisable.",
+      "designer_quote": "Proposed vocabulary is approved but subject to design revisions",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-04-30T11:00:50.444Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Acceptance Criteria"
+      ],
+      "new_term": null,
+      "reason": "Designer-deprecated. Term semantics too vague to lock in proof. The concept it was pointing at (what does done/resolved look like) becomes an explicit design problem in this sprint, not a locked vocabulary entry.",
+      "designer_quote": "'acceptance criteria' is an imprecise term with a vague meaning in the proof; remove that from the approved vocab and make this one of our design efforts in determine what end or exit or acceptance or success or sufficient conditions look like",
+      "classification": "DEPRECATE",
+      "executed_round": 0,
+      "executed_at": "2026-04-30T11:05:19.387Z"
+    }
+  ],
+  "pendingVocabDispositions": [],
+  "termUsageHistory": {
+    "the": [
+      1
+    ],
+    "phase": [
+      1
+    ],
+    "proof": [
+      1
+    ],
+    "structurally": [
+      1
+    ],
+    "validates": [
+      1
+    ],
+    "element": [
+      1
+    ],
+    "well-formedness": [
+      1
+    ],
+    "grounding": [
+      1
+    ],
+    "collapse": [
+      1
+    ],
+    "tests": [
+      1
+    ],
+    "alternatives": [
+      1
+    ],
+    "revision": [
+      1
+    ],
+    "rounds": [
+      1
+    ],
+    "count": [
+      1
+    ],
+    "but": [
+      1
+    ],
+    "does": [
+      1
+    ],
+    "not": [
+      1
+    ],
+    "validate": [
+      1
+    ],
+    "that": [
+      1
+    ],
+    "existing": [
+      1
+    ],
+    "vocabulary": [
+      1
+    ],
+    "necessary": [
+      1
+    ],
+    "condition": [
+      1
+    ],
+    "evidence": [
+      1
+    ],
+    "rule": [
+      1
+    ],
+    "permission": [
+      1
+    ],
+    "risk": [
+      1
+    ],
+    "and": [
+      1
+    ],
+    "problem": [
+      1
+    ],
+    "statement": [
+      1
+    ],
+    "are": [
+      1
+    ],
+    "designer-locked": [
+      1
+    ],
+    "immutable": [
+      1
+    ],
+    "redesign": [
+      1
+    ],
+    "extends": [
+      1
+    ],
+    "rather": [
+      1
+    ],
+    "three": [
+      1
+    ],
+    "flows": [
+      1
+    ],
+    "exist": [
+      1
+    ],
+    "today": [
+      1
+    ],
+    "classic": [
+      1
+    ],
+    "problemfocused": [
+      1
+    ],
+    "team-interview": [
+      1
+    ],
+    "must": [
+      1
+    ],
+    "address": [
+      1
+    ],
+    "how": [
+      1
+    ],
+    "relates": [
+      1
+    ],
+    "these": [
+      1
+    ],
+    "supersede": [
+      1
+    ],
+    "supplement": [
+      1
+    ],
+    "coexist": [
+      1
+    ],
+    "agent": [
+      1
+    ],
+    "solve-drive": [
+      1
+    ],
+    "designed-for": [
+      1
+    ],
+    "property": [
+      1
+    ],
+    "flaw": [
+      1
+    ],
+    "suppress": [
+      1
+    ],
+    "give": [
+      1
+    ],
+    "drive": [
+      1
+    ],
+    "problem-altitude": [
+      1
+    ],
+    "target": [
+      1
+    ],
+    "than": [
+      1
+    ],
+    "prohibit": [
+      1
+    ],
+    "design": [
+      1
+    ],
+    "what": [
+      1
+    ],
+    "implementation": [
+      1
+    ],
+    "cannot": [
+      1
+    ],
+    "leak": [
+      1
+    ],
+    "solve-side": [
+      1
+    ],
+    "mechanism": [
+      1
+    ],
+    "into": [
+      1
+    ],
+    "framing": [
+      1
+    ],
+    "owns": [
+      1
+    ],
+    "solve": [
+      1
+    ],
+    "understand": [
+      1
+    ],
+    "stage": [
+      1
+    ],
+    "flow": [
+      1
+    ],
+    "its": [
+      1
+    ],
+    "discovery": [
+      1
+    ],
+    "produces": [
+      1
+    ],
+    "refactor": [
+      1
+    ],
+    "types": [
+      1
+    ],
+    "possibly": [
+      1
+    ],
+    "adding": [
+      1
+    ],
+    "sufficient": [
+      1
+    ],
+    "closure": [
+      1
+    ],
+    "check": [
+      1
+    ],
+    "semantics": [
+      1
+    ],
+    "validating": [
+      1
+    ],
+    "derivation": [
+      1
+    ],
+    "against": [
+      1
+    ],
+    "counts": [
+      1
+    ],
+    "for": [
+      1
+    ],
+    "done": [
+      1
+    ],
+    "resolved": [
+      1
+    ],
+    "looks": [
+      1
+    ],
+    "like": [
+      1
+    ],
+    "explicitly": [
+      1
+    ],
+    "open": [
+      1
+    ],
+    "question": [
+      1
+    ],
+    "this": [
+      1
+    ],
+    "sprint": [
+      1
+    ],
+    "precondition": [
+      1
+    ],
+    "design-specify": [
+      1
+    ],
+    "plan-build": [
+      1
+    ],
+    "execute-write": [
+      1
+    ],
+    "skill": [
+      1
+    ],
+    "changes": [
+      1
+    ],
+    "downstream": [
+      1
+    ],
+    "consequences": [
+      1
+    ],
+    "output": [
+      1
+    ],
+    "shape": [
+      1
+    ],
+    "direct": [
+      1
+    ],
+    "targets": [
+      1
+    ],
+    "redesigned": [
+      1
+    ],
+    "follow": [
+      1
+    ],
+    "formalize": [
+      1
+    ],
+    "implement": [
+      1
+    ],
+    "know": [
+      1
+    ],
+    "actually": [
+      1
+    ],
+    "solving": [
+      1
+    ],
+    "desired": [
+      1
+    ],
+    "mean": [
+      1
+    ],
+    "proper": [
+      1
+    ],
+    "end": [
+      1
+    ],
+    "exit": [
+      1
+    ],
+    "acceptance": [
+      1
+    ],
+    "success": [
+      1
+    ],
+    "look": [
+      1
+    ],
+    "itself": [
+      1
+    ],
+    "determines": [
+      1
+    ],
+    "which": [
+      1
+    ],
+    "term": [
+      1
+    ],
+    "carries": [
+      1
+    ],
+    "choice": [
+      1
+    ],
+    "sixth": [
+      1
+    ],
+    "type": [
+      1
+    ],
+    "integrated": [
+      1
+    ],
+    "parallel": [
+      1
+    ],
+    "artifact": [
+      1
+    ],
+    "alongside": [
+      1
+    ],
+    "reframe": [
+      1
+    ],
+    "double": [
+      1
+    ],
+    "loose": [
+      1
+    ],
+    "direct-to-element": [
+      1
+    ],
+    "entries": [
+      1
+    ],
+    "structured-only": [
+      1
+    ],
+    "routing": [
+      1
+    ],
+    "through": [
+      1
+    ],
+    "named": [
+      1
+    ],
+    "lenses": [
+      1
+    ],
+    "scope": [
+      1
+    ],
+    "givens": [
+      1
+    ],
+    "dependencies": [
+      1
+    ],
+    "provenance": [
+      1
+    ],
+    "solution-blindness": [
+      1
+    ],
+    "cross-cutting": [
+      1
+    ],
+    "structural": [
+      1
+    ],
+    "rules": [
+      1
+    ],
+    "over": [
+      1
+    ],
+    "voice-discipline": [
+      1
+    ],
+    "guidelines": [
+      1
+    ],
+    "migration": [
+      1
+    ],
+    "path": [
+      1
+    ],
+    "supersedes": [
+      1
+    ],
+    "supplements": [
+      1
+    ],
+    "one": [
+      1
+    ],
+    "more": [
+      1
+    ],
+    "runs": [
+      1
+    ],
+    "fourth": [
+      1
+    ],
+    "option": [
+      1
+    ],
+    "problem-statement": [
+      1
+    ],
+    "re-validation": [
+      1
+    ],
+    "cadence": [
+      1
+    ],
+    "set": [
+      1
+    ],
+    "once": [
+      1
+    ],
+    "opening": [
+      1
+    ],
+    "re-validated": [
+      1
+    ],
+    "incrementally": [
+      1
+    ],
+    "elements": [
+      1
+    ],
+    "accumulate": [
+      1
+    ],
+    "only": [
+      1
+    ]
+  },
+  "pendingOverrides": [],
+  "solveLeakageLedger": [],
+  "repeatBackHistory": [],
+  "transition": {
+    "ready": false,
+    "reasons": [
+      "success_criteria below floor (0 < 0.4)",
+      "done_state_vision below floor (0 < 0.4)",
+      "personal_use_case_map below floor (0 < 0.4)",
+      "cost_energy_budget below floor (0 < 0.4)",
+      "project_fit below floor (0 < 0.4)",
+      "overall 0.55 below threshold 0.65"
+    ],
+    "overall": 0.55
+  },
+  "transitionHistory": [
+    {
+      "ready": false,
+      "reasons": [
+        "success_criteria below floor (0 < 0.4)",
+        "done_state_vision below floor (0 < 0.4)",
+        "personal_use_case_map below floor (0 < 0.4)",
+        "cost_energy_budget below floor (0 < 0.4)",
+        "project_fit below floor (0 < 0.4)",
+        "overall 0.55 below threshold 0.65"
+      ],
+      "overall": 0.55
+    }
+  ],
+  "warningsHistory": [
+    []
+  ]
+}
