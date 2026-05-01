@@ -1,0 +1,2028 @@
+{
+  "schemaVersion": "problemfocused-v0.1",
+  "userPrompt": "Cluster A — Define Solve. Master plan 20260430-02-rebuild-design-derivation, sub-sprint cluster-a-define-solve. Define a new resolution-claim element category for the design-large-task proof MCP — what observable state counts as the problem being solved. Today the proof has five element types (Necessary Condition, Evidence, Rule, Permission, Risk); the closure check verifies element well-formedness but does NOT validate against the problem statement; brief Acceptance Criteria are agent-imagined at render time with no upstream source. Cluster A settles: (1) naming for the new category (Sufficient Condition / completion criterion / resolution criterion / exit condition / other), (2) shape (new sixth element type vs NC extension vs alternative), (3) schema (required fields, source rule, integrity-check semantics, basis-link semantics), (4) closure-check extension (presence + coverage + non-restrictiveness verification), (5) hypothesis-methodology criteria (what makes a problem statement well-formed enough to carry resolution claims). Five attributes the new element must carry are designer-locked: Observable, Designer-ratified, Problem-statement-anchored, Forward-looking, Non-restrictive. RULE-1..10 from master plan inherited as Rules. Five existing element types are immutable. Phase 4b is presumed valid; cluster A's decisions may force closure-check or schema extensions handled inside cluster A. design-specify generates solutions; the proof produces specify's input.",
+  "round": 1,
+  "overallThreshold": 0.65,
+  "tenetEntries": {
+    "problem_articulation": [
+      {
+        "text": "The proof has no element category that says what observable state counts as the problem being solved. Acceptance criteria today are agent-imagined prose at brief-render time, with no upstream definition source.",
+        "current_behavior": "Brief authors acceptance criteria as free prose at Closure with no MCP tracking and no link back to necessary conditions or the problem statement.",
+        "desired_behavior": "A structurally-typed element category carries resolution claims that are observable, designer-ratified, anchored to the problem statement, forward-looking, and non-restrictive.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "The closure check gate verifies six structural properties of elements but does not reference the problem statement. The hypothesis-to-resolution link is structurally absent.",
+        "current_behavior": "Closure verifies necessary-condition grounding, collapse tests, rejected alternatives, post-transition revision, minimum rounds, and existence — none against the problem statement.",
+        "desired_behavior": "Closure verifies that resolution claims collectively cover the problem statement's named aspects and that each claim is anchored to a specific aspect.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      }
+    ],
+    "success_criteria": [
+      {
+        "text": "The new element category's name is locked.",
+        "observable": "A single canonical name appears in the cluster A design brief and is referenced consistently across the proof, brief template, and downstream skills.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "The closure-check extension is drafted in the brief.",
+        "observable": "The brief specifies presence, coverage, and non-restrictiveness verification semantics for the new element category.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Hypothesis-methodology criteria are defined or explicitly deferred with rationale.",
+        "observable": "Either the brief carries problem-statement well-formedness criteria, or it states the deferral and the reason.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Cluster A's brief, spec, plan, and execute-write all complete; tests pass on main.",
+        "observable": "The cluster A sub-sprint merges with green tests and an archive commit on main.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      }
+    ],
+    "done_state_vision": [
+      {
+        "text": "The brief renders a Resolution Claims section drawn from structurally-typed proof elements, each entry traceable to a named aspect of the problem statement, each designer-ratified.",
+        "imagined_moment": "Reading a design brief from a future sprint and seeing the Resolution Claims section list four claims, each tagged with a stable identifier, each linking back to a named aspect of the problem statement section, each carrying a one-line observable test — and knowing none of them came from agent imagination at render time.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "design-specify reads the brief and produces spec acceptance criteria mechanically from the resolution-claim entries — no guessing, no agent-authored material at the brief-to-spec boundary.",
+        "imagined_moment": "Watching design-specify run and seeing the spec's acceptance criteria emerge as direct derivatives of brief resolution-claim entries, with the spec-side numbering scheme overlaid mechanically.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      }
+    ],
+    "constraint_envelope": [
+      {
+        "text": "The five existing element categories are immutable. Their schemas, source rules, and required fields cannot change in this sprint.",
+        "constraint_type": "hard_limit",
+        "source": "master-plan RULE-1",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Whatever shape is chosen for the resolution-claim element must carry all five locked attributes — observable, designer-ratified, problem-statement-anchored, forward-looking, non-restrictive.",
+        "constraint_type": "hard_limit",
+        "source": "master-plan RULE-7",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Cluster A executes first under the master plan; cluster B reads cluster A's output as locked rules; cluster C reads both as locked rules. No parallel execution.",
+        "constraint_type": "hard_limit",
+        "source": "master-plan RULE-9",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "design-specify is the solution generator. The proof produces input for specify; specify owns architectural shape choice. Resolution claims are input constraints for specify, not architectural decisions.",
+        "constraint_type": "hard_limit",
+        "source": "master-plan RULE-3",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "The phase 4a output language must transition into phase 4b without translation. Whatever structural shape resolution claims take must be producible by phase 4a (cluster C scope).",
+        "constraint_type": "hard_limit",
+        "source": "master-plan RULE-10",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Phase 4b is presumed valid and sufficient; the default for cluster B is confirmation, not refactor. Cluster A's decisions may force closure-check extensions and proof-MCP source updates handled inside cluster A.",
+        "constraint_type": "hard_limit",
+        "source": "master-plan RULE-6",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      }
+    ],
+    "scope_boundary": [
+      {
+        "text": "Modifying any of the five existing element categories is out of scope. Their schemas are locked.",
+        "placement": "OUT",
+        "source": "master-plan RULE-1",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "The phase 4a-to-phase 4b transition mechanism is out of scope. Cluster B owns it.",
+        "placement": "OUT",
+        "source": "master-plan §4.2 cluster B scope",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Restructuring phase 4a understanding flow is out of scope. Cluster C owns it.",
+        "placement": "OUT",
+        "source": "master-plan §4.3 cluster C scope",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Architectural choice for downstream consumers is out of scope. design-specify owns it.",
+        "placement": "OUT",
+        "source": "master-plan RULE-3",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Brief-template revisions to render the resolution-claim section are borderline — minor wording changes are in scope; restructuring the eight-section brief shape is not.",
+        "placement": "BORDERLINE",
+        "source": "cluster A scope inferred from brief-template touch surface",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      }
+    ],
+    "personal_use_case_map": [
+      {
+        "text": "Designer running cluster A under the master plan now, holding master-plan context fresh.",
+        "role": "current_me",
+        "scenario": "This sprint's design conversation; settling cluster A's open decisions in the next several rounds.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Designer or another reader returning to the cluster A brief during clusters B and C, when the locked decisions become inherited rules.",
+        "role": "future_me",
+        "scenario": "Reading cluster A's brief while running cluster B's design conversation; quoting the resolution-claim shape into cluster B's transition design.",
+        "context_assumed_lost": "The naming-debate alternatives, the shape-decision rationale, and which option-vs-option arguments were considered and discarded — only the locked decision itself will remain salient unless the brief captures the rejected alternatives explicitly.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "design-specify agent reading the cluster A brief later, dispatching architects and writing the spec.",
+        "role": "future_me",
+        "scenario": "design-specify consumes the brief envelope; resolution-claim entries seed the spec's acceptance criteria.",
+        "context_assumed_lost": "Everything except the brief itself — design-specify has no design-conversation context. Whatever resolution-claim shape we land on must be readable from the brief alone.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      }
+    ],
+    "cost_energy_budget": [
+      {
+        "text": "Cluster A is foundation work — every downstream cluster reads its decisions as locked rules. Effort tolerance is high for getting the shape right; low for repeated revisits later.",
+        "dimension": "effort_tolerance",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Implementation envelope for adding a sixth element category is small — eight files, each touched in a small mechanical way. Complexity ceiling is well within budget.",
+        "dimension": "complexity_ceiling",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      }
+    ],
+    "project_fit": [
+      {
+        "text": "Adding a new typed element to the proof grammar fits the existing project convention — the proof's element-type registration pattern is consistent and well-trodden, used by the decision-record sprint as a precedent for vocabulary reuse.",
+        "alignment": "ALIGNED",
+        "project_convention_referenced": "proof grammar as stable, reusable vocabulary across consumers",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Closing the agent-imagined acceptance-criteria gap is aligned with the project's broader pattern of redirecting agent-completion-drive into structured channels rather than prohibiting it.",
+        "alignment": "ALIGNED",
+        "project_convention_referenced": "structural constraints over written prohibitions",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      }
+    ],
+    "open_questions_ledger": [
+      {
+        "text": "What is the canonical name for the new element category? Working name 'resolution claim' versus field candidates (sufficient condition, completion criterion, validation criterion, exit condition, post-condition, achievement goal). Naming will propagate downstream.",
+        "question_source": "designer_hesitation",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "What structural shape — new sixth element category, extension of the necessary-condition shape, or alternative? The five locked attributes constrain the choice but don't force one.",
+        "question_source": "designer_hesitation",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "How does the closure check verify presence, coverage, and especially non-restrictiveness for the new element category? Non-restrictiveness is structurally hard to check from the outside; this question may force the shape decision.",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Do we need formal criteria for problem-statement well-formedness, and if so what are they? Today the problem statement is a free string; coverage tracing cannot be mechanical without some structural shape.",
+        "question_source": "designer_hesitation",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      }
+    ]
+  },
+  "tenetScores": {
+    "problem_articulation": 1,
+    "success_criteria": 1,
+    "done_state_vision": 1,
+    "constraint_envelope": 1,
+    "scope_boundary": 1,
+    "personal_use_case_map": 1,
+    "cost_energy_budget": 1,
+    "project_fit": 1,
+    "open_questions_ledger": 1
+  },
+  "scoreHistory": [
+    {
+      "problem_articulation": 1,
+      "success_criteria": 1,
+      "done_state_vision": 1,
+      "constraint_envelope": 1,
+      "scope_boundary": 1,
+      "personal_use_case_map": 1,
+      "cost_energy_budget": 1,
+      "project_fit": 1,
+      "open_questions_ledger": 1
+    }
+  ],
+  "glossary": [
+    {
+      "canonical_name": "Resolve Condition",
+      "aliases": [
+        "Sufficient Condition",
+        "completion criterion",
+        "validation criterion",
+        "resolution criterion",
+        "exit condition",
+        "post-condition",
+        "achievement goal",
+        "resolution claim"
+      ],
+      "definition": "Working name for the new proof element category cluster A is defining. The structurally-typed claim that says what observable, designer-ratified, forward-looking, problem-statement-anchored, non-restrictive state counts as the problem being solved. Today this concept exists informally as agent-prose Acceptance Criteria at brief-render time with no upstream source.",
+      "source": {
+        "explorer": "industry+master-plan",
+        "citation": "master-plan §2 Endstate Point 5; industry-explorer 2026-04-30 naming-candidates table"
+      },
+      "sense_constraints": [
+        "NOT Acceptance Criteria (deprecated agent-prose form)",
+        "NOT Rule (Rules restrict the design space; resolution claims certify exit)"
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "industry+master-plan",
+            "citation": "master-plan §2 Endstate Point 5; industry-explorer 2026-04-30 naming-candidates table"
+          }
+        },
+        {
+          "event": "RENAME",
+          "round": 1,
+          "from": "resolution claim",
+          "to": "Resolve Condition",
+          "designer_quote": "Resolve Conditions (to align with Necessary)",
+          "reason": "Designer locked canonical name. 'Resolve Condition' aligns structurally with 'Necessary Condition' — both end in 'Condition', pluralize naturally, give the proof grammar a parallel pairing without the misleading necessary/sufficient logical connotation."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Necessary Condition",
+      "aliases": [
+        "NC",
+        "NCON"
+      ],
+      "definition": "Existing proof element type. Something that must be true for the design to hold. A constraint any candidate solution must satisfy. Required fields: grounding (≥1 EVIDENCE/RULE/PERMISSION), reasoning_chain (IF premises THEN necessary), collapse_test (what breaks if removed), optional rejected_alternatives. Designer-locked as immutable per master-plan RULE-1.",
+      "source": {
+        "explorer": "codebase",
+        "citation": "proof.js:65-76; master-plan RULE-1"
+      },
+      "sense_constraints": [
+        "Schema is immutable for this sprint",
+        "An NC restricts; a resolution claim does not"
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "codebase",
+            "citation": "proof.js:65-76; master-plan RULE-1"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Evidence",
+      "aliases": [
+        "EVID"
+      ],
+      "definition": "Existing proof element type. Codebase, industry, or practitioner-friction facts the design rests on. Verifiable. Source must NOT be designer (agent-sourced only). Designer-locked as immutable per master-plan RULE-1.",
+      "source": {
+        "explorer": "codebase",
+        "citation": "proof.js:39-46"
+      },
+      "sense_constraints": [
+        "Source rule prohibits designer-sourced evidence"
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "codebase",
+            "citation": "proof.js:39-46"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Rule",
+      "aliases": [],
+      "definition": "Existing proof element type. Designer-directed restriction on the design space. Source must be designer. Restricts the envelope of valid approaches. Designer-locked as immutable per master-plan RULE-1.",
+      "source": {
+        "explorer": "codebase",
+        "citation": "proof.js:49-53"
+      },
+      "sense_constraints": [
+        "Designer-sourced only",
+        "Restricts; a resolution claim certifies exit without restricting"
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "codebase",
+            "citation": "proof.js:49-53"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Permission",
+      "aliases": [],
+      "definition": "Existing proof element type. Designer-directed relief from a previously-stated Rule. Names what restriction is relaxed via a 'relieves' field. Designer-locked as immutable per master-plan RULE-1.",
+      "source": {
+        "explorer": "codebase",
+        "citation": "proof.js:55-63"
+      },
+      "sense_constraints": [
+        "Designer-sourced only"
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "codebase",
+            "citation": "proof.js:55-63"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Risk",
+      "aliases": [],
+      "definition": "Existing proof element type. Identified hazard attached to a specific element via a 'basis' field. A failure mode that could materialize if a premise is wrong. Designer-locked as immutable per master-plan RULE-1.",
+      "source": {
+        "explorer": "codebase",
+        "citation": "proof.js (no type-specific block); metrics.js completeness counter"
+      },
+      "sense_constraints": [],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "codebase",
+            "citation": "proof.js (no type-specific block); metrics.js completeness counter"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "problem statement",
+      "aliases": [],
+      "definition": "The designer's confirmed framing of what is being solved. Initialized at Solve stage opening, stored in proof state. Today is a free string with no structural shape requirement; cluster A may need to formalize what 'named aspects' means for coverage tracing.",
+      "source": {
+        "explorer": "codebase",
+        "citation": "state.js:32; SKILL.md Solve Stage Opening"
+      },
+      "sense_constraints": [
+        "NOT a list of constraints",
+        "NOT a solution sketch — describes pain, not approach"
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "codebase",
+            "citation": "state.js:32; SKILL.md Solve Stage Opening"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Phase 4a",
+      "aliases": [
+        "Understand stage"
+      ],
+      "definition": "Understand stage of the Interview Loop. Builds shared problem-side understanding via discovery flow. Output transitions to Phase 4b. Name designer-locked per master-plan RULE-2.",
+      "source": {
+        "explorer": "codebase+master-plan",
+        "citation": "design-large-task SKILL.md Phase 4; master-plan RULE-2"
+      },
+      "sense_constraints": [],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "codebase+master-plan",
+            "citation": "design-large-task SKILL.md Phase 4; master-plan RULE-2"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Phase 4b",
+      "aliases": [
+        "Solve stage"
+      ],
+      "definition": "Solve stage of the Interview Loop. Receives the pre-seeded proof from Phase 4a and continues building under the Design Proof MCP. Name designer-locked per master-plan RULE-2.",
+      "source": {
+        "explorer": "codebase+master-plan",
+        "citation": "design-large-task SKILL.md Phase 4; master-plan RULE-2"
+      },
+      "sense_constraints": [],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "codebase+master-plan",
+            "citation": "design-large-task SKILL.md Phase 4; master-plan RULE-2"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "closure check",
+      "aliases": [],
+      "definition": "The proof MCP's gate function (metrics.js:202-274) verifying six structural properties before allowing closure: NCs grounded, NCs have collapse tests, ≥1 NC has rejected alternatives, ≥1 element revised after phase transition, minimum 3 rounds, ≥1 active NC. Today does NOT reference the problem statement — this is the structural gap cluster A is targeting.",
+      "source": {
+        "explorer": "codebase",
+        "citation": "metrics.js:202-274; master-plan EVID-1"
+      },
+      "sense_constraints": [],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "codebase",
+            "citation": "metrics.js:202-274; master-plan EVID-1"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "constraint envelope",
+      "aliases": [],
+      "definition": "What the design cannot violate, must respect, or must avoid. Today fully expressible in the five immutable element types (NC, Rule, Permission, Evidence, Risk). One of three artifacts design-specify needs from the proof.",
+      "source": {
+        "explorer": "master-plan",
+        "citation": "master-plan §2 What design-specify Needs"
+      },
+      "sense_constraints": [],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "master-plan",
+            "citation": "master-plan §2 What design-specify Needs"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "coverage map",
+      "aliases": [],
+      "definition": "Trace structure ensuring every aspect of the problem statement maps to at least one constraint and at least one resolution criterion. Concrete shape settled inside cluster A or cluster B. One of three artifacts design-specify needs from the proof.",
+      "source": {
+        "explorer": "master-plan",
+        "citation": "master-plan §2 What design-specify Needs"
+      },
+      "sense_constraints": [],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "master-plan",
+            "citation": "master-plan §2 What design-specify Needs"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "hypothesis methodology",
+      "aliases": [
+        "problem-statement well-formedness"
+      ],
+      "definition": "The criteria that make a problem statement well-formed enough to carry resolution claims at Phase 4b opening. Today no such criteria exist (problem statement is a free string). Cluster A may need to formalize 'named aspects' so coverage tracing is mechanical rather than semantic.",
+      "source": {
+        "explorer": "master-plan",
+        "citation": "cluster-a-handoff §What Cluster A Must Decide; master-plan RISK-2"
+      },
+      "sense_constraints": [],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "master-plan",
+            "citation": "cluster-a-handoff §What Cluster A Must Decide; master-plan RISK-2"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Acceptance Criteria",
+      "aliases": [
+        "AC"
+      ],
+      "definition": "Deprecated. Today: agent-imagined free-prose section of the design brief authored at Closure with no upstream definition source, no MCP tracking, no structural link to NCs or problem statement. Replaced by the resolution-claim concept whose final shape lands in cluster A.",
+      "source": {
+        "explorer": "codebase+master-plan",
+        "citation": "design-brief-template.md:170-180; master-plan Vocabulary Locked / Deprecated"
+      },
+      "sense_constraints": [
+        "DEPRECATED — vague semantics",
+        "When the spec carries AC-{N.M} entries downstream, those are spec-side artifacts derived from brief AC; the brief-side prose form is what is deprecated"
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "codebase+master-plan",
+            "citation": "design-brief-template.md:170-180; master-plan Vocabulary Locked / Deprecated"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "resolution claim",
+      "aliases": [
+        "Sufficient Condition",
+        "completion criterion",
+        "validation criterion",
+        "resolution criterion",
+        "exit condition",
+        "post-condition",
+        "achievement goal"
+      ],
+      "definition": "Working name for the new proof element category cluster A is defining. The structurally-typed claim that says what observable, designer-ratified, forward-looking, problem-statement-anchored, non-restrictive state counts as the problem being solved.",
+      "source": null,
+      "sense_constraints": [
+        "NOT Acceptance Criteria (deprecated agent-prose form)",
+        "NOT Rule (Rules restrict; resolution claims certify exit)"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "approved",
+          "reason": "En-bloc ratification of seeded vocabulary at Round One Turn A."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Necessary Condition",
+      "aliases": [
+        "NC"
+      ],
+      "definition": "Existing proof element type. Something that must be true for the design to hold. Has grounding, reasoning chain, collapse test. Restricts what counts as a valid design. Designer-locked as immutable per master-plan RULE-1.",
+      "source": null,
+      "sense_constraints": [
+        "Schema is immutable for this sprint"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "approved",
+          "reason": "En-bloc ratification of seeded vocabulary at Round One Turn A."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Evidence",
+      "aliases": [],
+      "definition": "Existing proof element type. Codebase or industry fact the design rests on. Agent-sourced, never designer-sourced. Designer-locked as immutable per master-plan RULE-1.",
+      "source": null,
+      "sense_constraints": [],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "approved",
+          "reason": "En-bloc ratification of seeded vocabulary at Round One Turn A."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Rule",
+      "aliases": [],
+      "definition": "Existing proof element type. Designer-directed restriction on the design space. Restricts the envelope of valid approaches. Designer-locked as immutable per master-plan RULE-1.",
+      "source": null,
+      "sense_constraints": [
+        "Restricts; a resolution claim does not"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "approved",
+          "reason": "En-bloc ratification of seeded vocabulary at Round One Turn A."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Permission",
+      "aliases": [],
+      "definition": "Existing proof element type. Designer-directed relief from a previously-stated Rule. Names the rule it relaxes. Designer-locked as immutable per master-plan RULE-1.",
+      "source": null,
+      "sense_constraints": [],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "approved",
+          "reason": "En-bloc ratification of seeded vocabulary at Round One Turn A."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Risk",
+      "aliases": [],
+      "definition": "Existing proof element type. A hazard attached to a specific element. Failure mode if a premise is wrong. Designer-locked as immutable per master-plan RULE-1.",
+      "source": null,
+      "sense_constraints": [],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "approved",
+          "reason": "En-bloc ratification of seeded vocabulary at Round One Turn A."
+        }
+      ]
+    },
+    {
+      "canonical_name": "problem statement",
+      "aliases": [],
+      "definition": "The designer's confirmed framing of what is being solved. Initialized at Solve stage opening, stored in proof state. Today is a free string with no structural shape requirement; cluster A may need to formalize 'named aspects' for coverage tracing.",
+      "source": null,
+      "sense_constraints": [
+        "NOT a list of constraints",
+        "NOT a solution sketch — describes pain, not approach"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "approved",
+          "reason": "En-bloc ratification of seeded vocabulary at Round One Turn A."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Phase 4a",
+      "aliases": [
+        "Understand stage"
+      ],
+      "definition": "Understand stage of the Interview Loop. Builds shared problem-side understanding. Output transitions to Phase 4b. Name designer-locked per master-plan RULE-2.",
+      "source": null,
+      "sense_constraints": [],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "approved",
+          "reason": "En-bloc ratification of seeded vocabulary at Round One Turn A."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Phase 4b",
+      "aliases": [
+        "Solve stage"
+      ],
+      "definition": "Solve stage of the Interview Loop. Receives the pre-seeded proof from Phase 4a and continues building under the Design Proof MCP. Name designer-locked per master-plan RULE-2.",
+      "source": null,
+      "sense_constraints": [],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "approved",
+          "reason": "En-bloc ratification of seeded vocabulary at Round One Turn A."
+        }
+      ]
+    },
+    {
+      "canonical_name": "closure check",
+      "aliases": [],
+      "definition": "The proof MCP's gate verifying six structural properties before allowing closure: NCs grounded, NCs have collapse tests, ≥1 NC has rejected alternatives, ≥1 element revised after phase transition, minimum 3 rounds, ≥1 active NC. Today does NOT reference the problem statement — the structural fault cluster A is targeting.",
+      "source": null,
+      "sense_constraints": [],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "approved",
+          "reason": "En-bloc ratification of seeded vocabulary at Round One Turn A."
+        }
+      ]
+    },
+    {
+      "canonical_name": "constraint envelope",
+      "aliases": [],
+      "definition": "What the design cannot violate, must respect, must avoid. Today fully expressible in the five immutable element types. One of three artifacts design-specify needs from the proof.",
+      "source": null,
+      "sense_constraints": [],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "approved",
+          "reason": "En-bloc ratification of seeded vocabulary at Round One Turn A."
+        }
+      ]
+    },
+    {
+      "canonical_name": "coverage map",
+      "aliases": [],
+      "definition": "Trace structure ensuring every aspect of the problem statement maps to at least one constraint and at least one resolution claim. Concrete shape settled inside cluster A or cluster B. One of three artifacts design-specify needs from the proof.",
+      "source": null,
+      "sense_constraints": [],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "approved",
+          "reason": "En-bloc ratification of seeded vocabulary at Round One Turn A."
+        }
+      ]
+    },
+    {
+      "canonical_name": "hypothesis methodology",
+      "aliases": [
+        "problem-statement well-formedness"
+      ],
+      "definition": "The criteria that make a problem statement well-formed enough to carry resolution claims at Phase 4b opening. Today no such criteria exist (problem statement is a free string). Open question: whether cluster A formalizes 'named aspects' so coverage tracing is mechanical.",
+      "source": null,
+      "sense_constraints": [],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "approved",
+          "reason": "En-bloc ratification of seeded vocabulary at Round One Turn A."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Acceptance Criteria",
+      "aliases": [
+        "AC"
+      ],
+      "definition": "Deprecated. Today: agent-imagined free-prose section of the design brief authored at Closure with no upstream definition source. Replaced by the resolution-claim concept whose final shape lands in cluster A.",
+      "source": null,
+      "sense_constraints": [
+        "DEPRECATED — vague semantics"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "approved",
+          "reason": "En-bloc ratification of seeded vocabulary at Round One Turn A. Term carries DEPRECATED sense-constraint — ratified as the deprecated label, not as living vocabulary."
+        }
+      ]
+    },
+    {
+      "canonical_name": "designer-ratified",
+      "aliases": [],
+      "definition": "Designer validates an agent-proposed formal proof. The agent authors the proposal; the designer's confirmation is the validation gate. Distinct from designer-sourced (where the designer originates the content, as with Rules and Permissions). One of the five locked attributes a resolution claim must carry.",
+      "source": null,
+      "sense_constraints": [
+        "NOT designer-sourced — agent authors, designer validates",
+        "Validation, not authorship"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 1,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 1,
+          "designer_quote": "For designer ratified definition, it is designer will validate an agent proposed formal proof",
+          "reason": "Designer clarified meaning of one of the five locked resolution-claim attributes. Distinct from designer-sourced."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Concern",
+      "aliases": [
+        "CON"
+      ],
+      "definition": "A PM-named dimension of the problem that the proof targets for resolution. Extracted from the problem statement at Solve Stage opening, agent-proposed and PM-ratified, carries a stable ID. Resolve Conditions anchor to a Concern via problem_anchor; the coverage check at closure verifies every Concern has at least one ratified Resolve Condition or anchored Rule covering it.",
+      "source": null,
+      "sense_constraints": [
+        "NOT a solution sketch — names the problem dimension, not what fixes it",
+        "NOT a constraint — that is a Rule's job; a Concern names a dimension where outcome matters",
+        "NOT a Resolve Condition — a Concern is the target; the Resolve Condition is the claim about how that target resolves",
+        "NOT free prose — a Concern is a stable ID with a short label"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 1,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 1,
+          "designer_quote": "lets go with 'concern' because in my my mind that matches problem well...here is our problem with these concerns",
+          "reason": "Designer locked the coverage-anchor name. 'Concern' matches PM speech ('here is our problem with these concerns'). Also: drop 'pain' / 'pain-point' language across the proof."
+        }
+      ]
+    }
+  ],
+  "vocabularyActionLog": [
+    {
+      "action": "ADD",
+      "target_terms": [
+        "resolution claim"
+      ],
+      "new_term": {
+        "canonical_name": "resolution claim"
+      },
+      "reason": "En-bloc ratification of seeded vocabulary at Round One Turn A.",
+      "designer_quote": "approved",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-04-30T14:31:19.483Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Necessary Condition"
+      ],
+      "new_term": {
+        "canonical_name": "Necessary Condition"
+      },
+      "reason": "En-bloc ratification of seeded vocabulary at Round One Turn A.",
+      "designer_quote": "approved",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-04-30T14:31:21.923Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Evidence"
+      ],
+      "new_term": {
+        "canonical_name": "Evidence"
+      },
+      "reason": "En-bloc ratification of seeded vocabulary at Round One Turn A.",
+      "designer_quote": "approved",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-04-30T14:31:25.088Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Rule"
+      ],
+      "new_term": {
+        "canonical_name": "Rule"
+      },
+      "reason": "En-bloc ratification of seeded vocabulary at Round One Turn A.",
+      "designer_quote": "approved",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-04-30T14:31:28.042Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Permission"
+      ],
+      "new_term": {
+        "canonical_name": "Permission"
+      },
+      "reason": "En-bloc ratification of seeded vocabulary at Round One Turn A.",
+      "designer_quote": "approved",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-04-30T14:31:31.116Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Risk"
+      ],
+      "new_term": {
+        "canonical_name": "Risk"
+      },
+      "reason": "En-bloc ratification of seeded vocabulary at Round One Turn A.",
+      "designer_quote": "approved",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-04-30T14:31:34.182Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "problem statement"
+      ],
+      "new_term": {
+        "canonical_name": "problem statement"
+      },
+      "reason": "En-bloc ratification of seeded vocabulary at Round One Turn A.",
+      "designer_quote": "approved",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-04-30T14:31:38.787Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Phase 4a"
+      ],
+      "new_term": {
+        "canonical_name": "Phase 4a"
+      },
+      "reason": "En-bloc ratification of seeded vocabulary at Round One Turn A.",
+      "designer_quote": "approved",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-04-30T14:31:42.648Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Phase 4b"
+      ],
+      "new_term": {
+        "canonical_name": "Phase 4b"
+      },
+      "reason": "En-bloc ratification of seeded vocabulary at Round One Turn A.",
+      "designer_quote": "approved",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-04-30T14:31:45.621Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "closure check"
+      ],
+      "new_term": {
+        "canonical_name": "closure check"
+      },
+      "reason": "En-bloc ratification of seeded vocabulary at Round One Turn A.",
+      "designer_quote": "approved",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-04-30T14:31:50.359Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "constraint envelope"
+      ],
+      "new_term": {
+        "canonical_name": "constraint envelope"
+      },
+      "reason": "En-bloc ratification of seeded vocabulary at Round One Turn A.",
+      "designer_quote": "approved",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-04-30T14:31:54.280Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "coverage map"
+      ],
+      "new_term": {
+        "canonical_name": "coverage map"
+      },
+      "reason": "En-bloc ratification of seeded vocabulary at Round One Turn A.",
+      "designer_quote": "approved",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-04-30T14:31:57.208Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "hypothesis methodology"
+      ],
+      "new_term": {
+        "canonical_name": "hypothesis methodology"
+      },
+      "reason": "En-bloc ratification of seeded vocabulary at Round One Turn A.",
+      "designer_quote": "approved",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-04-30T14:32:01.361Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Acceptance Criteria"
+      ],
+      "new_term": {
+        "canonical_name": "Acceptance Criteria"
+      },
+      "reason": "En-bloc ratification of seeded vocabulary at Round One Turn A. Term carries DEPRECATED sense-constraint — ratified as the deprecated label, not as living vocabulary.",
+      "designer_quote": "approved",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-04-30T14:32:06.129Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "designer-ratified"
+      ],
+      "new_term": {
+        "canonical_name": "designer-ratified"
+      },
+      "reason": "Designer clarified meaning of one of the five locked resolution-claim attributes. Distinct from designer-sourced.",
+      "designer_quote": "For designer ratified definition, it is designer will validate an agent proposed formal proof",
+      "classification": "PROPOSE",
+      "executed_round": 1,
+      "executed_at": "2026-04-30T16:45:33.517Z"
+    },
+    {
+      "action": "RENAME",
+      "target_terms": [
+        "resolution claim"
+      ],
+      "new_term": {
+        "canonical_name": "Resolve Condition"
+      },
+      "reason": "Designer locked canonical name. 'Resolve Condition' aligns structurally with 'Necessary Condition' — both end in 'Condition', pluralize naturally, give the proof grammar a parallel pairing without the misleading necessary/sufficient logical connotation.",
+      "designer_quote": "Resolve Conditions (to align with Necessary)",
+      "classification": "DRIFT",
+      "executed_round": 1,
+      "executed_at": "2026-04-30T17:29:02.264Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Concern"
+      ],
+      "new_term": {
+        "canonical_name": "Concern"
+      },
+      "reason": "Designer locked the coverage-anchor name. 'Concern' matches PM speech ('here is our problem with these concerns'). Also: drop 'pain' / 'pain-point' language across the proof.",
+      "designer_quote": "lets go with 'concern' because in my my mind that matches problem well...here is our problem with these concerns",
+      "classification": "PROPOSE",
+      "executed_round": 1,
+      "executed_at": "2026-05-01T00:50:25.127Z"
+    }
+  ],
+  "pendingVocabDispositions": [],
+  "termUsageHistory": {
+    "the": [
+      1
+    ],
+    "proof": [
+      1
+    ],
+    "has": [
+      1
+    ],
+    "element": [
+      1
+    ],
+    "category": [
+      1
+    ],
+    "that": [
+      1
+    ],
+    "says": [
+      1
+    ],
+    "what": [
+      1
+    ],
+    "observable": [
+      1
+    ],
+    "state": [
+      1
+    ],
+    "counts": [
+      1
+    ],
+    "problem": [
+      1
+    ],
+    "being": [
+      1
+    ],
+    "solved": [
+      1
+    ],
+    "acceptance": [
+      1
+    ],
+    "criteria": [
+      1
+    ],
+    "today": [
+      1
+    ],
+    "are": [
+      1
+    ],
+    "agent-imagined": [
+      1
+    ],
+    "closure": [
+      1
+    ],
+    "check": [
+      1
+    ],
+    "gate": [
+      1
+    ],
+    "verifies": [
+      1
+    ],
+    "six": [
+      1
+    ],
+    "structural": [
+      1
+    ],
+    "properties": [
+      1
+    ],
+    "elements": [
+      1
+    ],
+    "but": [
+      1
+    ],
+    "does": [
+      1
+    ],
+    "not": [
+      1
+    ],
+    "reference": [
+      1
+    ],
+    "statement": [
+      1
+    ],
+    "hypothesis-to-resolution": [
+      1
+    ],
+    "link": [
+      1
+    ],
+    "structurally": [
+      1
+    ],
+    "new": [
+      1
+    ],
+    "name": [
+      1
+    ],
+    "locked": [
+      1
+    ],
+    "closure-check": [
+      1
+    ],
+    "extension": [
+      1
+    ],
+    "drafted": [
+      1
+    ],
+    "brief": [
+      1
+    ],
+    "hypothesis-methodology": [
+      1
+    ],
+    "defined": [
+      1
+    ],
+    "explicitly": [
+      1
+    ],
+    "deferred": [
+      1
+    ],
+    "with": [
+      1
+    ],
+    "rationale": [
+      1
+    ],
+    "cluster": [
+      1
+    ],
+    "spec": [
+      1
+    ],
+    "plan": [
+      1
+    ],
+    "and": [
+      1
+    ],
+    "execute-write": [
+      1
+    ],
+    "all": [
+      1
+    ],
+    "complete": [
+      1
+    ],
+    "tests": [
+      1
+    ],
+    "pass": [
+      1
+    ],
+    "main": [
+      1
+    ],
+    "renders": [
+      1
+    ],
+    "resolution": [
+      1
+    ],
+    "claims": [
+      1
+    ],
+    "section": [
+      1
+    ],
+    "drawn": [
+      1
+    ],
+    "from": [
+      1
+    ],
+    "structurally-typed": [
+      1
+    ],
+    "each": [
+      1
+    ],
+    "entry": [
+      1
+    ],
+    "traceable": [
+      1
+    ],
+    "named": [
+      1
+    ],
+    "aspect": [
+      1
+    ],
+    "design-specify": [
+      1
+    ],
+    "reads": [
+      1
+    ],
+    "produces": [
+      1
+    ],
+    "mechanically": [
+      1
+    ],
+    "resolution-claim": [
+      1
+    ],
+    "entries": [
+      1
+    ],
+    "guessing": [
+      1
+    ],
+    "agent-authored": [
+      1
+    ],
+    "material": [
+      1
+    ],
+    "brief-to-spec": [
+      1
+    ],
+    "boundary": [
+      1
+    ],
+    "five": [
+      1
+    ],
+    "existing": [
+      1
+    ],
+    "categories": [
+      1
+    ],
+    "immutable": [
+      1
+    ],
+    "their": [
+      1
+    ],
+    "schemas": [
+      1
+    ],
+    "source": [
+      1
+    ],
+    "rules": [
+      1
+    ],
+    "required": [
+      1
+    ],
+    "fields": [
+      1
+    ],
+    "cannot": [
+      1
+    ],
+    "change": [
+      1
+    ],
+    "this": [
+      1
+    ],
+    "sprint": [
+      1
+    ],
+    "whatever": [
+      1
+    ],
+    "shape": [
+      1
+    ],
+    "chosen": [
+      1
+    ],
+    "for": [
+      1
+    ],
+    "must": [
+      1
+    ],
+    "carry": [
+      1
+    ],
+    "attributes": [
+      1
+    ],
+    "designer-ratified": [
+      1
+    ],
+    "problem-statement-anchored": [
+      1
+    ],
+    "forward-looking": [
+      1
+    ],
+    "non-restrictive": [
+      1
+    ],
+    "executes": [
+      1
+    ],
+    "first": [
+      1
+    ],
+    "under": [
+      1
+    ],
+    "master": [
+      1
+    ],
+    "output": [
+      1
+    ],
+    "both": [
+      1
+    ],
+    "parallel": [
+      1
+    ],
+    "execution": [
+      1
+    ],
+    "solution": [
+      1
+    ],
+    "generator": [
+      1
+    ],
+    "input": [
+      1
+    ],
+    "specify": [
+      1
+    ],
+    "owns": [
+      1
+    ],
+    "architectural": [
+      1
+    ],
+    "choice": [
+      1
+    ],
+    "constraints": [
+      1
+    ],
+    "phase": [
+      1
+    ],
+    "language": [
+      1
+    ],
+    "transition": [
+      1
+    ],
+    "into": [
+      1
+    ],
+    "without": [
+      1
+    ],
+    "translation": [
+      1
+    ],
+    "take": [
+      1
+    ],
+    "producible": [
+      1
+    ],
+    "presumed": [
+      1
+    ],
+    "valid": [
+      1
+    ],
+    "sufficient": [
+      1
+    ],
+    "default": [
+      1
+    ],
+    "confirmation": [
+      1
+    ],
+    "refactor": [
+      1
+    ],
+    "decisions": [
+      1
+    ],
+    "may": [
+      1
+    ],
+    "force": [
+      1
+    ],
+    "extensions": [
+      1
+    ],
+    "proof-mcp": [
+      1
+    ],
+    "modifying": [
+      1
+    ],
+    "any": [
+      1
+    ],
+    "out": [
+      1
+    ],
+    "scope": [
+      1
+    ],
+    "to-phase": [
+      1
+    ],
+    "mechanism": [
+      1
+    ],
+    "restructuring": [
+      1
+    ],
+    "understanding": [
+      1
+    ],
+    "flow": [
+      1
+    ],
+    "downstream": [
+      1
+    ],
+    "consumers": [
+      1
+    ],
+    "brief-template": [
+      1
+    ],
+    "revisions": [
+      1
+    ],
+    "render": [
+      1
+    ],
+    "borderline": [
+      1
+    ],
+    "minor": [
+      1
+    ],
+    "wording": [
+      1
+    ],
+    "changes": [
+      1
+    ],
+    "eight-section": [
+      1
+    ],
+    "designer": [
+      1
+    ],
+    "running": [
+      1
+    ],
+    "now": [
+      1
+    ],
+    "holding": [
+      1
+    ],
+    "master-plan": [
+      1
+    ],
+    "context": [
+      1
+    ],
+    "fresh": [
+      1
+    ],
+    "another": [
+      1
+    ],
+    "reader": [
+      1
+    ],
+    "returning": [
+      1
+    ],
+    "during": [
+      1
+    ],
+    "clusters": [
+      1
+    ],
+    "when": [
+      1
+    ],
+    "become": [
+      1
+    ],
+    "inherited": [
+      1
+    ],
+    "agent": [
+      1
+    ],
+    "reading": [
+      1
+    ],
+    "later": [
+      1
+    ],
+    "dispatching": [
+      1
+    ],
+    "architects": [
+      1
+    ],
+    "writing": [
+      1
+    ],
+    "foundation": [
+      1
+    ],
+    "work": [
+      1
+    ],
+    "every": [
+      1
+    ],
+    "its": [
+      1
+    ],
+    "effort": [
+      1
+    ],
+    "tolerance": [
+      1
+    ],
+    "high": [
+      1
+    ],
+    "getting": [
+      1
+    ],
+    "right": [
+      1
+    ],
+    "low": [
+      1
+    ],
+    "implementation": [
+      1
+    ],
+    "envelope": [
+      1
+    ],
+    "adding": [
+      1
+    ],
+    "sixth": [
+      1
+    ],
+    "small": [
+      1
+    ],
+    "eight": [
+      1
+    ],
+    "files": [
+      1
+    ],
+    "touched": [
+      1
+    ],
+    "mechanical": [
+      1
+    ],
+    "way": [
+      1
+    ],
+    "complexity": [
+      1
+    ],
+    "ceiling": [
+      1
+    ],
+    "well": [
+      1
+    ],
+    "within": [
+      1
+    ],
+    "budget": [
+      1
+    ],
+    "typed": [
+      1
+    ],
+    "grammar": [
+      1
+    ],
+    "fits": [
+      1
+    ],
+    "project": [
+      1
+    ],
+    "convention": [
+      1
+    ],
+    "element-type": [
+      1
+    ],
+    "registration": [
+      1
+    ],
+    "pattern": [
+      1
+    ],
+    "consistent": [
+      1
+    ],
+    "well-trodden": [
+      1
+    ],
+    "closing": [
+      1
+    ],
+    "acceptance-criteria": [
+      1
+    ],
+    "gap": [
+      1
+    ],
+    "aligned": [
+      1
+    ],
+    "broader": [
+      1
+    ],
+    "redirecting": [
+      1
+    ],
+    "agent-completion-drive": [
+      1
+    ],
+    "structured": [
+      1
+    ],
+    "channels": [
+      1
+    ],
+    "rather": [
+      1
+    ],
+    "than": [
+      1
+    ],
+    "prohibiting": [
+      1
+    ],
+    "canonical": [
+      1
+    ],
+    "working": [
+      1
+    ],
+    "claim": [
+      1
+    ],
+    "versus": [
+      1
+    ],
+    "field": [
+      1
+    ],
+    "candidates": [
+      1
+    ],
+    "condition": [
+      1
+    ],
+    "completion": [
+      1
+    ],
+    "criterion": [
+      1
+    ],
+    "necessary-condition": [
+      1
+    ],
+    "alternative": [
+      1
+    ],
+    "constrain": [
+      1
+    ],
+    "how": [
+      1
+    ],
+    "verify": [
+      1
+    ],
+    "presence": [
+      1
+    ],
+    "coverage": [
+      1
+    ],
+    "especially": [
+      1
+    ],
+    "non-restrictiveness": [
+      1
+    ],
+    "hard": [
+      1
+    ],
+    "need": [
+      1
+    ],
+    "formal": [
+      1
+    ],
+    "problem-statement": [
+      1
+    ],
+    "well-formedness": [
+      1
+    ],
+    "they": [
+      1
+    ],
+    "free": [
+      1
+    ],
+    "string": [
+      1
+    ],
+    "tracing": [
+      1
+    ]
+  },
+  "pendingOverrides": [],
+  "solveLeakageLedger": [
+    {
+      "origin_tenet": "success_criteria",
+      "entry": {
+        "text": "The element schema is locked — required fields, source rule, integrity-check semantics, basis-link semantics.",
+        "observable": "The cluster A design brief carries a complete schema specification that an implementer can build against without further design work."
+      },
+      "errors": [
+        "success_criteria: phase-vocabulary violation — solve-side tokens: schema"
+      ],
+      "round": 1
+    },
+    {
+      "origin_tenet": "scope_boundary",
+      "entry": {
+        "text": "Naming, shape, schema, closure-check extension, and hypothesis-methodology criteria for the resolution-claim element are in scope.",
+        "placement": "IN",
+        "source": "master-plan §4.1 cluster A objective + exit criteria"
+      },
+      "errors": [
+        "scope_boundary: phase-vocabulary violation — solve-side tokens: schema"
+      ],
+      "round": 1
+    },
+    {
+      "origin_tenet": "cost_energy_budget",
+      "entry": {
+        "text": "Master plan operates as a single cycle; no Cycle-2 anticipated. Cluster A's outputs feed forward into design-specify → plan-build → execute-write per the normal pipeline. No further META-planning planned.",
+        "dimension": "why_now"
+      },
+      "errors": [
+        "cost_energy_budget: phase-vocabulary violation — solve-side tokens: pipeline"
+      ],
+      "round": 1
+    },
+    {
+      "origin_tenet": "open_questions_ledger",
+      "entry": {
+        "text": "What is the schema — required fields, source rule (designer-only? designer-with-evidence-anchor?), basis-link semantics, problem-statement-anchor mechanism? The source rule is what closes the agent-imagined-material failure mode.",
+        "question_source": "designer_hesitation",
+        "status": "OPEN"
+      },
+      "errors": [
+        "open_questions_ledger: phase-vocabulary violation — solve-side tokens: schema"
+      ],
+      "round": 1
+    }
+  ],
+  "repeatBackHistory": [],
+  "transition": {
+    "ready": true,
+    "reasons": [],
+    "overall": 1
+  },
+  "transitionHistory": [
+    {
+      "ready": true,
+      "reasons": [],
+      "overall": 1
+    }
+  ],
+  "warningsHistory": [
+    []
+  ]
+}

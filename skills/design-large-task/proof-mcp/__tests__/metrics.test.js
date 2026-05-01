@@ -5,6 +5,7 @@ import {
   detectStall,
   detectChallenge,
   checkClosure,
+  checkConcernCoverage,
 } from '../metrics.js';
 
 // --- helpers ---
@@ -21,6 +22,8 @@ function makeElement(overrides) {
     rejected_alternatives: [],
     relieves: null,
     basis: [],
+    problem_anchor: null,
+    ratification: null,
     status: 'active',
     addedInRound: 0,
     revisedInRound: null,
@@ -51,6 +54,8 @@ describe('computeCompleteness', () => {
       evidence_count: 0,
       permission_count: 0,
       risk_count: 0,
+      resolve_condition_count: 0,
+      ratified_rc_count: 0,
       revision_count: 0,
     });
   });
@@ -315,8 +320,20 @@ describe('checkClosure', () => {
         rejected_alternatives: ['alt-a', 'alt-b'],
         revisedInRound: 3,
       }),
+      makeElement({
+        id: 'RCON-1', type: 'RESOLVE_CONDITION',
+        statement: 'resolves',
+        problem_anchor: 'CERN-1',
+        ratification: { ratifiedAtRound: 1, text: 'ok' },
+      }),
     );
-    return { elements, round: 4, phaseTransitionRound: 1 };
+    return {
+      elements,
+      round: 4,
+      phaseTransitionRound: 1,
+      concerns: [{ id: 'CERN-1', label: 'X', description: null }],
+      concernsLocked: true,
+    };
   }
 
   it('permits closure when all conditions met', () => {
@@ -390,5 +407,200 @@ describe('checkClosure', () => {
     const result = checkClosure(state);
     expect(result.permitted).toBe(false);
     expect(result.reasons.length).toBeGreaterThanOrEqual(3);
+  });
+});
+
+// =============================================================================
+// computeCompleteness — Resolve Conditions
+// =============================================================================
+describe('computeCompleteness — Resolve Conditions', () => {
+  it('counts active RCs and ratified RCs', () => {
+    const ratified = makeElement({
+      id: 'RCON-1', type: 'RESOLVE_CONDITION', statement: 'X',
+      problem_anchor: 'CERN-1',
+      ratification: { ratifiedAtRound: 1, text: 'ok' },
+    });
+    const unratified = makeElement({
+      id: 'RCON-2', type: 'RESOLVE_CONDITION', statement: 'Y',
+      problem_anchor: 'CERN-1',
+      ratification: null,
+    });
+    const withdrawn = makeElement({
+      id: 'RCON-3', type: 'RESOLVE_CONDITION', statement: 'Z',
+      problem_anchor: 'CERN-1',
+      ratification: null,
+      status: 'withdrawn',
+    });
+    const m = mapOf(ratified, unratified, withdrawn);
+    const c = computeCompleteness(m);
+    expect(c.resolve_condition_count).toBe(2);
+    expect(c.ratified_rc_count).toBe(1);
+  });
+});
+
+// =============================================================================
+// checkConcernCoverage
+// =============================================================================
+describe('checkConcernCoverage', () => {
+  function buildState({ concerns, elements }) {
+    const map = new Map();
+    for (const el of elements) map.set(el.id, el);
+    return { concerns, concernsLocked: true, elements: map };
+  }
+
+  it('marks Concern as covered when a ratified RC anchors to it', () => {
+    const state = buildState({
+      concerns: [{ id: 'CERN-1', label: 'Performance', description: null }],
+      elements: [
+        makeElement({
+          id: 'RCON-1', type: 'RESOLVE_CONDITION', statement: 'fast',
+          problem_anchor: 'CERN-1',
+          ratification: { ratifiedAtRound: 1, text: 'ok' },
+        }),
+      ],
+    });
+    const cov = checkConcernCoverage(state);
+    expect(cov.covered).toEqual(['CERN-1']);
+    expect(cov.uncovered).toEqual([]);
+  });
+
+  it('does NOT mark covered when RC is unratified', () => {
+    const state = buildState({
+      concerns: [{ id: 'CERN-1', label: 'Performance', description: null }],
+      elements: [
+        makeElement({
+          id: 'RCON-1', type: 'RESOLVE_CONDITION', statement: 'fast',
+          problem_anchor: 'CERN-1',
+          ratification: null,
+        }),
+      ],
+    });
+    expect(checkConcernCoverage(state).uncovered).toEqual(['CERN-1']);
+  });
+
+  it('marks Concern as covered via Rule mentioning the Concern ID', () => {
+    const state = buildState({
+      concerns: [{ id: 'CERN-1', label: 'Performance', description: null }],
+      elements: [
+        makeElement({
+          id: 'RULE-1', type: 'RULE',
+          statement: 'Avoid CERN-1 mitigation paths',
+          source: 'designer',
+        }),
+      ],
+    });
+    expect(checkConcernCoverage(state).covered).toEqual(['CERN-1']);
+  });
+
+  it('marks Concern as covered via Rule mentioning the Concern label (case-insensitive)', () => {
+    const state = buildState({
+      concerns: [{ id: 'CERN-1', label: 'Performance', description: null }],
+      elements: [
+        makeElement({
+          id: 'RULE-1', type: 'RULE',
+          statement: 'preserve performance baseline',
+          source: 'designer',
+        }),
+      ],
+    });
+    expect(checkConcernCoverage(state).covered).toEqual(['CERN-1']);
+  });
+
+  it('returns uncovered Concern when no RC and no Rule covers it', () => {
+    const state = buildState({
+      concerns: [
+        { id: 'CERN-1', label: 'Performance', description: null },
+        { id: 'CERN-2', label: 'Auditability', description: null },
+      ],
+      elements: [
+        makeElement({
+          id: 'RCON-1', type: 'RESOLVE_CONDITION', statement: 'fast',
+          problem_anchor: 'CERN-1',
+          ratification: { ratifiedAtRound: 1, text: 'ok' },
+        }),
+      ],
+    });
+    expect(checkConcernCoverage(state).uncovered).toEqual(['CERN-2']);
+  });
+});
+
+// =============================================================================
+// checkClosure — Concerns and Resolve Conditions (conditions 7-10)
+// =============================================================================
+describe('checkClosure — Concerns and Resolve Conditions (conditions 7-10)', () => {
+  function baseClosureState() {
+    const evidence = makeElement({ id: 'EVID-1', type: 'EVIDENCE', statement: 'fact', source: 'codebase' });
+    const nc = makeElement({
+      id: 'NCON-1', type: 'NECESSARY_CONDITION', statement: 'NC',
+      grounding: ['EVID-1'], collapse_test: 'breaks', reasoning_chain: 'IF...THEN',
+      rejected_alternatives: ['alt'], revisedInRound: 2,
+    });
+    return {
+      round: 3, phaseTransitionRound: 1,
+      elements: mapOf(evidence, nc),
+      concerns: [],
+      concernsLocked: false,
+    };
+  }
+
+  it('condition 8: refuses closure when Concerns list is empty', () => {
+    const state = baseClosureState();
+    const c = checkClosure(state);
+    expect(c.permitted).toBe(false);
+    expect(c.reasons).toContain('No Concerns enumerated — at least one Concern required before closure');
+  });
+
+  it('condition 7: refuses closure when Concerns are not locked', () => {
+    const state = baseClosureState();
+    state.concerns = [{ id: 'CERN-1', label: 'X', description: null }];
+    state.concernsLocked = false;
+    const c = checkClosure(state);
+    expect(c.reasons).toContain('Concerns must be locked before closure');
+  });
+
+  it('condition 9: refuses closure when an RC is unratified', () => {
+    const state = baseClosureState();
+    state.concerns = [{ id: 'CERN-1', label: 'X', description: null }];
+    state.concernsLocked = true;
+    const rc = makeElement({
+      id: 'RCON-1', type: 'RESOLVE_CONDITION', statement: 'r',
+      problem_anchor: 'CERN-1', ratification: null,
+    });
+    state.elements.set('RCON-1', rc);
+    const c = checkClosure(state);
+    expect(c.reasons.some(r => /Unratified Resolve Conditions/.test(r))).toBe(true);
+  });
+
+  it('condition 10: lists each uncovered Concern', () => {
+    const state = baseClosureState();
+    state.concerns = [
+      { id: 'CERN-1', label: 'X', description: null },
+      { id: 'CERN-2', label: 'Y', description: null },
+    ];
+    state.concernsLocked = true;
+    const rc = makeElement({
+      id: 'RCON-1', type: 'RESOLVE_CONDITION', statement: 'r',
+      problem_anchor: 'CERN-1',
+      ratification: { ratifiedAtRound: 1, text: 'ok' },
+    });
+    state.elements.set('RCON-1', rc);
+    const c = checkClosure(state);
+    expect(c.reasons.some(r => /CERN-2/.test(r))).toBe(true);
+    expect(c.reasons.some(r => /CERN-1/.test(r))).toBe(false);
+  });
+
+  it('permits closure when all 10 conditions pass', () => {
+    const state = baseClosureState();
+    state.concerns = [{ id: 'CERN-1', label: 'X', description: null }];
+    state.concernsLocked = true;
+    const rc = makeElement({
+      id: 'RCON-1', type: 'RESOLVE_CONDITION', statement: 'r',
+      problem_anchor: 'CERN-1',
+      ratification: { ratifiedAtRound: 1, text: 'ok' },
+    });
+    state.elements.set('RCON-1', rc);
+    const c = checkClosure(state);
+    expect(c.permitted).toBe(true);
+    expect(c.reasons).toEqual([]);
   });
 });

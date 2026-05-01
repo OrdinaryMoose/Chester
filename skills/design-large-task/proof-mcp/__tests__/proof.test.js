@@ -8,13 +8,44 @@ import {
   checkUngrounded,
   checkMissingCollapseTest,
   checkStaleGrounding,
+  checkUnratifiedResolveConditions,
+  checkStaleRatification,
   checkAllIntegrity,
 } from '../proof.js';
 
+// Helpers — borrowed from metrics.test.js shape
+function makeElement(overrides) {
+  return {
+    id: 'e1',
+    type: 'EVIDENCE',
+    statement: 'test',
+    source: 'codebase',
+    grounding: [],
+    collapse_test: null,
+    reasoning_chain: null,
+    rejected_alternatives: [],
+    relieves: null,
+    basis: [],
+    problem_anchor: null,
+    ratification: null,
+    status: 'active',
+    addedInRound: 0,
+    revisedInRound: null,
+    revision: 0,
+    ...overrides,
+  };
+}
+
+function mapOf(...elements) {
+  const m = new Map();
+  for (const el of elements) m.set(el.id, el);
+  return m;
+}
+
 describe('ELEMENT_TYPES', () => {
-  it('contains all five types', () => {
+  it('contains all six types', () => {
     expect(ELEMENT_TYPES).toEqual([
-      'EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK',
+      'EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK', 'RESOLVE_CONDITION',
     ]);
   });
 });
@@ -171,6 +202,44 @@ describe('createElement', () => {
     expect(el.basis).toEqual([]);
     expect(el.revision).toBe(0);
     expect(el.revisedInRound).toBeNull();
+  });
+});
+
+describe('createElement RESOLVE_CONDITION', () => {
+  it('creates a RESOLVE_CONDITION with statement and problem_anchor', () => {
+    const el = createElement(
+      { type: 'RESOLVE_CONDITION', statement: 'System rejects empty input', problem_anchor: 'CERN-1' },
+      'RCON-1', 1,
+    );
+    expect(el.id).toBe('RCON-1');
+    expect(el.type).toBe('RESOLVE_CONDITION');
+    expect(el.statement).toBe('System rejects empty input');
+    expect(el.problem_anchor).toBe('CERN-1');
+    expect(el.ratification).toBeNull();
+    expect(el.status).toBe('active');
+  });
+
+  it('rejects RESOLVE_CONDITION without problem_anchor', () => {
+    expect(() => createElement(
+      { type: 'RESOLVE_CONDITION', statement: 'X' },
+      'RCON-1', 1,
+    )).toThrow(/problem_anchor/);
+  });
+
+  it('rejects RESOLVE_CONDITION with designer source', () => {
+    expect(() => createElement(
+      { type: 'RESOLVE_CONDITION', statement: 'X', problem_anchor: 'CERN-1', source: 'designer' },
+      'RCON-1', 1,
+    )).toThrow(/source/);
+  });
+
+  it('initializes problem_anchor and ratification fields to null on non-RC elements', () => {
+    const el = createElement(
+      { type: 'EVIDENCE', statement: 'x', source: 'codebase' },
+      'EVID-1', 1,
+    );
+    expect(el.problem_anchor).toBeNull();
+    expect(el.ratification).toBeNull();
   });
 });
 
@@ -439,5 +508,43 @@ describe('checkAllIntegrity', () => {
       ['NCON-1', { id: 'NCON-1', type: 'NECESSARY_CONDITION', grounding: ['EVID-1', 'RULE-1'], collapse_test: 'design fails', basis: [], status: 'active', revisedInRound: null, revision: 0 }],
     ]);
     expect(checkAllIntegrity(elements)).toEqual([]);
+  });
+});
+
+describe('checkUnratifiedResolveConditions', () => {
+  it('flags active unratified RCs', () => {
+    const map = mapOf(
+      makeElement({ id: 'RCON-1', type: 'RESOLVE_CONDITION', statement: 'X', problem_anchor: 'CERN-1', ratification: null }),
+      makeElement({ id: 'RCON-2', type: 'RESOLVE_CONDITION', statement: 'Y', problem_anchor: 'CERN-1', ratification: { ratifiedAtRound: 1, text: 'ok' } }),
+    );
+    const warnings = checkUnratifiedResolveConditions(map);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toMatchObject({ type: 'unratified-rc', element_id: 'RCON-1' });
+  });
+
+  it('ignores withdrawn RCs', () => {
+    const map = mapOf(
+      makeElement({ id: 'RCON-1', type: 'RESOLVE_CONDITION', statement: 'X', problem_anchor: 'CERN-1', ratification: null, status: 'withdrawn' }),
+    );
+    expect(checkUnratifiedResolveConditions(map)).toEqual([]);
+  });
+});
+
+describe('checkStaleRatification (sentinel)', () => {
+  it('returns empty for any element state', () => {
+    const ratified = makeElement({ id: 'RCON-1', type: 'RESOLVE_CONDITION', statement: 'X', problem_anchor: 'CERN-1', ratification: { ratifiedAtRound: 1, text: 'ok' } });
+    const unratified = makeElement({ id: 'RCON-2', type: 'RESOLVE_CONDITION', statement: 'Y', problem_anchor: 'CERN-1', ratification: null });
+    const withdrawn = makeElement({ id: 'RCON-3', type: 'RESOLVE_CONDITION', statement: 'Z', problem_anchor: 'CERN-1', ratification: null, status: 'withdrawn' });
+    expect(checkStaleRatification(mapOf(ratified, unratified, withdrawn))).toEqual([]);
+  });
+});
+
+describe('checkAllIntegrity — Resolve Conditions', () => {
+  it('includes checkUnratifiedResolveConditions output', () => {
+    const map = mapOf(
+      makeElement({ id: 'RCON-1', type: 'RESOLVE_CONDITION', statement: 'X', problem_anchor: 'CERN-1', ratification: null }),
+    );
+    const warnings = checkAllIntegrity(map);
+    expect(warnings.some(w => w.type === 'unratified-rc')).toBe(true);
   });
 });

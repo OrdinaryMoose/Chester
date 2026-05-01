@@ -9,6 +9,9 @@ import {
   markChallengeUsed,
   saveState,
   loadState,
+  addConcern,
+  lockConcerns,
+  ratifyResolveCondition,
 } from '../state.js';
 
 describe('initializeState', () => {
@@ -19,7 +22,7 @@ describe('initializeState', () => {
     expect(state.elements).toBeInstanceOf(Map);
     expect(state.elements.size).toBe(0);
     expect(state.elementCounters).toEqual({
-      EVIDENCE: 0, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 0, RISK: 0,
+      EVIDENCE: 0, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 0, RISK: 0, RESOLVE_CONDITION: 0,
     });
     expect(state.conditionCountHistory).toEqual([]);
     expect(state.elementCountHistory).toEqual([]);
@@ -27,6 +30,136 @@ describe('initializeState', () => {
     expect(state.challengeLog).toEqual([]);
     expect(state.revisionLog).toEqual([]);
     expect(state.phaseTransitionRound).toBe(0);
+  });
+
+  it('includes RESOLVE_CONDITION in elementCounters', () => {
+    const state = initializeState('Design a widget');
+    expect(state.elementCounters).toEqual({
+      EVIDENCE: 0, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 0, RISK: 0, RESOLVE_CONDITION: 0,
+    });
+  });
+
+  it('generates RCON- prefixed IDs for RESOLVE_CONDITION', () => {
+    const state = initializeState('test');
+    const [id] = generateId(state, 'RESOLVE_CONDITION');
+    expect(id).toBe('RCON-1');
+  });
+
+  it('initializes Concerns lifecycle fields', () => {
+    const state = initializeState('test');
+    expect(state.concerns).toEqual([]);
+    expect(state.concernsLocked).toBe(false);
+    expect(state.concernCounter).toBe(0);
+  });
+
+  it('initializes ratificationLog as empty array', () => {
+    const state = initializeState('test');
+    expect(state.ratificationLog).toEqual([]);
+  });
+});
+
+describe('ratifyResolveCondition', () => {
+  it('ratifies a single active RESOLVE_CONDITION', () => {
+    let state = initializeState('test');
+    [, state] = addConcern(state, { label: 'C1' });
+    [state] = lockConcerns(state);
+    const result = applyOperations(state, [
+      { op: 'add', type: 'RESOLVE_CONDITION', statement: 'X', problem_anchor: 'CERN-1' },
+    ]);
+    state = result.state;
+    const [newState, err] = ratifyResolveCondition(state, { elementId: 'RCON-1', ratificationText: 'PM approves' });
+    expect(err).toBeNull();
+    const rc = newState.elements.get('RCON-1');
+    expect(rc.ratification).toEqual({ ratifiedAtRound: state.round, text: 'PM approves' });
+    expect(newState.ratificationLog).toHaveLength(1);
+    expect(newState.ratificationLog[0]).toMatchObject({
+      event: 'ratified', target: 'RCON-1', ratificationText: 'PM approves',
+    });
+  });
+
+  it('rejects ratification of a non-RC element', () => {
+    let state = initializeState('test');
+    const result = applyOperations(state, [
+      { op: 'add', type: 'EVIDENCE', statement: 'fact', source: 'codebase' },
+    ]);
+    state = result.state;
+    const [sameState, err] = ratifyResolveCondition(state, { elementId: 'EVID-1', ratificationText: 'X' });
+    expect(err).toMatch(/RESOLVE_CONDITION/);
+    expect(sameState).toBe(state);
+  });
+
+  it('rejects ratification of unknown element', () => {
+    const state = initializeState('test');
+    const [, err] = ratifyResolveCondition(state, { elementId: 'RCON-99', ratificationText: 'X' });
+    expect(err).toMatch(/not found/i);
+  });
+
+  it('rejects empty ratificationText', () => {
+    let state = initializeState('test');
+    [, state] = addConcern(state, { label: 'C1' });
+    [state] = lockConcerns(state);
+    const result = applyOperations(state, [
+      { op: 'add', type: 'RESOLVE_CONDITION', statement: 'X', problem_anchor: 'CERN-1' },
+    ]);
+    state = result.state;
+    const [, err] = ratifyResolveCondition(state, { elementId: 'RCON-1', ratificationText: '' });
+    expect(err).toMatch(/required/i);
+  });
+});
+
+describe('addConcern', () => {
+  it('appends Concern with sequential CERN- ID', () => {
+    let state = initializeState('test');
+    const [id1, state1, err1] = addConcern(state, { label: 'First', description: 'D1' });
+    expect(err1).toBeNull();
+    expect(id1).toBe('CERN-1');
+    expect(state1.concerns).toHaveLength(1);
+    expect(state1.concerns[0]).toEqual({ id: 'CERN-1', label: 'First', description: 'D1' });
+    expect(state1.concernCounter).toBe(1);
+
+    const [id2, state2, err2] = addConcern(state1, { label: 'Second' });
+    expect(err2).toBeNull();
+    expect(id2).toBe('CERN-2');
+    expect(state2.concerns).toHaveLength(2);
+    expect(state2.concerns[1].description).toBeNull();
+    expect(state2.concernCounter).toBe(2);
+  });
+
+  it('refuses to add when concernsLocked is true', () => {
+    let state = initializeState('test');
+    [, state] = addConcern(state, { label: 'A' });
+    [state] = lockConcerns(state);
+    const [id, sameState, err] = addConcern(state, { label: 'B' });
+    expect(id).toBeNull();
+    expect(err).toMatch(/locked/i);
+    expect(sameState.concerns).toHaveLength(1);
+    expect(sameState.concernCounter).toBe(1);
+  });
+});
+
+describe('lockConcerns', () => {
+  it('flips concernsLocked to true after at least one Concern', () => {
+    let state = initializeState('test');
+    [, state] = addConcern(state, { label: 'A' });
+    const [locked, err] = lockConcerns(state);
+    expect(err).toBeNull();
+    expect(locked.concernsLocked).toBe(true);
+  });
+
+  it('refuses to lock an empty Concerns list', () => {
+    const state = initializeState('test');
+    const [sameState, err] = lockConcerns(state);
+    expect(err).toMatch(/empty/i);
+    expect(sameState.concernsLocked).toBe(false);
+  });
+
+  it('refuses to lock an already-locked list', () => {
+    let state = initializeState('test');
+    [, state] = addConcern(state, { label: 'A' });
+    [state] = lockConcerns(state);
+    const [sameState, err] = lockConcerns(state);
+    expect(err).toMatch(/already/i);
+    expect(sameState.concernsLocked).toBe(true);
   });
 });
 
@@ -326,6 +459,27 @@ describe('applyOperations', () => {
   });
 });
 
+describe('applyOperations — RESOLVE_CONDITION add anchor validation', () => {
+  it('accepts RESOLVE_CONDITION add when problem_anchor matches a Concern', () => {
+    let state = initializeState('test');
+    [, state] = addConcern(state, { label: 'C1' });
+    const result = applyOperations(state, [
+      { op: 'add', type: 'RESOLVE_CONDITION', statement: 'X', problem_anchor: 'CERN-1' },
+    ]);
+    expect(result.errors).toEqual([]);
+    expect(result.added).toEqual(['RCON-1']);
+  });
+
+  it('rejects RESOLVE_CONDITION add when problem_anchor does not match any Concern', () => {
+    const state = initializeState('test');
+    const result = applyOperations(state, [
+      { op: 'add', type: 'RESOLVE_CONDITION', statement: 'X', problem_anchor: 'CERN-99' },
+    ]);
+    expect(result.errors.some(e => /CERN-99/.test(e) && /Concern/i.test(e))).toBe(true);
+    expect(result.added).toEqual([]);
+  });
+});
+
 describe('markChallengeUsed', () => {
   it('adds mode to challengeModesUsed and challengeLog', () => {
     const state = initializeState('test');
@@ -393,5 +547,57 @@ describe('saveState / loadState', () => {
     saveState(state, filePath);
     const raw = readFileSync(filePath, 'utf-8');
     expect(() => JSON.parse(raw)).not.toThrow();
+  });
+});
+
+describe('applyOperations — revise on RESOLVE_CONDITION clears ratification', () => {
+  function buildRatifiedRC() {
+    let state = initializeState('test');
+    [, state] = addConcern(state, { label: 'C1' });
+    [, state] = addConcern(state, { label: 'C2' });
+    [state] = lockConcerns(state);
+    const result = applyOperations(state, [
+      { op: 'add', type: 'RESOLVE_CONDITION', statement: 'original', problem_anchor: 'CERN-1' },
+    ]);
+    state = result.state;
+    [state] = ratifyResolveCondition(state, { elementId: 'RCON-1', ratificationText: 'PM approves' });
+    return state;
+  }
+
+  it('clears ratification and logs when statement is revised', () => {
+    const state = buildRatifiedRC();
+    const result = applyOperations(state, [
+      { op: 'revise', target: 'RCON-1', statement: 'updated' },
+    ]);
+    const rc = result.state.elements.get('RCON-1');
+    expect(rc.statement).toBe('updated');
+    expect(rc.ratification).toBeNull();
+    const lastLog = result.state.ratificationLog[result.state.ratificationLog.length - 1];
+    expect(lastLog).toMatchObject({ event: 'cleared-on-revise', target: 'RCON-1' });
+    expect(lastLog.fields).toContain('statement');
+  });
+
+  it('clears ratification and logs when problem_anchor is revised', () => {
+    const state = buildRatifiedRC();
+    const result = applyOperations(state, [
+      { op: 'revise', target: 'RCON-1', problem_anchor: 'CERN-2' },
+    ]);
+    const rc = result.state.elements.get('RCON-1');
+    expect(rc.problem_anchor).toBe('CERN-2');
+    expect(rc.ratification).toBeNull();
+    const lastLog = result.state.ratificationLog[result.state.ratificationLog.length - 1];
+    expect(lastLog).toMatchObject({ event: 'cleared-on-revise', target: 'RCON-1' });
+    expect(lastLog.fields).toContain('problem_anchor');
+  });
+
+  it('preserves ratification when revise touches no semantic field', () => {
+    const state = buildRatifiedRC();
+    const ratificationLogLength = state.ratificationLog.length;
+    const result = applyOperations(state, [
+      { op: 'revise', target: 'RCON-1', grounding: [] },
+    ]);
+    const rc = result.state.elements.get('RCON-1');
+    expect(rc.ratification).toEqual({ ratifiedAtRound: 1, text: 'PM approves' });
+    expect(result.state.ratificationLog).toHaveLength(ratificationLogLength);
   });
 });

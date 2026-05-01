@@ -156,6 +156,8 @@ This step exists because humans evaluate *comparisons* far better than *single p
 
   Use the `<this-skill-version>` value from this skill's `version` frontmatter field.
 
+**Brief → spec AC derivation.** Each `AC-{N.M}` block in the spec seeds from a `RCON-N` Resolve Condition statement in the brief's Resolve Conditions section. The brief's locked Concerns section seeds the spec's coverage rationale — every Concern should be covered by at least one acceptance criterion or by a constraint. The spec's `AC-{N.M}` numbering is independent of the brief's `RCON-N` numbering — RC statements provide the seed text, not a renumbering.
+
 ### Scaffold test skeletons (per acceptance criterion)
 
 For each acceptance criterion, after its observable-boundary declaration is written, invoke the skeleton-generator procedure at `references/skeleton-generator.md` to produce a concrete test stub in the project's test framework. The generator detects the target language (Rust / TypeScript / Python / Bash) from project-root markers and emits a language-appropriate pending stub keyed by the criterion's `ac-{N-M}-{slug}` skeleton ID.
@@ -244,7 +246,7 @@ After the user approves the spec, it remains in the working directory. The spec 
 
 - **Calls:** `start-bootstrap` (standalone only)
 - **Dispatches:** spec-document-reviewer subagent (single pass, fidelity), ground-truth-reviewer subagent (automatic, after fidelity + adversarial pass; skipped only for greenfield specs)
-- **Reads:** `references/adversarial-spec-review.md` (inline adversarial review pattern, modeled on `chester:plan-attack`), `util-artifact-schema` (naming/paths), the upstream brief's source template: `../design-large-task/references/design-brief-template.md` (8-section envelope) or `../design-small-task/references/design-brief-small-template.md` (6-section lightweight) — read whichever matches the upstream design skill that produced the brief
+- **Reads:** `references/adversarial-spec-review.md` (inline adversarial review pattern, modeled on `chester:plan-attack`), `util-artifact-schema` (naming/paths), the upstream brief's source template: `../design-large-task/references/design-brief-template.md` (9-section envelope including Concerns and Resolve Conditions) or `../design-small-task/references/design-brief-small-template.md` (6-section lightweight) — read whichever matches the upstream design skill that produced the brief
 - **Invoked by:** `design-large-task` or `design-small-task` (mandatory in the canonical sequence), or user directly (standalone)
 - **Transitions to:** `plan-build`
 - **Does NOT invoke as a separate skill flow:** plan-attack (used inline only — spec stage), plan-smell (deferred to plan-build's hardening gate), or any implementation skill

@@ -1,0 +1,466 @@
+{
+  "round": 5,
+  "problemStatement": "design-specify needs three things to generate feasible, acceptable, complete solutions: a constraint envelope, a coverage map, and a resolution criterion. The first two fall out of the existing five proof element categories. The third does not — no proof element today says what observable state counts as the problem being solved, so the brief authors acceptance criteria as agent prose at render time with no upstream source, and the closure check never references the problem statement. Cluster A formalizes the resolution criterion as a typed proof element — settling naming, shape, schema, source rule, integrity-check semantics, and closure-check contribution — and defines what makes a problem statement well-formed enough to carry resolution criteria at Phase 4b opening.",
+  "elements": {
+    "EVID-1": {
+      "id": "EVID-1",
+      "type": "EVIDENCE",
+      "statement": "The proof's closure gate verifies six structural properties of elements but does not reference the problem statement. The hypothesis-to-resolution link is structurally absent.",
+      "source": "codebase",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "EVID-2": {
+      "id": "EVID-2",
+      "type": "EVIDENCE",
+      "statement": "The brief template's Acceptance Criteria section instructs the agent to author observable conditions as prose at Closure with no MCP tracking and no upstream source.",
+      "source": "codebase",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "EVID-3": {
+      "id": "EVID-3",
+      "type": "EVIDENCE",
+      "statement": "The proof's element-type registration pattern is consistent across all five existing types — adding a sixth type touches eight files in small mechanical ways (registration array, prefix map, counter map, validation block, completeness counter, closure-check participation, API schema). No new patterns required.",
+      "source": "codebase",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "EVID-4": {
+      "id": "EVID-4",
+      "type": "EVIDENCE",
+      "statement": "design-specify needs three artifacts to generate feasible, acceptable, complete solutions: a constraint envelope (already expressible in five element types), a resolution criterion (the gap), and a coverage map (derivable from the proof's grounding/basis links plus a problem-statement aspect anchor).",
+      "source": "master-plan",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "EVID-5": {
+      "id": "EVID-5",
+      "type": "EVIDENCE",
+      "statement": "Collapse test from master-planning: industry context, priority signals, tension catalog, coverage map, and SC cross-verification all collapse cleanly into existing element types with field additions or basis attachments. Only the resolution-claim category does not collapse without semantic blur.",
+      "source": "master-plan",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "EVID-6": {
+      "id": "EVID-6",
+      "type": "EVIDENCE",
+      "statement": "Industry V&V split (NASA / ISO 29148) institutionalizes verification (built it right) vs validation (built the right thing). Validation traditions that close the agent-imagined-criteria failure mode all do so by making stakeholder ratification structural rather than conventional.",
+      "source": "industry",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "EVID-7": {
+      "id": "EVID-7",
+      "type": "EVIDENCE",
+      "statement": "Prior small-task escalation (20260430-01) enumerated three options for the resolution-claim shape — sixth element type, parallel artifact alongside the proof, NC reframe — and marked the sixth-element-type option as sharpest. Parallel artifact loses structural validation; NC reframe blurs NC semantics.",
+      "source": "prior-art",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "EVID-8": {
+      "id": "EVID-8",
+      "type": "EVIDENCE",
+      "statement": "The prior 20260425-01 sprint established that saturation scoring is gameable from inside the agent — the agent can climb scores by writing better justifications without deeper understanding. Whatever closure-gate extension is built for resolution criteria cannot rely on agent self-scoring.",
+      "source": "prior-art",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "EVID-9": {
+      "id": "EVID-9",
+      "type": "EVIDENCE",
+      "statement": "Existing element-type validation rules in the proof: EVIDENCE rejects designer source; RULE and PERMISSION require designer source; NC requires non-empty grounding chain plus reasoning chain plus collapse test; RISK has no type-specific block but conventionally carries a basis link.",
+      "source": "codebase",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-1": {
+      "id": "RULE-1",
+      "type": "RULE",
+      "statement": "The five existing proof element types (Necessary Condition, Evidence, Rule, Permission, Risk) are immutable for this sprint. Their schemas, source rules, and required fields cannot change. Master-plan RULE-1.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-2": {
+      "id": "RULE-2",
+      "type": "RULE",
+      "statement": "Whatever shape is chosen for the resolution-criterion element must carry all five locked attributes: observable, designer-ratified, problem-statement-anchored, forward-looking, non-restrictive. Master-plan RULE-7.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-3": {
+      "id": "RULE-3",
+      "type": "RULE",
+      "statement": "design-specify generates solutions. The proof produces input for specify; specify owns architectural shape choice. Resolution criteria are input constraints for specify, not architectural decisions about how the solution is built. Master-plan RULE-3.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-4": {
+      "id": "RULE-4",
+      "type": "RULE",
+      "statement": "Design = the problem (what), not the implementation (how). Phase 4a output stays at design altitude; mechanism vocabulary belongs downstream. The resolution-criterion element captures what state counts as solved, not how the solution achieves it. Master-plan RULE-5.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-5": {
+      "id": "RULE-5",
+      "type": "RULE",
+      "statement": "Designer-ratified means the agent authors the proposal and the designer validates it. Distinct from designer-sourced (where the designer originates the content, as with Rules and Permissions). Resolution criteria follow the agent-proposes-designer-validates pattern. Designer-direct, this session.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-6": {
+      "id": "RULE-6",
+      "type": "RULE",
+      "statement": "Constraint envelope and coverage map are derivable from the existing five element types — no new design work for them. Cluster A's substantive design work focuses on the resolution criterion alone. Designer-direct, this session.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "NCON-1": {
+      "id": "NCON-1",
+      "type": "NECESSARY_CONDITION",
+      "statement": "The Resolve Condition is implemented as a new sixth element category in the proof, alongside the five existing immutable types — not as an extension of any existing type and not as a parallel artifact outside the proof. Name 'Resolve Condition' aligns structurally with 'Necessary Condition' (both typed conditions, pluralizing naturally) without the misleading conjugate-logic connotation that 'Sufficient Condition' would carry.",
+      "source": null,
+      "grounding": [
+        "RULE-1",
+        "RULE-2",
+        "EVID-1",
+        "EVID-2",
+        "EVID-3",
+        "EVID-5",
+        "EVID-7",
+        "EVID-9"
+      ],
+      "collapse_test": "If this condition is removed, the Resolve Condition has only three remaining paths: (a) overload an existing category — violates RULE-1; (b) live as a parallel artifact outside the proof — loses structural validation and brief-render integration; (c) remain as agent-prose Acceptance Criteria — the existing failure mode the cluster is closing.",
+      "reasoning_chain": "IF the five existing element categories are immutable (RULE-1) AND the Resolve Condition has semantically opposite job from Necessary Conditions (one restricts, one certifies exit) AND the Resolve Condition's source rule differs from any existing category's (agent-proposes-designer-validates is a new pattern) AND the master-planning collapse test confirmed only the Resolve Condition category does not fold into existing types without semantic blur (EVID-5) AND the proof's element-type registration is a mechanical pattern that accommodates new categories cleanly (EVID-3) THEN the Resolve Condition must be a new sixth element category named to pair structurally with Necessary Condition.",
+      "rejected_alternatives": [
+        "Extend Necessary Condition with a marker field discriminating Resolve Conditions from constraints — rejected because it changes NC's contract (RULE-1 violation) and creates per-entry ambiguity about which job a given NC is doing.",
+        "Carry Resolve Conditions as a parallel artifact alongside the proof rather than inside it — rejected because it loses the proof's structural validation guarantees and forces the brief renderer to merge two source artifacts.",
+        "Continue authoring acceptance criteria as agent prose at brief-render time — rejected because it is the existing failure mode the cluster is closing.",
+        "Name the new category 'Sufficient Condition' for visual NC/SC symmetry — rejected because in formal logic 'necessary' and 'sufficient' are conjugate concepts on the same logical axis, while NC and the new category do opposite jobs (restrict vs. certify-exit). The naming would mislead anyone with a logic background into expecting a conjugate relationship that doesn't exist."
+      ],
+      "relieves": null,
+      "basis": [],
+      "status": "active",
+      "addedInRound": 2,
+      "revisedInRound": 3,
+      "revision": 1
+    },
+    "NCON-2": {
+      "id": "NCON-2",
+      "type": "NECESSARY_CONDITION",
+      "statement": "The proof carries an enumerated, PM-ratified list of Concerns attached to the problem statement, locked at Solve Stage opening. Each Concern has a stable ID, a short PM-readable label, and (optionally) a one-sentence description.",
+      "source": null,
+      "grounding": [
+        "RULE-2",
+        "RULE-3",
+        "RULE-5",
+        "EVID-4",
+        "EVID-5",
+        "EVID-7"
+      ],
+      "collapse_test": "Without the Concern construct, problem_anchor degrades to free-string prose. This recreates anchor drift (agent invents anchors that don't trace back to the problem), recreates the original agent-imagined-material failure mode in a different field, and makes coverage at closure a string-matching exercise against agent prose.",
+      "reasoning_chain": "IF Resolve Conditions need a structurally-typed anchor to prevent free-string anchor drift (per simulation findings on agent gaming) AND the coverage check at closure needs a mechanical aspect-match rather than prose-matching AND PM-altitude ratification requires the anchor to be PM-readable not engineer-readable (per altitude correction) AND the agent-proposes-PM-validates pattern (RULE-5) extends naturally to the Concern enumeration step (agent reads the polished problem statement and proposes candidate Concerns; PM ratifies) THEN the proof must carry an enumerated, locked Concern construct as part of problem-statement state.",
+      "rejected_alternatives": [
+        "Free-string problem_anchor with no enumerated Concern list — rejected because it recreates anchor drift and gaming.",
+        "Single-anchor-per-RC without enumeration of all Concerns — rejected because coverage cannot be mechanically verified (no canonical list to compare against).",
+        "Leave problem statement as free prose with no Concern structure — rejected because it forecloses any mechanical coverage check at closure."
+      ],
+      "relieves": null,
+      "basis": [],
+      "status": "active",
+      "addedInRound": 4,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "NCON-3": {
+      "id": "NCON-3",
+      "type": "NECESSARY_CONDITION",
+      "statement": "The Resolve Condition element category carries exactly three fields: statement (PM-readable observable outcome), problem_anchor (Concern ID), ratification (PM sign-off, populated when validated). No other fields. The omission of a verification-artifact field is deliberate — design-specify generates solutions and owns verification (RULE-3); design = the problem (what), not the implementation (how) (RULE-4); verification mechanics derive downstream in the spec layer through the existing acceptance-criteria machinery and test-skeleton scaffolding.",
+      "source": null,
+      "grounding": [
+        "RULE-3",
+        "RULE-4",
+        "RULE-5",
+        "EVID-9"
+      ],
+      "collapse_test": "Dropping statement leaves no claim. Dropping problem_anchor breaks coverage tracing. Dropping ratification removes the validation gate and recreates agent-imagined material. Adding a forward_test or other verification-artifact field pushes engineer-altitude content onto PM at ratification, prescribes verification before architecture is chosen (crossing RULE-3), and recreates gaming vectors (vapor artifacts, restatement, prescription smuggling) the altitude correction removed. Adding priority/severity/ordering violates the minimal-field discipline and adds proof surface without earning its keep.",
+      "reasoning_chain": "IF the agent-proposes-PM-validates source rule (RULE-5) requires a structural ratification gate distinct from add-time content (statement, problem_anchor) AND verification mechanics belong in the spec layer not the proof (RULE-3, RULE-4) AND PM-altitude ratification cannot evaluate engineer-altitude verification artifacts AND the spec layer already carries test-skeleton scaffolding for verification mechanics from prior cluster work AND the existing five element categories follow a minimal-field discipline where each carries only the fields its semantic job requires (EVID-9) THEN three fields are necessary and sufficient: one for the claim, one for the coverage anchor, one for the validation gate; any further field either crosses the RULE-3 boundary or violates the minimal-field discipline.",
+      "rejected_alternatives": [
+        "Add a forward_test field carrying verification artifacts — rejected because it crosses RULE-3 (specify owns verification), pushes engineer-altitude content onto PM at ratification, and recreates gaming vectors that the altitude correction removed.",
+        "Add a forward_test as optional rather than required — rejected because optionality creates gaming asymmetry (populated entries face engineer-altitude evaluation; unpopulated entries face none) and the optional field still pulls altitude wrong when used.",
+        "Carry a verification-pointer reference to an external artifact — rejected because it couples the proof to verification mechanics prematurely and reproduces the same altitude problem.",
+        "Combine statement and verification into a single field — rejected because it merges PM and engineer altitudes into one slot.",
+        "Add priority, severity, or ordering fields — rejected against EVID-9 (existing categories carry no such fields; minimal-field discipline holds)."
+      ],
+      "relieves": null,
+      "basis": [],
+      "status": "active",
+      "addedInRound": 4,
+      "revisedInRound": 5,
+      "revision": 1
+    },
+    "NCON-4": {
+      "id": "NCON-4",
+      "type": "NECESSARY_CONDITION",
+      "statement": "The closure gate verifies coverage at Concern granularity: every Concern in the enumerated list must have at least one ratified Resolve Condition anchored to it OR at least one Rule whose statement covers it. Closure refuses if any Concern is uncovered by both routes.",
+      "source": null,
+      "grounding": [
+        "RULE-3",
+        "RULE-6",
+        "EVID-4",
+        "EVID-5"
+      ],
+      "collapse_test": "Without per-Concern coverage, a single bundle-Resolve-Condition anchored to one Concern satisfies an any-RC-exists check trivially while leaving other Concerns silently uncovered. The PM's ratification of the bundle reproduces gestalt approval; coverage gaming wins. Without RULE union, preservation content gets jammed into Resolve Conditions where it doesn't belong, distorting the proof's grammar.",
+      "reasoning_chain": "IF coverage map is one of the three artifacts specify requires (EVID-4 / RULE-3) AND mechanical coverage prevents the bundling gaming where one giant Resolve Condition satisfies a single-RC check trivially AND some real-world resolution-side content is RULE-shaped (preservation, non-existence) rather than Resolve-Condition-shaped (per simulation finding) AND constraint envelope and coverage map already derive from the existing five element types (RULE-6) THEN closure verifies per-Concern coverage with a union of ratified Resolve Conditions and anchored Rules.",
+      "rejected_alternatives": [
+        "Coverage at any-Resolve-Condition granularity — rejected; permits bundling gaming.",
+        "Coverage at any-element granularity (Evidence counts) — rejected; Evidence is fact, not resolution.",
+        "Resolve-Condition-only coverage with no RULE union — rejected; forces preservation/non-existence claims into Resolve Conditions where the semantics misfit."
+      ],
+      "relieves": null,
+      "basis": [],
+      "status": "active",
+      "addedInRound": 4,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "NCON-5": {
+      "id": "NCON-5",
+      "type": "NECESSARY_CONDITION",
+      "statement": "Ratification is sequential, per Resolve Condition. The proof MCP refuses batch ratification calls. The validation walk presents Resolve Conditions one at a time; the PM confirms or rejects each individually.",
+      "source": null,
+      "grounding": [
+        "RULE-5",
+        "EVID-2",
+        "EVID-6"
+      ],
+      "collapse_test": "Batch ratification recreates gestalt approval. The PM's single yes covers N Resolve Conditions without engagement with each. The structural change is hollow; the original failure mode persists in a different shape.",
+      "reasoning_chain": "IF gestalt brief approval is the existing failure mode (EVID-2 — designer confirms the whole brief at one yes/no prompt today) AND ratification fatigue from gestalt approval reproduces that failure mode in a structured wrapper (per simulation gaming vectors) AND PM-altitude attention engagement requires discrete units (the altitude correction this session) AND the agent-proposes-designer-validates pattern (RULE-5) implies a discrete validation event per claim THEN ratification must run sequentially, one Resolve Condition per call, with no batch shortcut.",
+      "rejected_alternatives": [
+        "Batch ratification at brief approval time — rejected; recreates the existing failure mode.",
+        "Time-gated ratification (e.g. minimum seconds per RC) — rejected as ceremony without engagement.",
+        "Optional sequential mode — rejected; if optional, the gaming default is batch."
+      ],
+      "relieves": null,
+      "basis": [],
+      "status": "active",
+      "addedInRound": 4,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "NCON-6": {
+      "id": "NCON-6",
+      "type": "NECESSARY_CONDITION",
+      "statement": "Revision of a Resolve Condition's statement or problem_anchor field after ratification invalidates the ratification. The closure gate refuses to count un-revalidated Resolve Conditions.",
+      "source": null,
+      "grounding": [
+        "RULE-5",
+        "EVID-1"
+      ],
+      "collapse_test": "Without the stale-ratification check, the agent revises a ratified Resolve Condition's statement and the ratification field carries forward unchanged. The PM's sign-off applies to content the PM never approved. The validation gate is bypassed by edit.",
+      "reasoning_chain": "IF designer-ratified means the PM validated a specific statement-and-anchor content (RULE-5) AND content can be revised after ratification AND silent persistence of ratification across revision reproduces the agent-imagined-material failure mode (PM's sign-off applies to text the PM did not see) AND the proof MCP already carries a stale-grounding warning pattern adaptable to ratification (EVID-1) THEN revision must invalidate ratification structurally.",
+      "rejected_alternatives": [
+        "No stale check — rejected; reproduces the failure mode.",
+        "Semantic-diff threshold for what counts as substantive revision — rejected as engineer-altitude (PM doesn't reason about diff thresholds); any revision invalidates uniformly.",
+        "Ratification persists across all revisions — rejected; loses validity guarantee entirely."
+      ],
+      "relieves": null,
+      "basis": [],
+      "status": "active",
+      "addedInRound": 4,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "NCON-7": {
+      "id": "NCON-7",
+      "type": "NECESSARY_CONDITION",
+      "statement": "The Resolve Condition element category carries no verification-artifact field. Verification mechanics (test artifacts, audit traces, file checks, command runs) derive downstream in the spec layer through the existing acceptance-criteria machinery, including test-skeleton scaffolding produced at build-spec time.",
+      "source": null,
+      "grounding": [
+        "RULE-3",
+        "RULE-4",
+        "EVID-9"
+      ],
+      "collapse_test": "Adding a verification-artifact field to Resolve Condition (a) pushes engineer-altitude content onto PM at ratification (altitude failure); (b) prescribes verification before architecture is chosen, crossing RULE-3; (c) recreates the gaming vectors (vapor artifacts, restatement, prescription smuggling) the altitude correction removed.",
+      "reasoning_chain": "IF design-specify generates solutions and owns architectural choice (RULE-3) AND design = the problem (what), not the implementation (how) (RULE-4) AND PM-altitude ratification cannot evaluate engineer-altitude verification artifacts (the altitude correction this session) AND the spec layer already carries test-skeleton scaffolding from prior cluster work for verification mechanics THEN the proof carries no verification-artifact field; verification derives in the spec layer.",
+      "rejected_alternatives": [
+        "forward_test as required field — rejected; crosses RULE-3 and altitude.",
+        "forward_test as optional field — rejected; still pulls altitude wrong when populated, and creates gaming asymmetry between populated and unpopulated entries.",
+        "Verification-pointer reference to an external artifact — rejected; couples proof to verification mechanics prematurely and reproduces the same altitude problem."
+      ],
+      "relieves": null,
+      "basis": [],
+      "status": "withdrawn",
+      "addedInRound": 4,
+      "revisedInRound": null,
+      "revision": 0
+    }
+  },
+  "elementCounters": {
+    "EVIDENCE": 9,
+    "RULE": 6,
+    "PERMISSION": 0,
+    "NECESSARY_CONDITION": 7,
+    "RISK": 0
+  },
+  "conditionCountHistory": [
+    0,
+    1,
+    1,
+    7,
+    6
+  ],
+  "elementCountHistory": [
+    15,
+    16,
+    16,
+    22,
+    22
+  ],
+  "challengeModesUsed": [
+    "simplifier"
+  ],
+  "challengeLog": [
+    "simplifier"
+  ],
+  "revisionLog": [
+    {
+      "target": "NCON-1",
+      "round": 3,
+      "revision": 1
+    },
+    {
+      "target": "NCON-3",
+      "round": 5,
+      "revision": 1
+    }
+  ],
+  "phaseTransitionRound": 0
+}

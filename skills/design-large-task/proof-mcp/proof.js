@@ -11,7 +11,7 @@
  */
 
 export const ELEMENT_TYPES = [
-  'EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK',
+  'EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK', 'RESOLVE_CONDITION',
 ];
 
 /**
@@ -26,6 +26,7 @@ export function createElement(input, id, round) {
     type, statement, source,
     grounding, collapse_test, reasoning_chain, rejected_alternatives,
     relieves, basis,
+    problem_anchor,
   } = input;
 
   if (!ELEMENT_TYPES.includes(type)) {
@@ -75,6 +76,16 @@ export function createElement(input, id, round) {
     }
   }
 
+  // RESOLVE_CONDITION: agent-proposes-PM-validates — requires problem_anchor; refuses designer source
+  if (type === 'RESOLVE_CONDITION') {
+    if (!problem_anchor) {
+      throw new Error('RESOLVE_CONDITION requires problem_anchor (Concern ID)');
+    }
+    if (source === 'designer') {
+      throw new Error('RESOLVE_CONDITION cannot have source "designer" — RC is agent-proposes-PM-validates; ratification is captured via the ratify_resolve_condition tool');
+    }
+  }
+
   return {
     id,
     type,
@@ -86,6 +97,8 @@ export function createElement(input, id, round) {
     rejected_alternatives: Array.isArray(rejected_alternatives) ? rejected_alternatives : [],
     relieves: relieves ?? null,
     basis: Array.isArray(basis) ? basis : [],
+    problem_anchor: problem_anchor ?? null,
+    ratification: null,
     status: 'active',
     addedInRound: round,
     revisedInRound: null,
@@ -266,6 +279,37 @@ export function checkStaleGrounding(elements) {
 }
 
 /**
+ * Flag active RESOLVE_CONDITIONs whose ratification field is null.
+ * @param {Map} elements
+ * @returns {Array<{type: string, element_id: string, message: string}>}
+ */
+export function checkUnratifiedResolveConditions(elements) {
+  const warnings = [];
+  for (const [id, el] of elements) {
+    if (el.status !== 'active') continue;
+    if (el.type !== 'RESOLVE_CONDITION') continue;
+    if (el.ratification === null) {
+      warnings.push({
+        type: 'unratified-rc',
+        element_id: id,
+        message: `Resolve Condition "${id}" is unratified`,
+      });
+    }
+  }
+  return warnings;
+}
+
+/**
+ * Sentinel — structurally impossible under cleared-on-revise approach (revise nulls
+ * ratification at write time). Exists for symmetry and as a tested extension callsite.
+ * @param {Map} elements
+ * @returns {Array}
+ */
+export function checkStaleRatification(_elements) {
+  return [];
+}
+
+/**
  * Run all integrity checks and return combined warnings.
  * @param {Map} elements
  * @returns {Array<object>} Combined array of all warning objects
@@ -276,5 +320,7 @@ export function checkAllIntegrity(elements) {
     ...checkUngrounded(elements),
     ...checkMissingCollapseTest(elements),
     ...checkStaleGrounding(elements),
+    ...checkUnratifiedResolveConditions(elements),
+    ...checkStaleRatification(elements),
   ];
 }

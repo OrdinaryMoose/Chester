@@ -28,6 +28,8 @@ export function computeCompleteness(elements) {
   let evidence_count = 0;
   let permission_count = 0;
   let risk_count = 0;
+  let resolve_condition_count = 0;
+  let ratified_rc_count = 0;
   let revision_count = 0;
 
   for (const [, el] of elements) {
@@ -48,6 +50,10 @@ export function computeCompleteness(elements) {
     if (el.type === 'EVIDENCE') evidence_count++;
     if (el.type === 'PERMISSION') permission_count++;
     if (el.type === 'RISK') risk_count++;
+    if (el.type === 'RESOLVE_CONDITION') {
+      resolve_condition_count++;
+      if (el.ratification !== null) ratified_rc_count++;
+    }
     if (el.revisedInRound !== null) revision_count++;
   }
 
@@ -61,6 +67,8 @@ export function computeCompleteness(elements) {
     evidence_count,
     permission_count,
     risk_count,
+    resolve_condition_count,
+    ratified_rc_count,
     revision_count,
   };
 }
@@ -194,9 +202,56 @@ export function detectChallenge(state) {
 }
 
 /**
+ * Compute per-Concern coverage. Each Concern is covered if either:
+ *   (RC path) at least one active RESOLVE_CONDITION whose `problem_anchor`
+ *     matches the Concern id and whose `ratification` is non-null, OR
+ *   (Rule-union path) at least one active RULE whose `statement` contains
+ *     (case-insensitive substring) the Concern's id or label.
+ * Spec line 66 picks both paths under the union.
+ * @param {object} state - { concerns, elements }
+ * @returns {{ covered: string[], uncovered: string[] }}
+ */
+function escapeRegex(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+export function checkConcernCoverage(state) {
+  if (!state.concerns) return { covered: [], uncovered: [] };
+  const covered = [];
+  const uncovered = [];
+  for (const concern of state.concerns) {
+    let isCovered = false;
+    for (const [, el] of state.elements) {
+      if (el.status !== 'active') continue;
+      if (
+        el.type === 'RESOLVE_CONDITION' &&
+        el.problem_anchor === concern.id &&
+        el.ratification !== null
+      ) {
+        isCovered = true;
+        break;
+      }
+      if (el.type === 'RULE') {
+        const stmt = el.statement || '';
+        const idRe = new RegExp(`\\b${escapeRegex(concern.id)}\\b`, 'i');
+        const labelRe = new RegExp(`\\b${escapeRegex(concern.label)}\\b`, 'i');
+        if (idRe.test(stmt) || labelRe.test(stmt)) {
+          isCovered = true;
+          break;
+        }
+      }
+    }
+    (isCovered ? covered : uncovered).push(concern.id);
+  }
+  return { covered, uncovered };
+}
+
+/**
  * Check whether closure (finishing the design proof) is permitted.
- * All conditions must pass.
- * @param {object} state - { elements, round, phaseTransitionRound }
+ * All ten conditions must pass. Conditions 1-6 cover the necessary-conditions
+ * proof; conditions 7-10 cover Concerns lock, Concerns presence, RC ratification,
+ * and per-Concern coverage (in that fixed order — spec lines 68-72).
+ * @param {object} state - { elements, round, phaseTransitionRound, concerns, concernsLocked }
  * @returns {{ permitted: boolean, reasons: string[] }}
  */
 export function checkClosure(state) {
@@ -265,6 +320,36 @@ export function checkClosure(state) {
   // 6. Must have at least one condition
   if (conditionCount === 0) {
     reasons.push('No active necessary conditions exist');
+  }
+
+  // 7. Concerns must be locked before closure (when any are present)
+  if (state.concerns && state.concerns.length > 0 && !state.concernsLocked) {
+    reasons.push('Concerns must be locked before closure');
+  }
+
+  // 8. At least one Concern required
+  if (!state.concerns || state.concerns.length === 0) {
+    reasons.push('No Concerns enumerated — at least one Concern required before closure');
+  }
+
+  // 9. No active RC may be unratified
+  let anyUnratifiedRc = false;
+  for (const [, el] of elements) {
+    if (el.status === 'active' && el.type === 'RESOLVE_CONDITION' && el.ratification === null) {
+      anyUnratifiedRc = true;
+      break;
+    }
+  }
+  if (anyUnratifiedRc) {
+    reasons.push('Unratified Resolve Conditions exist — ratify each before closure');
+  }
+
+  // 10. Per-Concern coverage when locked
+  if (state.concernsLocked) {
+    const { uncovered } = checkConcernCoverage(state);
+    for (const concernId of uncovered) {
+      reasons.push(`Concern "${concernId}" is not covered by any ratified Resolve Condition or Rule`);
+    }
   }
 
   return {
