@@ -7,7 +7,7 @@ description: >
   did", "write the summary", "session report", "reasoning audit", "write a refactor
   summary", "document this session", or when a major unit of work has just completed.
   Also trigger proactively at natural session end points.
-version: v0001
+version: v0002
 ---
 
 # Session Records
@@ -109,6 +109,30 @@ ambiguous, note the ambiguity inside the artifact rather than blocking on it.
 Read `references/record-formats.md` for all file naming, header structure, section order,
 and formatting conventions. Do not invent or reconstruct formats from scratch.
 
+### Harvest the Skill-Version Chain (both modes)
+
+Before writing the summary, collect the deduped, ordered `<!-- produced-by ... -->`
+trailers stamped onto every artifact produced earlier in the sprint. This is the
+sole consumer of `chester-trailer-write harvest` — its output is embedded verbatim
+under a `## Session Skill Versions` section in the summary (see
+`references/record-formats.md`).
+
+**Feature mode** — harvest the sprint subdirectory under `CHESTER_WORKING_DIR`:
+
+```bash
+chester-trailer-write harvest "$CHESTER_WORKING_DIR/{sprint-subdir}"
+```
+
+**Refactor mode** — harvest the slug directory under `docs/refactor/`:
+
+```bash
+chester-trailer-write harvest "docs/refactor/{slug}"
+```
+
+Capture the output and embed it verbatim under `## Session Skill Versions` in the
+session summary. See `util-artifact-schema` `## Provenance Trailers` for the
+convention.
+
 ### Session Summary (both modes)
 
 Extract from conversation or deep scan:
@@ -119,6 +143,13 @@ Extract from conversation or deep scan:
 5. What does the next session need to know?
 
 Skip sections where no evidence exists. Do not invent content.
+
+After writing the summary file, stamp it (see `util-artifact-schema`
+`## Provenance Trailers`):
+
+```bash
+chester-trailer-write stamp finish-write-records@v0002 "<summary-path>"
+```
 
 ### Reasoning Audit (both modes)
 
@@ -147,6 +178,13 @@ Order entries by significance (most consequential first), not chronologically.
 - Tool calls with no decision content
 - Trivial style choices
 
+After writing the audit file, stamp it (see `util-artifact-schema`
+`## Provenance Trailers`):
+
+```bash
+chester-trailer-write stamp finish-write-records@v0002 "<audit-path>"
+```
+
 ### Evaluation Brief (refactor mode only)
 
 The brief answers: *why was this refactor justified?*
@@ -164,6 +202,13 @@ The brief answers: *why was this refactor justified?*
 - **Migration Notes** — for dependency upgrades
 - **Before/After** — for simplification work
 
+After writing the brief file, stamp it (see `util-artifact-schema`
+`## Provenance Trailers`):
+
+```bash
+chester-trailer-write stamp finish-write-records@v0002 "<brief-path>"
+```
+
 ### Cache Analysis (optional, both modes)
 
 Parse the current session's JSONL for cache hit metrics:
@@ -180,6 +225,13 @@ Compute and display as a table with per-call and overall cache hit rates. Write 
 `cache-analysis.md` in the output directory.
 
 This is best-effort. If jq parsing fails, report the error and skip.
+
+If the cache-analysis file was written, stamp it (see `util-artifact-schema`
+`## Provenance Trailers`):
+
+```bash
+chester-trailer-write stamp finish-write-records@v0002 "<cache-analysis-path>"
+```
 
 ## Step 4: Decision-Record Audit and Abandonment (feature mode only)
 
