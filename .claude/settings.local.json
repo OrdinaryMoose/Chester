@@ -16,7 +16,11 @@
       "Bash(ls /home/mike/Documents/Chester/*.md)",
       "Skill(update-config)",
       "Bash(cp /home/mike/Documents/CodeProjects/Chester/docs/chester/working/20260425-01-redesign-convergence-model/plan/redesign-convergence-model-plan-00.md /home/mike/Documents/CodeProjects/Chester/docs/chester/working/20260425-01-redesign-convergence-model/summary/)",
-      "Bash(cp /home/mike/.claude/projects/-home-mike-Documents-CodeProjects-Chester/eaf11901-a30f-4ffd-91c5-01694711a340.jsonl /home/mike/Documents/CodeProjects/Chester/docs/chester/working/20260425-01-redesign-convergence-model/summary/redesign-convergence-model-session-transcript.jsonl)"
+      "Bash(cp /home/mike/.claude/projects/-home-mike-Documents-CodeProjects-Chester/eaf11901-a30f-4ffd-91c5-01694711a340.jsonl /home/mike/Documents/CodeProjects/Chester/docs/chester/working/20260425-01-redesign-convergence-model/summary/redesign-convergence-model-session-transcript.jsonl)",
+      "Bash(cp /home/mike/Documents/CodeProjects/Chester/docs/chester/working/20260430-03-add-artifact-skill-versions/plan/add-artifact-skill-versions-plan-00.md /home/mike/Documents/CodeProjects/Chester/docs/chester/working/20260430-03-add-artifact-skill-versions/summary/)",
+      "Bash(cp /home/mike/.claude/projects/-home-mike-Documents-CodeProjects-Chester/a2f6e078-6c32-4e4b-add6-b17c4720beb6.jsonl /home/mike/Documents/CodeProjects/Chester/docs/chester/working/20260430-03-add-artifact-skill-versions/summary/session.jsonl)",
+      "Bash(cp /home/mike/.claude/projects/-home-mike-Documents-CodeProjects-Chester/3710a456-dddf-4dbf-aba2-cef602fb98d8.jsonl /home/mike/Documents/CodeProjects/Chester/docs/chester/working/20260430-02-rebuild-design-derivation/cluster-a-define-solve/summary/cluster-a-define-solve-session.jsonl)",
+      "Bash(cp /home/mike/Documents/CodeProjects/Chester/docs/chester/working/20260430-02-rebuild-design-derivation/cluster-a-define-solve/plan/cluster-a-define-solve-plan-00.md /home/mike/Documents/CodeProjects/Chester/docs/chester/working/20260430-02-rebuild-design-derivation/cluster-a-define-solve/summary/)"
     ]
   },
   "outputStyle": "Explanatory"
