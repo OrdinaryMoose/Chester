@@ -1,7 +1,7 @@
 ---
 name: plan-build
 description: Use when you have a spec or requirements for a multi-step task, before touching code
-version: v0003
+version: v0004
 ---
 
 # Chester Build Plan
@@ -21,15 +21,14 @@ Use TaskCreate/TaskUpdate to give the user real-time visibility into your progre
 **Starting tasks:** After the reset, create one task for each of these phases via TaskCreate:
 
 1. **Read spec and extract metadata** — read the spec document, read project config via chester-config-read.sh
-2. **Query decision store (plan-start)** — invoke `dr_query` on the `chester-decision-record` MCP to retrieve active decisions for this sprint; holds the content for the plan's `## Prior Decisions` section
-3. **Scope check** — verify single-plan scope; flag for decomposition if multiple independent subsystems
-4. **Explore existing codebase** — read files referenced in spec to understand current state
-5. **Map file structure** — design which files get created, modified, and tested; lock in decomposition
-6. **Write plan tasks** — write each task with TDD steps, file paths, code, and commands; derive per-task `Must remain green` from Prior Decisions whose Code touches the task's files
-7. **Plan review loop** — dispatch plan-reviewer subagent; iterate until approved (max 3)
-8. **Plan hardening** — run plan-attack + plan-smell reviews, incorporate findings
-9. **Execution Mode Selection** — apply heuristic, present recommendation with reasoning, capture user confirm/override; record chosen mode for the plan header
-10. **Save plan document** — write to correct output path based on project config
+2. **Scope check** — verify single-plan scope; flag for decomposition if multiple independent subsystems
+3. **Explore existing codebase** — read files referenced in spec to understand current state
+4. **Map file structure** — design which files get created, modified, and tested; lock in decomposition
+5. **Write plan tasks** — write each task with TDD steps, file paths, code, and commands; derive per-task `Must remain green` from tests this task creates and any tests covering files this task modifies.
+6. **Plan review loop** — dispatch plan-reviewer subagent; iterate until approved (max 3)
+7. **Plan hardening** — run plan-attack + plan-smell reviews, incorporate findings
+8. **Execution Mode Selection** — apply heuristic, present recommendation with reasoning, capture user confirm/override; record chosen mode for the plan header
+9. **Save plan document** — write to correct output path based on project config
 
 **As you work:**
 - Mark each task `in_progress` when you begin it, `completed` when you finish
@@ -38,7 +37,7 @@ Use TaskCreate/TaskUpdate to give the user real-time visibility into your progre
 - Task subjects should be short, descriptive actions
 
 **Granularity guidance:**
-- The 10 starting tasks are the baseline
+- The 9 starting tasks are the baseline
 - When writing plan tasks, you may optionally create one sub-task per plan task if the plan has many tasks, to give finer-grained progress — use your judgment based on plan size
 
 **Context:** This should be run in a dedicated worktree (created by `design-large-task` or `design-small-task` during their Archival / closure stage).
@@ -47,42 +46,7 @@ Use TaskCreate/TaskUpdate to give the user real-time visibility into your progre
 
 The plan is NOT committed here — `finish-archive-artifacts` copies all artifacts into the worktree for merge.
 
-## Prior Decisions — Plan-Start Prerequisite
-
-Before writing any task blocks, consult the decision store. This step is
-mandatory — it carries forward decisions from prior sprints that still bind
-this sprint's implementation and test surface.
-
-**Procedure (at plan-start, right after reading the spec):**
-
-1. Invoke `dr_query` via the `chester-decision-record` MCP with the current
-   sprint subject and an active-only filter:
-
-   ```
-   dr_query({ sprint_subject: "<sprint-name>", status: "Active" })
-   ```
-
-   Use the spec's sprint name (e.g. `20260424-01-build-decision-loop`) as the
-   `sprint_subject` match term. The call returns decision records whose
-   subject or shared-component tags match this sprint.
-
-2. Populate the plan's `## Prior Decisions` section (see
-   [`references/plan-template.md`](references/plan-template.md)) with the
-   returned records. Each record is written as one bullet of the form:
-
-   ```
-   **[YYYYMMDD-XXXXX]** {title} — see spec {AC-ID}. Must-remain-green: `{test_name}`.
-   ```
-
-3. If `dr_query` returns zero records, write `None.` under the section. Do
-   not omit the section — its absence is indistinguishable from "forgot to
-   run `dr_query`."
-
-**Per-task field derivation.** When writing each task block, use the Prior
-Decisions list as the input to the task's `Must remain green` field: any
-decision whose `Code` field touches a file listed in this task's `Files`
-block contributes its test name to that task's `Must remain green` list.
-Each task also declares:
+**Per-task field derivation.** Each task declares:
 
 - **Task ID** — a stable identifier (`Task 1`, `Task 2`, …) used by
   execute-write for progress tracking and by plan-attack for cross-referencing.
@@ -96,8 +60,7 @@ Each task also declares:
   will face while executing this task. `plan-attack` flags high-budget tasks
   (roughly, > 3) as indicators of an underspecified spec — the budget lives
   in the plan so adversarial review can see it.
-- **Must remain green** — test names inherited from Prior Decisions whose
-  `Code` touches this task's files, plus the task's own new test.
+- **Must remain green** — test names this task creates and any tests covering files this task modifies that must continue to pass after the task lands.
 
 ## Scope Check
 
@@ -342,7 +305,7 @@ Plan complete and hardened. The plan's `Execution mode:` header field carries th
 ## Integration
 
 - **Invoked by:** `design-specify` (primary — with spec input; cascades the spec-stage ground-truth report from `design-specify` when present, which is the default for non-greenfield specs), or user directly (standalone, when a spec already exists)
-- **Calls:** `chester:plan-build-plan-reviewer` (Plan Review Loop), `chester:plan-build-plan-attacker` (Plan Hardening, unconditional), `chester:plan-build-plan-smeller` (Plan Hardening, conditional — only when Smell Heuristic Pre-Check matches), `dr_query` on the `chester-decision-record` MCP (at plan-start, to populate `## Prior Decisions`). All three reviewer subagents are named — none fork.
+- **Calls:** `chester:plan-build-plan-reviewer` (Plan Review Loop), `chester:plan-build-plan-attacker` (Plan Hardening, unconditional), `chester:plan-build-plan-smeller` (Plan Hardening, conditional — only when Smell Heuristic Pre-Check matches). All three reviewer subagents are named — none fork.
 - **Reads:** `util-artifact-schema` (naming/paths), the spec from upstream `spec/` subdirectory, the spec-stage ground-truth report from upstream `spec/` subdirectory (when present)
 - **Transitions to:** `execute-write` (subagent or inline mode)
 - **Does NOT call:** `start-bootstrap` (inherits sprint context from upstream design and spec stages)

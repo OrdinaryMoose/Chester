@@ -63,4 +63,3 @@ Brief templates are **not** standalone skills — they live inside each design s
 
 - `chester-design-proof` (invoked inside `design-large-task`) — Solve Stage proof of necessary conditions
 - `chester-design-understanding` (invoked inside `design-large-task`) — Understand Stage nine-dimension saturation scoring
-- `chester-decision-record` (invoked across `plan-build`, `execute-write`, `execute-verify-complete`, `finish-write-records`) — decision-record / constraint-triangle persistence: prospective capture, spec/test/plan/code propagation, and cross-sprint consumption. Seven tools: `dr_capture`, `dr_finalize_refs`, `dr_query`, `dr_supersede`, `dr_abandon`, `dr_verify_tests`, `dr_audit`.

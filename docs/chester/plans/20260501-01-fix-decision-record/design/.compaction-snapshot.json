@@ -1,0 +1,825 @@
+{
+  "session_id": "e5dea1f3-b19f-4ae4-9dfb-f0f0261f372b",
+  "timestamp": "2026-05-01T14:43:01Z",
+  "sprint_name": "20260501-01-fix-decision-record",
+  "phase": "understand",
+  "understanding": {
+    "schemaVersion": "problemfocused-v0.1",
+    "userPrompt": "Review and address the recommendations in docs/admin/decision-record-postmortem.md. The Decision-Record / Constraint-Triangle System (MCP shipped 20260424-01) has captured zero records over four subsequent sprints. The post-mortem proposes Option A (recede behind a flag near-term) with Option B (broaden trigger to plan-build hardening + design-specify architecture choice) as contingency. Goal of this sprint: decide what to do about the inert system and execute that decision.",
+    "round": 0,
+    "overallThreshold": 0.65,
+    "tenetEntries": {
+      "problem_articulation": [],
+      "success_criteria": [],
+      "done_state_vision": [],
+      "constraint_envelope": [],
+      "scope_boundary": [],
+      "personal_use_case_map": [],
+      "cost_energy_budget": [],
+      "project_fit": [],
+      "open_questions_ledger": []
+    },
+    "tenetScores": {
+      "problem_articulation": 0,
+      "success_criteria": 0,
+      "done_state_vision": 0,
+      "constraint_envelope": 0,
+      "scope_boundary": 0,
+      "personal_use_case_map": 0,
+      "cost_energy_budget": 0,
+      "project_fit": 0,
+      "open_questions_ledger": 0
+    },
+    "scoreHistory": [],
+    "glossary": [
+      {
+        "canonical_name": "decision-record system",
+        "aliases": [
+          "DR system",
+          "the system",
+          "constraint-triangle system"
+        ],
+        "definition": "The shipped infrastructure that captures implementation-time decisions: an MCP server with seven tools, a persistent store at docs/chester/decision-record/, and integration hooks across design-specify / plan-build / execute-write / execute-verify-complete / finish-write-records.",
+        "source": {
+          "explorer": "codebase",
+          "artifact": "mcp/chester-decision-record/, docs/admin/decision-record-postmortem.md"
+        },
+        "sense_constraints": [],
+        "status": "PROPOSED-PENDING-DESIGNER",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "codebase",
+              "artifact": "mcp/chester-decision-record/, docs/admin/decision-record-postmortem.md"
+            }
+          }
+        ]
+      },
+      {
+        "canonical_name": "trigger condition",
+        "aliases": [
+          "the trigger",
+          "fire condition",
+          "skeleton-coverage diff"
+        ],
+        "definition": "The criterion that fires a record capture: implementation produces observable behavior outside the spec's anticipated boundary, detected via skeleton-coverage diff between the implementer's observable-behaviors artifact and the spec's skeleton manifest.",
+        "source": {
+          "explorer": "codebase",
+          "artifact": "execute-write SKILL Section 2.1 step 3"
+        },
+        "sense_constraints": [],
+        "status": "PROPOSED-PENDING-DESIGNER",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "codebase",
+              "artifact": "execute-write SKILL Section 2.1 step 3"
+            }
+          }
+        ]
+      },
+      {
+        "canonical_name": "persistent store",
+        "aliases": [
+          "the store",
+          "DR store"
+        ],
+        "definition": "The append-only flat-file at docs/chester/decision-record/decision-record.md where captured records live. Currently empty (only .gitkeep) after four sprints.",
+        "source": {
+          "explorer": "codebase + prior-art",
+          "artifact": "docs/chester/decision-record/"
+        },
+        "sense_constraints": [],
+        "status": "PROPOSED-PENDING-DESIGNER",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "codebase + prior-art",
+              "artifact": "docs/chester/decision-record/"
+            }
+          }
+        ]
+      },
+      {
+        "canonical_name": "propagation procedure",
+        "aliases": [
+          "propagation gate",
+          "the gate"
+        ],
+        "definition": "The blocking discipline that runs when the trigger fires: spec-clause update, then spec-driven test generation (input-isolated from implementer code), then full-suite green required before task DONE.",
+        "source": {
+          "explorer": "codebase",
+          "artifact": "execute-write/references/propagation-procedure.md"
+        },
+        "sense_constraints": [],
+        "status": "PROPOSED-PENDING-DESIGNER",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "codebase",
+              "artifact": "execute-write/references/propagation-procedure.md"
+            }
+          }
+        ]
+      },
+      {
+        "canonical_name": "inverse coupling",
+        "aliases": [
+          "inverse-coupling problem",
+          "trigger inversion"
+        ],
+        "definition": "Structural relationship where the better the upstream design / spec is, the less the downstream trigger fires. Operative force behind the post-mortem: full skeleton coverage means no trigger fires; trigger only fires when spec was under-specified — but plan-build hardening and design-specify reviews specifically prevent under-specification.",
+        "source": {
+          "explorer": "industry + post-mortem"
+        },
+        "sense_constraints": [],
+        "status": "PROPOSED-PENDING-DESIGNER",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "industry + post-mortem"
+            }
+          }
+        ]
+      },
+      {
+        "canonical_name": "upstream decision moment",
+        "aliases": [
+          "upstream decision",
+          "design-time decision",
+          "plan-time decision"
+        ],
+        "definition": "A point in the pipeline before execute-write where a real decision among alternatives gets made: plan-build hardening mitigation accept/skip, threat-report risk-level synthesis, execution-mode override, design-specify competing-architectures choice. Each currently captured in prose (audit, threat report) but not as a structured record.",
+        "source": {
+          "explorer": "post-mortem + codebase"
+        },
+        "sense_constraints": [],
+        "status": "PROPOSED-PENDING-DESIGNER",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "post-mortem + codebase"
+            }
+          }
+        ]
+      },
+      {
+        "canonical_name": "reasoning audit",
+        "aliases": [
+          "the audit",
+          "session audit"
+        ],
+        "definition": "Existing prose capture written by finish-write-records that reads the session JSONL transcript and reconstructs 4-12 decision points per sprint with context, alternatives, decision, rationale, confidence. Format maps almost exactly onto the DR record schema.",
+        "source": {
+          "explorer": "codebase",
+          "artifact": "skills/finish-write-records, references/record-formats.md"
+        },
+        "sense_constraints": [],
+        "status": "PROPOSED-PENDING-DESIGNER",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "codebase",
+              "artifact": "skills/finish-write-records, references/record-formats.md"
+            }
+          }
+        ]
+      },
+      {
+        "canonical_name": "threat report",
+        "aliases": [
+          "plan threat report",
+          "hardening report"
+        ],
+        "definition": "Existing prose capture written by plan-build's hardening step that records combined risk level, REQUIRED/RECOMMENDED findings, designer mitigation choices, rationale. Encodes plan-time decisions.",
+        "source": {
+          "explorer": "codebase",
+          "artifact": "skills/plan-build, plan/ subdir threat reports"
+        },
+        "sense_constraints": [],
+        "status": "PROPOSED-PENDING-DESIGNER",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "codebase",
+              "artifact": "skills/plan-build, plan/ subdir threat reports"
+            }
+          }
+        ]
+      },
+      {
+        "canonical_name": "prior art explorer",
+        "aliases": [
+          "prior-art search"
+        ],
+        "definition": "The Explore-agent dispatch in design-specify that reads prior-sprint design briefs, specs, plans, summaries to extract decisions inherited or constrained for the current design. Functionally an unstructured analog of dr_query.",
+        "source": {
+          "explorer": "codebase",
+          "artifact": "skills/design-specify SKILL.md"
+        },
+        "sense_constraints": [],
+        "status": "PROPOSED-PENDING-DESIGNER",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "codebase",
+              "artifact": "skills/design-specify SKILL.md"
+            }
+          }
+        ]
+      },
+      {
+        "canonical_name": "soft-disable",
+        "aliases": [
+          "recede",
+          "Option A"
+        ],
+        "definition": "Option A in the post-mortem: leave the DR machinery in place but stop reporting audited=0 in summaries (it is noise), document the post-mortem as the operational baseline, fix the worktree node_modules test failure. Smallest-diff path.",
+        "source": {
+          "explorer": "post-mortem"
+        },
+        "sense_constraints": [],
+        "status": "PROPOSED-PENDING-DESIGNER",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "post-mortem"
+            }
+          }
+        ]
+      },
+      {
+        "canonical_name": "broaden trigger",
+        "aliases": [
+          "Option B",
+          "extend trigger"
+        ],
+        "definition": "Option B in the post-mortem: extend the trigger surface from skeleton-coverage misses to also auto-capture upstream decision moments. Mid-sized refactor.",
+        "source": {
+          "explorer": "post-mortem"
+        },
+        "sense_constraints": [],
+        "status": "PROPOSED-PENDING-DESIGNER",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "post-mortem"
+            }
+          }
+        ]
+      },
+      {
+        "canonical_name": "advisory reframe",
+        "aliases": [
+          "Option C"
+        ],
+        "definition": "Option C in the post-mortem: keep the store but make propagation advisory rather than blocking. Drops the test-gen + full-suite block. Loses what made the system distinctive vs Spec Kit / OpenSpec.",
+        "source": {
+          "explorer": "post-mortem"
+        },
+        "sense_constraints": [],
+        "status": "PROPOSED-PENDING-DESIGNER",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "post-mortem"
+            }
+          }
+        ]
+      },
+      {
+        "canonical_name": "cross-sprint memory",
+        "aliases": [
+          "cross-sprint loop"
+        ],
+        "definition": "The second altitude of value the DR system was built for: future plan-build runs consult past records via dr_query to inherit prior decisions. Has never had data to consult; prior art explorer fills the role today using prose artifacts.",
+        "source": {
+          "explorer": "codebase + post-mortem"
+        },
+        "sense_constraints": [],
+        "status": "PROPOSED-PENDING-DESIGNER",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "codebase + post-mortem"
+            }
+          }
+        ]
+      },
+      {
+        "canonical_name": "schema-required fields",
+        "aliases": [
+          "the contract gap",
+          "11-field requirement"
+        ],
+        "definition": "The 11 non-empty-string fields dr_capture demands: trigger, context, options_considered, chosen, rationale, spec_update, test, code, plus tags/sprint/task. Three of these (spec_update, test, code) have no natural value at upstream decision moments — the contract gap that blocks Option B as currently shaped.",
+        "source": {
+          "explorer": "codebase",
+          "artifact": "mcp/chester-decision-record/schema.js"
+        },
+        "sense_constraints": [],
+        "status": "PROPOSED-PENDING-DESIGNER",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "codebase",
+              "artifact": "mcp/chester-decision-record/schema.js"
+            }
+          }
+        ]
+      },
+      {
+        "canonical_name": "decision-record system",
+        "aliases": [],
+        "definition": "The shipped infrastructure that captures implementation-time decisions: an MCP server with seven tools, a persistent store at docs/chester/decision-record/, and integration hooks across design-specify / plan-build / execute-write / execute-verify-complete / finish-write-records.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "vocab approved",
+            "reason": "en-bloc ratification"
+          }
+        ]
+      },
+      {
+        "canonical_name": "trigger condition",
+        "aliases": [],
+        "definition": "The criterion that fires a record capture: implementation produces observable behavior outside the spec's anticipated boundary, detected via skeleton-coverage diff.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "vocab approved",
+            "reason": "en-bloc ratification"
+          }
+        ]
+      },
+      {
+        "canonical_name": "persistent store",
+        "aliases": [],
+        "definition": "Append-only flat-file at docs/chester/decision-record/decision-record.md where captured records live. Currently empty after four sprints.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "vocab approved",
+            "reason": "en-bloc ratification"
+          }
+        ]
+      },
+      {
+        "canonical_name": "propagation procedure",
+        "aliases": [],
+        "definition": "Blocking discipline that runs when the trigger fires: spec-clause update, then code-fit-isolated test generation, then full-suite green required before task DONE.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "vocab approved",
+            "reason": "en-bloc ratification"
+          }
+        ]
+      },
+      {
+        "canonical_name": "inverse coupling",
+        "aliases": [],
+        "definition": "Structural relationship where the better the upstream design / spec is, the less the downstream trigger fires. Operative force behind the post-mortem.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "vocab approved",
+            "reason": "en-bloc ratification"
+          }
+        ]
+      },
+      {
+        "canonical_name": "upstream decision moment",
+        "aliases": [],
+        "definition": "Point in the pipeline before execute-write where a real choice among alternatives gets made: plan-build hardening mitigation accept/skip, threat-report risk synthesis, execution-mode override, design-specify competing-architectures choice.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "vocab approved",
+            "reason": "en-bloc ratification"
+          }
+        ]
+      },
+      {
+        "canonical_name": "reasoning audit",
+        "aliases": [],
+        "definition": "Existing prose capture written by finish-write-records that reads the session JSONL transcript and reconstructs 4-12 decision points per sprint with context, alternatives, decision, rationale, confidence.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "vocab approved",
+            "reason": "en-bloc ratification"
+          }
+        ]
+      },
+      {
+        "canonical_name": "threat report",
+        "aliases": [],
+        "definition": "Existing prose capture written by plan-build's hardening step recording combined risk level, REQUIRED/RECOMMENDED findings, designer mitigation choices, rationale.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "vocab approved",
+            "reason": "en-bloc ratification"
+          }
+        ]
+      },
+      {
+        "canonical_name": "prior art explorer",
+        "aliases": [],
+        "definition": "Explore-agent dispatch in design-specify that reads prior-sprint artifacts to extract decisions inherited or constrained for the current design. Functionally an unstructured analog of dr_query.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "vocab approved",
+            "reason": "en-bloc ratification"
+          }
+        ]
+      },
+      {
+        "canonical_name": "soft-disable",
+        "aliases": [],
+        "definition": "Option A: leave the DR machinery in place but stop reporting audited=0 in summaries, document the post-mortem as the operational baseline, fix worktree node_modules test failure. Smallest-diff path.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "vocab approved",
+            "reason": "en-bloc ratification"
+          }
+        ]
+      },
+      {
+        "canonical_name": "broaden trigger",
+        "aliases": [],
+        "definition": "Option B: extend the trigger surface from skeleton-coverage misses to also auto-capture upstream decision moments. Mid-sized refactor.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "vocab approved",
+            "reason": "en-bloc ratification"
+          }
+        ]
+      },
+      {
+        "canonical_name": "advisory reframe",
+        "aliases": [],
+        "definition": "Option C: keep the store but make propagation advisory rather than blocking. Drops the test-gen + full-suite block.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "vocab approved",
+            "reason": "en-bloc ratification"
+          }
+        ]
+      },
+      {
+        "canonical_name": "cross-sprint memory",
+        "aliases": [],
+        "definition": "Second altitude of value the DR system was built for: future plan-build runs consulting past records via dr_query. Has never had data; the prior art explorer fills the role today using prose artifacts.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "vocab approved",
+            "reason": "en-bloc ratification"
+          }
+        ]
+      },
+      {
+        "canonical_name": "schema-required fields",
+        "aliases": [],
+        "definition": "11 non-empty-string fields dr_capture demands. Three (spec_update, test, code) have no natural value at upstream decision moments — the contract gap that blocks Option B as currently shaped.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "vocab approved",
+            "reason": "en-bloc ratification"
+          }
+        ]
+      }
+    ],
+    "vocabularyActionLog": [
+      {
+        "action": "ADD",
+        "target_terms": [
+          "decision-record system"
+        ],
+        "new_term": {
+          "canonical_name": "decision-record system"
+        },
+        "reason": "en-bloc ratification",
+        "designer_quote": "vocab approved",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-01T11:15:05.217Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "trigger condition"
+        ],
+        "new_term": {
+          "canonical_name": "trigger condition"
+        },
+        "reason": "en-bloc ratification",
+        "designer_quote": "vocab approved",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-01T11:15:08.693Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "persistent store"
+        ],
+        "new_term": {
+          "canonical_name": "persistent store"
+        },
+        "reason": "en-bloc ratification",
+        "designer_quote": "vocab approved",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-01T11:15:11.356Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "propagation procedure"
+        ],
+        "new_term": {
+          "canonical_name": "propagation procedure"
+        },
+        "reason": "en-bloc ratification",
+        "designer_quote": "vocab approved",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-01T11:15:14.734Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "inverse coupling"
+        ],
+        "new_term": {
+          "canonical_name": "inverse coupling"
+        },
+        "reason": "en-bloc ratification",
+        "designer_quote": "vocab approved",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-01T11:15:17.501Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "upstream decision moment"
+        ],
+        "new_term": {
+          "canonical_name": "upstream decision moment"
+        },
+        "reason": "en-bloc ratification",
+        "designer_quote": "vocab approved",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-01T11:15:21.213Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "reasoning audit"
+        ],
+        "new_term": {
+          "canonical_name": "reasoning audit"
+        },
+        "reason": "en-bloc ratification",
+        "designer_quote": "vocab approved",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-01T11:15:24.601Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "threat report"
+        ],
+        "new_term": {
+          "canonical_name": "threat report"
+        },
+        "reason": "en-bloc ratification",
+        "designer_quote": "vocab approved",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-01T11:15:27.701Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "prior art explorer"
+        ],
+        "new_term": {
+          "canonical_name": "prior art explorer"
+        },
+        "reason": "en-bloc ratification",
+        "designer_quote": "vocab approved",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-01T11:15:31.532Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "soft-disable"
+        ],
+        "new_term": {
+          "canonical_name": "soft-disable"
+        },
+        "reason": "en-bloc ratification",
+        "designer_quote": "vocab approved",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-01T11:15:35.424Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "broaden trigger"
+        ],
+        "new_term": {
+          "canonical_name": "broaden trigger"
+        },
+        "reason": "en-bloc ratification",
+        "designer_quote": "vocab approved",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-01T11:15:37.973Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "advisory reframe"
+        ],
+        "new_term": {
+          "canonical_name": "advisory reframe"
+        },
+        "reason": "en-bloc ratification",
+        "designer_quote": "vocab approved",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-01T11:15:41.053Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "cross-sprint memory"
+        ],
+        "new_term": {
+          "canonical_name": "cross-sprint memory"
+        },
+        "reason": "en-bloc ratification",
+        "designer_quote": "vocab approved",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-01T11:15:44.944Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "schema-required fields"
+        ],
+        "new_term": {
+          "canonical_name": "schema-required fields"
+        },
+        "reason": "en-bloc ratification",
+        "designer_quote": "vocab approved",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-01T11:15:48.176Z"
+      }
+    ],
+    "pendingVocabDispositions": [],
+    "termUsageHistory": {},
+    "pendingOverrides": [],
+    "solveLeakageLedger": [],
+    "repeatBackHistory": [],
+    "transition": {
+      "ready": false,
+      "reasons": [
+        "session just initialized"
+      ]
+    },
+    "transitionHistory": [],
+    "warningsHistory": []
+  },
+  "enforcement": null
+}

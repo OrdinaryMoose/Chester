@@ -4,10 +4,9 @@ The exact Markdown structure plan-build writes into the `plan/` subdirectory.
 Read this file when assembling the plan document. Two parts: the document
 header (once, at the top) and the task structure (repeated per task).
 
-The template is **loop-optimized** — per-task fields (`Type`, `Implements`,
-`Decision budget`, `Must remain green`) carry the information execute-write
-and plan-attack need to gate the build-decision loop without re-reading the
-spec for each task.
+The template carries per-task fields (`Type`, `Implements`, `Decision budget`,
+`Must remain green`) that give execute-write and plan-attack the per-task
+information they need without re-reading the spec for each task.
 
 ## Part 1 — Plan Document Header
 
@@ -31,14 +30,6 @@ Every plan MUST start with this header:
 ## Tech Stack
 {key technologies / libraries}
 
-## Prior Decisions
-
-*(populated by plan-build via `dr_query` at plan-start; filter: sprint-subject match OR shared-component match, status=Active)*
-
-- **[YYYYMMDD-XXXXX]** {title} — see spec {AC-ID}. Must-remain-green: `{test_name}`.
-
-*(or "None" if dr_query returns empty)*
-
 ---
 ```
 
@@ -54,7 +45,7 @@ project — `dotnet test`, `npm test`, `go test`, etc.):
 **Type:** code-producing | docs-producing | config-producing
 **Implements:** AC-{X.Y}, AC-{A.B}
 **Decision budget:** {estimated ambiguity count}
-**Must remain green:** `{test_name}` (inherited from Decision {YYYYMMDD-XXXXX})
+**Must remain green:** `{test_name}` (any test this task creates plus any test covering files this task modifies)
 
 **Files:**
 - Create: `exact/path/to/file.py`
@@ -63,7 +54,7 @@ project — `dotnet test`, `npm test`, `go test`, etc.):
 
 **Steps (TDD):**
 
-- [ ] **Step 1: Write the failing test** (reference skeleton `{skeleton-ID}` if one exists)
+- [ ] **Step 1: Write the failing test**
 
 ```python
 def test_specific_behavior():
@@ -111,11 +102,10 @@ git commit -m "feat: add specific feature"
   will face. Plan-attack flags high-budget tasks (≳ 3) as indicators the
   spec is underspecified in that area. The budget lives in the plan so
   adversarial review can see it without recomputing.
-- **Must remain green** — test names inherited from the plan's
-  `## Prior Decisions` section (any decision whose `Code` field touches a
-  file listed in this task's `Files` block), plus the task's own new test.
-  execute-verify-complete uses this list at the end of each task to confirm
-  no prior-decision test regressed.
+- **Must remain green** — test names this task creates and any tests
+  covering files this task modifies that must continue to pass after the
+  task lands. execute-verify-complete uses this list at the end of each
+  task to confirm no regression.
 
 ## Conventions Encoded in the Template
 

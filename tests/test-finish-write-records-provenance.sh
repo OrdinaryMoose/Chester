@@ -27,9 +27,9 @@ grep -q 'Session Skill Versions' "$FORMATS" || fail "record-formats.md missing S
 # 5. Skill mentions Session Skill Versions in summary-write step
 grep -q 'Session Skill Versions' "$SKILL" || fail "skill text missing Session Skill Versions"
 
-# 6. Version bumped — pre-sprint baseline v0001 → bump to v0002
+# 6. Version is at v0003 (post fork-pattern restructure)
 CUR_VER="$(awk '/^version:/ {print $2; exit}' "$SKILL")"
-[ "$CUR_VER" = "v0002" ] || fail "version not bumped to v0002 (got $CUR_VER)"
+[ "$CUR_VER" = "v0003" ] || fail "version not at v0003 (got $CUR_VER)"
 
 if [ "$ERRORS" -gt 0 ]; then echo "FAIL: $ERRORS"; exit 1; fi
 echo "PASS: finish-write-records wired with harvest"
