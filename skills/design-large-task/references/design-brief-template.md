@@ -88,6 +88,7 @@ are explicitly stated by the designer during the proof phase.
 If the proof has no rules, state: "No designer-directed rules beyond the goal." This
 is preferable to omitting the section.
 
+//todo: add rule numbering system 'RE-xx'
 ---
 
 ### Permissions (REQUIRED)
@@ -104,6 +105,8 @@ do not belong here.
 
 If no permissions were granted, state: "No permissions granted. All rules apply as
 stated."
+
+//todo: add permission numbering system 'PN-xx'
 
 ---
 
@@ -122,6 +125,8 @@ where the claim references specific elements.
 `design-specify` runs a ground-truth review automatically against the spec it produces from
 this brief (skipped only for greenfield specs); that review will re-verify these evidence
 anchors against the codebase. Be precise here so that downstream verification has clean targets.
+
+// todo: add evidence numbering system 'EV-xx'
 
 ---
 
@@ -146,6 +151,7 @@ nothing substantive found), state that explicitly: "Industry signal was thin for
 this problem class. No comparable external patterns were substantive enough to
 influence the design." This tells the reader the axis was considered, not skipped.
 
+// todo: add an numbering system 'IC-xx'
 ---
 
 ### Risks (REQUIRED)
@@ -165,6 +171,8 @@ Be specific. "Type placement is a risk" is not useful. "If future projects need 
 canonical form types, they would reference Application.Contracts, creating a
 cross-hierarchy dependency" is.
 
+// todo: add a risk numbering system 'RK-xx'
+
 ---
 
 ### Concerns (REQUIRED)
@@ -177,8 +185,8 @@ Resolve Condition coverage and the closure-coverage check.
 ```markdown
 ## Concerns
 
-- **CERN-1 — {short label}**: {optional description}
-- **CERN-2 — {short label}**
+- **CN-1 — {short label}**: {optional description}
+- **CN-2 — {short label}**
 ```
 
 ---
@@ -194,7 +202,7 @@ RC's statement or anchor invalidates the ratification automatically.
 ```markdown
 ## Resolve Conditions
 
-- **RCON-1** — {observable outcome}. Anchored to CERN-1 ({label}). Ratification: "{PM quote}" (round {n}).
+- **RC-1** — {observable outcome}. Anchored to CERN-1 ({label}). Ratification: "{PM quote}" (round {n}).
 ```
 
 ---
