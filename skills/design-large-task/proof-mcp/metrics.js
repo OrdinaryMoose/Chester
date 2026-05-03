@@ -9,7 +9,7 @@
  *   Challenges check grounding quality, not bookkeeping coverage.
  */
 
-import { traverseGroundingChain } from './proof.js';
+import { traverseGroundingChain, checkAllIntegrity } from './proof.js';
 
 export const STALL_WINDOW = 3;
 
@@ -366,4 +366,71 @@ export function checkClosure(state) {
     permitted: reasons.length === 0,
     reasons,
   };
+}
+
+export const CLOSING_ARG_FLOORS = Object.freeze({
+  groundingCoverageFloor: 0.9,
+  aggregateScoreFloor: 0.8,
+  weights: Object.freeze({ ratifiedRC: 0.4, grounding: 0.4, alternatives: 0.2 }),
+  minRound: 3,
+});
+
+// Test-only override: pass a partial floors object to evaluateTrigger via the second arg
+// so tests can vary thresholds without mutating the frozen module-level constant.
+// Production callers always omit the second arg and get the frozen defaults.
+// Field-by-field fallback supports partial overrides.
+export function evaluateTrigger(state, overrides) {
+  const floors = {
+    groundingCoverageFloor: overrides?.groundingCoverageFloor ?? CLOSING_ARG_FLOORS.groundingCoverageFloor,
+    aggregateScoreFloor: overrides?.aggregateScoreFloor ?? CLOSING_ARG_FLOORS.aggregateScoreFloor,
+    weights: overrides?.weights ?? CLOSING_ARG_FLOORS.weights,
+    minRound: overrides?.minRound ?? CLOSING_ARG_FLOORS.minRound,
+  };
+  const reasons = [];
+  const completeness = computeCompleteness(state.elements);
+  const groundingCoverage = computeGroundingCoverage(state.elements);
+
+  // Per-signal floors
+  if (groundingCoverage < floors.groundingCoverageFloor) {
+    reasons.push(`grounding_coverage ${groundingCoverage.toFixed(2)} below floor ${floors.groundingCoverageFloor}`);
+  }
+  if (completeness.resolve_condition_count < 1) {
+    reasons.push('resolve_condition_count must be >= 1');
+  }
+  if (completeness.ratified_rc_count !== completeness.resolve_condition_count) {
+    reasons.push(`unratified RCs exist: ${completeness.ratified_rc_count}/${completeness.resolve_condition_count} ratified`);
+  }
+  // Walk NCs: collapse_test populated on all; at least one rejected_alternatives
+  let allHaveCollapse = true;
+  let anyHasAlt = false;
+  for (const [, el] of state.elements) {
+    if (el.type !== 'NECESSARY_CONDITION' || el.status !== 'active') continue;
+    if (!el.collapse_test) allHaveCollapse = false;
+    if (Array.isArray(el.rejected_alternatives) && el.rejected_alternatives.length > 0) anyHasAlt = true;
+  }
+  if (!allHaveCollapse) reasons.push('not all active NCs have collapse_test');
+  if (!anyHasAlt) reasons.push('no NC has rejected_alternatives');
+  if (!state.concernsLocked) reasons.push('Concerns must be locked');
+  const { uncovered } = checkConcernCoverage(state);
+  if (uncovered.length > 0) reasons.push(`Concerns uncovered: ${uncovered.join(', ')}`);
+  if (state.round < floors.minRound) reasons.push(`round ${state.round} below floor ${floors.minRound}`);
+
+  // Aggregate
+  const conditionsWithAlt = completeness.conditions_with_alternatives ?? 0;
+  const conditionCount = Math.max(completeness.condition_count ?? 0, 1);
+  const rcCount = Math.max(completeness.resolve_condition_count ?? 0, 1);
+  const aggregate = (completeness.ratified_rc_count / rcCount) * floors.weights.ratifiedRC
+    + groundingCoverage * floors.weights.grounding
+    + (conditionsWithAlt / conditionCount) * floors.weights.alternatives;
+  if (aggregate < floors.aggregateScoreFloor) {
+    reasons.push(`aggregate_score ${aggregate.toFixed(2)} below floor ${floors.aggregateScoreFloor}`);
+  }
+
+  // Integrity-zero
+  const integrityWarnings = checkAllIntegrity(state.elements);
+  if (integrityWarnings.length > 0) {
+    reasons.push(`integrity_warnings: ${integrityWarnings.length} (${integrityWarnings.slice(0, 3).join('; ')})`);
+  }
+
+  return { permitted: reasons.length === 0, reasons };
 }
