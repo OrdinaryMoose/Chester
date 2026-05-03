@@ -14,6 +14,14 @@ export const ELEMENT_TYPES = [
   'EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK', 'RESOLVE_CONDITION', 'FRICTION',
 ];
 
+export const FRICTION_SHAPES = [
+  'nc-nc-opposing-pull', 'rc-rule-conflict', 'permission-risk-linkage', 'concern-concern-competition',
+];
+
+export const FRICTION_DISPOSITIONS = [
+  'lived-with', 'relieved-by-exception', 'dissolved-by-revision', 'dissolved-by-scope-cut', 'not-really-friction',
+];
+
 /**
  * Create an element object from input, validating required fields by type.
  * @param {object} input - Element fields from caller
@@ -36,13 +44,11 @@ export function createElement(input, id, round) {
   // FRICTION: distinct schema (anchor pair + shape + disposition); statement is optional.
   // Handle as early return so it doesn't trip the shared `statement` requirement below.
   if (type === 'FRICTION') {
-    const SHAPES = ['nc-nc-opposing-pull', 'rc-rule-conflict', 'permission-risk-linkage', 'concern-concern-competition'];
-    const DISPOSITIONS = ['lived-with', 'relieved-by-exception', 'dissolved-by-revision', 'dissolved-by-scope-cut', 'not-really-friction'];
-    if (!input.friction_shape || !SHAPES.includes(input.friction_shape)) {
-      throw new Error(`FRICTION friction_shape required, must be one of: ${SHAPES.join(', ')}`);
+    if (!input.friction_shape || !FRICTION_SHAPES.includes(input.friction_shape)) {
+      throw new Error(`FRICTION friction_shape required, must be one of: ${FRICTION_SHAPES.join(', ')}`);
     }
-    if (!input.disposition || !DISPOSITIONS.includes(input.disposition)) {
-      throw new Error(`FRICTION disposition required, must be one of: ${DISPOSITIONS.join(', ')}`);
+    if (!input.disposition || !FRICTION_DISPOSITIONS.includes(input.disposition)) {
+      throw new Error(`FRICTION disposition required, must be one of: ${FRICTION_DISPOSITIONS.join(', ')}`);
     }
     if (!input.anchor_a || !input.anchor_b) {
       throw new Error('FRICTION requires anchor_a and anchor_b element IDs');
