@@ -258,10 +258,11 @@ export function checkConcernCoverage(state) {
 
 /**
  * Check whether closure (finishing the design proof) is permitted.
- * All ten conditions must pass. Conditions 1-6 cover the necessary-conditions
+ * All eleven conditions must pass. Conditions 1-6 cover the necessary-conditions
  * proof; conditions 7-10 cover Concerns lock, Concerns presence, RC ratification,
- * and per-Concern coverage (in that fixed order — spec lines 68-72).
- * @param {object} state - { elements, round, phaseTransitionRound, concerns, concernsLocked }
+ * and per-Concern coverage (in that fixed order — spec lines 68-72); condition 11
+ * requires the designer go-choice (closingArgGoRound) to match the current round.
+ * @param {object} state - { elements, round, phaseTransitionRound, concerns, concernsLocked, closingArgPresentedRound, closingArgGoRound }
  * @returns {{ permitted: boolean, reasons: string[] }}
  */
 export function checkClosure(state) {

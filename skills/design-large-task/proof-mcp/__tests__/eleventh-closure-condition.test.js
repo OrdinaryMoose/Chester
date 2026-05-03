@@ -25,4 +25,10 @@ describe('eleventh closure condition', () => {
     const out = checkClosure(s);
     expect(out.reasons.some(r => /Designer go-choice/.test(r))).toBe(false);
   });
+
+  it('checkClosure adds the eleventh-condition reason when go round is stale (prior round)', () => {
+    const s = { ...fullyCompliantState(), round: 5, closingArgGoRound: 4 };
+    const out = checkClosure(s);
+    expect(out.reasons.some(r => /Designer go-choice/.test(r))).toBe(true);
+  });
 });

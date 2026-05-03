@@ -593,7 +593,7 @@ describe('checkClosure — Concerns and Resolve Conditions (conditions 7-10)', (
     expect(c.reasons.some(r => /CERN-1/.test(r))).toBe(false);
   });
 
-  it('permits closure when all 10 conditions pass', () => {
+  it('permits closure when all 11 conditions pass', () => {
     const state = baseClosureState();
     state.concerns = [{ id: 'CERN-1', label: 'X', description: null }];
     state.concernsLocked = true;
