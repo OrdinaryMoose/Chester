@@ -411,8 +411,11 @@ export function evaluateTrigger(state, overrides) {
   if (!allHaveCollapse) reasons.push('not all active NCs have collapse_test');
   if (!anyHasAlt) reasons.push('no NC has rejected_alternatives');
   if (!state.concernsLocked) reasons.push('Concerns must be locked');
-  const { uncovered } = checkConcernCoverage(state);
-  if (uncovered.length > 0) reasons.push(`Concerns uncovered: ${uncovered.join(', ')}`);
+  // Coverage check is meaningful only after Concerns are locked — matches checkClosure semantics.
+  if (state.concernsLocked) {
+    const { uncovered } = checkConcernCoverage(state);
+    if (uncovered.length > 0) reasons.push(`Concerns uncovered: ${uncovered.join(', ')}`);
+  }
   if (state.round < floors.minRound) reasons.push(`round ${state.round} below floor ${floors.minRound}`);
 
   // Aggregate
