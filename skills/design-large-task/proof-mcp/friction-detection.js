@@ -1,3 +1,19 @@
+import { FRICTION_SHAPES } from './proof.js';
+
+const SHAPE_PERMISSION_RISK = 'permission-risk-linkage';
+const SHAPE_NC_NC = 'nc-nc-opposing-pull';
+const SHAPE_RC_RULE = 'rc-rule-conflict';
+const SHAPE_CONCERN_CONCERN = 'concern-concern-competition';
+
+// Guard: every local shape constant must appear in the canonical FRICTION_SHAPES set.
+// If proof.js renames or removes a shape, this throws at module load instead of silently
+// producing FRICTION elements that createElement will reject.
+for (const s of [SHAPE_PERMISSION_RISK, SHAPE_NC_NC, SHAPE_RC_RULE, SHAPE_CONCERN_CONCERN]) {
+  if (!FRICTION_SHAPES.includes(s)) {
+    throw new Error(`friction-detection.js: shape "${s}" not in FRICTION_SHAPES`);
+  }
+}
+
 export function detectPermissionRiskLinkage(elements) {
   const out = [];
   for (const [, perm] of elements) {
@@ -7,7 +23,7 @@ export function detectPermissionRiskLinkage(elements) {
       const basis = Array.isArray(risk.basis) ? risk.basis : [];
       if (basis.includes(perm.relieves)) {
         out.push({
-          friction_shape: 'permission-risk-linkage',
+          friction_shape: SHAPE_PERMISSION_RISK,
           anchor_a: perm.id, anchor_b: risk.id,
           statement: `Permission ${perm.id} relieves ${perm.relieves} which Risk ${risk.id} grounds in`,
           confidence: 'exact',
@@ -26,9 +42,9 @@ export function detectNcNcOpposingPull(elements) {
       const a = ncs[i].statement || '';
       const b = ncs[j].statement || '';
       if (/must not/i.test(a) && /must/i.test(b) && !/must not/i.test(b)) {
-        out.push({ friction_shape: 'nc-nc-opposing-pull', anchor_a: ncs[i].id, anchor_b: ncs[j].id, statement: 'opposing must/must-not patterns', confidence: 'heuristic' });
+        out.push({ friction_shape: SHAPE_NC_NC, anchor_a: ncs[i].id, anchor_b: ncs[j].id, statement: 'opposing must/must-not patterns', confidence: 'heuristic' });
       } else if (/must not/i.test(b) && /must/i.test(a) && !/must not/i.test(a)) {
-        out.push({ friction_shape: 'nc-nc-opposing-pull', anchor_a: ncs[i].id, anchor_b: ncs[j].id, statement: 'opposing must/must-not patterns', confidence: 'heuristic' });
+        out.push({ friction_shape: SHAPE_NC_NC, anchor_a: ncs[i].id, anchor_b: ncs[j].id, statement: 'opposing must/must-not patterns', confidence: 'heuristic' });
       }
     }
   }
@@ -47,7 +63,7 @@ export function detectRcRuleConflict(elements) {
       if (restrictTokens.some(t => ruleText.includes(t))) {
         const ruleSubject = ruleText.replace(/^.*?(must not|cannot|forbidden|no )\s*/, '').split(/[.,;]/)[0].trim();
         if (ruleSubject && rcText.includes(ruleSubject)) {
-          out.push({ friction_shape: 'rc-rule-conflict', anchor_a: rc.id, anchor_b: rule.id, statement: `RC describes "${ruleSubject}" which Rule restricts`, confidence: 'heuristic' });
+          out.push({ friction_shape: SHAPE_RC_RULE, anchor_a: rc.id, anchor_b: rule.id, statement: `RC describes "${ruleSubject}" which Rule restricts`, confidence: 'heuristic' });
         }
       }
     }
@@ -58,13 +74,6 @@ export function detectRcRuleConflict(elements) {
 export function detectConcernConcernCompetition(elements, concerns) {
   const out = [];
   if (!Array.isArray(concerns)) return out;
-  const rcsByAnchor = new Map();
-  for (const [, el] of elements) {
-    if (el.type === 'RESOLVE_CONDITION' && el.status === 'active' && el.problem_anchor) {
-      if (!rcsByAnchor.has(el.problem_anchor)) rcsByAnchor.set(el.problem_anchor, []);
-      rcsByAnchor.get(el.problem_anchor).push(el);
-    }
-  }
   for (let i = 0; i < concerns.length; i++) {
     for (let j = i + 1; j < concerns.length; j++) {
       const a = concerns[i].label || '';
@@ -73,7 +82,7 @@ export function detectConcernConcernCompetition(elements, concerns) {
       const bTokens = new Set(b.toLowerCase().split(/\W+/).filter(t => t.length > 4));
       const overlap = [...aTokens].filter(t => bTokens.has(t));
       if (overlap.length >= 2) {
-        out.push({ friction_shape: 'concern-concern-competition', anchor_a: concerns[i].id, anchor_b: concerns[j].id, statement: `Concerns share tokens: ${overlap.join(', ')}`, confidence: 'heuristic' });
+        out.push({ friction_shape: SHAPE_CONCERN_CONCERN, anchor_a: concerns[i].id, anchor_b: concerns[j].id, statement: `Concerns share tokens: ${overlap.join(', ')}`, confidence: 'heuristic' });
       }
     }
   }
@@ -106,7 +115,7 @@ export function runFrictionDetection(elements, concerns) {
     seen.add(k);
     filtered.push(c);
   }
-  const autoCreate = filtered.filter(c => c.friction_shape === 'permission-risk-linkage');
-  const hints = filtered.filter(c => c.friction_shape !== 'permission-risk-linkage');
+  const autoCreate = filtered.filter(c => c.friction_shape === SHAPE_PERMISSION_RISK);
+  const hints = filtered.filter(c => c.friction_shape !== SHAPE_PERMISSION_RISK);
   return { hints, autoCreate };
 }
