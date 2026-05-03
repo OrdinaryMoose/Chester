@@ -10,7 +10,7 @@
  */
 
 import { readFileSync, writeFileSync } from 'fs';
-import { createElement, validateRefs, checkAllIntegrity, FRICTION_DISPOSITIONS, TERMINAL_FRICTION_DISPOSITIONS, WITHDRAWAL_DISPOSITIONS } from './proof.js';
+import { createElement, validateRefs, checkAllIntegrity, FRICTION_DISPOSITIONS, TERMINAL_FRICTION_DISPOSITIONS, WITHDRAWAL_DISPOSITIONS, UNCLASSIFIED_DISPOSITION } from './proof.js';
 import { computeCompleteness, computeGroundingCoverage, detectChallenge, detectStall, checkClosure } from './metrics.js';
 import { runFrictionDetection } from './friction-detection.js';
 
@@ -337,7 +337,7 @@ export function applyOperations(state, operations) {
         }
         let disposition;
         if (op.withdrawal_disposition === undefined) {
-          disposition = 'unclassified';
+          disposition = UNCLASSIFIED_DISPOSITION;
         } else if (!WITHDRAWAL_DISPOSITIONS.includes(op.withdrawal_disposition)) {
           errors.push(`Cannot withdraw "${op.target}": withdrawal_disposition must be one of ${WITHDRAWAL_DISPOSITIONS.join(', ')}; got ${op.withdrawal_disposition}`);
           break;
@@ -446,7 +446,7 @@ export function loadState(filePath) {
   for (const [, el] of raw.elements) {
     el.problem_anchor ??= null;
     el.ratification ??= null;
-    if (el.status === 'withdrawn') el.withdrawal_disposition ??= 'unclassified';
+    if (el.status === 'withdrawn') el.withdrawal_disposition ??= UNCLASSIFIED_DISPOSITION;
   }
   return raw;
 }

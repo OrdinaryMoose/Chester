@@ -1,4 +1,5 @@
 import { computeCompleteness, computeGroundingCoverage, checkClosure } from './metrics.js';
+import { UNCLASSIFIED_DISPOSITION } from './proof.js';
 
 export function deriveClosingArgument(state) {
   const elementsArr = [...state.elements.values()];
@@ -18,11 +19,11 @@ export function deriveClosingArgument(state) {
 
   const phantomNCs = elementsArr
     .filter(el => el.type === 'NECESSARY_CONDITION' && el.status === 'withdrawn')
-    .map(el => ({ id: el.id, statement: el.statement, dispositionTag: el.withdrawal_disposition ?? 'unclassified' }));
+    .map(el => ({ id: el.id, statement: el.statement, dispositionTag: el.withdrawal_disposition ?? UNCLASSIFIED_DISPOSITION }));
 
   const phantomRCs = elementsArr
     .filter(el => el.type === 'RESOLVE_CONDITION' && el.status === 'withdrawn')
-    .map(el => ({ id: el.id, statement: el.statement, dispositionTag: el.withdrawal_disposition ?? 'unclassified' }));
+    .map(el => ({ id: el.id, statement: el.statement, dispositionTag: el.withdrawal_disposition ?? UNCLASSIFIED_DISPOSITION }));
 
   const liveFriction = elementsArr
     .filter(el => el.type === 'FRICTION' && el.status === 'active')
@@ -34,8 +35,10 @@ export function deriveClosingArgument(state) {
   const phantomFriction = elementsArr
     .filter(el => el.type === 'FRICTION' && el.status === 'withdrawn')
     .map(el => ({
+      // FRICTION.disposition is required by createElement and validated by overrideFrictionDisposition,
+      // so dispositionTag is always populated for live and phantom alike — no fallback needed.
       id: el.id, friction_shape: el.friction_shape, anchor_a: el.anchor_a, anchor_b: el.anchor_b,
-      dispositionTag: el.disposition ?? 'unclassified', statement: el.statement,
+      dispositionTag: el.disposition, statement: el.statement,
     }));
 
   const completeness = computeCompleteness(state.elements);

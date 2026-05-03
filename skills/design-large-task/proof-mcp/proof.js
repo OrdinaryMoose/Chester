@@ -31,6 +31,11 @@ export const WITHDRAWAL_DISPOSITIONS = [
   'consolidated', 'superseded', 'found-redundant', 'found-incorrect', 'scope-removed',
 ];
 
+// Default-only sentinel for withdrawn elements lacking an explicit withdrawal_disposition.
+// Not a member of WITHDRAWAL_DISPOSITIONS — applied by loadState backfill and the withdraw
+// branch when the field is omitted; consumed by closing-argument render as the fallback tag.
+export const UNCLASSIFIED_DISPOSITION = 'unclassified';
+
 /**
  * Create an element object from input, validating required fields by type.
  * @param {object} input - Element fields from caller
