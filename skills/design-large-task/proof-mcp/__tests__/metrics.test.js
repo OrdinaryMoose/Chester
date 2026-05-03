@@ -335,6 +335,8 @@ describe('checkClosure', () => {
       phaseTransitionRound: 1,
       concerns: [{ id: 'CERN-1', label: 'X', description: null }],
       concernsLocked: true,
+      closingArgPresentedRound: 4,
+      closingArgGoRound: 4,
     };
   }
 
@@ -595,6 +597,8 @@ describe('checkClosure — Concerns and Resolve Conditions (conditions 7-10)', (
     const state = baseClosureState();
     state.concerns = [{ id: 'CERN-1', label: 'X', description: null }];
     state.concernsLocked = true;
+    state.closingArgPresentedRound = state.round;
+    state.closingArgGoRound = state.round;
     const rc = makeElement({
       id: 'RCON-1', type: 'RESOLVE_CONDITION', statement: 'r',
       problem_anchor: 'CERN-1',

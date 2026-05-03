@@ -37,6 +37,8 @@ describe('Concerns lifecycle — full integration', () => {
     state.phaseTransitionRound = 1;
     // Satisfy closure minimum-rounds gate (round >= 3)
     state.round = 3;
+    state.closingArgPresentedRound = state.round;
+    state.closingArgGoRound = state.round;
 
     const closure = checkClosure(state);
     expect(closure.permitted).toBe(true);

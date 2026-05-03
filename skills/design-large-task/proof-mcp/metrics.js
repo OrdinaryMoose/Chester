@@ -362,6 +362,11 @@ export function checkClosure(state) {
     }
   }
 
+  // 11. Designer go-choice required against a presented closing argument in current round
+  if (state.closingArgGoRound !== state.round) {
+    reasons.push('Designer go-choice not given against a presented closing argument — call present_closing_argument then confirm_closure_go');
+  }
+
   return {
     permitted: reasons.length === 0,
     reasons,
