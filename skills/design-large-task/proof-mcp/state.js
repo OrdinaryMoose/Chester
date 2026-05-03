@@ -93,7 +93,8 @@ export function recordClosingArgPresented(state) {
  */
 export function recordDesignerGo(state) {
   if (state.closingArgPresentedRound !== state.round) {
-    return [state, `closing argument presented in round ${state.closingArgPresentedRound}, current round ${state.round}; call present_closing_argument first`];
+    const presentedDesc = state.closingArgPresentedRound ?? 'never';
+    return [state, `closing argument presented in round ${presentedDesc}, current round ${state.round}; call present_closing_argument first`];
   }
   const newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);

@@ -33,6 +33,14 @@ describe('two-yes flags', () => {
     expect(newS.closingArgGoRound).toBe(5);
   });
 
+  it('recordDesignerGo refuses with grammatical "never" message when presented round is null', () => {
+    let s = initializeState('p');
+    s.round = 5;
+    const [, err] = recordDesignerGo(s);
+    expect(err).toMatch(/presented in round never/);
+    expect(err).not.toMatch(/round null/);
+  });
+
   it('clearClosingFlags resets both flags to null (in-place mutation; intended for already-cloned state)', () => {
     let s = initializeState('p');
     s.closingArgPresentedRound = 5;
