@@ -17,7 +17,7 @@ describe('friction lifecycle', () => {
   });
 
   it('manageFriction add creates a FRICTION element with FRIC-N id and appends to frictionLog', () => {
-    const [id, newState, err] = manageFriction(state, {
+    const [id, newState, , err] = manageFriction(state, {
       op: 'add',
       friction_shape: 'nc-nc-opposing-pull',
       anchor_a: 'NCON-1',
@@ -34,7 +34,7 @@ describe('friction lifecycle', () => {
   });
 
   it('manageFriction add rejects unknown anchor', () => {
-    const [id, , err] = manageFriction(state, {
+    const [id, , , err] = manageFriction(state, {
       op: 'add', friction_shape: 'nc-nc-opposing-pull',
       anchor_a: 'NCON-1', anchor_b: 'NCON-99',
       disposition: 'lived-with', statement: 'bad',
@@ -58,12 +58,12 @@ describe('friction lifecycle', () => {
   });
 
   it('overrideFrictionDisposition rejects non-FRICTION element', () => {
-    const [, err] = overrideFrictionDisposition(state, { elementId: 'NCON-1', disposition: 'lived-with' });
+    const [, , err] = overrideFrictionDisposition(state, { elementId: 'NCON-1', disposition: 'lived-with' });
     expect(err).toMatch(/must be FRICTION/);
   });
 
   it('overrideFrictionDisposition rejects unknown element id', () => {
-    const [, err] = overrideFrictionDisposition(state, { elementId: 'FRIC-99', disposition: 'lived-with' });
+    const [, , err] = overrideFrictionDisposition(state, { elementId: 'FRIC-99', disposition: 'lived-with' });
     expect(err).toMatch(/unknown element id|FRIC-99/);
   });
 
@@ -73,7 +73,7 @@ describe('friction lifecycle', () => {
       anchor_a: 'NCON-1', anchor_b: 'NCON-2',
       disposition: 'lived-with', statement: 'noise',
     });
-    const [, err] = overrideFrictionDisposition(s, { elementId: 'FRIC-1', disposition: 'fixed-it' });
+    const [, , err] = overrideFrictionDisposition(s, { elementId: 'FRIC-1', disposition: 'fixed-it' });
     expect(err).toMatch(/disposition must be one of/);
   });
 });

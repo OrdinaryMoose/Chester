@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { detectPermissionRiskLinkage, detectNcNcOpposingPull, detectRcRuleConflict, detectConcernConcernCompetition, runFrictionDetection } from '../friction-detection.js';
+import { initializeState, applyOperations } from '../state.js';
 
 function el(id, type, extra = {}) {
   return { id, type, status: 'active', ...extra };
@@ -49,5 +50,37 @@ describe('friction-detection', () => {
     expect(autoCreate.find(c => c.friction_shape === 'permission-risk-linkage')).toBeDefined();
     expect(autoCreate.find(c => c.friction_shape === 'nc-nc-opposing-pull')).toBeUndefined();
     expect(hints.find(h => h.friction_shape === 'nc-nc-opposing-pull')).toBeDefined();
+  });
+});
+
+describe('friction detection wired into applyOperations', () => {
+  it('auto-creates permission-risk-linkage FRICTION on next applyOperations call', () => {
+    let state = initializeState('test');
+    let r = applyOperations(state, [
+      { op: 'add', type: 'RULE', statement: 'must not Z', source: 'designer' },
+    ]);
+    state = r.state;
+    r = applyOperations(state, [
+      { op: 'add', type: 'PERMISSION', statement: 'allow Z', source: 'designer', relieves: 'RULE-1' },
+      { op: 'add', type: 'RISK', statement: 'Z is dangerous', basis: ['RULE-1'] },
+    ]);
+    state = r.state;
+    const fric = [...state.elements.values()].find(el => el.type === 'FRICTION');
+    expect(fric).toBeDefined();
+    expect(fric.friction_shape).toBe('permission-risk-linkage');
+  });
+
+  it('returns friction_hints[] in payload for heuristic shapes', () => {
+    let state = initializeState('test');
+    let r = applyOperations(state, [
+      { op: 'add', type: 'EVIDENCE', statement: 'fact', source: 'codebase' },
+    ]);
+    state = r.state;
+    r = applyOperations(state, [
+      { op: 'add', type: 'NECESSARY_CONDITION', statement: 'must X', collapse_test: 'a', grounding: ['EVID-1'], reasoning_chain: 'IF X' },
+      { op: 'add', type: 'NECESSARY_CONDITION', statement: 'must not X', collapse_test: 'b', grounding: ['EVID-1'], reasoning_chain: 'IF not X' },
+    ]);
+    expect(r.friction_hints).toBeDefined();
+    expect(r.friction_hints.some(h => h.friction_shape === 'nc-nc-opposing-pull')).toBe(true);
   });
 });

@@ -12,6 +12,7 @@
 import { readFileSync, writeFileSync } from 'fs';
 import { createElement, validateRefs, checkAllIntegrity, FRICTION_DISPOSITIONS, TERMINAL_FRICTION_DISPOSITIONS } from './proof.js';
 import { computeCompleteness, computeGroundingCoverage, detectChallenge, detectStall, checkClosure } from './metrics.js';
+import { runFrictionDetection } from './friction-detection.js';
 
 const ID_PREFIX = {
   EVIDENCE: 'EVID-',
@@ -51,39 +52,78 @@ export function initializeState(problemStatement) {
 }
 
 /**
+ * Run friction detection on state and return [updatedState, hints].
+ * Auto-creates FRICTION elements for high-confidence shapes (currently
+ * permission-risk-linkage); other shapes flow back as hints for the caller.
+ *
+ * Critical: callers MUST rebind their state variable from the returned state.
+ * Auto-created FRICTION elements live only in the returned state.
+ * @param {object} state
+ * @returns {{state: object, hints: Array<object>}}
+ */
+function processFriction(state) {
+  const { hints, autoCreate } = runFrictionDetection(state.elements, state.concerns);
+  for (const candidate of autoCreate) {
+    const [id, withId] = generateId(state, 'FRICTION');
+    state = withId;
+    const element = createElement({
+      type: 'FRICTION',
+      friction_shape: candidate.friction_shape,
+      anchor_a: candidate.anchor_a,
+      anchor_b: candidate.anchor_b,
+      disposition: 'lived-with',
+      statement: candidate.statement,
+    }, id, state.round);
+    state.elements.set(id, element);
+    state.frictionLog.push({
+      event: 'auto-added',
+      frictionId: id,
+      round: state.round,
+      friction_shape: candidate.friction_shape,
+      disposition: 'lived-with',
+    });
+  }
+  return { state, hints };
+}
+
+/**
  * Append a Concern to state. Refuses if Concerns list is locked.
  * @param {object} state
  * @param {{label: string, description?: string}} input
- * @returns {[string|null, object, string|null]} [concernId, newState, error]
+ * @returns {[string|null, object, Array<object>, string|null]} [concernId, newState, friction_hints, error]
  */
 export function addConcern(state, { label, description }) {
   if (state.concernsLocked) {
-    return [null, state, 'Concerns are locked; cannot add'];
+    return [null, state, [], 'Concerns are locked; cannot add'];
   }
-  const newState = structuredClone(state);
+  let newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
   newState.concernCounter++;
   const id = `CERN-${newState.concernCounter}`;
   newState.concerns.push({ id, label, description: description ?? null });
-  return [id, newState, null];
+  const fricResult = processFriction(newState);
+  newState = fricResult.state;
+  return [id, newState, fricResult.hints, null];
 }
 
 /**
  * Lock the Concerns list. Refuses on empty list or already-locked list.
  * @param {object} state
- * @returns {[object, string|null]} [newState, error]
+ * @returns {[object, Array<object>, string|null]} [newState, friction_hints, error]
  */
 export function lockConcerns(state) {
   if (state.concernsLocked) {
-    return [state, 'Concerns already locked'];
+    return [state, [], 'Concerns already locked'];
   }
   if (state.concerns.length === 0) {
-    return [state, 'Cannot lock empty Concerns list'];
+    return [state, [], 'Cannot lock empty Concerns list'];
   }
-  const newState = structuredClone(state);
+  let newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
   newState.concernsLocked = true;
-  return [newState, null];
+  const fricResult = processFriction(newState);
+  newState = fricResult.state;
+  return [newState, fricResult.hints, null];
 }
 
 /**
@@ -91,23 +131,23 @@ export function lockConcerns(state) {
  * Sequential by design — caller passes a single elementId.
  * @param {object} state
  * @param {{elementId: string, ratificationText: string}} input
- * @returns {[object, string|null]} [newState, error]
+ * @returns {[object, Array<object>, string|null]} [newState, friction_hints, error]
  */
 export function ratifyResolveCondition(state, { elementId, ratificationText }) {
   const target = state.elements.get(elementId);
   if (!target) {
-    return [state, `Element "${elementId}" not found`];
+    return [state, [], `Element "${elementId}" not found`];
   }
   if (target.type !== 'RESOLVE_CONDITION') {
-    return [state, `Element "${elementId}" is not a RESOLVE_CONDITION`];
+    return [state, [], `Element "${elementId}" is not a RESOLVE_CONDITION`];
   }
   if (target.status !== 'active') {
-    return [state, `Element "${elementId}" is not active`];
+    return [state, [], `Element "${elementId}" is not active`];
   }
   if (!ratificationText || typeof ratificationText !== 'string') {
-    return [state, 'Ratification text is required'];
+    return [state, [], 'Ratification text is required'];
   }
-  const newState = structuredClone(state);
+  let newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
   const updatedTarget = newState.elements.get(elementId);
   updatedTarget.ratification = { ratifiedAtRound: state.round, text: ratificationText };
@@ -117,7 +157,9 @@ export function ratifyResolveCondition(state, { elementId, ratificationText }) {
     round: state.round,
     ratificationText,
   });
-  return [newState, null];
+  const fricResult = processFriction(newState);
+  newState = fricResult.state;
+  return [newState, fricResult.hints, null];
 }
 
 /**
@@ -243,6 +285,13 @@ export function applyOperations(state, operations) {
     }
   }
 
+  // Run friction detection BEFORE history/metrics so auto-created FRICTION
+  // elements participate in the post-operation snapshot. Rebinding `current`
+  // here is load-bearing — without it, auto-created FRICTION elements vanish.
+  const fricResult = processFriction(current);
+  current = fricResult.state;
+  const friction_hints = fricResult.hints;
+
   // Record history
   let activeConditions = 0;
   for (const [, el] of current.elements) {
@@ -274,6 +323,7 @@ export function applyOperations(state, operations) {
     challengeTrigger,
     stallDetected,
     closure,
+    friction_hints,
   };
 }
 
@@ -332,25 +382,25 @@ export function loadState(filePath) {
  * Appends an 'added' entry to frictionLog.
  * @param {object} state
  * @param {object} input - { op: 'add', friction_shape, anchor_a, anchor_b, disposition, statement? }
- * @returns {[string|null, object, string|null]} [id, newState, error] — id is null when error is non-null. Mirrors addConcern.
+ * @returns {[string|null, object, Array<object>, string|null]} [id, newState, friction_hints, error] — id is null when error is non-null. Mirrors addConcern.
  */
 export function manageFriction(state, input) {
   const { op } = input;
   if (op !== 'add') {
-    return [null, state, `Unknown manage_friction op: ${op}`];
+    return [null, state, [], `Unknown manage_friction op: ${op}`];
   }
   if (!state.elements.has(input.anchor_a)) {
-    return [null, state, `unknown element id: ${input.anchor_a}`];
+    return [null, state, [], `unknown element id: ${input.anchor_a}`];
   }
   if (!state.elements.has(input.anchor_b)) {
-    return [null, state, `unknown element id: ${input.anchor_b}`];
+    return [null, state, [], `unknown element id: ${input.anchor_b}`];
   }
   const [id, withId] = generateId(state, 'FRICTION');
   let element;
   try {
     element = createElement({ ...input, type: 'FRICTION' }, id, withId.round);
   } catch (e) {
-    return [null, state, e.message];
+    return [null, state, [], e.message];
   }
   withId.elements.set(id, element);
   withId.frictionLog.push({
@@ -360,7 +410,8 @@ export function manageFriction(state, input) {
     friction_shape: input.friction_shape,
     disposition: input.disposition,
   });
-  return [id, withId, null];
+  const fricResult = processFriction(withId);
+  return [id, fricResult.state, fricResult.hints, null];
 }
 
 /**
@@ -369,20 +420,20 @@ export function manageFriction(state, input) {
  * also marks the element withdrawn and logs a 'dismissed' event.
  * @param {object} state
  * @param {{elementId: string, disposition: string}} input
- * @returns {[object, string|null]} [newState, error]
+ * @returns {[object, Array<object>, string|null]} [newState, friction_hints, error]
  */
 export function overrideFrictionDisposition(state, { elementId, disposition }) {
   const target = state.elements.get(elementId);
   if (!target) {
-    return [state, `unknown element id: ${elementId}`];
+    return [state, [], `unknown element id: ${elementId}`];
   }
   if (target.type !== 'FRICTION') {
-    return [state, `element_id must be FRICTION; got ${elementId} (type: ${target.type})`];
+    return [state, [], `element_id must be FRICTION; got ${elementId} (type: ${target.type})`];
   }
   if (!FRICTION_DISPOSITIONS.includes(disposition)) {
-    return [state, `disposition must be one of: ${FRICTION_DISPOSITIONS.join(', ')}; got ${disposition}`];
+    return [state, [], `disposition must be one of: ${FRICTION_DISPOSITIONS.join(', ')}; got ${disposition}`];
   }
-  const newState = structuredClone(state);
+  let newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
   const t = newState.elements.get(elementId);
   const oldDisposition = t.disposition;
@@ -402,7 +453,9 @@ export function overrideFrictionDisposition(state, { elementId, disposition }) {
       round: newState.round,
     });
   }
-  return [newState, null];
+  const fricResult = processFriction(newState);
+  newState = fricResult.state;
+  return [newState, fricResult.hints, null];
 }
 
 /**

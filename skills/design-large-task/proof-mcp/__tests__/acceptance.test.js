@@ -86,10 +86,10 @@ describe('AC-2.2 lockConcerns is irreversible', () => {
     let state = initializeState('test');
     [, state] = addConcern(state, { label: 'A' });
     let err;
-    [state, err] = lockConcerns(state);
+    [state, , err] = lockConcerns(state);
     expect(err).toBeNull();
     expect(state.concernsLocked).toBe(true);
-    [, err] = lockConcerns(state);
+    [, , err] = lockConcerns(state);
     expect(err).toMatch(/already locked/i);
   });
 });
@@ -99,7 +99,7 @@ describe('AC-2.3 addConcern refused after lock', () => {
     let state = initializeState('test');
     [, state] = addConcern(state, { label: 'A' });
     [state] = lockConcerns(state);
-    const [id, sameState, err] = addConcern(state, { label: 'B' });
+    const [id, sameState, , err] = addConcern(state, { label: 'B' });
     expect(id).toBeNull();
     expect(sameState).toBe(state);
     expect(err).toMatch(/locked/i);
@@ -109,7 +109,7 @@ describe('AC-2.3 addConcern refused after lock', () => {
 describe('AC-2.4 lockConcerns refuses empty Concerns set', () => {
   it('ac-2-4-lock-concerns-refuses-empty', () => {
     const state = initializeState('test');
-    const [sameState, err] = lockConcerns(state);
+    const [sameState, , err] = lockConcerns(state);
     expect(sameState).toBe(state);
     expect(err).toMatch(/empty/i);
   });
@@ -191,7 +191,7 @@ describe('AC-4.1 ratify single RC succeeds', () => {
     ]);
     state = result.state;
     let err;
-    [state, err] = ratifyResolveCondition(state, { elementId: 'RCON-1', ratificationText: 'PM approves' });
+    [state, , err] = ratifyResolveCondition(state, { elementId: 'RCON-1', ratificationText: 'PM approves' });
     expect(err).toBeNull();
     expect(state.elements.get('RCON-1').ratification).toMatchObject({ text: 'PM approves' });
     expect(state.ratificationLog).toHaveLength(1);
@@ -216,7 +216,7 @@ describe('AC-4.3 ratify rejects non-RC element', () => {
       { op: 'add', type: 'EVIDENCE', statement: 'fact', source: 'codebase' },
     ]);
     state = result.state;
-    const [, err] = ratifyResolveCondition(state, { elementId: 'EVID-1', ratificationText: 'x' });
+    const [, , err] = ratifyResolveCondition(state, { elementId: 'EVID-1', ratificationText: 'x' });
     expect(err).toMatch(/RESOLVE_CONDITION/);
   });
 });

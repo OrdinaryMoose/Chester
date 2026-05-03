@@ -48,7 +48,7 @@ describe('Concerns lifecycle — full integration', () => {
     [, state] = addConcern(state, { label: 'A' });
     [, state] = addConcern(state, { label: 'B' });
     [state] = lockConcerns(state);
-    const [id, sameState, err] = addConcern(state, { label: 'C' });
+    const [id, sameState, , err] = addConcern(state, { label: 'C' });
     expect(id).toBeNull();
     expect(err).toMatch(/locked/i);
     expect(sameState.concerns).toHaveLength(2);

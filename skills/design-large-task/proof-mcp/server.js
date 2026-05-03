@@ -254,6 +254,7 @@ function handleSubmitProofUpdate({ state_file, operations, challenge_used }) {
         stall_detected: result.stallDetected,
         closure_permitted: result.closure.permitted,
         closure_reasons: result.closure.reasons,
+        friction_hints: result.friction_hints,
       }),
     }],
   };
@@ -290,27 +291,27 @@ function handleManageConcerns({ state_file, op, label, description }) {
     if (!label) {
       return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: 'label required for op=add' }) }], isError: true };
     }
-    const [concernId, newState, err] = addConcern(state, { label, description });
+    const [concernId, newState, friction_hints, err] = addConcern(state, { label, description });
     if (err) {
       return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: err }) }], isError: true };
     }
     saveState(newState, state_file);
-    return { content: [{ type: 'text', text: JSON.stringify({ status: 'accepted', concern_id: concernId, concerns_count: newState.concerns.length }) }] };
+    return { content: [{ type: 'text', text: JSON.stringify({ status: 'accepted', concern_id: concernId, concerns_count: newState.concerns.length, friction_hints }) }] };
   }
   if (op === 'lock') {
-    const [newState, err] = lockConcerns(state);
+    const [newState, friction_hints, err] = lockConcerns(state);
     if (err) {
       return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: err }) }], isError: true };
     }
     saveState(newState, state_file);
-    return { content: [{ type: 'text', text: JSON.stringify({ status: 'accepted', locked: true, concerns_count: newState.concerns.length }) }] };
+    return { content: [{ type: 'text', text: JSON.stringify({ status: 'accepted', locked: true, concerns_count: newState.concerns.length, friction_hints }) }] };
   }
   return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: `Unknown op: ${op}` }) }], isError: true };
 }
 
 function handleManageFriction({ state_file, op, friction_shape, anchor_a, anchor_b, disposition, statement }) {
   let state = loadState(state_file);
-  const [fricId, newState, err] = manageFriction(state, { op, friction_shape, anchor_a, anchor_b, disposition, statement });
+  const [fricId, newState, friction_hints, err] = manageFriction(state, { op, friction_shape, anchor_a, anchor_b, disposition, statement });
   if (err) {
     return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: err }) }], isError: true };
   }
@@ -323,6 +324,7 @@ function handleManageFriction({ state_file, op, friction_shape, anchor_a, anchor
         element_id: fricId,
         friction_shape,
         disposition,
+        friction_hints,
       }),
     }],
   };
@@ -330,7 +332,7 @@ function handleManageFriction({ state_file, op, friction_shape, anchor_a, anchor
 
 function handleOverrideFrictionDisposition({ state_file, element_id, disposition }) {
   let state = loadState(state_file);
-  const [newState, err] = overrideFrictionDisposition(state, { elementId: element_id, disposition });
+  const [newState, friction_hints, err] = overrideFrictionDisposition(state, { elementId: element_id, disposition });
   if (err) {
     return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: err }) }], isError: true };
   }
@@ -344,6 +346,7 @@ function handleOverrideFrictionDisposition({ state_file, element_id, disposition
         element_id,
         disposition: target.disposition,
         status_after: target.status,
+        friction_hints,
       }),
     }],
   };
@@ -351,7 +354,7 @@ function handleOverrideFrictionDisposition({ state_file, element_id, disposition
 
 function handleRatifyResolveCondition({ state_file, element_id, ratification }) {
   let state = loadState(state_file);
-  const [newState, err] = ratifyResolveCondition(state, { elementId: element_id, ratificationText: ratification });
+  const [newState, friction_hints, err] = ratifyResolveCondition(state, { elementId: element_id, ratificationText: ratification });
   if (err) {
     return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: err }) }], isError: true };
   }
@@ -367,6 +370,7 @@ function handleRatifyResolveCondition({ state_file, element_id, ratification }) 
         ratification: target.ratification,
         closure_permitted: closure.permitted,
         closure_reasons: closure.reasons,
+        friction_hints,
       }),
     }],
   };
