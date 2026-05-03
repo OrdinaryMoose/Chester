@@ -10,7 +10,7 @@
  */
 
 import { readFileSync, writeFileSync } from 'fs';
-import { createElement, validateRefs, checkAllIntegrity, FRICTION_DISPOSITIONS, TERMINAL_FRICTION_DISPOSITIONS } from './proof.js';
+import { createElement, validateRefs, checkAllIntegrity, FRICTION_DISPOSITIONS, TERMINAL_FRICTION_DISPOSITIONS, WITHDRAWAL_DISPOSITIONS } from './proof.js';
 import { computeCompleteness, computeGroundingCoverage, detectChallenge, detectStall, checkClosure } from './metrics.js';
 import { runFrictionDetection } from './friction-detection.js';
 
@@ -276,7 +276,17 @@ export function applyOperations(state, operations) {
           errors.push(`Cannot withdraw "${op.target}": element not found or not active`);
           break;
         }
+        let disposition;
+        if (op.withdrawal_disposition === undefined) {
+          disposition = 'unclassified';
+        } else if (!WITHDRAWAL_DISPOSITIONS.includes(op.withdrawal_disposition)) {
+          errors.push(`Cannot withdraw "${op.target}": withdrawal_disposition must be one of ${WITHDRAWAL_DISPOSITIONS.join(', ')}; got ${op.withdrawal_disposition}`);
+          break;
+        } else {
+          disposition = op.withdrawal_disposition;
+        }
         target.status = 'withdrawn';
+        target.withdrawal_disposition = disposition;
         withdrawn.push(op.target);
         break;
       }

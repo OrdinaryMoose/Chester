@@ -27,6 +27,10 @@ export const TERMINAL_FRICTION_DISPOSITIONS = [
   'dissolved-by-revision', 'dissolved-by-scope-cut', 'not-really-friction',
 ];
 
+export const WITHDRAWAL_DISPOSITIONS = [
+  'consolidated', 'superseded', 'found-redundant', 'found-incorrect', 'scope-removed',
+];
+
 /**
  * Create an element object from input, validating required fields by type.
  * @param {object} input - Element fields from caller
