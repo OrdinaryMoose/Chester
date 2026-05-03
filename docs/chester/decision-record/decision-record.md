@@ -198,3 +198,116 @@ supersedes: null
 artifact_refs:
   - working/20260501-01-fix-decision-record/spec/fix-decision-record-spec-00.md
 ---
+
+---
+id: dr-20260503-01-closed-set-module-constants
+date: 2026-05-03
+sprint: cluster-b-2-define-solve-closing
+stage: execute-write
+title: Closed-set domain vocabulary as Object.freeze module exports in proof.js
+decision: Any closed-set domain vocabulary in the proof MCP is declared as an Object.freeze module-level export in proof.js, imported by callers, and never inlined as a literal at the use site.
+rationale: During Tasks 1-10 each new closed set initially appeared as a hardcoded subset at the use site, and the per-task quality reviewer flagged the duplication every time; promoting them to module exports collapsed five separate review cycles into one rule. Five constants now follow the pattern (FRICTION_SHAPES, FRICTION_DISPOSITIONS, TERMINAL_FRICTION_DISPOSITIONS, WITHDRAWAL_DISPOSITIONS, UNCLASSIFIED_DISPOSITION). Future cluster B.3 element-type additions and any new closed enumerations inherit the convention; deviating requires explicit rationale.
+alternatives:
+  - Inline literal arrays at each use site — rejected because every quality reviewer pass flagged subset drift between detector, validator, and dispatcher.
+  - Per-module constants imported by neighbors — rejected because proof.js is the canonical type-shape module and importing from non-canonical neighbors would invert the dependency direction.
+  - Single config object with all closed sets nested — rejected because Object.freeze on each named export gives clearer call-site reads and per-set imports.
+tags: [convention, architecture]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-b-2-define-solve-closing/spec/cluster-b-2-define-solve-closing-spec-00.md
+  - working/20260430-02-rebuild-design-derivation/cluster-b-2-define-solve-closing/summary/cluster-b-2-define-solve-closing-summary-00.md
+---
+
+---
+id: dr-20260503-02-state-mutating-export-tuple-shape
+date: 2026-05-03
+sprint: cluster-b-2-define-solve-closing
+stage: execute-write
+title: Uniform tuple shape for state.js mutating exports
+decision: state.js mutating exports return a uniform tuple of shape [id?, newState, friction_hints, err] — id-returning functions place the id at position 0; all share (state, hints, err) at the tail.
+rationale: Pre-Task-4 plan-time triage ranked tuple-shape inconsistency Minor (PS-6); Task 2 quality reviewer re-ranked it Important once silent server-side id reconstruction surfaced (server.js was rebuilding FRIC-N from state.elementCounters.FRICTION rather than receiving the id directly). Standardizing on the tuple let twenty-plus existing test destructure sites be backfilled mechanically and locked the contract for future callers. Future state.js mutating exports follow this shape; callers of addConcern and manageFriction destructure as [id, state, hints, err]; lockConcerns, ratifyResolveCondition, overrideFrictionDisposition return [state, hints, err]; recordDesignerGo is the documented exception at [state, err] (no hints).
+alternatives:
+  - Per-function bespoke tuple shapes — rejected because the silent id reconstruction in server.js demonstrated the cost of shape drift across the boundary.
+  - Object return ({id, state, hints, err}) — rejected because it breaks twenty-plus existing destructure sites with no offsetting clarity gain over a small fixed-arity tuple.
+  - Single result-class wrapper — rejected because it adds a class import to every caller for a pure data shape that destructures cleanly.
+tags: [convention, architecture]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-b-2-define-solve-closing/plan/cluster-b-2-define-solve-closing-plan-00.md
+  - working/20260430-02-rebuild-design-derivation/cluster-b-2-define-solve-closing/summary/cluster-b-2-define-solve-closing-summary-00.md
+---
+
+---
+id: dr-20260503-03-sticky-friction-dismissal
+date: 2026-05-03
+sprint: cluster-b-2-define-solve-closing
+stage: design-large-task
+title: Withdrawn FRICTION elements suppress re-detection
+decision: Withdrawn FRICTION elements participate in runFrictionDetection's dedup keyset so a designer-dismissed FRICTION never silently re-emerges on a subsequent state mutation.
+rationale: Without sticky dismissal, every state-mutating export would re-run permission-risk-linkage detection and recreate a FRICTION the designer had just terminated, creating a churn loop the designer cannot escape. Including withdrawn FRICTION in the dedup key turns dismissal into a durable signal: a terminal disposition is the designer's commitment that the structural tension is acknowledged and resolved at design level. Future detector additions must respect the same withdrawn-element dedup discipline; bypassing it would re-introduce the churn.
+alternatives:
+  - Re-detect on every mutation regardless of withdrawal — rejected because it creates an inescapable churn loop and ignores designer intent encoded in the terminal disposition.
+  - Time-based suppression (suppress for N rounds after dismissal) — rejected because round-bounded suppression still resurfaces a settled tension and adds tunable surface with no design rationale.
+  - Per-shape suppression policy — rejected because all four detector shapes share the same designer-intent semantics; differentiating policy would be ad hoc.
+tags: [architecture]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-b-2-define-solve-closing/design/cluster-b-2-define-solve-closing-design-00.md
+  - working/20260430-02-rebuild-design-derivation/cluster-b-2-define-solve-closing/summary/cluster-b-2-define-solve-closing-summary-00.md
+---
+
+---
+id: dr-20260503-04-friction-canonical-paths
+date: 2026-05-03
+sprint: cluster-b-2-define-solve-closing
+stage: design-specify
+title: FRICTION lifecycle goes through dedicated MCP tools, never submit_proof_update
+decision: manage_friction is the canonical FRICTION creation path; override_friction_disposition is the canonical change path including dismissal via terminal disposition; submit_proof_update add and withdraw branches route-block FRICTION targets so the dedicated tools cannot be bypassed.
+rationale: FRICTION elements carry anchor-pair and shape semantics that submit_proof_update's generic add path does not validate, so allowing dual-write would let a caller create a FRICTION without anchor existence pre-validation (the IMPORTANT-1 finding from sprint-level code review). Route-blocking at the dispatch layer collapses the surface to one canonical creation point and one canonical change point, which keeps the friction-detection dedup contract intact (dedup runs against active+withdrawn FRICTION created via the canonical paths). Future code that needs to mutate FRICTION must call manage_friction or override_friction_disposition; submit_proof_update must continue to refuse FRICTION targets.
+alternatives:
+  - Allow dual-write through submit_proof_update with anchor validation added there too — rejected because it duplicates the validation surface and risks drift between the two creation paths.
+  - Use submit_proof_update as the sole creation path and remove manage_friction — rejected because the friction lifecycle (auto-detect, hint-confirm, override) needs a dedicated tool surface for the four shape detectors and the override semantics.
+  - Make submit_proof_update an internal dispatch that delegates to manage_friction for FRICTION ops — rejected because it hides the canonical path behind a generic surface and the route-block makes the contract visible at the schema level.
+tags: [architecture, convention]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-b-2-define-solve-closing/spec/cluster-b-2-define-solve-closing-spec-00.md
+  - working/20260430-02-rebuild-design-derivation/cluster-b-2-define-solve-closing/summary/cluster-b-2-define-solve-closing-summary-00.md
+---
+
+---
+id: dr-20260503-05-two-yes-closure-model
+date: 2026-05-03
+sprint: cluster-b-2-define-solve-closing
+stage: design-large-task
+title: Two-yes round-stamped closure model
+decision: Closure is gated by an eleventh checkClosure condition that requires closingArgGoRound === state.round, where closingArgPresentedRound and closingArgGoRound are round-stamped flags cleared by every state-mutating export.
+rationale: A single yes is insufficient because the closing argument is computed from current state, so any mutation between presentation and confirmation invalidates the artifact the designer is ratifying; mutation-clears discipline forces the designer to re-present and re-confirm against the post-mutation state. Round-stamping (rather than booleans) avoids the trap where a stale go from a prior round survives an intervening mutation that resets the round but not the boolean. Future closure-gate changes must preserve the two-yes-with-mutation-clears invariant; weakening to one-yes or to non-round-stamped flags would let stale ratifications close a proof against state the designer never saw.
+alternatives:
+  - Single-yes closure (one go signal) — rejected because it lets any state mutation between presentation and confirmation invalidate the artifact being ratified.
+  - Two-yes with boolean flags (no round stamp) — rejected because a stale go survives a round reset; round-stamping makes staleness detectable at the gate.
+  - Three-yes (present, review, go) — rejected because the second yes adds friction without closing a new failure mode; mutation-clears already covers the staleness gap.
+tags: [architecture, governance]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-b-2-define-solve-closing/design/cluster-b-2-define-solve-closing-design-00.md
+  - working/20260430-02-rebuild-design-derivation/cluster-b-2-define-solve-closing/spec/cluster-b-2-define-solve-closing-spec-00.md
+---
+
+---
+id: dr-20260503-06-reviewer-no-tree-mutation
+date: 2026-05-03
+sprint: cluster-b-2-define-solve-closing
+stage: execute-write
+title: Reviewer subagent prompts must include explicit no-tree-mutation clause
+decision: All spec-fidelity and quality-reviewer subagent dispatches include an explicit no-tree-mutation clause in their prompt, listing read-only commands as the permitted surface; reviewer subagents never run git checkout, git reset, git stash, git restore, or any tool that mutates the working tree.
+rationale: Mid-sprint working-tree desync was traced to a reviewer subagent running git checkout <prior-sha> -- <files> to inspect older content and not restoring; reflog showed only no-op git reset events, so root cause was invisible until reproduced. Default subagent permissions are permissive, so read-only-by-convention is insufficient — the prompt must encode the constraint explicitly. Future reviewer dispatches in any sprint must include the no-tree-mutation clause; the parent's verification protocol (git status --porcelain && git diff --stat HEAD after every subagent return) remains the second line of defense.
+alternatives:
+  - Rely on reviewer convention without explicit prompt clause — rejected because the desync incident demonstrated convention is insufficient against permissive defaults.
+  - Restrict reviewer tool surface at dispatch time (named subagent with no Bash) — rejected as insufficient on its own because Read-only inspection of historical content still tempts shell escape; the prompt clause is the durable fix and named-subagent restriction is a future hardening.
+  - Run all reviewers in a separate worktree — rejected because it adds setup cost per dispatch and the prompt clause solves the proximate cause directly.
+tags: [process, governance, worktree]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-b-2-define-solve-closing/summary/cluster-b-2-define-solve-closing-summary-00.md
+---

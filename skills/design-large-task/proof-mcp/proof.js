@@ -11,8 +11,30 @@
  */
 
 export const ELEMENT_TYPES = [
-  'EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK', 'RESOLVE_CONDITION',
+  'EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK', 'RESOLVE_CONDITION', 'FRICTION',
 ];
+
+export const FRICTION_SHAPES = [
+  'nc-nc-opposing-pull', 'rc-rule-conflict', 'permission-risk-linkage', 'concern-concern-competition',
+];
+
+export const FRICTION_DISPOSITIONS = [
+  'lived-with', 'relieved-by-exception', 'dissolved-by-revision', 'dissolved-by-scope-cut', 'not-really-friction',
+];
+
+// Subset of FRICTION_DISPOSITIONS that transition the element to status: 'withdrawn'.
+export const TERMINAL_FRICTION_DISPOSITIONS = [
+  'dissolved-by-revision', 'dissolved-by-scope-cut', 'not-really-friction',
+];
+
+export const WITHDRAWAL_DISPOSITIONS = [
+  'consolidated', 'superseded', 'found-redundant', 'found-incorrect', 'scope-removed',
+];
+
+// Default-only sentinel for withdrawn elements lacking an explicit withdrawal_disposition.
+// Not a member of WITHDRAWAL_DISPOSITIONS — applied by loadState backfill and the withdraw
+// branch when the field is omitted; consumed by closing-argument render as the fallback tag.
+export const UNCLASSIFIED_DISPOSITION = 'unclassified';
 
 /**
  * Create an element object from input, validating required fields by type.
@@ -32,6 +54,34 @@ export function createElement(input, id, round) {
   if (!ELEMENT_TYPES.includes(type)) {
     throw new Error(`Invalid type "${type}". Must be one of: ${ELEMENT_TYPES.join(', ')}`);
   }
+
+  // FRICTION: distinct schema (anchor pair + shape + disposition); statement is optional.
+  // Handle as early return so it doesn't trip the shared `statement` requirement below.
+  if (type === 'FRICTION') {
+    if (!input.friction_shape || !FRICTION_SHAPES.includes(input.friction_shape)) {
+      throw new Error(`FRICTION friction_shape required, must be one of: ${FRICTION_SHAPES.join(', ')}`);
+    }
+    if (!input.disposition || !FRICTION_DISPOSITIONS.includes(input.disposition)) {
+      throw new Error(`FRICTION disposition required, must be one of: ${FRICTION_DISPOSITIONS.join(', ')}`);
+    }
+    if (!input.anchor_a || !input.anchor_b) {
+      throw new Error('FRICTION requires anchor_a and anchor_b element IDs');
+    }
+    return {
+      id,
+      type,
+      status: 'active',
+      friction_shape: input.friction_shape,
+      anchor_a: input.anchor_a,
+      anchor_b: input.anchor_b,
+      disposition: input.disposition,
+      statement: input.statement ?? '',
+      addedInRound: round,
+      revisedInRound: null,
+      revision: 0,
+    };
+  }
+
   if (!statement) {
     throw new Error('statement is required and must be non-empty');
   }
@@ -310,6 +360,26 @@ export function checkStaleRatification(_elements) {
 }
 
 /**
+ * Flag active FRICTION elements whose anchor_a or anchor_b do not reference
+ * an existing element in the proof state.
+ * @param {Map} elements
+ * @returns {string[]}
+ */
+export function checkUngroundedFrictionAnchors(elements) {
+  const warnings = [];
+  for (const [, el] of elements) {
+    if (el.type !== 'FRICTION' || el.status !== 'active') continue;
+    if (!elements.has(el.anchor_a)) {
+      warnings.push(`Friction ${el.id} anchor_a "${el.anchor_a}" does not reference an existing element`);
+    }
+    if (!elements.has(el.anchor_b)) {
+      warnings.push(`Friction ${el.id} anchor_b "${el.anchor_b}" does not reference an existing element`);
+    }
+  }
+  return warnings;
+}
+
+/**
  * Run all integrity checks and return combined warnings.
  * @param {Map} elements
  * @returns {Array<object>} Combined array of all warning objects
@@ -322,5 +392,6 @@ export function checkAllIntegrity(elements) {
     ...checkStaleGrounding(elements),
     ...checkUnratifiedResolveConditions(elements),
     ...checkStaleRatification(elements),
+    ...checkUngroundedFrictionAnchors(elements),
   ];
 }

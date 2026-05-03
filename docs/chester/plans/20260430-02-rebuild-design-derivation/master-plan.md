@@ -6,8 +6,10 @@ version_date: "2026-04-30"
 cycle_status: "Cycle-1 active"
 doc_status: "active"
 freeze_map:
-  - { cluster: cluster-a-define-solve, status: pending }
-  - { cluster: cluster-b-define-transition, status: pending }
+  - { cluster: cluster-a-define-solve, status: done }
+  - { cluster: cluster-b-define-transition, status: split }
+  - { cluster: cluster-b-1-define-transition, status: pending }
+  - { cluster: cluster-b-2-define-solve-closing, status: pending }
   - { cluster: cluster-c-restructure-understand, status: pending }
 ---
 
@@ -122,7 +124,7 @@ This master plan operates inside `design-large-task` and updates `proof-mcp` and
   - Cluster A design brief committed; specify run; plan-build run; execute-write delivered code changes if any are needed at this stage
 - **Depends on:** none — this cluster is the foundation
 - **Inheritance for downstream clusters:** every decision locked here becomes a Rule for Cluster B and Cluster C
-- **Status:** pending
+- **Status:** done — merged to main 2026-05-01 (merge commit `5f07c64`, archive commit `c5adbbf`)
 
 ### 4.2 Cluster B — Define Transition
 
@@ -139,6 +141,44 @@ This master plan operates inside `design-large-task` and updates `proof-mcp` and
   - Cluster B design brief committed; specify run; plan-build run; execute-write delivered
 - **Depends on:** Cluster A
 - **Inheritance for downstream cluster:** every decision locked here becomes a Rule for Cluster C
+- **Status:** split — decomposed into sub-clusters B.1 and B.2 below; the umbrella charter above remains the framing for the combined work, but execution happens in the two sub-clusters
+
+#### 4.2.1 Cluster B.1 — Phase 4b Initialization
+
+- **Type:** Design + implementation sub-cluster
+- **Subdir:** `cluster-b-1-define-transition/` (new directory created at sub-sprint launch; cluster-B's umbrella session preserved at `cluster-b-define-transition/` as historical record)
+- **Endstate Point:** initialization-side portion of point 3 (define the Phase 4a → Phase 4b process) and initialization-side portion of point 4 (confirm Phase 4b solve still valid and sufficient)
+- **Objective:** Define the Phase 4b initialization sequence — how raw Phase 4a material types into the proof MCP at the boundary. Six pairings inherited from cluster-B's NC-1 (problem statement, Concerns, Evidence, Rules, Permissions, Resolve Conditions). Two-channel raw-material model inherited from cluster-B's NC-2 (problem statement explicit; everything else via agent session memory). Concern iteration mechanism inherited from cluster-B's NC-3 with five integration constraints.
+- **Inheritance from cluster-B umbrella:** all 22 Rules, 3 NCs, 11 Evidence, 1 Permission (PERM-1), 5 Risks via context handover at `cluster-b-define-transition/summary/cluster-b-context-handover-to-b1.md` and proof-state snapshot at `cluster-b-define-transition/summary/cluster-b-define-transition-proof-state-snapshot-00.json`. RULE-22 inherited as forward constraint, not consumed in B.1.
+- **Exit criteria:**
+  - Phase 4b initialization sequence defined (the six pairings explicitly ordered with responsibility per step)
+  - design-large-task SKILL.md Solve Stage Opening section updated
+  - proof MCP source updated where initialization signature changes (server.js initialize_proof; possibly state.js initializeState)
+  - Brief template updated where rendered shape requires
+  - Concern iteration APIs implemented per NC-3's five integration constraints (sequential ratification preserved, late-lock procrastination gate, merge evidence bar, split RC autogeneration, invalidation-impact preview)
+  - Cluster-B.1 design brief committed; specify run; plan-build run; execute-write delivered
+- **Depends on:** Cluster A and Cluster B.2 (B.2's exit-shape decisions are Rules for B.1's initialization design)
+- **Sequencing:** Cluster B.1 launches **after** Cluster B.2 has merged
+- **Status:** pending
+
+#### 4.2.2 Cluster B.2 — Phase 4b Closing-Argument Materialization
+
+- **Type:** Design + implementation sub-cluster
+- **Subdir:** `cluster-b-2-define-solve-closing/` (new directory created at sub-sprint launch)
+- **Endstate Point:** closure-side portion of point 4 (confirm Phase 4b solve still valid and sufficient); RULE-22 makes the closing argument the locus of proof-to-problem-statement coverage validation, connecting closure-side work to point 5 (end-criteria formalization)
+- **Objective:** Define the Phase 4b closing-argument materialization mechanism — how the proof's accumulated state (Concerns, NCs, RCs, Rules, Permissions, Risks) renders as a closing argument at proof closure that satisfies RULE-22's four enforcement properties (RC coverage in NC walk, tension-naming requirement, phantom-NC explicit handling, living-document discipline).
+- **Inheritance from cluster-B umbrella:** all 22 Rules, 3 NCs (forward context only — B.2 derives its own NCs), 11 Evidence, 1 Permission (PERM-1), 5 Risks via context handover at `cluster-b-define-transition/summary/cluster-b-context-handover-to-b2.md` and proof-state snapshot. **RULE-22 is B.2's primary inherited Rule** — closing argument shape derives from it.
+- **Exit criteria:**
+  - Closure-baseline audit run (analogous to cluster-B's 21-proof transition audit, applied to historic proof closures); empirical baseline grounded
+  - Closure-of-proof industry survey commissioned and integrated
+  - Closing-argument materialization mechanism defined (when it materializes, what artifact it produces, how it gates closure_permitted)
+  - RULE-22's four enforcement properties wired into proof MCP closure conditions
+  - design-large-task SKILL.md Closure Protocol section updated
+  - proof MCP source updated where closure-condition extensions or new materialization APIs require (metrics.js checkClosure; possibly server.js for materialization tool)
+  - Brief template updated where closing-argument render shape requires (possibly a new section)
+  - Cluster-B.2 design brief committed; specify run; plan-build run; execute-write delivered
+- **Depends on:** Cluster A; inherits cluster-B umbrella's outputs as Rules
+- **Sequencing:** Cluster B.2 launches **first** among the cluster-B follow-on sub-sprints; B.2 establishes the exit shape that B.1's initialization design targets
 - **Status:** pending
 
 ### 4.3 Cluster C — Restructure Understand
@@ -205,4 +245,4 @@ There is no Cycle-2 for this master plan. Cluster outputs feed forward into desi
 
 ## 9. Active Cluster
 
-Cluster A is the active cluster. Sessions entering this master plan should default to cluster A unless explicitly directed elsewhere.
+Cluster A is **done** (merged 2026-05-01). Cluster B was split into B.1 + B.2 (see §4.2). **Cluster B.2 — Phase 4b Closing-Argument Materialization** is the active sub-sprint; B.2 runs first (RULE-22 establishes the exit shape) and B.1 launches only after B.2 merges. Sessions entering this master plan should default to cluster B.2 unless explicitly directed elsewhere.

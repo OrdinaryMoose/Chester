@@ -1,7 +1,7 @@
 ---
 name: design-large-task
 description: "Default structural design skill for architectural or multi-decision work. Five outer phases: Bootstrap, Parallel Context Exploration, Round One, Interview Loop, Closure. Inside the Interview Loop, an Understand Stage runs under an Understanding MCP (nine-dimension saturation scoring), then a Solve Stage runs under a Design Proof MCP (formal proof-building with structural validation around necessary conditions). Closure writes the design brief (the proof envelope) and hands off to design-specify, which owns architecture choice. Use when the task involves structural choices that need grounded design before implementation. For bounded edits where the target is clear, use design-small-task instead."
-version: v0009
+version: v0010
 ---
 
 # Large-Task Design Discovery with Formal Proof Language
@@ -416,6 +416,20 @@ The Solve Stage opens with three steps before the proof-governed interview loop 
    - `problem_statement`: the designer's confirmed (polished) problem statement
    - `state_file`: `{CHESTER_WORKING_DIR}/{sprint-subdir}/design/{sprint-name}-proof-state.json`
 3. **Seed the proof** — call `submit_proof_update` with initial EVIDENCE elements (codebase facts discovered during the Understand Stage, source: "codebase") and RULE elements (designer-directed restrictions confirmed during the Understand Stage, source: "designer"). Do NOT create RULE or PERMISSION elements from your own analysis — only the designer can direct these.
+
+### Proof MCP Toolset
+
+The Solve Stage uses the Design Proof MCP (`chester-design-proof`). Tools in invocation order across the stage:
+
+- **`initialize_proof`** — open a proof session with the designer's confirmed problem statement.
+- **`submit_proof_update`** — apply a batch of element operations (`add` / `revise` / `withdraw`) for the current round. Validates types, references, and per-type required fields. **FRICTION elements must NOT be created or withdrawn here** — use the dedicated friction tools below.
+- **`get_proof_state`** — load current state and computed metrics (integrity, completeness, closure readiness).
+- **`manage_concerns`** — `add` or `lock` Concerns attached to the problem statement. Concerns anchor Resolve Conditions for closure coverage.
+- **`ratify_resolve_condition`** — designer's sign-off on a single Resolve Condition. Sequential by design; one element_id per call.
+- **`manage_friction`** — add a FRICTION element capturing tension between two existing elements. Pre-validates anchor existence and emits a structured `frictionLog` 'added' event. Auto-creation runs as a side-effect of every state-mutating operation for `permission-risk-linkage` shape (structurally exact); the other three shapes (`nc-nc-opposing-pull`, `rc-rule-conflict`, `concern-concern-competition`) surface as `friction_hints[]` for designer confirmation via this tool.
+- **`override_friction_disposition`** — change a FRICTION element's `disposition`. Terminal dispositions (`dissolved-by-revision`, `dissolved-by-scope-cut`, `not-really-friction`) also flip status to `withdrawn` and emit a `dismissed` log event. Withdrawn FRICTION elements suppress re-detection — a designer dismissal is sticky.
+- **`present_closing_argument`** — present the structured closing argument when the composite trigger gate clears (per-signal floors: grounding ≥ 0.9, ratified RCs, all NCs have collapse_test, at least one NC has rejected_alternatives, Concerns locked + covered, round ≥ 3; aggregate score ≥ 0.8; integrity warnings = 0). Stamps `closingArgPresentedRound` to current round on success.
+- **`confirm_closure_go`** — designer's go-choice against the presented argument. Refuses on round mismatch (state has shifted since presentation; re-present first). On success, `closingArgGoRound` is set, satisfying the eleventh closure condition. Any subsequent state mutation clears both flags — designer must re-present and re-confirm.
 
 ### Solve Stage Per-Turn Flow
 

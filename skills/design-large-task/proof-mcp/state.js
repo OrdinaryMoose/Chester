@@ -10,8 +10,9 @@
  */
 
 import { readFileSync, writeFileSync } from 'fs';
-import { createElement, validateRefs, checkAllIntegrity } from './proof.js';
+import { createElement, validateRefs, checkAllIntegrity, FRICTION_DISPOSITIONS, TERMINAL_FRICTION_DISPOSITIONS, WITHDRAWAL_DISPOSITIONS, UNCLASSIFIED_DISPOSITION } from './proof.js';
 import { computeCompleteness, computeGroundingCoverage, detectChallenge, detectStall, checkClosure } from './metrics.js';
+import { runFrictionDetection } from './friction-detection.js';
 
 const ID_PREFIX = {
   EVIDENCE: 'EVID-',
@@ -20,6 +21,7 @@ const ID_PREFIX = {
   NECESSARY_CONDITION: 'NCON-',
   RISK: 'RISK-',
   RESOLVE_CONDITION: 'RCON-',
+  FRICTION: 'FRIC-',
 };
 
 /**
@@ -33,7 +35,7 @@ export function initializeState(problemStatement) {
     problemStatement,
     elements: new Map(),
     elementCounters: {
-      EVIDENCE: 0, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 0, RISK: 0, RESOLVE_CONDITION: 0,
+      EVIDENCE: 0, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 0, RISK: 0, RESOLVE_CONDITION: 0, FRICTION: 0,
     },
     conditionCountHistory: [],
     elementCountHistory: [],
@@ -45,43 +47,138 @@ export function initializeState(problemStatement) {
     concernsLocked: false,
     concernCounter: 0,
     ratificationLog: [],
+    frictionLog: [],
+    closingArgPresentedRound: null,
+    closingArgGoRound: null,
   };
+}
+
+/**
+ * Mutates the passed state in-place, clearing both two-yes closing flags.
+ * Intended to be called on an already-cloned `newState` inside a mutating export,
+ * after the export's own structuredClone+cloneElements.
+ *
+ * Inline-set discipline: do NOT call this helper from outside a mutating function's
+ * body — it does not clone, so calling it on shared state will mutate the caller's
+ * reference. Exported only so tests can verify the flag-clearing invariant on a
+ * known clone.
+ * @param {object} state
+ * @returns {object} same reference passed in
+ */
+export function clearClosingFlags(state) {
+  state.closingArgPresentedRound = null;
+  state.closingArgGoRound = null;
+  return state;
+}
+
+/**
+ * Record that the closing argument was presented in the current round.
+ * Returns a new state without mutating input.
+ * @param {object} state
+ * @returns {object}
+ */
+export function recordClosingArgPresented(state) {
+  const newState = structuredClone(state);
+  newState.elements = cloneElements(state.elements);
+  newState.closingArgPresentedRound = newState.round;
+  return newState;
+}
+
+/**
+ * Record designer's "go" decision. Refuses if the closing argument was not
+ * presented in the current round (mismatch indicates state has shifted since
+ * presentation; designer must re-present).
+ * @param {object} state
+ * @returns {[object, string|null]} [newState, error]
+ */
+export function recordDesignerGo(state) {
+  if (state.closingArgPresentedRound !== state.round) {
+    const presentedDesc = state.closingArgPresentedRound ?? 'never';
+    return [state, `closing argument presented in round ${presentedDesc}, current round ${state.round}; call present_closing_argument first`];
+  }
+  const newState = structuredClone(state);
+  newState.elements = cloneElements(state.elements);
+  newState.closingArgGoRound = newState.round;
+  return [newState, null];
+}
+
+/**
+ * Run friction detection on state and return [updatedState, hints].
+ * Auto-creates FRICTION elements for high-confidence shapes (currently
+ * permission-risk-linkage); other shapes flow back as hints for the caller.
+ *
+ * Critical: callers MUST rebind their state variable from the returned state.
+ * Auto-created FRICTION elements live only in the returned state.
+ * @param {object} state
+ * @returns {{state: object, hints: Array<object>}}
+ */
+function processFriction(state) {
+  const { hints, autoCreate } = runFrictionDetection(state.elements, state.concerns);
+  for (const candidate of autoCreate) {
+    const [id, withId] = generateId(state, 'FRICTION');
+    state = withId;
+    const element = createElement({
+      type: 'FRICTION',
+      friction_shape: candidate.friction_shape,
+      anchor_a: candidate.anchor_a,
+      anchor_b: candidate.anchor_b,
+      disposition: 'lived-with',
+      statement: candidate.statement,
+    }, id, state.round);
+    state.elements.set(id, element);
+    state.frictionLog.push({
+      event: 'auto-added',
+      frictionId: id,
+      round: state.round,
+      friction_shape: candidate.friction_shape,
+      disposition: 'lived-with',
+    });
+  }
+  return { state, hints };
 }
 
 /**
  * Append a Concern to state. Refuses if Concerns list is locked.
  * @param {object} state
  * @param {{label: string, description?: string}} input
- * @returns {[string|null, object, string|null]} [concernId, newState, error]
+ * @returns {[string|null, object, Array<object>, string|null]} [concernId, newState, friction_hints, error]
  */
 export function addConcern(state, { label, description }) {
   if (state.concernsLocked) {
-    return [null, state, 'Concerns are locked; cannot add'];
+    return [null, state, [], 'Concerns are locked; cannot add'];
   }
-  const newState = structuredClone(state);
+  let newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
+  newState.closingArgPresentedRound = null;
+  newState.closingArgGoRound = null;
   newState.concernCounter++;
   const id = `CERN-${newState.concernCounter}`;
   newState.concerns.push({ id, label, description: description ?? null });
-  return [id, newState, null];
+  const fricResult = processFriction(newState);
+  newState = fricResult.state;
+  return [id, newState, fricResult.hints, null];
 }
 
 /**
  * Lock the Concerns list. Refuses on empty list or already-locked list.
  * @param {object} state
- * @returns {[object, string|null]} [newState, error]
+ * @returns {[object, Array<object>, string|null]} [newState, friction_hints, error]
  */
 export function lockConcerns(state) {
   if (state.concernsLocked) {
-    return [state, 'Concerns already locked'];
+    return [state, [], 'Concerns already locked'];
   }
   if (state.concerns.length === 0) {
-    return [state, 'Cannot lock empty Concerns list'];
+    return [state, [], 'Cannot lock empty Concerns list'];
   }
-  const newState = structuredClone(state);
+  let newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
+  newState.closingArgPresentedRound = null;
+  newState.closingArgGoRound = null;
   newState.concernsLocked = true;
-  return [newState, null];
+  const fricResult = processFriction(newState);
+  newState = fricResult.state;
+  return [newState, fricResult.hints, null];
 }
 
 /**
@@ -89,24 +186,26 @@ export function lockConcerns(state) {
  * Sequential by design — caller passes a single elementId.
  * @param {object} state
  * @param {{elementId: string, ratificationText: string}} input
- * @returns {[object, string|null]} [newState, error]
+ * @returns {[object, Array<object>, string|null]} [newState, friction_hints, error]
  */
 export function ratifyResolveCondition(state, { elementId, ratificationText }) {
   const target = state.elements.get(elementId);
   if (!target) {
-    return [state, `Element "${elementId}" not found`];
+    return [state, [], `Element "${elementId}" not found`];
   }
   if (target.type !== 'RESOLVE_CONDITION') {
-    return [state, `Element "${elementId}" is not a RESOLVE_CONDITION`];
+    return [state, [], `Element "${elementId}" is not a RESOLVE_CONDITION`];
   }
   if (target.status !== 'active') {
-    return [state, `Element "${elementId}" is not active`];
+    return [state, [], `Element "${elementId}" is not active`];
   }
   if (!ratificationText || typeof ratificationText !== 'string') {
-    return [state, 'Ratification text is required'];
+    return [state, [], 'Ratification text is required'];
   }
-  const newState = structuredClone(state);
+  let newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
+  newState.closingArgPresentedRound = null;
+  newState.closingArgGoRound = null;
   const updatedTarget = newState.elements.get(elementId);
   updatedTarget.ratification = { ratifiedAtRound: state.round, text: ratificationText };
   newState.ratificationLog.push({
@@ -115,7 +214,9 @@ export function ratifyResolveCondition(state, { elementId, ratificationText }) {
     round: state.round,
     ratificationText,
   });
-  return [newState, null];
+  const fricResult = processFriction(newState);
+  newState = fricResult.state;
+  return [newState, fricResult.hints, null];
 }
 
 /**
@@ -145,6 +246,8 @@ export function generateId(state, type) {
 export function applyOperations(state, operations) {
   let current = structuredClone(state);
   current.elements = cloneElements(state.elements);
+  current.closingArgPresentedRound = null;
+  current.closingArgGoRound = null;
 
   current.round++;
 
@@ -156,6 +259,13 @@ export function applyOperations(state, operations) {
   for (const op of operations) {
     switch (op.op) {
       case 'add': {
+        // FRICTION elements must come through manage_friction (which pre-validates
+        // anchor existence and emits the structured frictionLog 'added' event).
+        // Block here to avoid two creation paths with divergent validation.
+        if (op.type === 'FRICTION') {
+          errors.push('Cannot add FRICTION via submit_proof_update; use manage_friction tool');
+          break;
+        }
         // Validate grounding/basis refs against current elements
         const groundingRefs = op.grounding || [];
         const basisRefs = op.basis || [];
@@ -232,7 +342,25 @@ export function applyOperations(state, operations) {
           errors.push(`Cannot withdraw "${op.target}": element not found or not active`);
           break;
         }
+        // FRICTION elements must come through override_friction_disposition
+        // (which uses friction-side disposition vocabulary). Avoid the
+        // semantic-collision shape where withdrawal_disposition and FRICTION's
+        // own disposition would both apply to the same element.
+        if (target.type === 'FRICTION') {
+          errors.push(`Cannot withdraw "${op.target}" via submit_proof_update; use override_friction_disposition with a terminal disposition (dissolved-by-revision, dissolved-by-scope-cut, not-really-friction)`);
+          break;
+        }
+        let disposition;
+        if (op.withdrawal_disposition === undefined) {
+          disposition = UNCLASSIFIED_DISPOSITION;
+        } else if (!WITHDRAWAL_DISPOSITIONS.includes(op.withdrawal_disposition)) {
+          errors.push(`Cannot withdraw "${op.target}": withdrawal_disposition must be one of ${WITHDRAWAL_DISPOSITIONS.join(', ')}; got ${op.withdrawal_disposition}`);
+          break;
+        } else {
+          disposition = op.withdrawal_disposition;
+        }
         target.status = 'withdrawn';
+        target.withdrawal_disposition = disposition;
         withdrawn.push(op.target);
         break;
       }
@@ -240,6 +368,13 @@ export function applyOperations(state, operations) {
         errors.push(`Unknown operation: ${op.op}`);
     }
   }
+
+  // Run friction detection BEFORE history/metrics so auto-created FRICTION
+  // elements participate in the post-operation snapshot. Rebinding `current`
+  // here is load-bearing — without it, auto-created FRICTION elements vanish.
+  const fricResult = processFriction(current);
+  current = fricResult.state;
+  const friction_hints = fricResult.hints;
 
   // Record history
   let activeConditions = 0;
@@ -272,6 +407,7 @@ export function applyOperations(state, operations) {
     challengeTrigger,
     stallDetected,
     closure,
+    friction_hints,
   };
 }
 
@@ -284,6 +420,8 @@ export function applyOperations(state, operations) {
 export function markChallengeUsed(state, mode) {
   const newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
+  newState.closingArgPresentedRound = null;
+  newState.closingArgGoRound = null;
   newState.challengeModesUsed.push(mode);
   newState.challengeLog.push(mode);
   return newState;
@@ -315,12 +453,102 @@ export function loadState(filePath) {
   raw.concernsLocked ??= false;
   raw.concernCounter ??= 0;
   raw.ratificationLog ??= [];
+  raw.frictionLog ??= [];
   raw.elementCounters.RESOLVE_CONDITION ??= 0;
+  raw.elementCounters.FRICTION ??= 0;
+  raw.closingArgPresentedRound ??= null;
+  raw.closingArgGoRound ??= null;
   for (const [, el] of raw.elements) {
     el.problem_anchor ??= null;
     el.ratification ??= null;
+    if (el.status === 'withdrawn') el.withdrawal_disposition ??= UNCLASSIFIED_DISPOSITION;
   }
   return raw;
+}
+
+/**
+ * Add a FRICTION element. Validates anchors exist before creation.
+ * Appends an 'added' entry to frictionLog.
+ * @param {object} state
+ * @param {object} input - { op: 'add', friction_shape, anchor_a, anchor_b, disposition, statement? }
+ * @returns {[string|null, object, Array<object>, string|null]} [id, newState, friction_hints, error] — id is null when error is non-null. Mirrors addConcern.
+ */
+export function manageFriction(state, input) {
+  const { op } = input;
+  if (op !== 'add') {
+    return [null, state, [], `Unknown manage_friction op: ${op}`];
+  }
+  if (!state.elements.has(input.anchor_a)) {
+    return [null, state, [], `unknown element id: ${input.anchor_a}`];
+  }
+  if (!state.elements.has(input.anchor_b)) {
+    return [null, state, [], `unknown element id: ${input.anchor_b}`];
+  }
+  const [id, withId] = generateId(state, 'FRICTION');
+  withId.closingArgPresentedRound = null;
+  withId.closingArgGoRound = null;
+  let element;
+  try {
+    element = createElement({ ...input, type: 'FRICTION' }, id, withId.round);
+  } catch (e) {
+    return [null, state, [], e.message];
+  }
+  withId.elements.set(id, element);
+  withId.frictionLog.push({
+    event: 'added',
+    frictionId: id,
+    round: withId.round,
+    friction_shape: input.friction_shape,
+    disposition: input.disposition,
+  });
+  const fricResult = processFriction(withId);
+  return [id, fricResult.state, fricResult.hints, null];
+}
+
+/**
+ * Override a FRICTION element's disposition. Logs the change; for terminal
+ * dispositions (dissolved-by-revision, dissolved-by-scope-cut, not-really-friction)
+ * also marks the element withdrawn and logs a 'dismissed' event.
+ * @param {object} state
+ * @param {{elementId: string, disposition: string}} input
+ * @returns {[object, Array<object>, string|null]} [newState, friction_hints, error]
+ */
+export function overrideFrictionDisposition(state, { elementId, disposition }) {
+  const target = state.elements.get(elementId);
+  if (!target) {
+    return [state, [], `unknown element id: ${elementId}`];
+  }
+  if (target.type !== 'FRICTION') {
+    return [state, [], `element_id must be FRICTION; got ${elementId} (type: ${target.type})`];
+  }
+  if (!FRICTION_DISPOSITIONS.includes(disposition)) {
+    return [state, [], `disposition must be one of: ${FRICTION_DISPOSITIONS.join(', ')}; got ${disposition}`];
+  }
+  let newState = structuredClone(state);
+  newState.elements = cloneElements(state.elements);
+  newState.closingArgPresentedRound = null;
+  newState.closingArgGoRound = null;
+  const t = newState.elements.get(elementId);
+  const oldDisposition = t.disposition;
+  t.disposition = disposition;
+  newState.frictionLog.push({
+    event: 'disposition-changed',
+    frictionId: elementId,
+    round: newState.round,
+    oldDisposition,
+    newDisposition: disposition,
+  });
+  if (TERMINAL_FRICTION_DISPOSITIONS.includes(disposition)) {
+    t.status = 'withdrawn';
+    newState.frictionLog.push({
+      event: 'dismissed',
+      frictionId: elementId,
+      round: newState.round,
+    });
+  }
+  const fricResult = processFriction(newState);
+  newState = fricResult.state;
+  return [newState, fricResult.hints, null];
 }
 
 /**

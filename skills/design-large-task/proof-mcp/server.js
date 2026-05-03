@@ -7,14 +7,17 @@ import { ListToolsRequestSchema, CallToolRequestSchema } from '@modelcontextprot
 import {
   initializeState, applyOperations, markChallengeUsed, saveState, loadState,
   addConcern, lockConcerns, ratifyResolveCondition,
+  manageFriction, overrideFrictionDisposition,
+  recordClosingArgPresented, recordDesignerGo,
 } from './state.js';
-import { checkAllIntegrity } from './proof.js';
+import { checkAllIntegrity, FRICTION_SHAPES, FRICTION_DISPOSITIONS, WITHDRAWAL_DISPOSITIONS } from './proof.js';
 import {
   computeCompleteness, computeGroundingCoverage, detectChallenge, checkClosure,
-  checkConcernCoverage,
+  checkConcernCoverage, evaluateTrigger,
 } from './metrics.js';
+import { deriveClosingArgument } from './closing-argument.js';
 
-const ELEMENT_TYPES = ['EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK', 'RESOLVE_CONDITION'];
+const ELEMENT_TYPES = ['EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK', 'RESOLVE_CONDITION', 'FRICTION'];
 
 const server = new Server(
   { name: 'chester-design-proof', version: '2.0.0' },
@@ -70,6 +73,10 @@ const TOOLS = [
                 description: 'Basis element IDs (for RISK — conditions it attaches to)',
               },
               target: { type: 'string', description: 'Target element ID (for revise/withdraw)' },
+              withdrawal_disposition: {
+                type: 'string', enum: WITHDRAWAL_DISPOSITIONS,
+                description: 'Reason for withdrawal (for withdraw op); defaults to "unclassified" when omitted',
+              },
             },
             required: ['op'],
           },
@@ -109,6 +116,36 @@ const TOOLS = [
     },
   },
   {
+    name: 'manage_friction',
+    description: 'Add a FRICTION element capturing tension between two existing elements. Anchors must reference existing elements; disposition records the designer\'s stance toward the friction.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        state_file: { type: 'string', description: 'Absolute path to state JSON' },
+        op: { type: 'string', enum: ['add'] },
+        friction_shape: { type: 'string', enum: FRICTION_SHAPES, description: 'Shape of the friction (which pair-type it captures)' },
+        anchor_a: { type: 'string', description: 'First anchor element ID' },
+        anchor_b: { type: 'string', description: 'Second anchor element ID' },
+        disposition: { type: 'string', enum: FRICTION_DISPOSITIONS, description: 'Designer\'s stance toward this friction' },
+        statement: { type: 'string', description: 'Optional human-readable description of the tension' },
+      },
+      required: ['state_file', 'op', 'friction_shape', 'anchor_a', 'anchor_b', 'disposition'],
+    },
+  },
+  {
+    name: 'override_friction_disposition',
+    description: 'Change the disposition of an existing FRICTION element. Terminal dispositions (dissolved-by-revision, dissolved-by-scope-cut, not-really-friction) also withdraw the element.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        state_file: { type: 'string', description: 'Absolute path to state JSON' },
+        element_id: { type: 'string', description: 'FRIC-N ID of the friction to update' },
+        disposition: { type: 'string', enum: FRICTION_DISPOSITIONS, description: 'New disposition' },
+      },
+      required: ['state_file', 'element_id', 'disposition'],
+    },
+  },
+  {
     name: 'ratify_resolve_condition',
     description: 'Ratify a single Resolve Condition. Sequential by design — accepts one element_id per call; batch shapes are not supported.',
     inputSchema: {
@@ -119,6 +156,28 @@ const TOOLS = [
         ratification: { type: 'string', description: "PM's sign-off text" },
       },
       required: ['state_file', 'element_id', 'ratification'],
+    },
+  },
+  {
+    name: 'present_closing_argument',
+    description: 'Present the closing argument as a structured object. Refuses if the composite trigger gate is not cleared (per-signal floors, aggregate score, integrity-zero).',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        state_file: { type: 'string', description: 'Absolute path to state JSON' },
+      },
+      required: ['state_file'],
+    },
+  },
+  {
+    name: 'confirm_closure_go',
+    description: "Designer go-choice against the presented closing argument. Refuses if the closing argument was not presented in the current round (state has shifted; re-present first).",
+    inputSchema: {
+      type: 'object',
+      properties: {
+        state_file: { type: 'string', description: 'Absolute path to state JSON' },
+      },
+      required: ['state_file'],
     },
   },
 ];
@@ -142,8 +201,16 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         return handleGetProofState(args);
       case 'manage_concerns':
         return handleManageConcerns(args);
+      case 'manage_friction':
+        return handleManageFriction(args);
+      case 'override_friction_disposition':
+        return handleOverrideFrictionDisposition(args);
       case 'ratify_resolve_condition':
         return handleRatifyResolveCondition(args);
+      case 'present_closing_argument':
+        return handlePresentClosingArgument(args);
+      case 'confirm_closure_go':
+        return handleConfirmClosureGo(args);
       default:
         return { content: [{ type: 'text', text: `Unknown tool: ${name}` }], isError: true };
     }
@@ -166,7 +233,11 @@ function handleInitialize({ problem_statement, state_file }) {
         element_types: ELEMENT_TYPES,
         operations: ['add', 'revise', 'withdraw'],
         concerns: [],
-        tools_added: ['manage_concerns', 'ratify_resolve_condition'],
+        tools_added: [
+          'manage_concerns', 'ratify_resolve_condition',
+          'manage_friction', 'override_friction_disposition',
+          'present_closing_argument', 'confirm_closure_go',
+        ],
         state_file,
       }),
     }],
@@ -219,6 +290,7 @@ function handleSubmitProofUpdate({ state_file, operations, challenge_used }) {
         stall_detected: result.stallDetected,
         closure_permitted: result.closure.permitted,
         closure_reasons: result.closure.reasons,
+        friction_hints: result.friction_hints,
       }),
     }],
   };
@@ -255,27 +327,70 @@ function handleManageConcerns({ state_file, op, label, description }) {
     if (!label) {
       return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: 'label required for op=add' }) }], isError: true };
     }
-    const [concernId, newState, err] = addConcern(state, { label, description });
+    const [concernId, newState, friction_hints, err] = addConcern(state, { label, description });
     if (err) {
       return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: err }) }], isError: true };
     }
     saveState(newState, state_file);
-    return { content: [{ type: 'text', text: JSON.stringify({ status: 'accepted', concern_id: concernId, concerns_count: newState.concerns.length }) }] };
+    return { content: [{ type: 'text', text: JSON.stringify({ status: 'accepted', concern_id: concernId, concerns_count: newState.concerns.length, friction_hints }) }] };
   }
   if (op === 'lock') {
-    const [newState, err] = lockConcerns(state);
+    const [newState, friction_hints, err] = lockConcerns(state);
     if (err) {
       return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: err }) }], isError: true };
     }
     saveState(newState, state_file);
-    return { content: [{ type: 'text', text: JSON.stringify({ status: 'accepted', locked: true, concerns_count: newState.concerns.length }) }] };
+    return { content: [{ type: 'text', text: JSON.stringify({ status: 'accepted', locked: true, concerns_count: newState.concerns.length, friction_hints }) }] };
   }
   return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: `Unknown op: ${op}` }) }], isError: true };
 }
 
+function handleManageFriction({ state_file, op, friction_shape, anchor_a, anchor_b, disposition, statement }) {
+  let state = loadState(state_file);
+  const [fricId, newState, friction_hints, err] = manageFriction(state, { op, friction_shape, anchor_a, anchor_b, disposition, statement });
+  if (err) {
+    return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: err }) }], isError: true };
+  }
+  saveState(newState, state_file);
+  return {
+    content: [{
+      type: 'text',
+      text: JSON.stringify({
+        status: 'accepted',
+        element_id: fricId,
+        friction_shape,
+        disposition,
+        friction_hints,
+      }),
+    }],
+  };
+}
+
+function handleOverrideFrictionDisposition({ state_file, element_id, disposition }) {
+  let state = loadState(state_file);
+  const [newState, friction_hints, err] = overrideFrictionDisposition(state, { elementId: element_id, disposition });
+  if (err) {
+    return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: err }) }], isError: true };
+  }
+  saveState(newState, state_file);
+  const target = newState.elements.get(element_id);
+  return {
+    content: [{
+      type: 'text',
+      text: JSON.stringify({
+        status: 'accepted',
+        element_id,
+        disposition: target.disposition,
+        status_after: target.status,
+        friction_hints,
+      }),
+    }],
+  };
+}
+
 function handleRatifyResolveCondition({ state_file, element_id, ratification }) {
   let state = loadState(state_file);
-  const [newState, err] = ratifyResolveCondition(state, { elementId: element_id, ratificationText: ratification });
+  const [newState, friction_hints, err] = ratifyResolveCondition(state, { elementId: element_id, ratificationText: ratification });
   if (err) {
     return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: err }) }], isError: true };
   }
@@ -291,9 +406,33 @@ function handleRatifyResolveCondition({ state_file, element_id, ratification }) 
         ratification: target.ratification,
         closure_permitted: closure.permitted,
         closure_reasons: closure.reasons,
+        friction_hints,
       }),
     }],
   };
+}
+
+function handlePresentClosingArgument({ state_file }) {
+  let state = loadState(state_file);
+  const trigger = evaluateTrigger(state);
+  if (!trigger.permitted) {
+    return { content: [{ type: 'text', text: JSON.stringify({ permitted: false, reasons: trigger.reasons }, null, 2) }] };
+  }
+  const argument = deriveClosingArgument(state);
+  state = recordClosingArgPresented(state);
+  saveState(state, state_file);
+  return { content: [{ type: 'text', text: JSON.stringify(argument, null, 2) }] };
+}
+
+function handleConfirmClosureGo({ state_file }) {
+  let state = loadState(state_file);
+  const [newState, err] = recordDesignerGo(state);
+  if (err) {
+    return { content: [{ type: 'text', text: JSON.stringify({ permitted: false, reason: err }, null, 2) }] };
+  }
+  saveState(newState, state_file);
+  const closure = checkClosure(newState);
+  return { content: [{ type: 'text', text: JSON.stringify(closure, null, 2) }] };
 }
 
 // ── Startup ──────────────────────────────────────────────────────

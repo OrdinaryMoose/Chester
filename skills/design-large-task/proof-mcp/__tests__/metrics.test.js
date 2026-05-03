@@ -57,6 +57,8 @@ describe('computeCompleteness', () => {
       resolve_condition_count: 0,
       ratified_rc_count: 0,
       revision_count: 0,
+      friction_count: 0,
+      live_friction_count: 0,
     });
   });
 
@@ -333,6 +335,8 @@ describe('checkClosure', () => {
       phaseTransitionRound: 1,
       concerns: [{ id: 'CERN-1', label: 'X', description: null }],
       concernsLocked: true,
+      closingArgPresentedRound: 4,
+      closingArgGoRound: 4,
     };
   }
 
@@ -589,10 +593,12 @@ describe('checkClosure — Concerns and Resolve Conditions (conditions 7-10)', (
     expect(c.reasons.some(r => /CERN-1/.test(r))).toBe(false);
   });
 
-  it('permits closure when all 10 conditions pass', () => {
+  it('permits closure when all 11 conditions pass', () => {
     const state = baseClosureState();
     state.concerns = [{ id: 'CERN-1', label: 'X', description: null }];
     state.concernsLocked = true;
+    state.closingArgPresentedRound = state.round;
+    state.closingArgGoRound = state.round;
     const rc = makeElement({
       id: 'RCON-1', type: 'RESOLVE_CONDITION', statement: 'r',
       problem_anchor: 'CERN-1',

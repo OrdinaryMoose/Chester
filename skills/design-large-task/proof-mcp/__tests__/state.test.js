@@ -22,7 +22,7 @@ describe('initializeState', () => {
     expect(state.elements).toBeInstanceOf(Map);
     expect(state.elements.size).toBe(0);
     expect(state.elementCounters).toEqual({
-      EVIDENCE: 0, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 0, RISK: 0, RESOLVE_CONDITION: 0,
+      EVIDENCE: 0, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 0, RISK: 0, RESOLVE_CONDITION: 0, FRICTION: 0,
     });
     expect(state.conditionCountHistory).toEqual([]);
     expect(state.elementCountHistory).toEqual([]);
@@ -35,7 +35,7 @@ describe('initializeState', () => {
   it('includes RESOLVE_CONDITION in elementCounters', () => {
     const state = initializeState('Design a widget');
     expect(state.elementCounters).toEqual({
-      EVIDENCE: 0, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 0, RISK: 0, RESOLVE_CONDITION: 0,
+      EVIDENCE: 0, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 0, RISK: 0, RESOLVE_CONDITION: 0, FRICTION: 0,
     });
   });
 
@@ -67,7 +67,7 @@ describe('ratifyResolveCondition', () => {
       { op: 'add', type: 'RESOLVE_CONDITION', statement: 'X', problem_anchor: 'CERN-1' },
     ]);
     state = result.state;
-    const [newState, err] = ratifyResolveCondition(state, { elementId: 'RCON-1', ratificationText: 'PM approves' });
+    const [newState, , err] = ratifyResolveCondition(state, { elementId: 'RCON-1', ratificationText: 'PM approves' });
     expect(err).toBeNull();
     const rc = newState.elements.get('RCON-1');
     expect(rc.ratification).toEqual({ ratifiedAtRound: state.round, text: 'PM approves' });
@@ -83,14 +83,14 @@ describe('ratifyResolveCondition', () => {
       { op: 'add', type: 'EVIDENCE', statement: 'fact', source: 'codebase' },
     ]);
     state = result.state;
-    const [sameState, err] = ratifyResolveCondition(state, { elementId: 'EVID-1', ratificationText: 'X' });
+    const [sameState, , err] = ratifyResolveCondition(state, { elementId: 'EVID-1', ratificationText: 'X' });
     expect(err).toMatch(/RESOLVE_CONDITION/);
     expect(sameState).toBe(state);
   });
 
   it('rejects ratification of unknown element', () => {
     const state = initializeState('test');
-    const [, err] = ratifyResolveCondition(state, { elementId: 'RCON-99', ratificationText: 'X' });
+    const [, , err] = ratifyResolveCondition(state, { elementId: 'RCON-99', ratificationText: 'X' });
     expect(err).toMatch(/not found/i);
   });
 
@@ -102,7 +102,7 @@ describe('ratifyResolveCondition', () => {
       { op: 'add', type: 'RESOLVE_CONDITION', statement: 'X', problem_anchor: 'CERN-1' },
     ]);
     state = result.state;
-    const [, err] = ratifyResolveCondition(state, { elementId: 'RCON-1', ratificationText: '' });
+    const [, , err] = ratifyResolveCondition(state, { elementId: 'RCON-1', ratificationText: '' });
     expect(err).toMatch(/required/i);
   });
 });
@@ -110,14 +110,14 @@ describe('ratifyResolveCondition', () => {
 describe('addConcern', () => {
   it('appends Concern with sequential CERN- ID', () => {
     let state = initializeState('test');
-    const [id1, state1, err1] = addConcern(state, { label: 'First', description: 'D1' });
+    const [id1, state1, , err1] = addConcern(state, { label: 'First', description: 'D1' });
     expect(err1).toBeNull();
     expect(id1).toBe('CERN-1');
     expect(state1.concerns).toHaveLength(1);
     expect(state1.concerns[0]).toEqual({ id: 'CERN-1', label: 'First', description: 'D1' });
     expect(state1.concernCounter).toBe(1);
 
-    const [id2, state2, err2] = addConcern(state1, { label: 'Second' });
+    const [id2, state2, , err2] = addConcern(state1, { label: 'Second' });
     expect(err2).toBeNull();
     expect(id2).toBe('CERN-2');
     expect(state2.concerns).toHaveLength(2);
@@ -129,7 +129,7 @@ describe('addConcern', () => {
     let state = initializeState('test');
     [, state] = addConcern(state, { label: 'A' });
     [state] = lockConcerns(state);
-    const [id, sameState, err] = addConcern(state, { label: 'B' });
+    const [id, sameState, , err] = addConcern(state, { label: 'B' });
     expect(id).toBeNull();
     expect(err).toMatch(/locked/i);
     expect(sameState.concerns).toHaveLength(1);
@@ -141,14 +141,14 @@ describe('lockConcerns', () => {
   it('flips concernsLocked to true after at least one Concern', () => {
     let state = initializeState('test');
     [, state] = addConcern(state, { label: 'A' });
-    const [locked, err] = lockConcerns(state);
+    const [locked, , err] = lockConcerns(state);
     expect(err).toBeNull();
     expect(locked.concernsLocked).toBe(true);
   });
 
   it('refuses to lock an empty Concerns list', () => {
     const state = initializeState('test');
-    const [sameState, err] = lockConcerns(state);
+    const [sameState, , err] = lockConcerns(state);
     expect(err).toMatch(/empty/i);
     expect(sameState.concernsLocked).toBe(false);
   });
@@ -157,7 +157,7 @@ describe('lockConcerns', () => {
     let state = initializeState('test');
     [, state] = addConcern(state, { label: 'A' });
     [state] = lockConcerns(state);
-    const [sameState, err] = lockConcerns(state);
+    const [sameState, , err] = lockConcerns(state);
     expect(err).toMatch(/already/i);
     expect(sameState.concernsLocked).toBe(true);
   });
