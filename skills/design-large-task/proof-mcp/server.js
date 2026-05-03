@@ -8,12 +8,14 @@ import {
   initializeState, applyOperations, markChallengeUsed, saveState, loadState,
   addConcern, lockConcerns, ratifyResolveCondition,
   manageFriction, overrideFrictionDisposition,
+  recordClosingArgPresented, recordDesignerGo,
 } from './state.js';
 import { checkAllIntegrity, FRICTION_SHAPES, FRICTION_DISPOSITIONS, WITHDRAWAL_DISPOSITIONS } from './proof.js';
 import {
   computeCompleteness, computeGroundingCoverage, detectChallenge, checkClosure,
-  checkConcernCoverage,
+  checkConcernCoverage, evaluateTrigger,
 } from './metrics.js';
+import { deriveClosingArgument } from './closing-argument.js';
 
 const ELEMENT_TYPES = ['EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK', 'RESOLVE_CONDITION', 'FRICTION'];
 
@@ -156,6 +158,28 @@ const TOOLS = [
       required: ['state_file', 'element_id', 'ratification'],
     },
   },
+  {
+    name: 'present_closing_argument',
+    description: 'Present the closing argument as a structured object. Refuses if the composite trigger gate is not cleared (per-signal floors, aggregate score, integrity-zero).',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        state_file: { type: 'string', description: 'Absolute path to state JSON' },
+      },
+      required: ['state_file'],
+    },
+  },
+  {
+    name: 'confirm_closure_go',
+    description: "Designer go-choice against the presented closing argument. Refuses if the closing argument was not presented in the current round (state has shifted; re-present first).",
+    inputSchema: {
+      type: 'object',
+      properties: {
+        state_file: { type: 'string', description: 'Absolute path to state JSON' },
+      },
+      required: ['state_file'],
+    },
+  },
 ];
 
 // ── Request Handlers ─────────────────────────────────────────────
@@ -183,6 +207,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         return handleOverrideFrictionDisposition(args);
       case 'ratify_resolve_condition':
         return handleRatifyResolveCondition(args);
+      case 'present_closing_argument':
+        return handlePresentClosingArgument(args);
+      case 'confirm_closure_go':
+        return handleConfirmClosureGo(args);
       default:
         return { content: [{ type: 'text', text: `Unknown tool: ${name}` }], isError: true };
     }
@@ -378,6 +406,29 @@ function handleRatifyResolveCondition({ state_file, element_id, ratification }) 
       }),
     }],
   };
+}
+
+function handlePresentClosingArgument({ state_file }) {
+  let state = loadState(state_file);
+  const trigger = evaluateTrigger(state);
+  if (!trigger.permitted) {
+    return { content: [{ type: 'text', text: JSON.stringify({ permitted: false, reasons: trigger.reasons }, null, 2) }] };
+  }
+  const argument = deriveClosingArgument(state);
+  state = recordClosingArgPresented(state);
+  saveState(state, state_file);
+  return { content: [{ type: 'text', text: JSON.stringify(argument, null, 2) }] };
+}
+
+function handleConfirmClosureGo({ state_file }) {
+  let state = loadState(state_file);
+  const [newState, err] = recordDesignerGo(state);
+  if (err) {
+    return { content: [{ type: 'text', text: JSON.stringify({ permitted: false, reason: err }, null, 2) }] };
+  }
+  saveState(newState, state_file);
+  const closure = checkClosure(newState);
+  return { content: [{ type: 'text', text: JSON.stringify(closure, null, 2) }] };
 }
 
 // ── Startup ──────────────────────────────────────────────────────

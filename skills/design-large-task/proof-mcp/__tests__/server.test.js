@@ -52,3 +52,53 @@ describe('server.js — switch dispatch', () => {
     expect(serverSource).toMatch(/case\s+'ratify_resolve_condition'/);
   });
 });
+
+describe('server.js — present_closing_argument tool', () => {
+  it('declares present_closing_argument tool', () => {
+    expect(serverSource).toMatch(/name:\s*'present_closing_argument'/);
+  });
+
+  it('dispatches present_closing_argument in switch', () => {
+    expect(serverSource).toMatch(/case\s+'present_closing_argument'/);
+  });
+
+  it('handler imports evaluateTrigger and deriveClosingArgument', () => {
+    expect(serverSource).toMatch(/from\s+['"]\.\/closing-argument\.js['"]/);
+    expect(serverSource).toMatch(/evaluateTrigger/);
+  });
+});
+
+describe('server.js — confirm_closure_go tool', () => {
+  it('declares confirm_closure_go tool', () => {
+    expect(serverSource).toMatch(/name:\s*'confirm_closure_go'/);
+  });
+
+  it('dispatches confirm_closure_go in switch', () => {
+    expect(serverSource).toMatch(/case\s+'confirm_closure_go'/);
+  });
+
+  it('handler imports recordDesignerGo and checkClosure', () => {
+    expect(serverSource).toMatch(/recordDesignerGo/);
+    expect(serverSource).toMatch(/checkClosure/);
+  });
+});
+
+describe('server.js — override_friction_disposition tool', () => {
+  it('declares override_friction_disposition tool', () => {
+    expect(serverSource).toMatch(/name:\s*'override_friction_disposition'/);
+  });
+
+  it('dispatches override_friction_disposition in switch', () => {
+    expect(serverSource).toMatch(/case\s+'override_friction_disposition'/);
+  });
+
+  it('declares element_id and disposition as required inputs', () => {
+    const block = serverSource.split("name: 'override_friction_disposition'")[1] ?? '';
+    expect(block).toMatch(/element_id/);
+    expect(block).toMatch(/disposition/);
+  });
+
+  it('handler imports overrideFrictionDisposition', () => {
+    expect(serverSource).toMatch(/overrideFrictionDisposition/);
+  });
+});
