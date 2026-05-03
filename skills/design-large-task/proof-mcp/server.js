@@ -9,7 +9,7 @@ import {
   addConcern, lockConcerns, ratifyResolveCondition,
   manageFriction, overrideFrictionDisposition,
 } from './state.js';
-import { checkAllIntegrity, FRICTION_SHAPES, FRICTION_DISPOSITIONS } from './proof.js';
+import { checkAllIntegrity, FRICTION_SHAPES, FRICTION_DISPOSITIONS, WITHDRAWAL_DISPOSITIONS } from './proof.js';
 import {
   computeCompleteness, computeGroundingCoverage, detectChallenge, checkClosure,
   checkConcernCoverage,
@@ -71,6 +71,10 @@ const TOOLS = [
                 description: 'Basis element IDs (for RISK — conditions it attaches to)',
               },
               target: { type: 'string', description: 'Target element ID (for revise/withdraw)' },
+              withdrawal_disposition: {
+                type: 'string', enum: WITHDRAWAL_DISPOSITIONS,
+                description: 'Reason for withdrawal (for withdraw op); defaults to "unclassified" when omitted',
+              },
             },
             required: ['op'],
           },

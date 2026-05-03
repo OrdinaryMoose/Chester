@@ -383,6 +383,7 @@ export function loadState(filePath) {
   for (const [, el] of raw.elements) {
     el.problem_anchor ??= null;
     el.ratification ??= null;
+    if (el.status === 'withdrawn') el.withdrawal_disposition ??= 'unclassified';
   }
   return raw;
 }
