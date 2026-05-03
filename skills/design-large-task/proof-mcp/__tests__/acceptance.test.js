@@ -306,7 +306,7 @@ describe('AC-6.2 Brief template includes Concerns section', () => {
     const content = readFileSync(TEMPLATE_PATH, 'utf-8');
     expect(content).toMatch(/^### Concerns/m);
     expect(content).toMatch(/CERN-/);
-    expect(content).toMatch(/RCON-/);
+    expect(content).toMatch(/RC-/);
   });
 });
 
