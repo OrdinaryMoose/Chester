@@ -1,7 +1,7 @@
 // proof-mcp/__tests__/closing-argument.test.js
 import { describe, it, expect } from 'vitest';
 import { deriveClosingArgument } from '../closing-argument.js';
-import { initializeState, applyOperations, addConcern, lockConcerns, ratifyResolveCondition } from '../state.js';
+import { initializeState, applyOperations, addConcern, lockConcerns, ratifyResolveCondition, manageFriction, overrideFrictionDisposition } from '../state.js';
 
 function build() {
   let s = initializeState('design problem');
@@ -64,5 +64,36 @@ describe('deriveClosingArgument', () => {
     delete s.elements.get('NCON-2').withdrawal_disposition;
     const out = deriveClosingArgument(s);
     expect(out.phantomNCs.some(p => p.id === 'NCON-2' && p.dispositionTag === 'unclassified')).toBe(true);
+  });
+
+  it('partitions FRICTION elements: liveFriction holds active, phantomFriction holds withdrawn', () => {
+    let s = build();
+    // add a second NC so we have two anchorable NCs for the friction
+    let r = applyOperations(s, [{ op: 'add', type: 'NECESSARY_CONDITION', statement: 'must not Q', collapse_test: 'breaks if Q forced', grounding: ['EVID-1'], reasoning_chain: 'IF evidence THEN must-not Q' }]);
+    s = r.state;
+    // add an active friction
+    let [, sActive] = manageFriction(s, {
+      op: 'add', friction_shape: 'nc-nc-opposing-pull',
+      anchor_a: 'NCON-1', anchor_b: 'NCON-2',
+      disposition: 'lived-with', statement: 'Q vs not-Q',
+    });
+    s = sActive;
+    // add a second friction and dismiss it (terminal disposition → withdrawn)
+    let [, sBoth] = manageFriction(s, {
+      op: 'add', friction_shape: 'nc-nc-opposing-pull',
+      anchor_a: 'NCON-2', anchor_b: 'NCON-1',
+      disposition: 'lived-with', statement: 'reverse pair',
+    });
+    s = sBoth;
+    let [sDismissed] = overrideFrictionDisposition(s, { elementId: 'FRIC-2', disposition: 'not-really-friction' });
+    s = sDismissed;
+
+    const out = deriveClosingArgument(s);
+    expect(out.liveFriction.length).toBe(1);
+    expect(out.liveFriction[0].id).toBe('FRIC-1');
+    expect(out.liveFriction.every(f => f.id !== 'FRIC-2')).toBe(true);
+    expect(out.phantomFriction.length).toBe(1);
+    expect(out.phantomFriction[0].id).toBe('FRIC-2');
+    expect(out.phantomFriction[0].dispositionTag).toBe('not-really-friction');
   });
 });
