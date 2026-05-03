@@ -22,7 +22,7 @@ describe('initializeState', () => {
     expect(state.elements).toBeInstanceOf(Map);
     expect(state.elements.size).toBe(0);
     expect(state.elementCounters).toEqual({
-      EVIDENCE: 0, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 0, RISK: 0, RESOLVE_CONDITION: 0,
+      EVIDENCE: 0, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 0, RISK: 0, RESOLVE_CONDITION: 0, FRICTION: 0,
     });
     expect(state.conditionCountHistory).toEqual([]);
     expect(state.elementCountHistory).toEqual([]);
@@ -35,7 +35,7 @@ describe('initializeState', () => {
   it('includes RESOLVE_CONDITION in elementCounters', () => {
     const state = initializeState('Design a widget');
     expect(state.elementCounters).toEqual({
-      EVIDENCE: 0, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 0, RISK: 0, RESOLVE_CONDITION: 0,
+      EVIDENCE: 0, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 0, RISK: 0, RESOLVE_CONDITION: 0, FRICTION: 0,
     });
   });
 

@@ -20,6 +20,7 @@ const ID_PREFIX = {
   NECESSARY_CONDITION: 'NCON-',
   RISK: 'RISK-',
   RESOLVE_CONDITION: 'RCON-',
+  FRICTION: 'FRIC-',
 };
 
 /**
@@ -33,7 +34,7 @@ export function initializeState(problemStatement) {
     problemStatement,
     elements: new Map(),
     elementCounters: {
-      EVIDENCE: 0, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 0, RISK: 0, RESOLVE_CONDITION: 0,
+      EVIDENCE: 0, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 0, RISK: 0, RESOLVE_CONDITION: 0, FRICTION: 0,
     },
     conditionCountHistory: [],
     elementCountHistory: [],

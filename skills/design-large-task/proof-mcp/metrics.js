@@ -31,9 +31,17 @@ export function computeCompleteness(elements) {
   let resolve_condition_count = 0;
   let ratified_rc_count = 0;
   let revision_count = 0;
+  let friction_count = 0;
+  let live_friction_count = 0;
 
   for (const [, el] of elements) {
     total_elements++;
+    // Friction is counted in two flavors (total + active) and skips the
+    // active-only short-circuit below so the total reflects withdrawn frictions too.
+    if (el.type === 'FRICTION') {
+      friction_count++;
+      if (el.status === 'active') live_friction_count++;
+    }
     if (el.status !== 'active') continue;
     active_elements++;
 
@@ -70,6 +78,8 @@ export function computeCompleteness(elements) {
     resolve_condition_count,
     ratified_rc_count,
     revision_count,
+    friction_count,
+    live_friction_count,
   };
 }
 

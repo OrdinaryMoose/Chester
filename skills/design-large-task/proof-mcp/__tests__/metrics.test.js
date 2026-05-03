@@ -57,6 +57,8 @@ describe('computeCompleteness', () => {
       resolve_condition_count: 0,
       ratified_rc_count: 0,
       revision_count: 0,
+      friction_count: 0,
+      live_friction_count: 0,
     });
   });
 

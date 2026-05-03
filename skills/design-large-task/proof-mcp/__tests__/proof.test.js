@@ -43,9 +43,9 @@ function mapOf(...elements) {
 }
 
 describe('ELEMENT_TYPES', () => {
-  it('contains all six types', () => {
+  it('contains all seven types', () => {
     expect(ELEMENT_TYPES).toEqual([
-      'EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK', 'RESOLVE_CONDITION',
+      'EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK', 'RESOLVE_CONDITION', 'FRICTION',
     ]);
   });
 });

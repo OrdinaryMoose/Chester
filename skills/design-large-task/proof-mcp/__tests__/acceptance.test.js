@@ -18,7 +18,6 @@ const SERVER_PATH = resolvePath(__dirname, '../server.js');
 describe('AC-1.1 RESOLVE_CONDITION element type registered', () => {
   it('ac-1-1-resolve-condition-registered', () => {
     expect(ELEMENT_TYPES).toContain('RESOLVE_CONDITION');
-    expect(ELEMENT_TYPES[ELEMENT_TYPES.length - 1]).toBe('RESOLVE_CONDITION');
     const state = initializeState('test');
     expect(state.elementCounters.RESOLVE_CONDITION).toBe(0);
   });
