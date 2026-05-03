@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { initializeState, applyOperations, manageFriction, overrideFrictionDisposition } from '../state.js';
+import { deriveClosingArgument } from '../closing-argument.js';
 
 describe('friction lifecycle', () => {
   let state;
@@ -75,5 +76,21 @@ describe('friction lifecycle', () => {
     });
     const [, , err] = overrideFrictionDisposition(s, { elementId: 'FRIC-1', disposition: 'fixed-it' });
     expect(err).toMatch(/disposition must be one of/);
+  });
+
+  it('full lifecycle: auto-create from detection, override disposition, dismiss to phantom, surface in closing argument', () => {
+    let s = initializeState('p');
+    let r = applyOperations(s, [
+      { op: 'add', type: 'RULE', statement: 'must not Z', source: 'designer' },
+      { op: 'add', type: 'PERMISSION', statement: 'allow Z', source: 'designer', relieves: 'RULE-1' },
+      { op: 'add', type: 'RISK', statement: 'Z dangerous', basis: ['RULE-1'] },
+    ]);
+    s = r.state;
+    const auto = [...s.elements.values()].find(el => el.type === 'FRICTION');
+    expect(auto).toBeDefined();
+    const [s2] = overrideFrictionDisposition(s, { elementId: auto.id, disposition: 'not-really-friction' });
+    expect(s2.elements.get(auto.id).status).toBe('withdrawn');
+    const argument = deriveClosingArgument(s2);
+    expect(argument.phantomFriction.some(f => f.id === auto.id)).toBe(true);
   });
 });
