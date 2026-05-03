@@ -310,13 +310,11 @@ function handleManageConcerns({ state_file, op, label, description }) {
 
 function handleManageFriction({ state_file, op, friction_shape, anchor_a, anchor_b, disposition, statement }) {
   let state = loadState(state_file);
-  const [newState, err] = manageFriction(state, { op, friction_shape, anchor_a, anchor_b, disposition, statement });
+  const [fricId, newState, err] = manageFriction(state, { op, friction_shape, anchor_a, anchor_b, disposition, statement });
   if (err) {
     return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: err }) }], isError: true };
   }
   saveState(newState, state_file);
-  // The newest FRICTION id is the last one created.
-  const fricId = `FRIC-${newState.elementCounters.FRICTION}`;
   return {
     content: [{
       type: 'text',

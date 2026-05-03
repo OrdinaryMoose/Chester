@@ -17,7 +17,7 @@ describe('friction lifecycle', () => {
   });
 
   it('manageFriction add creates a FRICTION element with FRIC-N id and appends to frictionLog', () => {
-    const [newState, err] = manageFriction(state, {
+    const [id, newState, err] = manageFriction(state, {
       op: 'add',
       friction_shape: 'nc-nc-opposing-pull',
       anchor_a: 'NCON-1',
@@ -26,6 +26,7 @@ describe('friction lifecycle', () => {
       statement: 'NC1 and NC2 pull against each other',
     });
     expect(err).toBeNull();
+    expect(id).toBe('FRIC-1');
     expect(newState.elements.get('FRIC-1').type).toBe('FRICTION');
     expect(newState.frictionLog.length).toBeGreaterThan(0);
     expect(newState.frictionLog[0].event).toBe('added');
@@ -33,16 +34,17 @@ describe('friction lifecycle', () => {
   });
 
   it('manageFriction add rejects unknown anchor', () => {
-    const [, err] = manageFriction(state, {
+    const [id, , err] = manageFriction(state, {
       op: 'add', friction_shape: 'nc-nc-opposing-pull',
       anchor_a: 'NCON-1', anchor_b: 'NCON-99',
       disposition: 'lived-with', statement: 'bad',
     });
+    expect(id).toBeNull();
     expect(err).toMatch(/unknown element id|NCON-99/);
   });
 
   it('overrideFrictionDisposition with not-really-friction transitions to withdrawn', () => {
-    let [s] = manageFriction(state, {
+    let [, s] = manageFriction(state, {
       op: 'add', friction_shape: 'nc-nc-opposing-pull',
       anchor_a: 'NCON-1', anchor_b: 'NCON-2',
       disposition: 'lived-with', statement: 'noise',
@@ -58,5 +60,20 @@ describe('friction lifecycle', () => {
   it('overrideFrictionDisposition rejects non-FRICTION element', () => {
     const [, err] = overrideFrictionDisposition(state, { elementId: 'NCON-1', disposition: 'lived-with' });
     expect(err).toMatch(/must be FRICTION/);
+  });
+
+  it('overrideFrictionDisposition rejects unknown element id', () => {
+    const [, err] = overrideFrictionDisposition(state, { elementId: 'FRIC-99', disposition: 'lived-with' });
+    expect(err).toMatch(/unknown element id|FRIC-99/);
+  });
+
+  it('overrideFrictionDisposition rejects invalid disposition value', () => {
+    const [, s] = manageFriction(state, {
+      op: 'add', friction_shape: 'nc-nc-opposing-pull',
+      anchor_a: 'NCON-1', anchor_b: 'NCON-2',
+      disposition: 'lived-with', statement: 'noise',
+    });
+    const [, err] = overrideFrictionDisposition(s, { elementId: 'FRIC-1', disposition: 'fixed-it' });
+    expect(err).toMatch(/disposition must be one of/);
   });
 });

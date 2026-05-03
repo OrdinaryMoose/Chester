@@ -10,7 +10,7 @@
  */
 
 import { readFileSync, writeFileSync } from 'fs';
-import { createElement, validateRefs, checkAllIntegrity, FRICTION_DISPOSITIONS } from './proof.js';
+import { createElement, validateRefs, checkAllIntegrity, FRICTION_DISPOSITIONS, TERMINAL_FRICTION_DISPOSITIONS } from './proof.js';
 import { computeCompleteness, computeGroundingCoverage, detectChallenge, detectStall, checkClosure } from './metrics.js';
 
 const ID_PREFIX = {
@@ -332,25 +332,25 @@ export function loadState(filePath) {
  * Appends an 'added' entry to frictionLog.
  * @param {object} state
  * @param {object} input - { op: 'add', friction_shape, anchor_a, anchor_b, disposition, statement? }
- * @returns {[object, string|null]} [newState, error]
+ * @returns {[string|null, object, string|null]} [id, newState, error] — id is null when error is non-null. Mirrors addConcern.
  */
 export function manageFriction(state, input) {
   const { op } = input;
   if (op !== 'add') {
-    return [state, `Unknown manage_friction op: ${op}`];
+    return [null, state, `Unknown manage_friction op: ${op}`];
   }
   if (!state.elements.has(input.anchor_a)) {
-    return [state, `unknown element id: ${input.anchor_a}`];
+    return [null, state, `unknown element id: ${input.anchor_a}`];
   }
   if (!state.elements.has(input.anchor_b)) {
-    return [state, `unknown element id: ${input.anchor_b}`];
+    return [null, state, `unknown element id: ${input.anchor_b}`];
   }
   const [id, withId] = generateId(state, 'FRICTION');
   let element;
   try {
     element = createElement({ ...input, type: 'FRICTION' }, id, withId.round);
   } catch (e) {
-    return [state, e.message];
+    return [null, state, e.message];
   }
   withId.elements.set(id, element);
   withId.frictionLog.push({
@@ -360,7 +360,7 @@ export function manageFriction(state, input) {
     friction_shape: input.friction_shape,
     disposition: input.disposition,
   });
-  return [withId, null];
+  return [id, withId, null];
 }
 
 /**
@@ -394,7 +394,7 @@ export function overrideFrictionDisposition(state, { elementId, disposition }) {
     oldDisposition,
     newDisposition: disposition,
   });
-  if (['dissolved-by-revision', 'dissolved-by-scope-cut', 'not-really-friction'].includes(disposition)) {
+  if (TERMINAL_FRICTION_DISPOSITIONS.includes(disposition)) {
     t.status = 'withdrawn';
     newState.frictionLog.push({
       event: 'dismissed',

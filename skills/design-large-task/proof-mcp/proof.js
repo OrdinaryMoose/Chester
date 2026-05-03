@@ -22,6 +22,11 @@ export const FRICTION_DISPOSITIONS = [
   'lived-with', 'relieved-by-exception', 'dissolved-by-revision', 'dissolved-by-scope-cut', 'not-really-friction',
 ];
 
+// Subset of FRICTION_DISPOSITIONS that transition the element to status: 'withdrawn'.
+export const TERMINAL_FRICTION_DISPOSITIONS = [
+  'dissolved-by-revision', 'dissolved-by-scope-cut', 'not-really-friction',
+];
+
 /**
  * Create an element object from input, validating required fields by type.
  * @param {object} input - Element fields from caller
