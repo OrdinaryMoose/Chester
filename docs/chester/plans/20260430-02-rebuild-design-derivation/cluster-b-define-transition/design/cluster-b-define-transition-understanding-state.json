@@ -1,0 +1,2741 @@
+{
+  "schemaVersion": "problemfocused-v0.1",
+  "userPrompt": "Cluster B — Define Transition (under master 20260430-02-rebuild-design-derivation). Endstate point 3: define the Phase 4a → Phase 4b transition process — what Phase 4a (Understand stage) hands over to Phase 4b (Solve stage), in what shape, with what handoff guarantees. Endstate point 4: confirm Phase 4b solve still valid and sufficient given cluster-A's RESOLVE_CONDITION and Concern additions (default bias: preservation per RULE-6, not refactor). Today only the ratified problem-statement string crosses the boundary. Cluster-A just shipped a sixth proof element type, a PM-ratified Concern enumeration, sequential ratification, per-Concern closure coverage, and a 9-section brief template — but the Solve Stage Opening sequence in the skill text has no step for enumerating Concerns or ratifying Resolve Conditions, and Phase 4a output produced by the three Understanding flows (classic, problemfocused, team-interview) has no uniform shape that lands structurally in the post-cluster-A proof.",
+  "round": 6,
+  "overallThreshold": 0.65,
+  "tenetEntries": {
+    "problem_articulation": [
+      {
+        "text": "Phase 4b needs the ratified problem statement at initialization — the anchor every proof element traces back to.",
+        "current_behavior": "Crosses as a plain string parameter to initialize_proof; no structural tie back to the Transition packet.",
+        "desired_behavior": "Crosses tied structurally to the packet so revisions of the problem statement during Solve invalidate downstream elements coherently.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Phase 4b needs Concerns enumerated and locked before the per-Concern closure check can fire.",
+        "current_behavior": "Concerns are empty at initialization; the Solve Stage Opening sequence has no step that calls manage_concerns; Closure conditions 7-8 silently refuse closure.",
+        "desired_behavior": "The opening sequence explicitly enumerates Concerns from Phase 4a material, presents them for designer ratification, and locks the list before any RC work begins.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Phase 4b needs initial Evidence elements grounding what was discovered during Phase 4a.",
+        "current_behavior": "Solve Stage Opening sequence step 3 already handles this — codebase facts surfaced during Phase 4a are seeded as Evidence with codebase source.",
+        "desired_behavior": "Same shape carries forward unchanged. Phase 4b sufficiency holds here under preservation bias.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Phase 4b needs initial Rules from designer-confirmed restrictions surfaced during Phase 4a.",
+        "current_behavior": "Solve Stage Opening sequence step 3 also covers this — designer-confirmed restrictions are seeded as Rules with designer source.",
+        "desired_behavior": "Same shape carries forward unchanged. Phase 4b sufficiency holds here under preservation bias.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Phase 4b needs initial Resolve Conditions drafted so the ratification walk has something to ratify.",
+        "current_behavior": "No opening step authors initial RCs. The agent receives no signal to draft RCs anchored to Concerns; ratification cannot begin without them.",
+        "desired_behavior": "The opening sequence authors initial RCs anchored to each Concern from Phase 4a material, then walks the designer through sequential ratification.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Phase 4b needs the active glossary so proof element prose uses canonical names rather than synonyms or drift.",
+        "current_behavior": "Glossary lives in the agent's memory across the boundary; nothing structural carries it into Solve. Different agent invocations could use different synonyms for the same concept.",
+        "desired_behavior": "Open question whether the glossary becomes structural packet content or remains implicit — cluster-B settles.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Phase 4b needs Solve Leakage Ledger entries consumed somewhere or scoped out.",
+        "current_behavior": "The problemfocused flow file declares the ledger as Phase-4b seed material, but no opening step consumes it. Declared handoff with no consumer — a known industry failure mode.",
+        "desired_behavior": "Cluster-B either defines a consuming step (seed as advisory Evidence, surface in commentary, route to Risks) or explicitly scopes out the ledger as advisory-only with the flow file updated to match.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Phase 4b needs identified Risks attached when fragility surfaced during Phase 4a.",
+        "current_behavior": "No opening step authors initial Risks. Phase 4a may have flagged fragility (e.g., team-interview ratification dissent) but the boundary has no place for that to land.",
+        "desired_behavior": "Open question whether the boundary authors initial Risks from Phase 4a fragility signals, or whether Risks are exclusively a per-turn Solve activity.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Phase 4b needs designer authority signal at the boundary so subsequent Rule authoring and RC ratifications proceed legitimately.",
+        "current_behavior": "Authority is implicit — the live conversation IS the designer presence. No structural confirmation at the boundary.",
+        "desired_behavior": "Open question whether the boundary needs an explicit designer-authority confirmation step, or whether the live-conversation premise is sufficient (probably the latter; this is a sanity check, not a likely change).",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Phase 4b needs initial Necessary Conditions drafted with grounding, reasoning chain, and collapse test — same shape as the existing NC element — carried from Phase 4a's design-time reasoning.",
+        "current_behavior": "No opening step authors initial NCs. The agent surfaces NC-shaped statements during Phase 4a (cluster-A's own design brief shows six of them) but they have nowhere structural to land at the boundary; Solve must re-derive them from scratch from carried Evidence and Rules.",
+        "desired_behavior": "Opening sequence authors initial NCs from Phase 4a reasoning, with grounding linked to seeded Evidence/Rule IDs, reasoning chain in the IF-THEN form, and collapse test populated. Solve extends the set; doesn't restart it.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 3
+      },
+      {
+        "text": "Updated needs list: eight flow-agnostic Phase 4b inputs at start — ratified problem statement, locked Concerns, initial NCs, initial RCs, initial Evidence, initial Rules, initial Risks (when surfaced), and the implicit designer-authority signal.",
+        "current_behavior": "Today three of eight cross structurally (problem statement, Evidence, Rules). Five are gaps: Concerns, NCs, RCs, Risks, designer-authority.",
+        "desired_behavior": "All eight are structurally present in the Transition packet at the boundary. Phase 4b extends the proof from this initial state; does not re-derive.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 3
+      },
+      {
+        "text": "Empirical audit across 21 StoryDesigner proofs shows zero proofs were transitioned with Necessary Conditions already present. NCs emerged in Solve work during Round 2-4. Every proof seeded 3-14 Evidence and 3-24 Rules at Round 1 by typing Phase 4a discoveries into proof elements (the existing Solve Stage Opening step 3).",
+        "current_behavior": "Zero proofs in the historical record carried NCs across the boundary. All proofs reached closure with NCs that emerged during Solve.",
+        "desired_behavior": "Boundary stays minimal (problem statement); Phase 4b's first round structures Phase 4a discoveries into Evidence + Rule elements; NCs emerge Round 2-4; closure gates exit, not entry.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 5
+      },
+      {
+        "text": "Sparse final NC count (2-5) closes cleanly across multiple sprints; rich NC count (17) also closes but takes more rounds. Element count does not predict success; scope clarity does.",
+        "current_behavior": "20260410-08 closed with 2 NCs in 6 rounds; lbd-09-3 closed with 3 NCs in 3 rounds; lbd-09-1 closed with 17 NCs over 16 rounds. All reached active final status.",
+        "desired_behavior": "Cluster-B does not introduce element-count gates at entry. Closure conditions already gate exit appropriately.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 5
+      },
+      {
+        "text": "Designer's concern about zero-NC zero-Rule transition is empirically well-founded but the prevention mechanism differs from what initial framing suggested. The prevention happens at Round 1 of Solve (seeding Evidence + Rules from Phase 4a discoveries) and at closure (gates require grounded NCs). The boundary itself stays minimal.",
+        "current_behavior": "If Phase 4a discovery is impoverished (no codebase facts surfaced, no designer-direction confirmed), Round 1 seeding produces a sparse proof that may struggle to build NCs.",
+        "desired_behavior": "Phase 4a quality gate: enough discovery that Solve has material to type into Evidence + Rules at opening step 3. This is a Phase 4a quality concern (cluster C scope), not a Transition packet concern.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 5
+      },
+      {
+        "text": "Best-practice transition pattern (naked transition, heavy Round 1, emergent NCs, gated exit) is empirically validated across 21 sprints. Cluster-B's job is to confirm this pattern in the skill text rather than design a new one.",
+        "current_behavior": "Skill text describes Solve Stage Opening sequence in three terse steps; the Round-1 typing step is item three but reads as a small thing rather than the load-bearing operation it actually is.",
+        "desired_behavior": "Skill text makes the pattern explicit: minimum boundary content, Round 1 as the bulk-typing turn, NCs emerge in subsequent rounds, closure exits.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 6
+      }
+    ],
+    "success_criteria": [
+      {
+        "text": "Cluster-B succeeds when the entry gate to Phase 4b stays at problem statement, the exit gate (closure 7-10) is reachable through Solve work, and no Phase-4a-authored proof elements cross the boundary.",
+        "observable": "skills/design-large-task/SKILL.md Solve Stage Opening sequence describes only problem-statement-polish-and-confirm + initialize_proof + Solve activities; no boundary-authored NC/RC/Evidence/Rule elements documented as Phase 4a output.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 4
+      },
+      {
+        "text": "Cluster-B succeeds when the boundary stays minimal AND closure exit gates remain rigorous. Empirical baseline: every audited proof reached closure with at least 2 NCs grounded in seeded Evidence + Rules.",
+        "anti_goal": "Cluster-B does not impose boundary-time element-count gates. Element-count discipline is exit-side (closure), not entry-side (transition).",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 5
+      },
+      {
+        "text": "Cluster-B succeeds when the transition follows the empirically-validated pattern: naked transition (problem statement only crosses), heavy Round 1 of Solve (typing Phase 4a discoveries into Evidence and Rules), emergent NCs (Round 2-4), gated exit (closure refuses malformed proofs).",
+        "observable": "Across StoryDesigner's 21 audited proofs, this exact pattern produced 100% closure success; the pattern's prevention of zero-NC transitions is verified empirically.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 6
+      },
+      {
+        "text": "Cluster-B succeeds when Round 1 of Solve is explicitly described in the skill text as the bulk-typing step — not 'just initialize the proof' but 'type Phase 4a's surfaced discoveries into Evidence and Rule elements'.",
+        "observable": "Solve Stage Opening sequence in the skill text dedicates explicit language to Round 1 typing; the load-bearing nature of this step is visible to any agent reading the skill cold.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 6
+      },
+      {
+        "text": "Cluster-B succeeds when boundary integrity gates are explicitly absent and the rationale is documented: prevention happens upstream (flow saturation gates ensure substantive Phase 4a) and downstream (closure refuses poor proofs).",
+        "observable": "Skill text or design brief explicitly states the no-boundary-gate decision and traces it to the empirical baseline.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 6
+      }
+    ],
+    "done_state_vision": [
+      {
+        "text": "An agent runs design-large-task. Phase 4a saturates per active flow's gates. Transition fires: agent confirms problem statement with designer, calls initialize_proof with that statement, then enters Round 1 of Solve. Round 1 is the bulk-typing turn — codebase facts surfaced during Phase 4a become Evidence elements, designer-confirmed restrictions become Rule elements. Concern enumeration runs as part of opening (cluster-A machinery activated as Solve work). Initial RCs drafted; sequential ratification walks them. Round 2-N: NCs emerge from reasoning over the seeded Evidence and Rules, anchored to ratified RCs and Concerns. Closure refuses exit until conditions 1-10 are met. The transition itself — the moment the problem statement crosses — is structurally trivial. The work happens at Round 1.",
+        "imagined_moment": "The designer, mid-design-large-task session: 'Yes, that statement captures the problem.' The agent: 'Understanding is established. Moving to Solve. Initializing the proof against your statement... I'll structure what we surfaced during understanding into the proof now.' Round 1 begins; the agent submits a batch of Evidence and Rules. Designer reviews. The transition is over; the proof has form.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 6
+      }
+    ],
+    "constraint_envelope": [
+      {
+        "text": "The Transition packet must carry only flow-agnostic content. Phase 4b solve cannot depend on any single Phase 4a interview process.",
+        "constraint_type": "hard_limit",
+        "source": "designer-direct: 'remove any flow specific information; solve should not depend on any single interview process' (round 2)",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "Every Phase 4a flow must produce a uniform Transition packet shape — the consumer side (Phase 4b) sees one shape regardless of which flow authored it.",
+        "constraint_type": "hard_limit",
+        "source": "Designer-direct: derived from flow-independence rule (round 2).",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "Master-plan RULE-10: Phase 4a output must be expressible in the solve MCP's vocabulary; the transition operates structurally, not via translation.",
+        "constraint_type": "inheritance",
+        "source": "master-plan.md §6 RULE-10",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "Master-plan RULE-6: Phase 4b solve is presumed valid and sufficient; cluster-B confirms by default, refactors only where forced.",
+        "constraint_type": "inheritance",
+        "source": "master-plan.md §6 RULE-6",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "Master-plan RULE-1: Five existing proof element types are immutable. Cluster-A's RESOLVE_CONDITION is the sixth and is now also locked.",
+        "constraint_type": "inheritance",
+        "source": "master-plan.md §6 RULE-1 + cluster-A delivery",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "The Transition packet IS a draft proof — partially populated proof state, not a separate artifact alongside the proof. Phase 4b's first turn extends the draft; closure walks the same elements forward to ratified state.",
+        "constraint_type": "hard_limit",
+        "source": "Designer-direct (round 3, derived): NC inclusion confirms packet IS the proof's initial state, not a sibling artifact carrying material to be loaded later.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 3
+      },
+      {
+        "text": "Phase 4a does not do Phase 4b's work. Phase 4a's job is deep understanding of the problem; Phase 4b's job is building the proof. Authoring proof elements (NCs, RCs, structured Evidence, structured Rules) is Phase 4b work and does not happen at the boundary.",
+        "constraint_type": "hard_limit",
+        "source": "designer-direct (round 4): 'phase 4a does not do phase 4bs work'",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 4
+      },
+      {
+        "text": "Enter-the-proof gate and exit-the-proof gate are different by design. Enter is minimal (problem statement); exit is the full closure-condition set including cluster-A's coverage check.",
+        "constraint_type": "hard_limit",
+        "source": "designer-direct (round 4): 'there should be a difference in what we need to enter the proof and exit the proof'",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 4
+      },
+      {
+        "text": "Today's transition (problem statement only crosses structurally) is correct. Cluster-B does not need to widen what crosses.",
+        "constraint_type": "hard_limit",
+        "source": "designer-direct (round 4): 'right now all we need is problem statement to transition'",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 4
+      },
+      {
+        "text": "Zero-NC transition prevention is achieved by closure gates (exit), not by boundary content (entry). Cluster-B does not add element-count requirements to the transition itself.",
+        "constraint_type": "hard_limit",
+        "source": "Empirical audit (round 5): 21 proofs, zero transitioned with NCs; closure conditions gate exit appropriately.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 5
+      }
+    ],
+    "scope_boundary": [
+      {
+        "text": "Solve Leakage Ledger as a Phase-4b input is OUT of the Transition packet. The ledger may persist as Phase-4a-internal record (problemfocused only), but cluster-B does not author a consuming step and the flow file should be updated to mark it advisory-only.",
+        "placement": "OUT",
+        "source": "designer-direct (round 2): flow-specific information dropped from solve dependencies.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "Active glossary as a Phase-4b structural input is OUT of the Transition packet. Glossary may persist within problemfocused for its own per-turn use, but does not cross structurally into Solve.",
+        "placement": "OUT",
+        "source": "designer-direct (round 2): same constraint.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "Team-interview's three-section Handoff artifact (Problem Statement / Consensus Evidence / Exit Criteria / Ratification block) is OUT as the Phase-4b consumed shape — it is one possible Phase-4a authoring pattern, but the Transition packet shape is uniform across flows.",
+        "placement": "OUT",
+        "source": "designer-direct (round 2): same constraint, applied symmetrically across flows.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "The seven flow-agnostic needs are IN as Transition-packet content: ratified problem statement, Concerns list (enumerated and locked), initial Resolve Conditions (drafted, awaiting ratification), initial Evidence, initial Rules, initial Risks (open whether at boundary), designer-authority signal (open whether explicit).",
+        "placement": "IN",
+        "source": "Designer-direct (round 2): consequence of flow-independence rule applied to original nine-need enumeration.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "Initial Necessary Conditions are IN the Transition packet. Authored at the boundary from Phase 4a reasoning, with grounding linked to seeded Evidence/Rules, reasoning chain populated, collapse test populated.",
+        "placement": "IN",
+        "source": "Designer-direct (round 3): NC inclusion correction.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 3
+      },
+      {
+        "text": "Initial Necessary Conditions, Resolve Conditions, structured Evidence, and structured Rules at the boundary are OUT. These are Phase 4b solve work, not Phase 4a understanding work, and not boundary-authored.",
+        "placement": "OUT",
+        "source": "designer-direct (round 4): Phase 4a does not do Phase 4b's work.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 4
+      },
+      {
+        "text": "Concern enumeration at boundary placement is BORDERLINE — cluster-A specified Concerns are agent-proposed-from-problem-statement at Solve Stage opening (which is Solve work), but the act of decomposing a problem into named aspects is also understanding-shaped. Resolution: cluster-A's design holds; Concern enumeration is the first act of Phase 4b solve, executed against the carried problem statement.",
+        "placement": "BORDERLINE",
+        "source": "designer-direct (round 4) + cluster-A NC-02 reconciliation.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 4
+      }
+    ],
+    "personal_use_case_map": [],
+    "cost_energy_budget": [],
+    "project_fit": [
+      {
+        "text": "Flow-independence rule aligns with master-plan RULE-10 — transition operates structurally, not via translation. Per-flow translation logic on the consumer side would violate the structural-transition target.",
+        "alignment": "ALIGNED",
+        "project_convention_referenced": "master-plan RULE-10 (Phase 4a output expressible in solve MCP vocabulary, structural transition only)",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      }
+    ],
+    "open_questions_ledger": [
+      {
+        "text": "Does the active glossary become structural Transition-packet content, or stay implicit in agent memory?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Does Cluster B define a consuming step for the Solve Leakage Ledger, or explicitly scope it out as advisory-only?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Does the boundary author initial Risks from Phase 4a fragility signals, or are Risks exclusively a per-turn Solve activity?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Does each Phase 4a flow produce its own Transition-packet shape (three different shapes, one per flow), or do they unify into a single uniform shape?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Does the Transition packet exist as a file artifact, in-memory proof state, or a section inside the design brief?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "What integrity guarantees apply at the boundary — must the packet validate before initialize_proof completes, or is it advisory?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Are Capture-system TODOs in cluster-B scope, deferred, or out of scope entirely?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Does cluster B fix the CN-versus-CERN naming inconsistency as part of transition work, or defer to a separate cleanup pass?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Solve Leakage Ledger as Phase-4b dependency — RESOLVED. Designer ruled flow-specific content out of the Transition packet (round 2). Ledger remains Phase-4a-internal record only; flow file documentation update needed to mark advisory.",
+        "question_source": "agent_uncertainty",
+        "status": "RESOLVED-VIA-QUOTE",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "Active glossary as Phase-4b structural input — RESOLVED. Same constraint (round 2). Glossary remains per-flow internal use; does not cross structurally.",
+        "question_source": "agent_uncertainty",
+        "status": "RESOLVED-VIA-QUOTE",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "Per-flow vs unified packet shape — RESOLVED. Designer ruled uniform shape across flows (round 2 derived). Each flow authors its packet via different means but produces the same consumed shape.",
+        "question_source": "agent_uncertainty",
+        "status": "RESOLVED-VIA-QUOTE",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "What happens to flow-specific artifacts (Solve Leakage Ledger, active glossary, team-interview Handoff artifact) that are now scoped out of the Transition packet? Probably stay as Phase-4a-internal record, captured in process-evidence at Closure rather than as boundary content.",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "Does Cluster B update the problemfocused flow file and team-interview flow file to reflect that their flow-specific artifacts no longer cross structurally? Documentation-pass scope question.",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "If Phase 4a discovery is impoverished (zero codebase facts, zero designer-direction surfaced), does the Solve Stage Opening sequence detect that and refuse to proceed, or does it allow a sparse proof to enter and let closure refuse later?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 5
+      }
+    ]
+  },
+  "tenetScores": {
+    "problem_articulation": 1,
+    "success_criteria": 1,
+    "done_state_vision": 0.5,
+    "constraint_envelope": 1,
+    "scope_boundary": 1,
+    "personal_use_case_map": 0,
+    "cost_energy_budget": 0,
+    "project_fit": 0.5,
+    "open_questions_ledger": 1
+  },
+  "scoreHistory": [
+    {
+      "problem_articulation": 1,
+      "success_criteria": 0,
+      "done_state_vision": 0,
+      "constraint_envelope": 0,
+      "scope_boundary": 0,
+      "personal_use_case_map": 0,
+      "cost_energy_budget": 0,
+      "project_fit": 0,
+      "open_questions_ledger": 1
+    },
+    {
+      "problem_articulation": 1,
+      "success_criteria": 0,
+      "done_state_vision": 0,
+      "constraint_envelope": 1,
+      "scope_boundary": 0.8,
+      "personal_use_case_map": 0,
+      "cost_energy_budget": 0,
+      "project_fit": 0.5,
+      "open_questions_ledger": 1
+    },
+    {
+      "problem_articulation": 1,
+      "success_criteria": 0,
+      "done_state_vision": 0,
+      "constraint_envelope": 1,
+      "scope_boundary": 1,
+      "personal_use_case_map": 0,
+      "cost_energy_budget": 0,
+      "project_fit": 0.5,
+      "open_questions_ledger": 1
+    },
+    {
+      "problem_articulation": 1,
+      "success_criteria": 0.333,
+      "done_state_vision": 0,
+      "constraint_envelope": 1,
+      "scope_boundary": 1,
+      "personal_use_case_map": 0,
+      "cost_energy_budget": 0,
+      "project_fit": 0.5,
+      "open_questions_ledger": 1
+    },
+    {
+      "problem_articulation": 1,
+      "success_criteria": 0.667,
+      "done_state_vision": 0,
+      "constraint_envelope": 1,
+      "scope_boundary": 1,
+      "personal_use_case_map": 0,
+      "cost_energy_budget": 0,
+      "project_fit": 0.5,
+      "open_questions_ledger": 1
+    },
+    {
+      "problem_articulation": 1,
+      "success_criteria": 1,
+      "done_state_vision": 0.5,
+      "constraint_envelope": 1,
+      "scope_boundary": 1,
+      "personal_use_case_map": 0,
+      "cost_energy_budget": 0,
+      "project_fit": 0.5,
+      "open_questions_ledger": 1
+    }
+  ],
+  "glossary": [
+    {
+      "canonical_name": "Transition packet",
+      "aliases": [
+        "handoff payload",
+        "boundary payload",
+        "Pre-seeded proof",
+        "pre-seeded state",
+        "seeded proof",
+        "Transition mechanism",
+        "handoff process",
+        "stage handoff"
+      ],
+      "definition": "The set of structurally-typed material the Understand stage hands across the boundary into the Solve stage. Today this is the ratified problem-statement string only; cluster-B settles what else (if anything) crosses structurally.",
+      "source": {
+        "explorer": "codebase",
+        "artifact": "skills/design-large-task/SKILL.md Solve Stage Opening + active flow references"
+      },
+      "sense_constraints": [
+        "Refers to what crosses structurally, not to commentary or summary prose."
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "codebase",
+            "artifact": "skills/design-large-task/SKILL.md Solve Stage Opening + active flow references"
+          }
+        },
+        {
+          "event": "MERGE",
+          "round": 0,
+          "merged_from": [
+            "Pre-seeded proof",
+            "Transition mechanism"
+          ],
+          "designer_quote": "transition packet",
+          "reason": "Designer collapsed three near-synonym group-one terms (Phase 4a output / Pre-seeded proof / Transition mechanism) into one canonical artifact term. Action is plain verb 'transition' — no separate noun for the process is carried."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Resolve Condition",
+      "aliases": [
+        "RC",
+        "RCON"
+      ],
+      "definition": "Sixth proof element type added by cluster-A. Three-field schema: statement (PM-readable observable outcome), problem_anchor (Concern ID), ratification (PM sign-off populated when validated). Forward-looking certification of the design space's exit condition.",
+      "source": {
+        "explorer": "prior-art",
+        "artifact": "cluster-a-define-solve-design-00.md NC-01"
+      },
+      "sense_constraints": [
+        "Not a Necessary Condition — opposite job (NC restricts, RC certifies exit).",
+        "Not Acceptance Criteria — that vocabulary is deprecated."
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "prior-art",
+            "artifact": "cluster-a-define-solve-design-00.md NC-01"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Concern",
+      "aliases": [
+        "CN",
+        "CERN"
+      ],
+      "definition": "PM-ratified named aspect of the problem statement. Stable ID, short PM-readable label, optional one-sentence description. Concerns are enumerated and locked at Solve Stage opening; the locked list anchors Resolve Condition coverage and the per-Concern closure-coverage check.",
+      "source": {
+        "explorer": "prior-art",
+        "artifact": "cluster-a-define-solve-design-00.md NC-02"
+      },
+      "sense_constraints": [
+        "Naming inconsistency exists today: state.js generates CERN- IDs while brief template renders CN- labels.",
+        "Distinct from RC — Concerns name the aspect, RCs name the resolved-state observable for that aspect."
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "prior-art",
+            "artifact": "cluster-a-define-solve-design-00.md NC-02"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Ratification",
+      "aliases": [],
+      "definition": "Discrete PM sign-off on a specific Resolve Condition's statement-and-anchor content. Sequential per RC (no batch). Revising the statement or anchor invalidates the ratification automatically (cleared-on-revise).",
+      "source": {
+        "explorer": "prior-art",
+        "artifact": "cluster-a-define-solve-design-00.md NC-05 + NC-06"
+      },
+      "sense_constraints": [
+        "Distinct from designer-confirmation of a brief or designer-direction of a Rule.",
+        "Recorded as a quote + round number, not a boolean flag alone."
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "prior-art",
+            "artifact": "cluster-a-define-solve-design-00.md NC-05 + NC-06"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Solve Stage Opening sequence",
+      "aliases": [
+        "opening sequence",
+        "Solve opening"
+      ],
+      "definition": "The numbered procedural steps in skills/design-large-task/SKILL.md that run after Stage Transition and before the per-turn proof loop. Today three steps: (1) polish/readback/confirm problem statement, (2) initialize_proof, (3) seed initial EVIDENCE + RULE elements. No step for Concern enumeration or RC ratification today.",
+      "source": {
+        "explorer": "codebase",
+        "artifact": "skills/design-large-task/SKILL.md lines 408-418"
+      },
+      "sense_constraints": [
+        "The sequence governs what the agent does at the boundary; cluster-B's transition mechanism updates this sequence."
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "codebase",
+            "artifact": "skills/design-large-task/SKILL.md lines 408-418"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Solve Leakage Ledger",
+      "aliases": [
+        "leakage ledger"
+      ],
+      "definition": "Problemfocused-flow-only artifact preserving solve-mode statements rejected by the Phase-Vocabulary Classifier during Phase 4a. The flow file declares the ledger as Phase-4b seed material, but the Solve Stage Opening sequence in SKILL.md has no consuming step for it today — it is declared handoff with no consumer.",
+      "source": {
+        "explorer": "codebase",
+        "artifact": "skills/design-large-task/references/problemfocused-mcp-flow.md lines 211-216"
+      },
+      "sense_constraints": [
+        "Exists only in problemfocused flow.",
+        "Cross-flow generalization is open question for cluster-B."
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "codebase",
+            "artifact": "skills/design-large-task/references/problemfocused-mcp-flow.md lines 211-216"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Handoff artifact",
+      "aliases": [],
+      "definition": "Team-interview-flow's three-section structural output: Problem Statement (one sentence), Consensus Evidence (four typed bullet categories with source-pole attribution), Exit Criteria, plus a Ratification block. Includes a mechanical mapping table from handoff content to proof element types. The only existing flow-specific transition mechanism with a fully specified shape.",
+      "source": {
+        "explorer": "codebase",
+        "artifact": "skills/design-large-task/references/team-interview-flow.md Handoff Artifact + Proof Seeding sections"
+      },
+      "sense_constraints": [
+        "Distinct from Phase 4a output in general — handoff artifact is one possible shape of Phase 4a output, not the term for all such output."
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "codebase",
+            "artifact": "skills/design-large-task/references/team-interview-flow.md Handoff Artifact + Proof Seeding sections"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Closure conditions 7-10",
+      "aliases": [
+        "new closure conditions",
+        "cluster-A closure additions"
+      ],
+      "definition": "The four cluster-A-added closure gates in proof-mcp/metrics.js checkClosure: (7) Concerns locked, (8) at least one Concern enumerated, (9) all active RCs ratified, (10) per-Concern coverage satisfied (each Concern covered by ratified RC OR Rule statement). The skill text describing closure has not been updated to reflect 7-10.",
+      "source": {
+        "explorer": "codebase",
+        "artifact": "skills/design-large-task/proof-mcp/metrics.js checkClosure conditions 7-10"
+      },
+      "sense_constraints": [
+        "The skill-text/MCP discrepancy is itself a cluster-B-relevant gap — agent reading SKILL.md alone would not know about conditions 7-10."
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "codebase",
+            "artifact": "skills/design-large-task/proof-mcp/metrics.js checkClosure conditions 7-10"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Capture-system TODOs",
+      "aliases": [
+        "brief-element ID system",
+        "stable-ID TODOs"
+      ],
+      "definition": "Five in-template TODO breadcrumbs added by commit 8847783 to skills/design-large-task/references/design-brief-template.md sketching stable-ID systems for Rules (RE-xx), Permissions (PN-xx), Evidence (EV-xx), Industry Context (IC-xx), Risks (RK-xx) — analogous to NC-xx for Necessary Conditions. Today only NCs and the cluster-A elements (CN/RC) carry stable IDs.",
+      "source": {
+        "explorer": "codebase",
+        "artifact": "skills/design-large-task/references/design-brief-template.md lines 91, 109, 129, 154, 174"
+      },
+      "sense_constraints": [
+        "May or may not be in cluster-B scope — adjacent design question.",
+        "Pointer to a deferred decision, not itself a decision."
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "codebase",
+            "artifact": "skills/design-large-task/references/design-brief-template.md lines 91, 109, 129, 154, 174"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Phase 4b sufficiency",
+      "aliases": [
+        "Phase 4b validity"
+      ],
+      "definition": "Whether the Phase 4b solve process (proof MCP + per-turn flow + closure protocol) carries everything needed to drive the design through to closure given cluster-A's element-type addition. Cluster-B's default per master-plan RULE-6 is preservation; gaps surface as cluster-scope decisions only when forced by cluster-A's changes.",
+      "source": {
+        "explorer": "prior-art",
+        "artifact": "20260430-02-rebuild-design-derivation/master-plan.md §2 endstate point 4"
+      },
+      "sense_constraints": [
+        "Default bias: confirm, not refactor. Refactor only where cluster-A's element decisions force closure-check or skill-text changes."
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "prior-art",
+            "artifact": "20260430-02-rebuild-design-derivation/master-plan.md §2 endstate point 4"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Authorship-at-the-boundary",
+      "aliases": [
+        "boundary-authored artifact"
+      ],
+      "definition": "Industry pattern across formal-methods and V&V pipelines where the primary handoff artifact is authored AT the stage boundary itself — not produced by Stage 1 alone or derivable from Stage 2 inputs. Examples: Event-B gluing invariant, NASA Requirements Verification Matrix, BDD Example Mapping rule cards.",
+      "source": {
+        "explorer": "industry",
+        "artifact": "industry-explorer cross-cutting observations"
+      },
+      "sense_constraints": [
+        "Descriptive industry term — not yet a Chester-locked vocabulary item; included to ground the design conversation."
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "industry",
+            "artifact": "industry-explorer cross-cutting observations"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Concern",
+      "aliases": [
+        "CN"
+      ],
+      "definition": "PM-ratified named aspect of the problem statement. Stable ID with prefix CN-, short PM-readable label, optional one-sentence description. Concerns are enumerated and locked at Solve Stage opening; the locked list anchors Resolve Condition coverage and the per-Concern closure-coverage check. Note: state.js currently emits CERN- as the ID prefix — code-side relabeling to CN- is downstream cleanup, not a vocabulary issue.",
+      "source": null,
+      "sense_constraints": [
+        "Acronym is CN. CERN is a stale code-side artifact, not a canonical alias.",
+        "Distinct from RC — Concerns name the aspect, RCs name the resolved-state observable for that aspect."
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "concern acronym = CN not CERN",
+          "reason": "Designer ratified Concern with corrected acronym; CERN dropped as alias (stale code-side prefix, not canonical vocabulary)."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Transition packet",
+      "aliases": [
+        "handoff payload",
+        "boundary payload",
+        "Pre-seeded proof",
+        "pre-seeded state",
+        "seeded proof",
+        "Transition mechanism",
+        "handoff process",
+        "stage handoff"
+      ],
+      "definition": "Structured proof-seed authored at the Phase 4a → Phase 4b boundary. Carries the ratified problem statement, enumerated Concerns, initial Resolve Conditions, initial Evidence (codebase facts surfaced during Phase 4a), and initial Rules (designer-confirmed restrictions surfaced during Phase 4a). The Solve stage initializes against this packet rather than starting empty. Authored at the boundary — not produced by Phase 4a alone, not derivable from Phase 4b inputs alone.",
+      "source": null,
+      "sense_constraints": [
+        "Distinct from the in-flight proof itself — the packet IS the proof's initial state, not a sibling artifact.",
+        "The act of producing the packet is plain English 'transition' — no separate noun for the process.",
+        "Concrete shape (in-memory state, markdown file, brief section) is open inside cluster-B."
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "a [en-bloc confirmation, locking transition packet definition with merged aliases]",
+          "reason": "Designer en-bloc ratified remaining vocabulary; refreshing Transition packet definition to the merged shape and marking DEFINED."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Resolve Condition",
+      "aliases": [
+        "RC"
+      ],
+      "definition": "Sixth proof element type added by cluster-A. Three-field schema: statement (PM-readable observable outcome), problem_anchor (Concern ID), ratification (PM sign-off populated when validated). Forward-looking certification of the design space's exit condition.",
+      "source": null,
+      "sense_constraints": [
+        "Not a Necessary Condition — opposite job (NC restricts, RC certifies exit).",
+        "Not Acceptance Criteria — that vocabulary is deprecated."
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "a [en-bloc confirmation]",
+          "reason": "Designer en-bloc ratified."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Ratification",
+      "aliases": [],
+      "definition": "Discrete PM sign-off on a specific Resolve Condition's statement-and-anchor content. Sequential per RC (no batch). Revising the statement or anchor invalidates the ratification automatically (cleared-on-revise).",
+      "source": null,
+      "sense_constraints": [
+        "Distinct from designer-confirmation of a brief or designer-direction of a Rule.",
+        "Recorded as a quote + round number, not a boolean flag alone."
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "a [en-bloc confirmation]",
+          "reason": "Designer en-bloc ratified."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Solve Stage Opening sequence",
+      "aliases": [
+        "opening sequence",
+        "Solve opening"
+      ],
+      "definition": "The numbered procedural steps in the design-large-task skill that run after Stage Transition and before the per-turn proof loop. Today three steps: (1) polish/readback/confirm problem statement, (2) initialize the proof, (3) seed initial Evidence + Rules. No step for Concern enumeration or RC ratification today.",
+      "source": null,
+      "sense_constraints": [
+        "The sequence governs what the agent does at the boundary; cluster-B's transition work updates this sequence."
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "a [en-bloc confirmation]",
+          "reason": "Designer en-bloc ratified."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Closure conditions 7-10",
+      "aliases": [
+        "new closure conditions",
+        "cluster-A closure additions"
+      ],
+      "definition": "The four cluster-A-added closure gates: (7) Concerns locked, (8) at least one Concern enumerated, (9) all active RCs ratified, (10) per-Concern coverage satisfied (each Concern covered by ratified RC OR Rule statement). The skill text describing closure has not been updated to reflect 7-10.",
+      "source": null,
+      "sense_constraints": [
+        "The skill-text/MCP discrepancy is itself a cluster-B-relevant gap — agent reading the skill alone would not know about conditions 7-10."
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "a [en-bloc confirmation]",
+          "reason": "Designer en-bloc ratified."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Solve Leakage Ledger",
+      "aliases": [
+        "leakage ledger"
+      ],
+      "definition": "Problemfocused-flow-only artifact preserving solve-mode statements rejected by the Phase-Vocabulary Classifier during Phase 4a. The flow file declares the ledger as Phase-4b seed material, but the Solve Stage Opening sequence has no consuming step for it today — declared handoff with no consumer.",
+      "source": null,
+      "sense_constraints": [
+        "Exists only in problemfocused flow.",
+        "Cross-flow generalization is open question for cluster-B."
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "a [en-bloc confirmation]",
+          "reason": "Designer en-bloc ratified."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Handoff artifact",
+      "aliases": [],
+      "definition": "Team-interview-flow's three-section structural output: Problem Statement (one sentence), Consensus Evidence (four typed bullet categories with source-pole attribution), Exit Criteria, plus a Ratification block. Includes a mechanical mapping table from artifact content to proof element types. The only existing flow-specific transition mechanism with a fully specified shape.",
+      "source": null,
+      "sense_constraints": [
+        "Distinct from Transition packet — handoff artifact is one possible shape of a transition packet, specific to the team-interview flow."
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "a [en-bloc confirmation]",
+          "reason": "Designer en-bloc ratified."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Capture-system TODOs",
+      "aliases": [
+        "brief-element ID system",
+        "stable-ID TODOs"
+      ],
+      "definition": "Five in-template TODO breadcrumbs added recently sketching stable-ID systems for Rules (RE-xx), Permissions (PN-xx), Evidence (EV-xx), Industry Context (IC-xx), Risks (RK-xx) — analogous to NC-xx for Necessary Conditions. Today only NCs and the cluster-A elements (CN/RC) carry stable IDs.",
+      "source": null,
+      "sense_constraints": [
+        "May or may not be in cluster-B scope — adjacent design question.",
+        "Pointer to a deferred decision, not itself a decision."
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "a [en-bloc confirmation]",
+          "reason": "Designer en-bloc ratified."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Phase 4b sufficiency",
+      "aliases": [
+        "Phase 4b validity"
+      ],
+      "definition": "Whether the Phase 4b solve process (proof MCP + per-turn flow + closure protocol) carries everything needed to drive the design through to closure given cluster-A's element-type addition. Cluster-B's default per master-plan RULE-6 is preservation; gaps surface as cluster-scope decisions only when forced by cluster-A's changes.",
+      "source": null,
+      "sense_constraints": [
+        "Default bias: confirm, not refactor. Refactor only where cluster-A's element decisions force closure-check or skill-text changes."
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "a [en-bloc confirmation]",
+          "reason": "Designer en-bloc ratified."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Authorship-at-the-boundary",
+      "aliases": [
+        "boundary-authored artifact"
+      ],
+      "definition": "Industry pattern across formal-methods and V&V pipelines where the primary handoff artifact is authored AT the stage boundary itself — not produced by Stage 1 alone or derivable from Stage 2 inputs. Examples: Event-B gluing invariant, NASA Requirements Verification Matrix, BDD Example Mapping rule cards.",
+      "source": null,
+      "sense_constraints": [
+        "Descriptive industry term — not yet a Chester-locked vocabulary item; included to ground the design conversation."
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "a [en-bloc confirmation]",
+          "reason": "Designer en-bloc ratified."
+        }
+      ]
+    }
+  ],
+  "vocabularyActionLog": [
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Concern"
+      ],
+      "new_term": {
+        "canonical_name": "Concern"
+      },
+      "reason": "Designer ratified Concern with corrected acronym; CERN dropped as alias (stale code-side prefix, not canonical vocabulary).",
+      "designer_quote": "concern acronym = CN not CERN",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-02T01:18:04.324Z"
+    },
+    {
+      "action": "MERGE",
+      "target_terms": [
+        "Phase 4a output",
+        "Pre-seeded proof",
+        "Transition mechanism"
+      ],
+      "new_term": {
+        "canonical_name": "Transition packet"
+      },
+      "reason": "Designer collapsed three near-synonym group-one terms (Phase 4a output / Pre-seeded proof / Transition mechanism) into one canonical artifact term. Action is plain verb 'transition' — no separate noun for the process is carried.",
+      "designer_quote": "transition packet",
+      "classification": "CONFLICT",
+      "executed_round": 0,
+      "executed_at": "2026-05-02T01:35:40.281Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Transition packet"
+      ],
+      "new_term": {
+        "canonical_name": "Transition packet"
+      },
+      "reason": "Designer en-bloc ratified remaining vocabulary; refreshing Transition packet definition to the merged shape and marking DEFINED.",
+      "designer_quote": "a [en-bloc confirmation, locking transition packet definition with merged aliases]",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-02T01:38:01.739Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Resolve Condition"
+      ],
+      "new_term": {
+        "canonical_name": "Resolve Condition"
+      },
+      "reason": "Designer en-bloc ratified.",
+      "designer_quote": "a [en-bloc confirmation]",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-02T01:38:07.523Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Ratification"
+      ],
+      "new_term": {
+        "canonical_name": "Ratification"
+      },
+      "reason": "Designer en-bloc ratified.",
+      "designer_quote": "a [en-bloc confirmation]",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-02T01:38:12.934Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Solve Stage Opening sequence"
+      ],
+      "new_term": {
+        "canonical_name": "Solve Stage Opening sequence"
+      },
+      "reason": "Designer en-bloc ratified.",
+      "designer_quote": "a [en-bloc confirmation]",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-02T01:38:18.223Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Closure conditions 7-10"
+      ],
+      "new_term": {
+        "canonical_name": "Closure conditions 7-10"
+      },
+      "reason": "Designer en-bloc ratified.",
+      "designer_quote": "a [en-bloc confirmation]",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-02T01:38:23.976Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Solve Leakage Ledger"
+      ],
+      "new_term": {
+        "canonical_name": "Solve Leakage Ledger"
+      },
+      "reason": "Designer en-bloc ratified.",
+      "designer_quote": "a [en-bloc confirmation]",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-02T01:38:29.817Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Handoff artifact"
+      ],
+      "new_term": {
+        "canonical_name": "Handoff artifact"
+      },
+      "reason": "Designer en-bloc ratified.",
+      "designer_quote": "a [en-bloc confirmation]",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-02T01:38:35.584Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Capture-system TODOs"
+      ],
+      "new_term": {
+        "canonical_name": "Capture-system TODOs"
+      },
+      "reason": "Designer en-bloc ratified.",
+      "designer_quote": "a [en-bloc confirmation]",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-02T01:38:42.322Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Phase 4b sufficiency"
+      ],
+      "new_term": {
+        "canonical_name": "Phase 4b sufficiency"
+      },
+      "reason": "Designer en-bloc ratified.",
+      "designer_quote": "a [en-bloc confirmation]",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-02T01:38:48.243Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Authorship-at-the-boundary"
+      ],
+      "new_term": {
+        "canonical_name": "Authorship-at-the-boundary"
+      },
+      "reason": "Designer en-bloc ratified.",
+      "designer_quote": "a [en-bloc confirmation]",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-02T01:38:54.126Z"
+    }
+  ],
+  "pendingVocabDispositions": [],
+  "termUsageHistory": {
+    "phase": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "needs": [
+      1,
+      2,
+      3
+    ],
+    "the": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "ratified": [
+      1,
+      2,
+      3
+    ],
+    "problem": [
+      1,
+      2,
+      3,
+      4,
+      6
+    ],
+    "statement": [
+      1,
+      2,
+      3,
+      4,
+      6
+    ],
+    "initialization": [
+      1
+    ],
+    "anchor": [
+      1
+    ],
+    "every": [
+      1,
+      2,
+      5
+    ],
+    "proof": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "element": [
+      1,
+      2,
+      3,
+      5
+    ],
+    "traces": [
+      1
+    ],
+    "back": [
+      1
+    ],
+    "concerns": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "enumerated": [
+      1,
+      2
+    ],
+    "and": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "locked": [
+      1,
+      2,
+      3
+    ],
+    "before": [
+      1
+    ],
+    "per-concern": [
+      1
+    ],
+    "closure": [
+      1,
+      4,
+      5
+    ],
+    "check": [
+      1
+    ],
+    "can": [
+      1
+    ],
+    "fire": [
+      1
+    ],
+    "initial": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "evidence": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "elements": [
+      1,
+      4
+    ],
+    "grounding": [
+      1,
+      3
+    ],
+    "what": [
+      1,
+      2,
+      4,
+      5
+    ],
+    "was": [
+      1
+    ],
+    "discovered": [
+      1
+    ],
+    "during": [
+      1,
+      5
+    ],
+    "rules": [
+      1,
+      3,
+      4
+    ],
+    "from": [
+      1,
+      3,
+      5
+    ],
+    "designer-confirmed": [
+      1
+    ],
+    "restrictions": [
+      1
+    ],
+    "surfaced": [
+      1,
+      5
+    ],
+    "resolve": [
+      1,
+      2,
+      4
+    ],
+    "conditions": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "drafted": [
+      1,
+      2,
+      3
+    ],
+    "ratification": [
+      1,
+      2
+    ],
+    "walk": [
+      1
+    ],
+    "has": [
+      1
+    ],
+    "something": [
+      1
+    ],
+    "ratify": [
+      1
+    ],
+    "active": [
+      1,
+      2,
+      6
+    ],
+    "glossary": [
+      1,
+      2
+    ],
+    "prose": [
+      1
+    ],
+    "uses": [
+      1
+    ],
+    "canonical": [
+      1
+    ],
+    "names": [
+      1
+    ],
+    "rather": [
+      1
+    ],
+    "than": [
+      1
+    ],
+    "synonyms": [
+      1
+    ],
+    "drift": [
+      1
+    ],
+    "solve": [
+      1,
+      2,
+      4,
+      5,
+      6
+    ],
+    "leakage": [
+      1,
+      2
+    ],
+    "ledger": [
+      1,
+      2
+    ],
+    "entries": [
+      1
+    ],
+    "consumed": [
+      1,
+      2
+    ],
+    "somewhere": [
+      1
+    ],
+    "scoped": [
+      1,
+      2
+    ],
+    "out": [
+      1,
+      2,
+      4
+    ],
+    "identified": [
+      1
+    ],
+    "risks": [
+      1
+    ],
+    "attached": [
+      1
+    ],
+    "when": [
+      1,
+      4,
+      5,
+      6
+    ],
+    "fragility": [
+      1
+    ],
+    "designer": [
+      1,
+      2,
+      5,
+      6
+    ],
+    "authority": [
+      1
+    ],
+    "signal": [
+      1
+    ],
+    "boundary": [
+      1,
+      3,
+      4,
+      5,
+      6
+    ],
+    "subsequent": [
+      1
+    ],
+    "rule": [
+      1,
+      2
+    ],
+    "authoring": [
+      1,
+      4
+    ],
+    "ratifications": [
+      1
+    ],
+    "proceed": [
+      1,
+      5
+    ],
+    "legitimately": [
+      1
+    ],
+    "does": [
+      1,
+      2,
+      4,
+      5
+    ],
+    "become": [
+      1
+    ],
+    "structural": [
+      1,
+      2
+    ],
+    "transition-packet": [
+      1,
+      2
+    ],
+    "content": [
+      1,
+      2,
+      5
+    ],
+    "stay": [
+      1
+    ],
+    "implicit": [
+      1
+    ],
+    "agent": [
+      1,
+      6
+    ],
+    "memory": [
+      1
+    ],
+    "cluster": [
+      1,
+      2
+    ],
+    "define": [
+      1
+    ],
+    "consuming": [
+      1
+    ],
+    "step": [
+      1,
+      6
+    ],
+    "for": [
+      1,
+      2
+    ],
+    "explicitly": [
+      1,
+      6
+    ],
+    "scope": [
+      1
+    ],
+    "advisory-only": [
+      1
+    ],
+    "author": [
+      1
+    ],
+    "signals": [
+      1
+    ],
+    "are": [
+      1,
+      2,
+      3,
+      4,
+      6
+    ],
+    "exclusively": [
+      1
+    ],
+    "per-turn": [
+      1,
+      2
+    ],
+    "activity": [
+      1
+    ],
+    "each": [
+      1,
+      2
+    ],
+    "flow": [
+      1,
+      2,
+      6
+    ],
+    "produce": [
+      1,
+      2
+    ],
+    "its": [
+      1,
+      2
+    ],
+    "own": [
+      1,
+      2
+    ],
+    "shape": [
+      1,
+      2,
+      3
+    ],
+    "three": [
+      1
+    ],
+    "different": [
+      1,
+      2,
+      4
+    ],
+    "shapes": [
+      1
+    ],
+    "one": [
+      1,
+      2
+    ],
+    "per": [
+      1,
+      6
+    ],
+    "they": [
+      1
+    ],
+    "unify": [
+      1
+    ],
+    "into": [
+      1
+    ],
+    "single": [
+      1,
+      2
+    ],
+    "uniform": [
+      1,
+      2
+    ],
+    "transition": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "packet": [
+      1,
+      2,
+      3
+    ],
+    "exist": [
+      1
+    ],
+    "file": [
+      1,
+      2
+    ],
+    "artifact": [
+      1,
+      2,
+      3
+    ],
+    "in-memory": [
+      1
+    ],
+    "state": [
+      1,
+      3
+    ],
+    "section": [
+      1
+    ],
+    "inside": [
+      1
+    ],
+    "design": [
+      1,
+      4
+    ],
+    "brief": [
+      1
+    ],
+    "integrity": [
+      1,
+      6
+    ],
+    "guarantees": [
+      1
+    ],
+    "apply": [
+      1
+    ],
+    "must": [
+      1,
+      2
+    ],
+    "validate": [
+      1
+    ],
+    "initialize_proof": [
+      1,
+      6
+    ],
+    "completes": [
+      1
+    ],
+    "advisory": [
+      1
+    ],
+    "capture-system": [
+      1
+    ],
+    "todos": [
+      1
+    ],
+    "cluster-b": [
+      1,
+      2,
+      4,
+      5,
+      6
+    ],
+    "deferred": [
+      1
+    ],
+    "entirely": [
+      1
+    ],
+    "fix": [
+      1
+    ],
+    "cn-versus-cern": [
+      1
+    ],
+    "naming": [
+      1
+    ],
+    "inconsistency": [
+      1
+    ],
+    "part": [
+      1
+    ],
+    "work": [
+      1,
+      4,
+      5
+    ],
+    "defer": [
+      1
+    ],
+    "separate": [
+      1,
+      3
+    ],
+    "cleanup": [
+      1
+    ],
+    "pass": [
+      1
+    ],
+    "carry": [
+      2
+    ],
+    "only": [
+      2,
+      4,
+      6
+    ],
+    "flow-agnostic": [
+      2,
+      3
+    ],
+    "cannot": [
+      2
+    ],
+    "depend": [
+      2
+    ],
+    "any": [
+      2
+    ],
+    "interview": [
+      2
+    ],
+    "process": [
+      2
+    ],
+    "consumer": [
+      2
+    ],
+    "side": [
+      2
+    ],
+    "sees": [
+      2
+    ],
+    "regardless": [
+      2
+    ],
+    "which": [
+      2,
+      4
+    ],
+    "authored": [
+      2,
+      3
+    ],
+    "master-plan": [
+      2
+    ],
+    "rule-10": [
+      2
+    ],
+    "output": [
+      2
+    ],
+    "expressible": [
+      2
+    ],
+    "mcp": [
+      2
+    ],
+    "vocabulary": [
+      2
+    ],
+    "operates": [
+      2
+    ],
+    "structurally": [
+      2,
+      4
+    ],
+    "not": [
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "via": [
+      2
+    ],
+    "translation": [
+      2
+    ],
+    "rule-6": [
+      2
+    ],
+    "presumed": [
+      2
+    ],
+    "valid": [
+      2
+    ],
+    "sufficient": [
+      2
+    ],
+    "confirms": [
+      2,
+      6
+    ],
+    "default": [
+      2
+    ],
+    "refactors": [
+      2
+    ],
+    "where": [
+      2
+    ],
+    "forced": [
+      2
+    ],
+    "rule-1": [
+      2
+    ],
+    "five": [
+      2
+    ],
+    "existing": [
+      2,
+      3
+    ],
+    "types": [
+      2
+    ],
+    "immutable": [
+      2
+    ],
+    "cluster-a": [
+      2,
+      4
+    ],
+    "resolve_condition": [
+      2
+    ],
+    "sixth": [
+      2
+    ],
+    "now": [
+      2
+    ],
+    "also": [
+      2,
+      5
+    ],
+    "phase-4b": [
+      2
+    ],
+    "input": [
+      2
+    ],
+    "may": [
+      2
+    ],
+    "persist": [
+      2
+    ],
+    "phase-4a-internal": [
+      2
+    ],
+    "record": [
+      2
+    ],
+    "problemfocused": [
+      2
+    ],
+    "but": [
+      2,
+      4,
+      5,
+      6
+    ],
+    "within": [
+      2
+    ],
+    "use": [
+      2
+    ],
+    "team-interview": [
+      2
+    ],
+    "three-section": [
+      2
+    ],
+    "handoff": [
+      2
+    ],
+    "consensus": [
+      2
+    ],
+    "exit": [
+      2,
+      4,
+      5,
+      6
+    ],
+    "criteria": [
+      2
+    ],
+    "block": [
+      2
+    ],
+    "possible": [
+      2
+    ],
+    "phase-4a": [
+      2
+    ],
+    "seven": [
+      2
+    ],
+    "list": [
+      2,
+      3
+    ],
+    "awaiting": [
+      2
+    ],
+    "flow-independence": [
+      2
+    ],
+    "aligns": [
+      2
+    ],
+    "with": [
+      2,
+      3,
+      5,
+      6
+    ],
+    "per-flow": [
+      2
+    ],
+    "logic": [
+      2
+    ],
+    "would": [
+      2
+    ],
+    "violate": [
+      2
+    ],
+    "dependency": [
+      2
+    ],
+    "resolved": [
+      2
+    ],
+    "ruled": [
+      2
+    ],
+    "flow-specific": [
+      2
+    ],
+    "round": [
+      2,
+      6
+    ],
+    "remains": [
+      2
+    ],
+    "same": [
+      2,
+      3
+    ],
+    "constraint": [
+      2
+    ],
+    "internal": [
+      2
+    ],
+    "cross": [
+      2
+    ],
+    "unified": [
+      2
+    ],
+    "across": [
+      2,
+      5,
+      6
+    ],
+    "flows": [
+      2
+    ],
+    "derived": [
+      2
+    ],
+    "authors": [
+      2
+    ],
+    "happens": [
+      2,
+      6
+    ],
+    "artifacts": [
+      2
+    ],
+    "that": [
+      2,
+      5
+    ],
+    "update": [
+      2
+    ],
+    "reflect": [
+      2
+    ],
+    "their": [
+      2
+    ],
+    "longer": [
+      2
+    ],
+    "documentation-pass": [
+      2
+    ],
+    "necessary": [
+      3,
+      4,
+      5
+    ],
+    "reasoning": [
+      3
+    ],
+    "chain": [
+      3
+    ],
+    "collapse": [
+      3
+    ],
+    "test": [
+      3
+    ],
+    "carried": [
+      3
+    ],
+    "updated": [
+      3
+    ],
+    "eight": [
+      3
+    ],
+    "inputs": [
+      3
+    ],
+    "start": [
+      3
+    ],
+    "ncs": [
+      3,
+      4,
+      5,
+      6
+    ],
+    "rcs": [
+      3
+    ],
+    "draft": [
+      3
+    ],
+    "partially": [
+      3
+    ],
+    "populated": [
+      3
+    ],
+    "alongside": [
+      3
+    ],
+    "first": [
+      3
+    ],
+    "turn": [
+      3
+    ],
+    "extends": [
+      3
+    ],
+    "linked": [
+      3
+    ],
+    "seeded": [
+      3
+    ],
+    "succeeds": [
+      4,
+      5,
+      6
+    ],
+    "entry": [
+      4,
+      5
+    ],
+    "gate": [
+      4
+    ],
+    "stays": [
+      4,
+      5
+    ],
+    "reachable": [
+      4
+    ],
+    "through": [
+      4
+    ],
+    "phase-4a-authored": [
+      4
+    ],
+    "job": [
+      4,
+      6
+    ],
+    "deep": [
+      4
+    ],
+    "understanding": [
+      4
+    ],
+    "building": [
+      4
+    ],
+    "enter-the-proof": [
+      4
+    ],
+    "exit-the-proof": [
+      4
+    ],
+    "enter": [
+      4
+    ],
+    "minimal": [
+      4,
+      5
+    ],
+    "full": [
+      4
+    ],
+    "closure-condition": [
+      4
+    ],
+    "set": [
+      4
+    ],
+    "including": [
+      4
+    ],
+    "coverage": [
+      4
+    ],
+    "today": [
+      4
+    ],
+    "crosses": [
+      4,
+      6
+    ],
+    "correct": [
+      4
+    ],
+    "need": [
+      4
+    ],
+    "widen": [
+      4
+    ],
+    "structured": [
+      4
+    ],
+    "these": [
+      4
+    ],
+    "concern": [
+      4,
+      5
+    ],
+    "enumeration": [
+      4
+    ],
+    "placement": [
+      4
+    ],
+    "borderline": [
+      4
+    ],
+    "specified": [
+      4
+    ],
+    "agent-proposed-from-problem-statement": [
+      4
+    ],
+    "stage": [
+      4,
+      5
+    ],
+    "opening": [
+      4,
+      5
+    ],
+    "act": [
+      4
+    ],
+    "decomposing": [
+      4
+    ],
+    "empirical": [
+      5
+    ],
+    "audit": [
+      5
+    ],
+    "storydesigner": [
+      5
+    ],
+    "proofs": [
+      5
+    ],
+    "shows": [
+      5
+    ],
+    "zero": [
+      5
+    ],
+    "were": [
+      5
+    ],
+    "transitioned": [
+      5
+    ],
+    "already": [
+      5
+    ],
+    "present": [
+      5
+    ],
+    "emerged": [
+      5
+    ],
+    "sparse": [
+      5
+    ],
+    "final": [
+      5
+    ],
+    "count": [
+      5
+    ],
+    "closes": [
+      5
+    ],
+    "cleanly": [
+      5
+    ],
+    "multiple": [
+      5
+    ],
+    "sprints": [
+      5,
+      6
+    ],
+    "rich": [
+      5
+    ],
+    "takes": [
+      5
+    ],
+    "more": [
+      5
+    ],
+    "rounds": [
+      5
+    ],
+    "about": [
+      5
+    ],
+    "zero-nc": [
+      5
+    ],
+    "zero-rule": [
+      5
+    ],
+    "empirically": [
+      5,
+      6
+    ],
+    "well-founded": [
+      5
+    ],
+    "prevention": [
+      5,
+      6
+    ],
+    "mechanism": [
+      5
+    ],
+    "differs": [
+      5
+    ],
+    "framing": [
+      5
+    ],
+    "suggested": [
+      5
+    ],
+    "gates": [
+      5,
+      6
+    ],
+    "remain": [
+      5
+    ],
+    "rigorous": [
+      5
+    ],
+    "baseline": [
+      5
+    ],
+    "audited": [
+      5
+    ],
+    "reached": [
+      5
+    ],
+    "achieved": [
+      5
+    ],
+    "add": [
+      5
+    ],
+    "element-count": [
+      5
+    ],
+    "requirements": [
+      5
+    ],
+    "itself": [
+      5
+    ],
+    "discovery": [
+      5
+    ],
+    "impoverished": [
+      5
+    ],
+    "codebase": [
+      5
+    ],
+    "facts": [
+      5
+    ],
+    "designer-direction": [
+      5
+    ],
+    "sequence": [
+      5
+    ],
+    "detect": [
+      5
+    ],
+    "refuse": [
+      5
+    ],
+    "best-practice": [
+      6
+    ],
+    "pattern": [
+      6
+    ],
+    "naked": [
+      6
+    ],
+    "heavy": [
+      6
+    ],
+    "emergent": [
+      6
+    ],
+    "gated": [
+      6
+    ],
+    "validated": [
+      6
+    ],
+    "confirm": [
+      6
+    ],
+    "this": [
+      6
+    ],
+    "follows": [
+      6
+    ],
+    "empirically-validated": [
+      6
+    ],
+    "typing": [
+      6
+    ],
+    "described": [
+      6
+    ],
+    "skill": [
+      6
+    ],
+    "text": [
+      6
+    ],
+    "bulk-typing": [
+      6
+    ],
+    "just": [
+      6
+    ],
+    "initialize": [
+      6
+    ],
+    "type": [
+      6
+    ],
+    "absent": [
+      6
+    ],
+    "rationale": [
+      6
+    ],
+    "documented": [
+      6
+    ],
+    "upstream": [
+      6
+    ],
+    "saturation": [
+      6
+    ],
+    "ensure": [
+      6
+    ],
+    "runs": [
+      6
+    ],
+    "design-large-task": [
+      6
+    ],
+    "saturates": [
+      6
+    ],
+    "fires": [
+      6
+    ],
+    "calls": [
+      6
+    ]
+  },
+  "pendingOverrides": [],
+  "solveLeakageLedger": [
+    {
+      "origin_tenet": "success_criteria",
+      "entry": {
+        "text": "Cluster-B succeeds when the Solve Stage Opening sequence and the closure protocol describe cluster-A's machinery (Concerns, RCs, ratification) as Solve work activated at opening, not as Phase-4a output.",
+        "observable": "Solve Stage Opening sequence has explicit steps for Concern enumeration, Concern locking, initial RC drafting, sequential RC ratification — all attributed to Solve activity, not boundary inheritance."
+      },
+      "errors": [
+        "success_criteria: phase-vocabulary violation — solve-side tokens: protocol"
+      ],
+      "round": 4
+    },
+    {
+      "origin_tenet": "success_criteria",
+      "entry": {
+        "text": "Cluster-B succeeds when Phase 4b's existing solve machinery (proof MCP, per-turn flow, closure protocol) is confirmed valid and sufficient under cluster-A's element-type addition, with refactor only where forced.",
+        "observable": "Phase 4b sufficiency confirmation explicit in cluster-B design brief; specific gaps (if any) surface as cluster-B-scope decisions with rationale; default-preservation bias holds."
+      },
+      "errors": [
+        "success_criteria: phase-vocabulary violation — solve-side tokens: protocol"
+      ],
+      "round": 4
+    },
+    {
+      "origin_tenet": "scope_boundary",
+      "entry": {
+        "text": "Cluster-B's deliverable surface is now: (1) confirm today's minimal transition; (2) update Solve Stage Opening sequence so it activates cluster-A's machinery as Solve work (Concerns enumerate-and-lock, RCs draft-and-ratify); (3) confirm closure gates 7-10 align. No new schema, no boundary-authored elements.",
+        "placement": "IN",
+        "source": "designer-direct (round 4) consequence."
+      },
+      "errors": [
+        "scope_boundary: phase-vocabulary violation — solve-side tokens: schema"
+      ],
+      "round": 4
+    }
+  ],
+  "repeatBackHistory": [
+    {
+      "round": 4,
+      "statement": "Cluster-B's job is to confirm that the Phase 4a → Phase 4b transition stays minimal (problem statement only crosses structurally), update the Solve Stage Opening sequence so cluster-A's machinery (Concerns enumerate-and-lock, Resolve Conditions draft-and-ratify) executes as Solve work activated at opening, and confirm Phase 4b's existing solve process is valid and sufficient under cluster-A's element-type addition with default preservation bias.",
+      "designer_quote": null,
+      "designer_ratified": false,
+      "submitted_at": "2026-05-02T02:02:20.978Z"
+    }
+  ],
+  "transition": {
+    "ready": false,
+    "reasons": [
+      "personal_use_case_map below floor (0 < 0.4)",
+      "cost_energy_budget below floor (0 < 0.4)",
+      "no designer-ratified problem-statement repeat-back in last 2 rounds"
+    ],
+    "overall": 0.775
+  },
+  "transitionHistory": [
+    {
+      "ready": false,
+      "reasons": [
+        "success_criteria below floor (0 < 0.4)",
+        "done_state_vision below floor (0 < 0.4)",
+        "constraint_envelope below floor (0 < 0.4)",
+        "scope_boundary below floor (0 < 0.4)",
+        "personal_use_case_map below floor (0 < 0.4)",
+        "cost_energy_budget below floor (0 < 0.4)",
+        "project_fit below floor (0 < 0.4)",
+        "overall 0.3 below threshold 0.65"
+      ],
+      "overall": 0.3
+    },
+    {
+      "ready": false,
+      "reasons": [
+        "success_criteria below floor (0 < 0.4)",
+        "done_state_vision below floor (0 < 0.4)",
+        "personal_use_case_map below floor (0 < 0.4)",
+        "cost_energy_budget below floor (0 < 0.4)",
+        "overall 0.555 below threshold 0.65"
+      ],
+      "overall": 0.555
+    },
+    {
+      "ready": false,
+      "reasons": [
+        "success_criteria below floor (0 < 0.4)",
+        "done_state_vision below floor (0 < 0.4)",
+        "personal_use_case_map below floor (0 < 0.4)",
+        "cost_energy_budget below floor (0 < 0.4)",
+        "overall 0.575 below threshold 0.65",
+        "no designer-ratified problem-statement repeat-back in last 2 rounds"
+      ],
+      "overall": 0.575
+    },
+    {
+      "ready": false,
+      "reasons": [
+        "success_criteria below floor (0.333 < 0.4)",
+        "done_state_vision below floor (0 < 0.4)",
+        "personal_use_case_map below floor (0 < 0.4)",
+        "cost_energy_budget below floor (0 < 0.4)",
+        "overall 0.625 below threshold 0.65",
+        "no designer-ratified problem-statement repeat-back in last 2 rounds"
+      ],
+      "overall": 0.625
+    },
+    {
+      "ready": false,
+      "reasons": [
+        "done_state_vision below floor (0 < 0.4)",
+        "personal_use_case_map below floor (0 < 0.4)",
+        "cost_energy_budget below floor (0 < 0.4)",
+        "no designer-ratified problem-statement repeat-back in last 2 rounds"
+      ],
+      "overall": 0.675
+    },
+    {
+      "ready": false,
+      "reasons": [
+        "personal_use_case_map below floor (0 < 0.4)",
+        "cost_energy_budget below floor (0 < 0.4)",
+        "no designer-ratified problem-statement repeat-back in last 2 rounds"
+      ],
+      "overall": 0.775
+    }
+  ],
+  "warningsHistory": [
+    [],
+    [],
+    [],
+    [
+      "repeat_back_statement provided without designer ratification quote"
+    ],
+    [],
+    []
+  ]
+}

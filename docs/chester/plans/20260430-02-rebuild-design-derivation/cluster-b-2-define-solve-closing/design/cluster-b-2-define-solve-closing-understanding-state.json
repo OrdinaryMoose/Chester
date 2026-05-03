@@ -1,0 +1,3260 @@
+{
+  "schemaVersion": "problemfocused-v0.1",
+  "userPrompt": "Cluster B.2 — Phase 4b Closing-Argument Materialization. Inherits cluster-B umbrella outputs (22 Rules, 3 NCs, 11 Evidence, 1 Permission, 5 Risks). RULE-22 is primary inherited Rule. Endstate: closure-side of point 4 (confirm Phase 4b solve still valid and sufficient); closure-side connection to point 5 via RULE-22 (proof-to-problem-statement coverage validation). Charter: define how the proof's accumulated state (Concerns, NCs, RCs, Rules, Permissions, Risks) renders as a closing argument at proof closure that satisfies RULE-22's four enforcement properties — (a) every ratified RC appears under at least one NC's constraint role; (b) closing-argument prose under each NC names the specific tension that NC creates on the RC set, not generic boilerplate; (c) any NC withdrawn during Solve is explicitly named with disposition (collapsed-into / superseded-by / no-longer-relevant); (d) the closing argument is derived from current proof state and rebuilds whenever Concerns, NCs, or RCs change. B.2 launches first among cluster-B follow-on sub-sprints; B.1 inherits B.2's exit shape.",
+  "round": 5,
+  "overallThreshold": 0.65,
+  "tenetEntries": {
+    "problem_articulation": [
+      {
+        "text": "B.2 designs the closing-argument materialization mechanism: when it fires, what artifact it produces, how it gates closure, satisfying RULE-22's four properties — RC walk coverage, tension-naming, phantom-NC disposition, and living-document discipline.",
+        "current_behavior": "Agent-prose composed in the final Solve Stage turn; no MCP tracking; no dedicated brief section; no rebuild-on-state-change discipline.",
+        "desired_behavior": "Closing argument structurally derived from current proof state, satisfying RULE-22's four properties, gated by closure_permitted, rendered into a brief section.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "The closing argument today is agent-authored prose at the final Solve turn; the proof system tracks the elements but not the walk.",
+        "current_behavior": "Agent writes free-text at closure; brief carries it as narrative; proof system records ratified Concerns, Resolve Conditions, necessary conditions, withdrawn-NC history, but records nothing about how the walk over those elements should be presented or ratified.",
+        "desired_behavior": "The closing argument honors the four properties of the inherited closure-side rule (full Resolve-Condition coverage walked under necessary conditions, named tensions per necessary condition, explicit phantom-NC handling, derived-not-frozen rebuilding) in a form the designer can ratify with confidence.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "No closure-side empirical baseline exists; cluster-B's audit covered the entry side of Phase 4b only.",
+        "current_behavior": "Closing-argument practices and failure modes across historic Chester and StoryDesigner proofs are undocumented; design choices for B.2 would land without grounding evidence.",
+        "desired_behavior": "An audit of 10-15 historic proof closures grounds the necessary conditions B.2 will derive — convergent practices, divergent practices, and failure modes are named.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "Cluster-A added structural elements the closing argument must walk (Concerns, Resolve Conditions, per-Concern coverage), but only the closure gate's boolean is defined; the walk discipline is not.",
+        "current_behavior": "The closure gate refuses or permits closure based on per-Concern coverage with a Rule-union path; no structural walk over necessary conditions and Resolve Conditions is enforced or rendered.",
+        "desired_behavior": "The walk discipline is structurally defined, the gate enforces it as a precondition for closure, and the rendered surface presents it for designer ratification.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "The four-property discipline could be honored superficially by long well-formatted prose without making the ratification act trustworthy at high Resolve-Condition counts under designer fatigue.",
+        "current_behavior": "RISK-1 (cascade fatigue at high RC counts) and RISK-3 (gestalt approval of long prose) are inherited from cluster-B; no design move yet defends against them.",
+        "desired_behavior": "The closing argument's shape and ratification mechanism make per-piece engagement the natural path, defending against gestalt approval even when the document is long.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "How Phase 4b's Solve Stage presents a closing argument from current proof state — when the agent requests presentation, what shape the argument takes, how the closure gate closes — such that RULE-22's four properties hold (RC walk coverage, tension-naming, phantom-NC disposition, living-document discipline). The agent's request to present is grounded in proof-side scoring, not open-ended agent judgment; the designer approves each request before the closing argument is presented.",
+        "_validation_passed": true,
+        "_flags": [
+          "problem_articulation: entry missing both current_behavior and desired_behavior — at least one expected"
+        ],
+        "round": 4
+      },
+      {
+        "text": "How does Phase 4b's Solve Stage present a closing argument from current proof state?",
+        "current_behavior": "Closing argument is agent-prose composed live in the final Solve Stage turn; not MCP-tracked; not derived from proof state; not gated by request-and-approval.",
+        "desired_behavior": "Closing argument is presented on agent request grounded in objective measures, approved by the designer, derived from current proof state, and rebuilds on each approved request.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 5
+      }
+    ],
+    "success_criteria": [
+      {
+        "text": "Materialization mechanism is defined: timing, shape, and closure-gate integration are explicit in the brief.",
+        "observable": "Brief specifies when the closing argument fires, what artifact it produces, and how it interacts with closure_permitted.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Each of RULE-22's four properties has an operational enforcement mechanism.",
+        "observable": "Brief names a concrete mechanism per property (a, b, c, d); each mechanism has a collapse test for what fails if it is removed.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "No agent-imagined material slips through the closing-argument render.",
+        "anti_goal": "Free-text closing-argument prose authored without structural source — recreates the agent-imagined-material failure mode that cluster-A's Resolve Conditions closed for resolution claims.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Materialization fires only on the request-and-approval pair; never automatically.",
+        "observable": "No code path renders the closing argument without an approved-request event in state.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 3
+      },
+      {
+        "text": "Each materialization request is auditable as a paired event (request, approval) in proof state.",
+        "observable": "Proof state carries a request log with approval disposition per entry.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 3
+      },
+      {
+        "text": "The agent's request to present the closing argument grounds in proof-side scoring metrics, not in open-ended agent judgment.",
+        "observable": "Brief specifies which proof-side metrics drive the request signal and at what thresholds; agent's request prose cites the metric values that prompted it.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 4
+      },
+      {
+        "text": "Proof-side scoring is graded, not boolean.",
+        "observable": "Proof state carries one or more 0–1 readiness scores aggregated from existing completeness signals; the request trigger reads from these graded scores, not from closure_permitted alone.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 4
+      }
+    ],
+    "done_state_vision": [
+      {
+        "text": "At a future Solve-Stage closure, the agent calls a single materialization step. The closing argument renders from current proof state — every active NC walked, each NC's tension on the RC set named, every ratified RC appearing under at least one NC, withdrawn NCs explicitly named with disposition. Designer reads it, ratifies, closure_permitted flips green, brief commits.",
+        "imagined_moment": "Designer reads the rendered closing argument, sees per-NC tension prose tied to specific RC-NC pairings plus disposition for any withdrawn NC, ratifies, brief commits.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Mid-Solve, the agent says 'I'd like to materialize the closing argument now to check coverage.' Designer reads the request, approves or defers. On approval, the closing argument renders from current proof state and the designer reads the rendered prose. The cycle repeats at agent-discretion moments through the session.",
+        "imagined_moment": "Designer sees agent's materialization request; one click or sentence approves; rendered argument appears.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 3
+      }
+    ],
+    "constraint_envelope": [
+      {
+        "text": "B.2 inherits all 22 ratified Rules from cluster-B umbrella as read-only.",
+        "constraint_type": "inheritance",
+        "source": "cluster-b-context-handover-to-b2.md",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Cluster-A's vocabulary and design (RC shape, Concern enumeration, closure conditions 7-10, sequential ratification, stale-ratification mechanic) is immutable per master-plan RULE-1.",
+        "constraint_type": "hard_limit",
+        "source": "master-plan RULE-1 + designer rule 2026-05-02",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "PERM-1 grants relief on cluster-A implementation specifics where RULE-22 enforcement requires closure-condition extensions; scoped narrowly to additions, not redesign of conditions 7-10.",
+        "constraint_type": "inheritance",
+        "source": "PERM-1 from cluster-B umbrella",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Five-element-type immutability per master-plan RULE-1 — no new sixth-or-seventh element category; closing-argument is a derived rendering, not an element.",
+        "constraint_type": "hard_limit",
+        "source": "master-plan RULE-1",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Materialization is two-step: agent requests; human approves before render fires. No automatic materialization on state change; no agent-only render without approval.",
+        "constraint_type": "hard_limit",
+        "source": "designer rule 2026-05-02",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 3
+      },
+      {
+        "text": "Human-approval is the forcing function for materialization, not the closure_permitted gate.",
+        "constraint_type": "hard_limit",
+        "source": "designer rule 2026-05-02",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 3
+      },
+      {
+        "text": "The agent's request to present is driven by proof-side scoring, not by agent open-ended judgment.",
+        "constraint_type": "hard_limit",
+        "source": "designer redirect 2026-05-02",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 4
+      },
+      {
+        "text": "Proof-side scoring is built from or extends existing completeness signals (grounding coverage, condition counts, ratified RC counts, integrity warnings, per-Concern coverage); does not introduce a separate agent-self-scoring track.",
+        "constraint_type": "hard_limit",
+        "source": "designer redirect 2026-05-02 + 20260425-01 finding that agent self-scoring is gameable",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 4
+      },
+      {
+        "text": "S-RULE-3 revised for consistency with S-RULE-2: objective measures derive from proof state and proof MCP signals (grounding coverage, ratification counts, integrity warnings, per-Concern coverage, and equivalents); no separate agent self-scoring track.",
+        "constraint_type": "hard_limit",
+        "source": "designer rule 2026-05-02 round 7",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 5
+      }
+    ],
+    "scope_boundary": [
+      {
+        "text": "Cluster-A's design (RC shape, Concern enumeration, sequential ratification, stale-ratification, closure conditions 7-10) is OUT of scope — inherit as given, do not reopen.",
+        "placement": "OUT",
+        "source": "designer rule 2026-05-02: don't relitigate Cluster A",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Phase 4a redesign is cluster-C territory; B.2 does not touch Understanding MCP shape.",
+        "placement": "OUT",
+        "source": "master-plan cluster dependency lock",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Closing-argument materialization mechanism (timing, shape, closure-gate integration, RULE-22 four-property enforcement) is IN scope.",
+        "placement": "IN",
+        "source": "cluster-b-context-handover-to-b2.md charter",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Closure baseline audit (10-15 historic proof closures) is IN scope as foundational empirical work for B.2's NC derivation.",
+        "placement": "IN",
+        "source": "cluster-b-context-handover-to-b2.md methodology guidance",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Proof-side scoring shape (which signals aggregate, what thresholds, how the score reads) is IN scope for B.2.",
+        "placement": "IN",
+        "source": "designer redirect 2026-05-02",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 4
+      },
+      {
+        "text": "Modifying cluster-A's existing closure conditions 7–10 is OUT of scope; B.2 ADDS proof-side scoring on top, leaves the boolean conditions intact.",
+        "placement": "OUT",
+        "source": "designer rule 2026-05-02 + master-plan RULE-1",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 4
+      }
+    ],
+    "personal_use_case_map": [
+      {
+        "text": "Mike running Chester sessions on personal projects, will operate this closing-argument mechanism at every Solve-Stage closure going forward.",
+        "role": "current_me",
+        "scenario": "Solve-Stage closure on personal-project sprints under design-large-task",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Future-me running Chester sessions months from now without recall of B.2 design rationale; the mechanism must read clearly at the brief and skill level without needing this conversation.",
+        "role": "future_me",
+        "scenario": "Future-self running design-large-task closure",
+        "context_assumed_lost": "B.2 design conversation, RULE-22 derivation rationale, closure-of-proof industry survey, cluster-B umbrella discussion",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      }
+    ],
+    "cost_energy_budget": [
+      {
+        "text": "Closure baseline audit (10-15 historic proof closures) is foundational empirical work; allocate Solve Stage rounds for it.",
+        "dimension": "effort_tolerance",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Living-document materialization on every state change risks cascade fatigue at high RC counts; mechanism must control re-render frequency.",
+        "dimension": "complexity_ceiling",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      }
+    ],
+    "project_fit": [
+      {
+        "text": "Two-step request-and-approval pattern aligns with the agent-proposes-designer-ratifies discipline already locked elsewhere in the design partnership; consistent with how Resolve Condition ratification and Concern enumeration already operate.",
+        "alignment": "ALIGNED",
+        "project_convention_referenced": "agent-proposes-designer-ratifies discipline",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 3
+      },
+      {
+        "text": "Proof-side graded scoring as the request trigger mirrors the discipline already used in Phase 4a's Understanding MCP — graded tenet scores plus an overall reading drive transition readiness; B.2 carries the same shape into Phase 4b's presentation request.",
+        "alignment": "ALIGNED",
+        "project_convention_referenced": "Understanding MCP graded-scoring discipline",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 4
+      }
+    ],
+    "open_questions_ledger": [
+      {
+        "text": "Materialization timing: single-fire at closure_permitted=true, continuous after every proof update, or on-demand via a tool the agent calls at checkpoints and final turns?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Tension-naming operational shape: free-text agent-authored field on each NC, derived computation from NC-RC pairings, or required pairing-table per NC × RC intersection?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Phantom-NC disposition source: designer-direct each withdraw, agent-proposed-designer-ratified, or inferred from withdraw context (e.g., same-round withdraw + add → 'collapsed-into')?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Living-document discipline scope: rebuild only on Concerns/NCs/RCs change per RULE-22(d) literal text, or also on Rules/Permissions changes since the coverage union path touches Rules?",
+        "question_source": "ambiguous_term",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Closure-baseline audit shape: 10-15 historic proofs from where (StoryDesigner only, Chester sprints only, both)? What capture template per closure?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Is the closing argument a single rendered narrative, a structured collection of per-necessary-condition sections, a discharge-ledger-style table, or a hybrid?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "When does materialization run — on every state change (true living document), only when the gate is queried, only at brief render, or with a deliberate crystallization event?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "Does the closure gate enforce all four discipline properties as hard preconditions, or are some advisory?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "When a necessary condition is withdrawn during Solve, who supplies its phantom-NC disposition — designer at withdrawal time, agent at render time, or a structured tag attached at withdrawal?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "Is the closing argument an MCP tool output, a brief-template render derived from state, or a hybrid where the proof emits a structured shape and the brief renders prose around it?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "Does the designer ratify the closing argument en bloc, walked section-by-section, per-Concern, or per-Resolve-Condition?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "Should the closure-baseline audit run before, during, or after this session's solve work?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "How does cluster-B.1's later initialization design constrain what state the closing argument can read — what input contract should B.2 lock so B.1 can feed it?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "What is the closing argument FOR — designer confidence at closure, downstream consumption by design-specify, sprint audit trail, Phase 4b gate enforcement, or several of these with priorities?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "Materialization timing: single-fire at closure, continuous, or on-demand. RESOLVED 2026-05-02 via designer rule — agent-requested + human-approved.",
+        "question_source": "agent_uncertainty",
+        "status": "RESOLVED-VIA-QUOTE",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 3
+      },
+      {
+        "text": "Request-trigger: what signal prompts the agent to request materialization? Every checkpoint, on closure_permitted flip, on designer cue, threshold-based on state-change count, or open-ended agent judgment?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 3
+      },
+      {
+        "text": "Decline handling: if human defers or rejects an agent request, what happens to the request? Held, dropped, queued for later, logged as a request-without-render?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 3
+      },
+      {
+        "text": "Approval scope: per-request approval each time, or session-scoped consent (one approval covers subsequent requests until revoked)?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 3
+      },
+      {
+        "text": "Living-document discipline (RULE-22(d)) reinterpretation: does 'rebuilds whenever state changes' still hold under request/approve gating, or does (d) now mean 'rebuilds whenever an approved request fires'?",
+        "question_source": "ambiguous_term",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 3
+      },
+      {
+        "text": "Tension-naming operational shape: free-text agent-authored, derived from grounding, or pairing-table per NC × RC.",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 3
+      },
+      {
+        "text": "Phantom-NC disposition source.",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 3
+      },
+      {
+        "text": "Closure-baseline audit shape and corpus.",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 3
+      },
+      {
+        "text": "Materialization timing: single-fire / continuous / on-demand. RESOLVED via designer rule — agent-requested + human-approved.",
+        "question_source": "agent_uncertainty",
+        "status": "RESOLVED-VIA-QUOTE",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 4
+      },
+      {
+        "text": "Request-trigger shape: open-ended agent judgment vs prescribed signal-set. SUPERSEDED by designer redirect to proof-side scoring; question reformulated.",
+        "question_source": "agent_uncertainty",
+        "status": "INVALIDATED",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 4
+      },
+      {
+        "text": "Proof-side scoring shape: which existing completeness signals (grounding coverage, condition counts, ratified RC counts, integrity warnings, per-Concern coverage) feed the score, in what aggregation, with what thresholds for the agent's request?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 4
+      },
+      {
+        "text": "Score legibility to designer: does the designer see the score directly when the agent requests, or only the agent's request prose with a score citation?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 4
+      },
+      {
+        "text": "Decline handling: if human defers or rejects an agent presentation request, what happens to the request — held, dropped, queued, logged?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 4
+      },
+      {
+        "text": "Approval scope: per-request approval each time, or session-scoped consent?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 4
+      },
+      {
+        "text": "Living-document discipline (RULE-22(d)) reinterpretation under request/approve gating.",
+        "question_source": "ambiguous_term",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 4
+      },
+      {
+        "text": "Tension-naming operational shape.",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 4
+      },
+      {
+        "text": "Phantom-NC disposition source.",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 4
+      },
+      {
+        "text": "Closure-baseline audit shape and corpus.",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 4
+      }
+    ]
+  },
+  "tenetScores": {
+    "problem_articulation": 1,
+    "success_criteria": 1,
+    "done_state_vision": 1,
+    "constraint_envelope": 1,
+    "scope_boundary": 1,
+    "personal_use_case_map": 0.667,
+    "cost_energy_budget": 1,
+    "project_fit": 1,
+    "open_questions_ledger": 1
+  },
+  "scoreHistory": [
+    {
+      "problem_articulation": 1,
+      "success_criteria": 1,
+      "done_state_vision": 0.5,
+      "constraint_envelope": 1,
+      "scope_boundary": 0.8,
+      "personal_use_case_map": 0.667,
+      "cost_energy_budget": 1,
+      "project_fit": 0,
+      "open_questions_ledger": 1
+    },
+    {
+      "problem_articulation": 1,
+      "success_criteria": 1,
+      "done_state_vision": 0.5,
+      "constraint_envelope": 1,
+      "scope_boundary": 0.8,
+      "personal_use_case_map": 0.667,
+      "cost_energy_budget": 1,
+      "project_fit": 0,
+      "open_questions_ledger": 1
+    },
+    {
+      "problem_articulation": 1,
+      "success_criteria": 1,
+      "done_state_vision": 1,
+      "constraint_envelope": 1,
+      "scope_boundary": 0.8,
+      "personal_use_case_map": 0.667,
+      "cost_energy_budget": 1,
+      "project_fit": 0.5,
+      "open_questions_ledger": 1
+    },
+    {
+      "problem_articulation": 1,
+      "success_criteria": 1,
+      "done_state_vision": 1,
+      "constraint_envelope": 1,
+      "scope_boundary": 1,
+      "personal_use_case_map": 0.667,
+      "cost_energy_budget": 1,
+      "project_fit": 1,
+      "open_questions_ledger": 1
+    },
+    {
+      "problem_articulation": 1,
+      "success_criteria": 1,
+      "done_state_vision": 1,
+      "constraint_envelope": 1,
+      "scope_boundary": 1,
+      "personal_use_case_map": 0.667,
+      "cost_energy_budget": 1,
+      "project_fit": 1,
+      "open_questions_ledger": 1
+    }
+  ],
+  "glossary": [
+    {
+      "canonical_name": "closing argument",
+      "aliases": [
+        "closing-argument",
+        "the closing argument"
+      ],
+      "definition": "The narrative produced at proof closure that walks the proof's accumulated state and shows how the constraints (NCs) shape the resolution claims (RCs) such that the named Concerns of the problem statement are addressed. Today: agent-authored prose at the final Solve Stage turn; not MCP-tracked. Cluster-B.2's design target.",
+      "source": {
+        "explorer": "codebase + cluster-B handover",
+        "anchor": "design-large-task SKILL.md Phase 4 step 9 + RULE-22"
+      },
+      "sense_constraints": [
+        "NOT the design brief itself; the closing argument is one section/component of the brief",
+        "NOT the closure_permitted gate; the gate is a boolean, the argument is a rendered narrative"
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "codebase + cluster-B handover",
+            "anchor": "design-large-task SKILL.md Phase 4 step 9 + RULE-22"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "materialization",
+      "aliases": [
+        "materialize",
+        "render"
+      ],
+      "definition": "The act of producing the closing argument from current proof state — when it materializes, what artifact carries it, what tool emits it. RULE-22(d) requires the materialization be derived from state, not authored once and frozen.",
+      "source": {
+        "explorer": "cluster-B handover",
+        "anchor": "RULE-22 property (d)"
+      },
+      "sense_constraints": [
+        "NOT static authoring; materialization implies regeneration on state change"
+      ],
+      "status": "DEPRECATED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "cluster-B handover",
+            "anchor": "RULE-22 property (d)"
+          }
+        },
+        {
+          "event": "REMOVE",
+          "round": 3,
+          "designer_quote": "we keep making terms up. why 'render' instead of just 'present the closing argument'??",
+          "reason": "Designer flagged 'render' as coined term; canonical phrasing is 'present the closing argument'. Drop 'render' alias; restrict 'materialization' to internal-only term for the act."
+        }
+      ]
+    },
+    {
+      "canonical_name": "RC walk",
+      "aliases": [
+        "NC walk",
+        "necessary-condition walk"
+      ],
+      "definition": "The structural traversal at closure where every active NC is visited, each NC's tension on the RC set is named, and each ratified RC appears under at least one NC's constraint role. Defines the shape of the closing argument's body.",
+      "source": {
+        "explorer": "cluster-B handover",
+        "anchor": "RULE-22 properties (a)+(b)"
+      },
+      "sense_constraints": [],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "cluster-B handover",
+            "anchor": "RULE-22 properties (a)+(b)"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "tension",
+      "aliases": [],
+      "definition": "The specific constraint-pressure an NC creates on the RC set — the way that NC narrows or shapes how the RCs can resolve the Concerns. RULE-22(b) requires this be named per-NC, not generic boilerplate.",
+      "source": {
+        "explorer": "cluster-B handover",
+        "anchor": "RULE-22 property (b)"
+      },
+      "sense_constraints": [
+        "NOT 'restriction' (a Rule restricts; an NC's tension is the structural force it exerts on the resolution path)"
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "cluster-B handover",
+            "anchor": "RULE-22 property (b)"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "phantom NC",
+      "aliases": [
+        "withdrawn NC"
+      ],
+      "definition": "An NC withdrawn during Solve. RULE-22(c) requires the closing argument to explicitly name each withdrawn NC with a disposition tag (collapsed-into / superseded-by / no-longer-relevant) so the historical reasoning is preserved.",
+      "source": {
+        "explorer": "cluster-B handover",
+        "anchor": "RULE-22 property (c)"
+      },
+      "sense_constraints": [],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "cluster-B handover",
+            "anchor": "RULE-22 property (c)"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "living document",
+      "aliases": [
+        "living-document discipline",
+        "derived argument"
+      ],
+      "definition": "RULE-22(d) discipline: the closing argument is derived from current proof state and rebuilds whenever Concerns, NCs, or RCs change. Never authored-once and frozen. Distinguishes B.2's design from agent-prose-at-Closure today.",
+      "source": {
+        "explorer": "cluster-B handover + industry survey",
+        "anchor": "RULE-22 property (d) + Assurance 2.0 / BDD living-doc patterns"
+      },
+      "sense_constraints": [],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "cluster-B handover + industry survey",
+            "anchor": "RULE-22 property (d) + Assurance 2.0 / BDD living-doc patterns"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "closure_permitted gate",
+      "aliases": [
+        "closure gate"
+      ],
+      "definition": "The proof MCP boolean returned by checkClosure. Today gates ten conditions (1-6 original; 7-10 cluster-A). B.2 may extend with closure conditions enforcing RULE-22's properties.",
+      "source": {
+        "explorer": "codebase",
+        "anchor": "proof-mcp/metrics.js:257-358"
+      },
+      "sense_constraints": [],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "codebase",
+            "anchor": "proof-mcp/metrics.js:257-358"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "closure baseline audit",
+      "aliases": [
+        "closure-baseline audit",
+        "closure audit"
+      ],
+      "definition": "Empirical methodology required of B.2 — walk 10-15 historic StoryDesigner/Chester proof closures, capture how closing arguments were composed, what NC/RC/Concern shapes were at closure_permitted, designer engagement patterns, failure modes. Analogue of cluster-B's 21-proof transition audit (EVID-9).",
+      "source": {
+        "explorer": "cluster-B handover",
+        "anchor": "Methodology guidance section"
+      },
+      "sense_constraints": [],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "cluster-B handover",
+            "anchor": "Methodology guidance section"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "discharge ledger",
+      "aliases": [],
+      "definition": "Industry pattern (Event-B / Rodin): a persistent live ledger of proof obligations with explicit discharge status per item. Closure argument is implicit — 'all POs discharged' equals 'argument complete'. No authored narrative; the ledger itself is the argument.",
+      "source": {
+        "explorer": "industry",
+        "anchor": "Rodin User Manual Proving Perspective"
+      },
+      "sense_constraints": [
+        "NOT a static checklist; the ledger updates as the model changes"
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "industry",
+            "anchor": "Rodin User Manual Proving Perspective"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "verification matrix close-out",
+      "aliases": [],
+      "definition": "Industry pattern (NASA RVM): tabular per-requirement coverage tracker. Closure means every row has a recorded result and signed closure artifact. Unverified items escalate via waiver / deviation / RID. Pitfall: tracks coverage not argument quality.",
+      "source": {
+        "explorer": "industry",
+        "anchor": "NASA SWE-030 / NPR 7123.1D"
+      },
+      "sense_constraints": [],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "industry",
+            "anchor": "NASA SWE-030 / NPR 7123.1D"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "defeater",
+      "aliases": [],
+      "definition": "Industry pattern (Assurance 2.0 / Rushby): an explicit challenge attached to a node in an argument graph. An argument is open as long as any defeater remains unrefuted or unaccepted-as-residual-risk. Closest industry precedent for explicit handling of withdrawn or contested claims.",
+      "source": {
+        "explorer": "industry",
+        "anchor": "Defeaters in Assurance 2.0 — arxiv 2405.15800"
+      },
+      "sense_constraints": [],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "industry",
+            "anchor": "Defeaters in Assurance 2.0 — arxiv 2405.15800"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "indefeasibly sound",
+      "aliases": [],
+      "definition": "Rushby's term: an argument that has no remaining unrefuted defeaters. The point at which a living-development argument crystallizes for delivery. Implies a deliberate transition from open development to closed delivery — not fully continuous re-derivation.",
+      "source": {
+        "explorer": "industry",
+        "anchor": "Rushby — Confidence in Assurance 2.0 Cases"
+      },
+      "sense_constraints": [],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "industry",
+            "anchor": "Rushby — Confidence in Assurance 2.0 Cases"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "cascade fatigue",
+      "aliases": [
+        "RC cascade fatigue"
+      ],
+      "definition": "RISK-1 hazard inherited from cluster-B. At high RC counts, RULE-22(d)'s living-document discipline forces frequent re-rendering on every state change; designer fatigue erodes engagement with the rebuilt argument and ratification quality drops.",
+      "source": {
+        "explorer": "cluster-B handover",
+        "anchor": "RISK-1"
+      },
+      "sense_constraints": [],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "cluster-B handover",
+            "anchor": "RISK-1"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "designer fatigue",
+      "aliases": [
+        "gestalt approval"
+      ],
+      "definition": "RISK-3 hazard inherited from cluster-B. Closing-argument prose is long; designer rubber-stamps via gestalt approval rather than engaging each section. Threatens the validity of closing-argument ratification at closure.",
+      "source": {
+        "explorer": "cluster-B handover",
+        "anchor": "RISK-3"
+      },
+      "sense_constraints": [],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "cluster-B handover",
+            "anchor": "RISK-3"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Concern",
+      "aliases": [],
+      "definition": "(Inherited from cluster-A — vocabulary immutable per RULE-1) PM-ratified named aspect of the problem statement. Stable ID prefix CERN-. Anchor target for Resolve Conditions. Locked at Solve Stage opening per cluster-A; iterates through proof per cluster-B RULE-20.",
+      "source": {
+        "explorer": "cluster-A design brief",
+        "anchor": "cluster-a NC-02"
+      },
+      "sense_constraints": [
+        "IMMUTABLE — name and shape locked by cluster-A"
+      ],
+      "status": "DEPRECATED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "cluster-A design brief",
+            "anchor": "cluster-a NC-02"
+          }
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "rule: CERN = CN. This needs to be updated in all of the documents at finish",
+          "reason": "Designer rule: CERN = CN. Brief-template was already updated in commit 8847783; state.js (proof MCP source) and any handover docs still carry CERN-. Sweep deferred to sprint finish."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Resolve Condition",
+      "aliases": [
+        "RC",
+        "Resolve Conditions"
+      ],
+      "definition": "(Inherited from cluster-A — vocabulary immutable per RULE-1) Sixth proof element category. Three fields: statement (PM-readable observable), problem_anchor (Concern ID), ratification (PM sign-off). ID prefix RCON-.",
+      "source": {
+        "explorer": "cluster-A design brief",
+        "anchor": "cluster-a NC-01, NC-03"
+      },
+      "sense_constraints": [
+        "IMMUTABLE — name and shape locked by cluster-A"
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "cluster-A design brief",
+            "anchor": "cluster-a NC-01, NC-03"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "RULE-22",
+      "aliases": [],
+      "definition": "(Inherited from cluster-B umbrella — primary inherited Rule for B.2) Closing argument must walk every active NC explicitly, naming the tension that NC imposes on the RC set, and showing how the RC set under that NC's constraint resolves the Concerns of the problem statement. Four enforced properties: (a) RC coverage in walk, (b) tension-naming requirement, (c) phantom-NC explicit handling, (d) living-document discipline.",
+      "source": {
+        "explorer": "cluster-B handover",
+        "anchor": "Rules section of handover doc"
+      },
+      "sense_constraints": [
+        "IMMUTABLE inheritance — B.2 designs to satisfy this Rule, does not revise it"
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "cluster-B handover",
+            "anchor": "Rules section of handover doc"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Concern",
+      "aliases": [
+        "CN",
+        "CN-N"
+      ],
+      "definition": "(Inherited from cluster-A — vocabulary immutable per RULE-1) PM-ratified named aspect of the problem statement. Stable ID prefix CN- (renamed from CERN- per designer rule 2026-05-02; brief-template already uses CN-). Anchor target for Resolve Conditions. Locked at Solve Stage opening per cluster-A; iterates through proof per cluster-B RULE-20.",
+      "source": null,
+      "sense_constraints": [
+        "IMMUTABLE — name and shape locked by cluster-A; prefix harmonized to CN- across all artifacts"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "rule: CERN = CN. This needs to be updated in all of the documents at finish",
+          "reason": "Designer rule: CERN = CN. Brief-template was already updated in commit 8847783; state.js (proof MCP source) and any handover docs still carry CERN-. Sweep deferred to sprint finish."
+        }
+      ]
+    },
+    {
+      "canonical_name": "closing argument",
+      "aliases": [
+        "closing-argument",
+        "the closing argument"
+      ],
+      "definition": "The narrative produced at proof closure that walks the proof's accumulated state and shows how the constraints (NCs) shape the resolution claims (RCs) such that the named Concerns of the problem statement are addressed. Today: agent-authored prose at the final Solve Stage turn; not MCP-tracked. Cluster-B.2's design target.",
+      "source": null,
+      "sense_constraints": [
+        "NOT the design brief itself",
+        "NOT the closure_permitted gate"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "remainder are approved",
+          "reason": "En-bloc designer ratification of fresh seeded terms."
+        }
+      ]
+    },
+    {
+      "canonical_name": "materialization",
+      "aliases": [
+        "materialize",
+        "render"
+      ],
+      "definition": "The act of producing the closing argument from current proof state — when it materializes, what artifact carries it, what tool emits it. RULE-22(d) requires the materialization be derived from state, not authored once and frozen.",
+      "source": null,
+      "sense_constraints": [],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "remainder are approved",
+          "reason": "En-bloc ratification."
+        }
+      ]
+    },
+    {
+      "canonical_name": "RC walk",
+      "aliases": [
+        "NC walk",
+        "necessary-condition walk"
+      ],
+      "definition": "The structural traversal at closure where every active NC is visited, each NC's tension on the RC set is named, and each ratified RC appears under at least one NC's constraint role. Defines the shape of the closing argument's body.",
+      "source": null,
+      "sense_constraints": [],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "remainder are approved",
+          "reason": "En-bloc ratification."
+        }
+      ]
+    },
+    {
+      "canonical_name": "tension",
+      "aliases": [],
+      "definition": "The specific constraint-pressure an NC creates on the RC set — the way that NC narrows or shapes how the RCs can resolve the Concerns. RULE-22(b) requires this be named per-NC, not generic boilerplate.",
+      "source": null,
+      "sense_constraints": [
+        "NOT 'restriction' (a Rule restricts; an NC's tension is the structural force it exerts on the resolution path)"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "remainder are approved",
+          "reason": "En-bloc ratification."
+        }
+      ]
+    },
+    {
+      "canonical_name": "phantom NC",
+      "aliases": [
+        "withdrawn NC"
+      ],
+      "definition": "An NC withdrawn during Solve. RULE-22(c) requires the closing argument to explicitly name each withdrawn NC with a disposition tag (collapsed-into / superseded-by / no-longer-relevant) so the historical reasoning is preserved.",
+      "source": null,
+      "sense_constraints": [],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "remainder are approved",
+          "reason": "En-bloc ratification."
+        }
+      ]
+    },
+    {
+      "canonical_name": "living document",
+      "aliases": [
+        "living-document discipline",
+        "derived argument"
+      ],
+      "definition": "RULE-22(d) discipline: the closing argument is derived from current proof state and rebuilds whenever Concerns, NCs, or RCs change. Never authored-once and frozen. Distinguishes B.2's design from agent-prose-at-Closure today.",
+      "source": null,
+      "sense_constraints": [],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "remainder are approved",
+          "reason": "En-bloc ratification."
+        }
+      ]
+    },
+    {
+      "canonical_name": "closure_permitted gate",
+      "aliases": [
+        "closure gate"
+      ],
+      "definition": "The proof MCP boolean returned by checkClosure. Today gates ten conditions (1-6 original; 7-10 cluster-A). B.2 may extend with closure conditions enforcing RULE-22's properties.",
+      "source": null,
+      "sense_constraints": [],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "remainder are approved",
+          "reason": "En-bloc ratification."
+        }
+      ]
+    },
+    {
+      "canonical_name": "closure baseline audit",
+      "aliases": [
+        "closure-baseline audit",
+        "closure audit"
+      ],
+      "definition": "Empirical methodology required of B.2 — walk 10-15 historic StoryDesigner/Chester proof closures, capture how closing arguments were composed, what NC/RC/Concern shapes were at closure_permitted, designer engagement patterns, failure modes. Analogue of cluster-B's 21-proof transition audit (EVID-9).",
+      "source": null,
+      "sense_constraints": [],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "remainder are approved",
+          "reason": "En-bloc ratification."
+        }
+      ]
+    },
+    {
+      "canonical_name": "discharge ledger",
+      "aliases": [],
+      "definition": "Industry pattern (Event-B / Rodin): a persistent live ledger of proof obligations with explicit discharge status per item. Closure argument is implicit — 'all POs discharged' equals 'argument complete'. No authored narrative; the ledger itself is the argument.",
+      "source": null,
+      "sense_constraints": [
+        "NOT a static checklist; the ledger updates as the model changes"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "remainder are approved",
+          "reason": "En-bloc ratification."
+        }
+      ]
+    },
+    {
+      "canonical_name": "verification matrix close-out",
+      "aliases": [],
+      "definition": "Industry pattern (NASA RVM): tabular per-requirement coverage tracker. Closure means every row has a recorded result and signed closure artifact. Unverified items escalate via waiver / deviation / RID. Pitfall: tracks coverage not argument quality.",
+      "source": null,
+      "sense_constraints": [],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "remainder are approved",
+          "reason": "En-bloc ratification."
+        }
+      ]
+    },
+    {
+      "canonical_name": "defeater",
+      "aliases": [],
+      "definition": "Industry pattern (Assurance 2.0 / Rushby): an explicit challenge attached to a node in an argument graph. An argument is open as long as any defeater remains unrefuted or unaccepted-as-residual-risk. Closest industry precedent for explicit handling of withdrawn or contested claims.",
+      "source": null,
+      "sense_constraints": [],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "remainder are approved",
+          "reason": "En-bloc ratification."
+        }
+      ]
+    },
+    {
+      "canonical_name": "indefeasibly sound",
+      "aliases": [],
+      "definition": "Rushby's term: an argument that has no remaining unrefuted defeaters. The point at which a living-development argument crystallizes for delivery. Implies a deliberate transition from open development to closed delivery — not fully continuous re-derivation.",
+      "source": null,
+      "sense_constraints": [],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "remainder are approved",
+          "reason": "En-bloc ratification."
+        }
+      ]
+    },
+    {
+      "canonical_name": "cascade fatigue",
+      "aliases": [
+        "RC cascade fatigue"
+      ],
+      "definition": "RISK-1 hazard inherited from cluster-B. At high RC counts, RULE-22(d)'s living-document discipline forces frequent re-rendering on every state change; designer fatigue erodes engagement with the rebuilt argument and ratification quality drops.",
+      "source": null,
+      "sense_constraints": [],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "remainder are approved",
+          "reason": "En-bloc ratification."
+        }
+      ]
+    },
+    {
+      "canonical_name": "designer fatigue",
+      "aliases": [
+        "gestalt approval"
+      ],
+      "definition": "RISK-3 hazard inherited from cluster-B. Closing-argument prose is long; designer rubber-stamps via gestalt approval rather than engaging each section. Threatens the validity of closing-argument ratification at closure.",
+      "source": null,
+      "sense_constraints": [],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "remainder are approved",
+          "reason": "En-bloc ratification."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Resolve Condition",
+      "aliases": [
+        "RC",
+        "Resolve Conditions"
+      ],
+      "definition": "(Inherited from cluster-A — vocabulary immutable per RULE-1) Sixth proof element category. Three fields: statement (PM-readable observable), problem_anchor (Concern ID), ratification (PM sign-off). ID prefix RCON-.",
+      "source": null,
+      "sense_constraints": [
+        "IMMUTABLE — name and shape locked by cluster-A"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "remainder are approved",
+          "reason": "Inheritance lock-in (cluster-A immutable); ratified for B.2 working glossary."
+        }
+      ]
+    },
+    {
+      "canonical_name": "RULE-22",
+      "aliases": [],
+      "definition": "(Inherited from cluster-B umbrella — primary inherited Rule for B.2) Closing argument must walk every active NC explicitly, naming the tension that NC imposes on the RC set, and showing how the RC set under that NC's constraint resolves the Concerns of the problem statement. Four enforced properties: (a) RC coverage in walk, (b) tension-naming requirement, (c) phantom-NC explicit handling, (d) living-document discipline.",
+      "source": null,
+      "sense_constraints": [
+        "IMMUTABLE inheritance — B.2 designs to satisfy this Rule, does not revise it"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "remainder are approved",
+          "reason": "Inheritance lock-in (cluster-B umbrella immutable); ratified for B.2 working glossary."
+        }
+      ]
+    },
+    {
+      "canonical_name": "materialization",
+      "aliases": [
+        "materialize"
+      ],
+      "definition": "The act of producing the closing argument from current proof state at an agent-requested + human-approved moment. Designer-facing language: 'present the closing argument'. Internal-only term for the act itself.",
+      "source": null,
+      "sense_constraints": [
+        "Designer-facing prose says 'present', not 'render'",
+        "NOT static authoring; produces the argument from current state on each approved request"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 3,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 3,
+          "designer_quote": "we keep making terms up. why 'render' instead of just 'present the closing argument'??",
+          "reason": "Designer flagged 'render' as coined term; canonical phrasing is 'present the closing argument'. Drop 'render' alias; restrict 'materialization' to internal-only term for the act."
+        }
+      ]
+    }
+  ],
+  "vocabularyActionLog": [
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Concern"
+      ],
+      "new_term": null,
+      "reason": "Designer rule: CERN = CN. Brief-template was already updated in commit 8847783; state.js (proof MCP source) and any handover docs still carry CERN-. Sweep deferred to sprint finish.",
+      "designer_quote": "rule: CERN = CN. This needs to be updated in all of the documents at finish",
+      "executed_round": 0,
+      "executed_at": "2026-05-02T13:36:53.860Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Concern"
+      ],
+      "new_term": {
+        "canonical_name": "Concern"
+      },
+      "reason": "Designer rule: CERN = CN. Brief-template was already updated in commit 8847783; state.js (proof MCP source) and any handover docs still carry CERN-. Sweep deferred to sprint finish.",
+      "designer_quote": "rule: CERN = CN. This needs to be updated in all of the documents at finish",
+      "executed_round": 0,
+      "executed_at": "2026-05-02T13:36:53.860Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "closing argument"
+      ],
+      "new_term": {
+        "canonical_name": "closing argument"
+      },
+      "reason": "En-bloc designer ratification of fresh seeded terms.",
+      "designer_quote": "remainder are approved",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-02T13:37:47.291Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "materialization"
+      ],
+      "new_term": {
+        "canonical_name": "materialization"
+      },
+      "reason": "En-bloc ratification.",
+      "designer_quote": "remainder are approved",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-02T13:37:51.637Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "RC walk"
+      ],
+      "new_term": {
+        "canonical_name": "RC walk"
+      },
+      "reason": "En-bloc ratification.",
+      "designer_quote": "remainder are approved",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-02T13:37:55.401Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "tension"
+      ],
+      "new_term": {
+        "canonical_name": "tension"
+      },
+      "reason": "En-bloc ratification.",
+      "designer_quote": "remainder are approved",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-02T13:37:59.918Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "phantom NC"
+      ],
+      "new_term": {
+        "canonical_name": "phantom NC"
+      },
+      "reason": "En-bloc ratification.",
+      "designer_quote": "remainder are approved",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-02T13:38:03.850Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "living document"
+      ],
+      "new_term": {
+        "canonical_name": "living document"
+      },
+      "reason": "En-bloc ratification.",
+      "designer_quote": "remainder are approved",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-02T13:38:08.000Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "closure_permitted gate"
+      ],
+      "new_term": {
+        "canonical_name": "closure_permitted gate"
+      },
+      "reason": "En-bloc ratification.",
+      "designer_quote": "remainder are approved",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-02T13:38:12.352Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "closure baseline audit"
+      ],
+      "new_term": {
+        "canonical_name": "closure baseline audit"
+      },
+      "reason": "En-bloc ratification.",
+      "designer_quote": "remainder are approved",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-02T13:38:17.497Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "discharge ledger"
+      ],
+      "new_term": {
+        "canonical_name": "discharge ledger"
+      },
+      "reason": "En-bloc ratification.",
+      "designer_quote": "remainder are approved",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-02T13:38:22.498Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "verification matrix close-out"
+      ],
+      "new_term": {
+        "canonical_name": "verification matrix close-out"
+      },
+      "reason": "En-bloc ratification.",
+      "designer_quote": "remainder are approved",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-02T13:38:27.176Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "defeater"
+      ],
+      "new_term": {
+        "canonical_name": "defeater"
+      },
+      "reason": "En-bloc ratification.",
+      "designer_quote": "remainder are approved",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-02T13:38:31.324Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "indefeasibly sound"
+      ],
+      "new_term": {
+        "canonical_name": "indefeasibly sound"
+      },
+      "reason": "En-bloc ratification.",
+      "designer_quote": "remainder are approved",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-02T13:38:35.543Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "cascade fatigue"
+      ],
+      "new_term": {
+        "canonical_name": "cascade fatigue"
+      },
+      "reason": "En-bloc ratification.",
+      "designer_quote": "remainder are approved",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-02T13:38:39.619Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "designer fatigue"
+      ],
+      "new_term": {
+        "canonical_name": "designer fatigue"
+      },
+      "reason": "En-bloc ratification.",
+      "designer_quote": "remainder are approved",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-02T13:38:43.624Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Resolve Condition"
+      ],
+      "new_term": {
+        "canonical_name": "Resolve Condition"
+      },
+      "reason": "Inheritance lock-in (cluster-A immutable); ratified for B.2 working glossary.",
+      "designer_quote": "remainder are approved",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-02T13:38:50.042Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "RULE-22"
+      ],
+      "new_term": {
+        "canonical_name": "RULE-22"
+      },
+      "reason": "Inheritance lock-in (cluster-B umbrella immutable); ratified for B.2 working glossary.",
+      "designer_quote": "remainder are approved",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-02T13:38:55.040Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "materialization"
+      ],
+      "new_term": null,
+      "reason": "Designer flagged 'render' as coined term; canonical phrasing is 'present the closing argument'. Drop 'render' alias; restrict 'materialization' to internal-only term for the act.",
+      "designer_quote": "we keep making terms up. why 'render' instead of just 'present the closing argument'??",
+      "executed_round": 3,
+      "executed_at": "2026-05-02T17:29:01.351Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "materialization"
+      ],
+      "new_term": {
+        "canonical_name": "materialization"
+      },
+      "reason": "Designer flagged 'render' as coined term; canonical phrasing is 'present the closing argument'. Drop 'render' alias; restrict 'materialization' to internal-only term for the act.",
+      "designer_quote": "we keep making terms up. why 'render' instead of just 'present the closing argument'??",
+      "executed_round": 3,
+      "executed_at": "2026-05-02T17:29:01.351Z"
+    }
+  ],
+  "pendingVocabDispositions": [],
+  "termUsageHistory": {
+    "designs": [
+      1
+    ],
+    "the": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "closing-argument": [
+      1
+    ],
+    "materialization": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "mechanism": [
+      1
+    ],
+    "when": [
+      1,
+      2,
+      4
+    ],
+    "fires": [
+      1,
+      3
+    ],
+    "what": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "artifact": [
+      1
+    ],
+    "produces": [
+      1
+    ],
+    "how": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "gates": [
+      1
+    ],
+    "closure": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "satisfying": [
+      1
+    ],
+    "rule-22": [
+      1,
+      3,
+      4
+    ],
+    "four": [
+      1,
+      2
+    ],
+    "properties": [
+      1,
+      2
+    ],
+    "walk": [
+      1,
+      2
+    ],
+    "coverage": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "tension-naming": [
+      1,
+      3,
+      4
+    ],
+    "defined": [
+      1
+    ],
+    "timing": [
+      1,
+      3,
+      4
+    ],
+    "shape": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "and": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "closure-gate": [
+      1
+    ],
+    "integration": [
+      1
+    ],
+    "are": [
+      1,
+      2
+    ],
+    "explicit": [
+      1
+    ],
+    "brief": [
+      1,
+      2
+    ],
+    "each": [
+      1,
+      3,
+      4
+    ],
+    "has": [
+      1
+    ],
+    "operational": [
+      1,
+      3,
+      4
+    ],
+    "enforcement": [
+      1,
+      2
+    ],
+    "agent-imagined": [
+      1
+    ],
+    "material": [
+      1
+    ],
+    "slips": [
+      1
+    ],
+    "through": [
+      1
+    ],
+    "render": [
+      1,
+      2,
+      3
+    ],
+    "future": [
+      1
+    ],
+    "solve-stage": [
+      1
+    ],
+    "agent": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "calls": [
+      1
+    ],
+    "single": [
+      1,
+      2
+    ],
+    "step": [
+      1
+    ],
+    "closing": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "argument": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "renders": [
+      1
+    ],
+    "from": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "current": [
+      1,
+      4,
+      5
+    ],
+    "proof": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "state": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "every": [
+      1,
+      2,
+      3
+    ],
+    "active": [
+      1
+    ],
+    "walked": [
+      1,
+      2
+    ],
+    "inherits": [
+      1
+    ],
+    "all": [
+      1,
+      2
+    ],
+    "ratified": [
+      1,
+      4
+    ],
+    "rules": [
+      1
+    ],
+    "cluster-b": [
+      1,
+      2
+    ],
+    "umbrella": [
+      1
+    ],
+    "read-only": [
+      1
+    ],
+    "cluster-a": [
+      1,
+      2,
+      4
+    ],
+    "vocabulary": [
+      1
+    ],
+    "design": [
+      1,
+      2,
+      3
+    ],
+    "concern": [
+      1
+    ],
+    "enumeration": [
+      1
+    ],
+    "conditions": [
+      1,
+      2,
+      4
+    ],
+    "sequential": [
+      1
+    ],
+    "ratification": [
+      1,
+      2,
+      3,
+      5
+    ],
+    "stale-ratification": [
+      1
+    ],
+    "mechanic": [
+      1
+    ],
+    "immutable": [
+      1
+    ],
+    "per": [
+      1,
+      3
+    ],
+    "master-plan": [
+      1
+    ],
+    "rule-1": [
+      1
+    ],
+    "perm-1": [
+      1
+    ],
+    "grants": [
+      1
+    ],
+    "relief": [
+      1
+    ],
+    "implementation": [
+      1
+    ],
+    "specifics": [
+      1
+    ],
+    "where": [
+      1,
+      2
+    ],
+    "requires": [
+      1
+    ],
+    "closure-condition": [
+      1
+    ],
+    "extensions": [
+      1
+    ],
+    "scoped": [
+      1
+    ],
+    "narrowly": [
+      1
+    ],
+    "additions": [
+      1
+    ],
+    "not": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "redesign": [
+      1
+    ],
+    "five-element-type": [
+      1
+    ],
+    "immutability": [
+      1
+    ],
+    "new": [
+      1
+    ],
+    "sixth-or-seventh": [
+      1
+    ],
+    "element": [
+      1
+    ],
+    "category": [
+      1
+    ],
+    "derived": [
+      1,
+      2,
+      3
+    ],
+    "rendering": [
+      1
+    ],
+    "out": [
+      1,
+      4
+    ],
+    "scope": [
+      1,
+      3,
+      4
+    ],
+    "inherit": [
+      1
+    ],
+    "given": [
+      1
+    ],
+    "reopen": [
+      1
+    ],
+    "phase": [
+      1,
+      2,
+      4,
+      5
+    ],
+    "cluster-c": [
+      1
+    ],
+    "territory": [
+      1
+    ],
+    "does": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "touch": [
+      1
+    ],
+    "understanding": [
+      1,
+      4
+    ],
+    "mcp": [
+      1,
+      2,
+      4,
+      5
+    ],
+    "four-property": [
+      1,
+      2
+    ],
+    "baseline": [
+      1,
+      2
+    ],
+    "audit": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "historic": [
+      1
+    ],
+    "closures": [
+      1
+    ],
+    "foundational": [
+      1
+    ],
+    "empirical": [
+      1,
+      2
+    ],
+    "work": [
+      1,
+      2
+    ],
+    "for": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "derivation": [
+      1
+    ],
+    "mike": [
+      1
+    ],
+    "running": [
+      1
+    ],
+    "chester": [
+      1
+    ],
+    "sessions": [
+      1
+    ],
+    "personal": [
+      1
+    ],
+    "projects": [
+      1
+    ],
+    "will": [
+      1
+    ],
+    "operate": [
+      1
+    ],
+    "this": [
+      1,
+      2
+    ],
+    "going": [
+      1
+    ],
+    "forward": [
+      1
+    ],
+    "future-me": [
+      1
+    ],
+    "months": [
+      1
+    ],
+    "now": [
+      1,
+      3
+    ],
+    "without": [
+      1,
+      2,
+      3
+    ],
+    "recall": [
+      1
+    ],
+    "rationale": [
+      1
+    ],
+    "must": [
+      1,
+      2
+    ],
+    "read": [
+      1,
+      2
+    ],
+    "clearly": [
+      1
+    ],
+    "skill": [
+      1
+    ],
+    "allocate": [
+      1
+    ],
+    "solve": [
+      1,
+      2,
+      4,
+      5
+    ],
+    "stage": [
+      1,
+      4,
+      5
+    ],
+    "rounds": [
+      1
+    ],
+    "living-document": [
+      1,
+      3,
+      4
+    ],
+    "change": [
+      1,
+      2,
+      3
+    ],
+    "risks": [
+      1
+    ],
+    "cascade": [
+      1
+    ],
+    "fatigue": [
+      1
+    ],
+    "high": [
+      1,
+      2
+    ],
+    "counts": [
+      1,
+      2,
+      4,
+      5
+    ],
+    "control": [
+      1
+    ],
+    "re-render": [
+      1
+    ],
+    "frequency": [
+      1
+    ],
+    "single-fire": [
+      1,
+      3,
+      4
+    ],
+    "closure_permitted": [
+      1,
+      3
+    ],
+    "true": [
+      1,
+      2
+    ],
+    "continuous": [
+      1,
+      3,
+      4
+    ],
+    "after": [
+      1,
+      2
+    ],
+    "update": [
+      1
+    ],
+    "on-demand": [
+      1,
+      3,
+      4
+    ],
+    "via": [
+      1,
+      3,
+      4
+    ],
+    "tool": [
+      1,
+      2
+    ],
+    "checkpoints": [
+      1
+    ],
+    "final": [
+      1,
+      2
+    ],
+    "turns": [
+      1
+    ],
+    "free-text": [
+      1,
+      3
+    ],
+    "agent-authored": [
+      1,
+      2,
+      3
+    ],
+    "field": [
+      1
+    ],
+    "computation": [
+      1
+    ],
+    "nc-rc": [
+      1
+    ],
+    "pairings": [
+      1
+    ],
+    "required": [
+      1
+    ],
+    "pairing-table": [
+      1,
+      3
+    ],
+    "intersection": [
+      1
+    ],
+    "phantom-nc": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "disposition": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "source": [
+      1,
+      3,
+      4
+    ],
+    "designer-direct": [
+      1
+    ],
+    "withdraw": [
+      1
+    ],
+    "agent-proposed-designer-ratified": [
+      1
+    ],
+    "inferred": [
+      1
+    ],
+    "context": [
+      1
+    ],
+    "same-round": [
+      1
+    ],
+    "add": [
+      1
+    ],
+    "collapsed-into": [
+      1
+    ],
+    "discipline": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "rebuild": [
+      1
+    ],
+    "only": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "concerns": [
+      1,
+      2
+    ],
+    "ncs": [
+      1
+    ],
+    "rcs": [
+      1
+    ],
+    "literal": [
+      1
+    ],
+    "text": [
+      1
+    ],
+    "also": [
+      1
+    ],
+    "permissions": [
+      1
+    ],
+    "changes": [
+      1,
+      3
+    ],
+    "since": [
+      1
+    ],
+    "closure-baseline": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "proofs": [
+      1
+    ],
+    "storydesigner": [
+      1
+    ],
+    "sprints": [
+      1
+    ],
+    "both": [
+      1
+    ],
+    "capture": [
+      1
+    ],
+    "template": [
+      1
+    ],
+    "today": [
+      2
+    ],
+    "prose": [
+      2,
+      4
+    ],
+    "turn": [
+      2
+    ],
+    "system": [
+      2
+    ],
+    "tracks": [
+      2
+    ],
+    "elements": [
+      2
+    ],
+    "but": [
+      2
+    ],
+    "closure-side": [
+      2
+    ],
+    "exists": [
+      2
+    ],
+    "covered": [
+      2
+    ],
+    "entry": [
+      2
+    ],
+    "side": [
+      2
+    ],
+    "added": [
+      2
+    ],
+    "structural": [
+      2
+    ],
+    "resolve": [
+      2,
+      3
+    ],
+    "per-concern": [
+      2,
+      4
+    ],
+    "gate": [
+      2,
+      3
+    ],
+    "boolean": [
+      2,
+      4
+    ],
+    "could": [
+      2
+    ],
+    "honored": [
+      2
+    ],
+    "superficially": [
+      2
+    ],
+    "long": [
+      2
+    ],
+    "well-formatted": [
+      2
+    ],
+    "making": [
+      2
+    ],
+    "act": [
+      2
+    ],
+    "trustworthy": [
+      2
+    ],
+    "resolve-condition": [
+      2
+    ],
+    "under": [
+      2,
+      3,
+      4
+    ],
+    "designer": [
+      2,
+      3,
+      4
+    ],
+    "rendered": [
+      2
+    ],
+    "narrative": [
+      2
+    ],
+    "structured": [
+      2
+    ],
+    "collection": [
+      2
+    ],
+    "per-necessary-condition": [
+      2
+    ],
+    "sections": [
+      2
+    ],
+    "discharge-ledger-style": [
+      2
+    ],
+    "table": [
+      2
+    ],
+    "hybrid": [
+      2
+    ],
+    "run": [
+      2
+    ],
+    "living": [
+      2
+    ],
+    "document": [
+      2
+    ],
+    "queried": [
+      2
+    ],
+    "with": [
+      2,
+      3,
+      4,
+      5
+    ],
+    "deliberate": [
+      2
+    ],
+    "enforce": [
+      2
+    ],
+    "hard": [
+      2
+    ],
+    "preconditions": [
+      2
+    ],
+    "some": [
+      2
+    ],
+    "advisory": [
+      2
+    ],
+    "necessary": [
+      2
+    ],
+    "condition": [
+      2,
+      3,
+      4
+    ],
+    "withdrawn": [
+      2
+    ],
+    "during": [
+      2
+    ],
+    "who": [
+      2
+    ],
+    "supplies": [
+      2
+    ],
+    "its": [
+      2
+    ],
+    "withdrawal": [
+      2
+    ],
+    "time": [
+      2,
+      3,
+      4
+    ],
+    "tag": [
+      2
+    ],
+    "attached": [
+      2
+    ],
+    "output": [
+      2
+    ],
+    "brief-template": [
+      2
+    ],
+    "emits": [
+      2
+    ],
+    "ratify": [
+      2
+    ],
+    "bloc": [
+      2
+    ],
+    "section-by-section": [
+      2
+    ],
+    "per-resolve-condition": [
+      2
+    ],
+    "should": [
+      2
+    ],
+    "before": [
+      2,
+      3
+    ],
+    "session": [
+      2
+    ],
+    "later": [
+      2,
+      3
+    ],
+    "initialization": [
+      2
+    ],
+    "constrain": [
+      2
+    ],
+    "can": [
+      2
+    ],
+    "input": [
+      2
+    ],
+    "contract": [
+      2
+    ],
+    "lock": [
+      2
+    ],
+    "confidence": [
+      2
+    ],
+    "downstream": [
+      2
+    ],
+    "consumption": [
+      2
+    ],
+    "design-specify": [
+      2
+    ],
+    "sprint": [
+      2
+    ],
+    "trail": [
+      2
+    ],
+    "several": [
+      2
+    ],
+    "these": [
+      2
+    ],
+    "request-and-approval": [
+      3
+    ],
+    "pair": [
+      3
+    ],
+    "never": [
+      3
+    ],
+    "automatically": [
+      3
+    ],
+    "request": [
+      3,
+      4
+    ],
+    "auditable": [
+      3
+    ],
+    "paired": [
+      3
+    ],
+    "event": [
+      3
+    ],
+    "approval": [
+      3,
+      4
+    ],
+    "mid-solve": [
+      3
+    ],
+    "says": [
+      3
+    ],
+    "like": [
+      3
+    ],
+    "materialize": [
+      3
+    ],
+    "check": [
+      3
+    ],
+    "reads": [
+      3,
+      4
+    ],
+    "approves": [
+      3
+    ],
+    "defers": [
+      3,
+      4
+    ],
+    "two-step": [
+      3
+    ],
+    "requests": [
+      3,
+      4
+    ],
+    "human": [
+      3,
+      4
+    ],
+    "automatic": [
+      3
+    ],
+    "agent-only": [
+      3
+    ],
+    "human-approval": [
+      3
+    ],
+    "forcing": [
+      3
+    ],
+    "function": [
+      3
+    ],
+    "pattern": [
+      3
+    ],
+    "aligns": [
+      3
+    ],
+    "agent-proposes-designer-ratifies": [
+      3
+    ],
+    "already": [
+      3,
+      4
+    ],
+    "locked": [
+      3
+    ],
+    "elsewhere": [
+      3
+    ],
+    "partnership": [
+      3
+    ],
+    "consistent": [
+      3
+    ],
+    "resolved": [
+      3,
+      4
+    ],
+    "rule": [
+      3,
+      4
+    ],
+    "agent-requested": [
+      3,
+      4
+    ],
+    "human-approved": [
+      3,
+      4
+    ],
+    "request-trigger": [
+      3,
+      4
+    ],
+    "signal": [
+      3
+    ],
+    "prompts": [
+      3
+    ],
+    "checkpoint": [
+      3
+    ],
+    "flip": [
+      3
+    ],
+    "cue": [
+      3
+    ],
+    "threshold-based": [
+      3
+    ],
+    "state-change": [
+      3
+    ],
+    "count": [
+      3
+    ],
+    "open-ended": [
+      3,
+      4
+    ],
+    "judgment": [
+      3,
+      4
+    ],
+    "decline": [
+      3,
+      4
+    ],
+    "handling": [
+      3,
+      4
+    ],
+    "rejects": [
+      3,
+      4
+    ],
+    "happens": [
+      3,
+      4
+    ],
+    "held": [
+      3,
+      4
+    ],
+    "dropped": [
+      3,
+      4
+    ],
+    "queued": [
+      3,
+      4
+    ],
+    "logged": [
+      3,
+      4
+    ],
+    "request-without-render": [
+      3
+    ],
+    "per-request": [
+      3,
+      4
+    ],
+    "session-scoped": [
+      3,
+      4
+    ],
+    "consent": [
+      3,
+      4
+    ],
+    "one": [
+      3
+    ],
+    "covers": [
+      3
+    ],
+    "subsequent": [
+      3
+    ],
+    "until": [
+      3
+    ],
+    "revoked": [
+      3
+    ],
+    "reinterpretation": [
+      3,
+      4
+    ],
+    "rebuilds": [
+      3
+    ],
+    "whenever": [
+      3
+    ],
+    "still": [
+      3
+    ],
+    "hold": [
+      3
+    ],
+    "approve": [
+      3,
+      4
+    ],
+    "gating": [
+      3,
+      4
+    ],
+    "mean": [
+      3
+    ],
+    "grounding": [
+      3,
+      4,
+      5
+    ],
+    "corpus": [
+      3,
+      4
+    ],
+    "presents": [
+      4
+    ],
+    "presentation": [
+      4
+    ],
+    "present": [
+      4,
+      5
+    ],
+    "grounds": [
+      4
+    ],
+    "proof-side": [
+      4
+    ],
+    "scoring": [
+      4
+    ],
+    "metrics": [
+      4
+    ],
+    "graded": [
+      4
+    ],
+    "driven": [
+      4
+    ],
+    "built": [
+      4
+    ],
+    "extends": [
+      4
+    ],
+    "existing": [
+      4
+    ],
+    "completeness": [
+      4
+    ],
+    "signals": [
+      4,
+      5
+    ],
+    "integrity": [
+      4
+    ],
+    "warnings": [
+      4
+    ],
+    "which": [
+      4
+    ],
+    "aggregate": [
+      4
+    ],
+    "thresholds": [
+      4
+    ],
+    "score": [
+      4
+    ],
+    "modifying": [
+      4
+    ],
+    "adds": [
+      4
+    ],
+    "top": [
+      4
+    ],
+    "leaves": [
+      4
+    ],
+    "intact": [
+      4
+    ],
+    "trigger": [
+      4
+    ],
+    "mirrors": [
+      4
+    ],
+    "used": [
+      4
+    ],
+    "tenet": [
+      4
+    ],
+    "scores": [
+      4
+    ],
+    "plus": [
+      4
+    ],
+    "overall": [
+      4
+    ],
+    "reading": [
+      4
+    ],
+    "prescribed": [
+      4
+    ],
+    "signal-set": [
+      4
+    ],
+    "superseded": [
+      4
+    ],
+    "redirect": [
+      4
+    ],
+    "question": [
+      4
+    ],
+    "reformulated": [
+      4
+    ],
+    "feed": [
+      4
+    ],
+    "legibility": [
+      4
+    ],
+    "see": [
+      4
+    ],
+    "directly": [
+      4
+    ],
+    "s-rule-3": [
+      5
+    ],
+    "revised": [
+      5
+    ],
+    "consistency": [
+      5
+    ],
+    "s-rule-2": [
+      5
+    ],
+    "objective": [
+      5
+    ],
+    "measures": [
+      5
+    ],
+    "derive": [
+      5
+    ]
+  },
+  "pendingOverrides": [],
+  "solveLeakageLedger": [
+    {
+      "origin_tenet": "scope_boundary",
+      "entry": {
+        "text": "Phase 4b initialization mechanics are cluster-B.1 territory; only the consumer interface (what the closing argument reads from initialized state) is B.2 scope.",
+        "placement": "BORDERLINE",
+        "source": "cluster-b-context-handover-to-b2.md sequencing lock"
+      },
+      "errors": [
+        "scope_boundary: phase-vocabulary violation — solve-side tokens: interface"
+      ],
+      "round": 1
+    },
+    {
+      "origin_tenet": "project_fit",
+      "entry": {
+        "text": "Singular focus on closing-argument materialization aligns with cluster-B's split rationale (decompose umbrella into B.1 entry-side + B.2 exit-side) and master-plan Layer-2 discipline (each cluster runs its own pipeline cycle).",
+        "alignment": "ALIGNED",
+        "project_convention_referenced": "master-plan Three-Layer Discipline + cluster-B split rationale"
+      },
+      "errors": [
+        "project_fit: phase-vocabulary violation — solve-side tokens: layer, pipeline"
+      ],
+      "round": 1
+    }
+  ],
+  "repeatBackHistory": [
+    {
+      "round": 4,
+      "statement": "How does Phase 4b's Solve Stage present a closing argument from current proof state — when does the agent request presentation, what shape does the argument take, how does the closure gate close — such that RULE-22's four properties hold, with the agent's request grounded in proof-side scoring and each presentation approved by the designer before it fires?",
+      "designer_quote": null,
+      "designer_ratified": false,
+      "submitted_at": "2026-05-02T17:30:04.928Z"
+    },
+    {
+      "round": 5,
+      "statement": "How does Phase 4b's Solve Stage present a closing argument from current proof state?",
+      "designer_quote": "move to solve",
+      "designer_ratified": true,
+      "submitted_at": "2026-05-02T17:57:28.774Z"
+    }
+  ],
+  "transition": {
+    "ready": true,
+    "reasons": [],
+    "overall": 0.967
+  },
+  "transitionHistory": [
+    {
+      "ready": false,
+      "reasons": [
+        "project_fit below floor (0 < 0.4)"
+      ],
+      "overall": 0.847
+    },
+    {
+      "ready": false,
+      "reasons": [
+        "project_fit below floor (0 < 0.4)"
+      ],
+      "overall": 0.847
+    },
+    {
+      "ready": false,
+      "reasons": [
+        "no designer-ratified problem-statement repeat-back in last 2 rounds"
+      ],
+      "overall": 0.922
+    },
+    {
+      "ready": false,
+      "reasons": [
+        "no designer-ratified problem-statement repeat-back in last 2 rounds"
+      ],
+      "overall": 0.967
+    },
+    {
+      "ready": true,
+      "reasons": [],
+      "overall": 0.967
+    }
+  ],
+  "warningsHistory": [
+    [],
+    [],
+    [],
+    [
+      "problem_articulation: entry missing both current_behavior and desired_behavior — at least one expected",
+      "repeat_back_statement provided without designer ratification quote"
+    ],
+    []
+  ]
+}
