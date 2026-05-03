@@ -10,7 +10,7 @@
  */
 
 import { readFileSync, writeFileSync } from 'fs';
-import { createElement, validateRefs, checkAllIntegrity } from './proof.js';
+import { createElement, validateRefs, checkAllIntegrity, FRICTION_DISPOSITIONS } from './proof.js';
 import { computeCompleteness, computeGroundingCoverage, detectChallenge, detectStall, checkClosure } from './metrics.js';
 
 const ID_PREFIX = {
@@ -46,6 +46,7 @@ export function initializeState(problemStatement) {
     concernsLocked: false,
     concernCounter: 0,
     ratificationLog: [],
+    frictionLog: [],
   };
 }
 
@@ -316,12 +317,92 @@ export function loadState(filePath) {
   raw.concernsLocked ??= false;
   raw.concernCounter ??= 0;
   raw.ratificationLog ??= [];
+  raw.frictionLog ??= [];
   raw.elementCounters.RESOLVE_CONDITION ??= 0;
+  raw.elementCounters.FRICTION ??= 0;
   for (const [, el] of raw.elements) {
     el.problem_anchor ??= null;
     el.ratification ??= null;
   }
   return raw;
+}
+
+/**
+ * Add a FRICTION element. Validates anchors exist before creation.
+ * Appends an 'added' entry to frictionLog.
+ * @param {object} state
+ * @param {object} input - { op: 'add', friction_shape, anchor_a, anchor_b, disposition, statement? }
+ * @returns {[object, string|null]} [newState, error]
+ */
+export function manageFriction(state, input) {
+  const { op } = input;
+  if (op !== 'add') {
+    return [state, `Unknown manage_friction op: ${op}`];
+  }
+  if (!state.elements.has(input.anchor_a)) {
+    return [state, `unknown element id: ${input.anchor_a}`];
+  }
+  if (!state.elements.has(input.anchor_b)) {
+    return [state, `unknown element id: ${input.anchor_b}`];
+  }
+  const [id, withId] = generateId(state, 'FRICTION');
+  let element;
+  try {
+    element = createElement({ ...input, type: 'FRICTION' }, id, withId.round);
+  } catch (e) {
+    return [state, e.message];
+  }
+  withId.elements.set(id, element);
+  withId.frictionLog.push({
+    event: 'added',
+    frictionId: id,
+    round: withId.round,
+    friction_shape: input.friction_shape,
+    disposition: input.disposition,
+  });
+  return [withId, null];
+}
+
+/**
+ * Override a FRICTION element's disposition. Logs the change; for terminal
+ * dispositions (dissolved-by-revision, dissolved-by-scope-cut, not-really-friction)
+ * also marks the element withdrawn and logs a 'dismissed' event.
+ * @param {object} state
+ * @param {{elementId: string, disposition: string}} input
+ * @returns {[object, string|null]} [newState, error]
+ */
+export function overrideFrictionDisposition(state, { elementId, disposition }) {
+  const target = state.elements.get(elementId);
+  if (!target) {
+    return [state, `unknown element id: ${elementId}`];
+  }
+  if (target.type !== 'FRICTION') {
+    return [state, `element_id must be FRICTION; got ${elementId} (type: ${target.type})`];
+  }
+  if (!FRICTION_DISPOSITIONS.includes(disposition)) {
+    return [state, `disposition must be one of: ${FRICTION_DISPOSITIONS.join(', ')}; got ${disposition}`];
+  }
+  const newState = structuredClone(state);
+  newState.elements = cloneElements(state.elements);
+  const t = newState.elements.get(elementId);
+  const oldDisposition = t.disposition;
+  t.disposition = disposition;
+  newState.frictionLog.push({
+    event: 'disposition-changed',
+    frictionId: elementId,
+    round: newState.round,
+    oldDisposition,
+    newDisposition: disposition,
+  });
+  if (['dissolved-by-revision', 'dissolved-by-scope-cut', 'not-really-friction'].includes(disposition)) {
+    t.status = 'withdrawn';
+    newState.frictionLog.push({
+      event: 'dismissed',
+      frictionId: elementId,
+      round: newState.round,
+    });
+  }
+  return [newState, null];
 }
 
 /**

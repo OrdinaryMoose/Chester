@@ -7,14 +7,15 @@ import { ListToolsRequestSchema, CallToolRequestSchema } from '@modelcontextprot
 import {
   initializeState, applyOperations, markChallengeUsed, saveState, loadState,
   addConcern, lockConcerns, ratifyResolveCondition,
+  manageFriction, overrideFrictionDisposition,
 } from './state.js';
-import { checkAllIntegrity } from './proof.js';
+import { checkAllIntegrity, FRICTION_SHAPES, FRICTION_DISPOSITIONS } from './proof.js';
 import {
   computeCompleteness, computeGroundingCoverage, detectChallenge, checkClosure,
   checkConcernCoverage,
 } from './metrics.js';
 
-const ELEMENT_TYPES = ['EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK', 'RESOLVE_CONDITION'];
+const ELEMENT_TYPES = ['EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK', 'RESOLVE_CONDITION', 'FRICTION'];
 
 const server = new Server(
   { name: 'chester-design-proof', version: '2.0.0' },
@@ -109,6 +110,36 @@ const TOOLS = [
     },
   },
   {
+    name: 'manage_friction',
+    description: 'Add a FRICTION element capturing tension between two existing elements. Anchors must reference existing elements; disposition records the designer\'s stance toward the friction.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        state_file: { type: 'string', description: 'Absolute path to state JSON' },
+        op: { type: 'string', enum: ['add'] },
+        friction_shape: { type: 'string', enum: FRICTION_SHAPES, description: 'Shape of the friction (which pair-type it captures)' },
+        anchor_a: { type: 'string', description: 'First anchor element ID' },
+        anchor_b: { type: 'string', description: 'Second anchor element ID' },
+        disposition: { type: 'string', enum: FRICTION_DISPOSITIONS, description: 'Designer\'s stance toward this friction' },
+        statement: { type: 'string', description: 'Optional human-readable description of the tension' },
+      },
+      required: ['state_file', 'op', 'friction_shape', 'anchor_a', 'anchor_b', 'disposition'],
+    },
+  },
+  {
+    name: 'override_friction_disposition',
+    description: 'Change the disposition of an existing FRICTION element. Terminal dispositions (dissolved-by-revision, dissolved-by-scope-cut, not-really-friction) also withdraw the element.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        state_file: { type: 'string', description: 'Absolute path to state JSON' },
+        element_id: { type: 'string', description: 'FRIC-N ID of the friction to update' },
+        disposition: { type: 'string', enum: FRICTION_DISPOSITIONS, description: 'New disposition' },
+      },
+      required: ['state_file', 'element_id', 'disposition'],
+    },
+  },
+  {
     name: 'ratify_resolve_condition',
     description: 'Ratify a single Resolve Condition. Sequential by design — accepts one element_id per call; batch shapes are not supported.',
     inputSchema: {
@@ -142,6 +173,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         return handleGetProofState(args);
       case 'manage_concerns':
         return handleManageConcerns(args);
+      case 'manage_friction':
+        return handleManageFriction(args);
+      case 'override_friction_disposition':
+        return handleOverrideFrictionDisposition(args);
       case 'ratify_resolve_condition':
         return handleRatifyResolveCondition(args);
       default:
@@ -271,6 +306,49 @@ function handleManageConcerns({ state_file, op, label, description }) {
     return { content: [{ type: 'text', text: JSON.stringify({ status: 'accepted', locked: true, concerns_count: newState.concerns.length }) }] };
   }
   return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: `Unknown op: ${op}` }) }], isError: true };
+}
+
+function handleManageFriction({ state_file, op, friction_shape, anchor_a, anchor_b, disposition, statement }) {
+  let state = loadState(state_file);
+  const [newState, err] = manageFriction(state, { op, friction_shape, anchor_a, anchor_b, disposition, statement });
+  if (err) {
+    return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: err }) }], isError: true };
+  }
+  saveState(newState, state_file);
+  // The newest FRICTION id is the last one created.
+  const fricId = `FRIC-${newState.elementCounters.FRICTION}`;
+  return {
+    content: [{
+      type: 'text',
+      text: JSON.stringify({
+        status: 'accepted',
+        element_id: fricId,
+        friction_shape,
+        disposition,
+      }),
+    }],
+  };
+}
+
+function handleOverrideFrictionDisposition({ state_file, element_id, disposition }) {
+  let state = loadState(state_file);
+  const [newState, err] = overrideFrictionDisposition(state, { elementId: element_id, disposition });
+  if (err) {
+    return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: err }) }], isError: true };
+  }
+  saveState(newState, state_file);
+  const target = newState.elements.get(element_id);
+  return {
+    content: [{
+      type: 'text',
+      text: JSON.stringify({
+        status: 'accepted',
+        element_id,
+        disposition: target.disposition,
+        status_after: target.status,
+      }),
+    }],
+  };
 }
 
 function handleRatifyResolveCondition({ state_file, element_id, ratification }) {
