@@ -441,6 +441,8 @@ export function loadState(filePath) {
   raw.frictionLog ??= [];
   raw.elementCounters.RESOLVE_CONDITION ??= 0;
   raw.elementCounters.FRICTION ??= 0;
+  raw.closingArgPresentedRound ??= null;
+  raw.closingArgGoRound ??= null;
   for (const [, el] of raw.elements) {
     el.problem_anchor ??= null;
     el.ratification ??= null;
