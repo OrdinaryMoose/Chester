@@ -48,7 +48,57 @@ export function initializeState(problemStatement) {
     concernCounter: 0,
     ratificationLog: [],
     frictionLog: [],
+    closingArgPresentedRound: null,
+    closingArgGoRound: null,
   };
+}
+
+/**
+ * Mutates the passed state in-place, clearing both two-yes closing flags.
+ * Intended to be called on an already-cloned `newState` inside a mutating export,
+ * after the export's own structuredClone+cloneElements.
+ *
+ * Inline-set discipline: do NOT call this helper from outside a mutating function's
+ * body — it does not clone, so calling it on shared state will mutate the caller's
+ * reference. Exported only so tests can verify the flag-clearing invariant on a
+ * known clone.
+ * @param {object} state
+ * @returns {object} same reference passed in
+ */
+export function clearClosingFlags(state) {
+  state.closingArgPresentedRound = null;
+  state.closingArgGoRound = null;
+  return state;
+}
+
+/**
+ * Record that the closing argument was presented in the current round.
+ * Returns a new state without mutating input.
+ * @param {object} state
+ * @returns {object}
+ */
+export function recordClosingArgPresented(state) {
+  const newState = structuredClone(state);
+  newState.elements = cloneElements(state.elements);
+  newState.closingArgPresentedRound = newState.round;
+  return newState;
+}
+
+/**
+ * Record designer's "go" decision. Refuses if the closing argument was not
+ * presented in the current round (mismatch indicates state has shifted since
+ * presentation; designer must re-present).
+ * @param {object} state
+ * @returns {[object, string|null]} [newState, error]
+ */
+export function recordDesignerGo(state) {
+  if (state.closingArgPresentedRound !== state.round) {
+    return [state, `closing argument presented in round ${state.closingArgPresentedRound}, current round ${state.round}; call present_closing_argument first`];
+  }
+  const newState = structuredClone(state);
+  newState.elements = cloneElements(state.elements);
+  newState.closingArgGoRound = newState.round;
+  return [newState, null];
 }
 
 /**
@@ -98,6 +148,8 @@ export function addConcern(state, { label, description }) {
   }
   let newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
+  newState.closingArgPresentedRound = null;
+  newState.closingArgGoRound = null;
   newState.concernCounter++;
   const id = `CERN-${newState.concernCounter}`;
   newState.concerns.push({ id, label, description: description ?? null });
@@ -120,6 +172,8 @@ export function lockConcerns(state) {
   }
   let newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
+  newState.closingArgPresentedRound = null;
+  newState.closingArgGoRound = null;
   newState.concernsLocked = true;
   const fricResult = processFriction(newState);
   newState = fricResult.state;
@@ -149,6 +203,8 @@ export function ratifyResolveCondition(state, { elementId, ratificationText }) {
   }
   let newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
+  newState.closingArgPresentedRound = null;
+  newState.closingArgGoRound = null;
   const updatedTarget = newState.elements.get(elementId);
   updatedTarget.ratification = { ratifiedAtRound: state.round, text: ratificationText };
   newState.ratificationLog.push({
@@ -189,6 +245,8 @@ export function generateId(state, type) {
 export function applyOperations(state, operations) {
   let current = structuredClone(state);
   current.elements = cloneElements(state.elements);
+  current.closingArgPresentedRound = null;
+  current.closingArgGoRound = null;
 
   current.round++;
 
@@ -346,6 +404,8 @@ export function applyOperations(state, operations) {
 export function markChallengeUsed(state, mode) {
   const newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
+  newState.closingArgPresentedRound = null;
+  newState.closingArgGoRound = null;
   newState.challengeModesUsed.push(mode);
   newState.challengeLog.push(mode);
   return newState;
@@ -407,6 +467,8 @@ export function manageFriction(state, input) {
     return [null, state, [], `unknown element id: ${input.anchor_b}`];
   }
   const [id, withId] = generateId(state, 'FRICTION');
+  withId.closingArgPresentedRound = null;
+  withId.closingArgGoRound = null;
   let element;
   try {
     element = createElement({ ...input, type: 'FRICTION' }, id, withId.round);
@@ -446,6 +508,8 @@ export function overrideFrictionDisposition(state, { elementId, disposition }) {
   }
   let newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
+  newState.closingArgPresentedRound = null;
+  newState.closingArgGoRound = null;
   const t = newState.elements.get(elementId);
   const oldDisposition = t.disposition;
   t.disposition = disposition;
