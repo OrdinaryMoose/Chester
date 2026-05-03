@@ -259,6 +259,13 @@ export function applyOperations(state, operations) {
   for (const op of operations) {
     switch (op.op) {
       case 'add': {
+        // FRICTION elements must come through manage_friction (which pre-validates
+        // anchor existence and emits the structured frictionLog 'added' event).
+        // Block here to avoid two creation paths with divergent validation.
+        if (op.type === 'FRICTION') {
+          errors.push('Cannot add FRICTION via submit_proof_update; use manage_friction tool');
+          break;
+        }
         // Validate grounding/basis refs against current elements
         const groundingRefs = op.grounding || [];
         const basisRefs = op.basis || [];
@@ -333,6 +340,14 @@ export function applyOperations(state, operations) {
         const target = current.elements.get(op.target);
         if (!target || target.status !== 'active') {
           errors.push(`Cannot withdraw "${op.target}": element not found or not active`);
+          break;
+        }
+        // FRICTION elements must come through override_friction_disposition
+        // (which uses friction-side disposition vocabulary). Avoid the
+        // semantic-collision shape where withdrawal_disposition and FRICTION's
+        // own disposition would both apply to the same element.
+        if (target.type === 'FRICTION') {
+          errors.push(`Cannot withdraw "${op.target}" via submit_proof_update; use override_friction_disposition with a terminal disposition (dissolved-by-revision, dissolved-by-scope-cut, not-really-friction)`);
           break;
         }
         let disposition;

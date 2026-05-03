@@ -233,7 +233,11 @@ function handleInitialize({ problem_statement, state_file }) {
         element_types: ELEMENT_TYPES,
         operations: ['add', 'revise', 'withdraw'],
         concerns: [],
-        tools_added: ['manage_concerns', 'ratify_resolve_condition'],
+        tools_added: [
+          'manage_concerns', 'ratify_resolve_condition',
+          'manage_friction', 'override_friction_disposition',
+          'present_closing_argument', 'confirm_closure_go',
+        ],
         state_file,
       }),
     }],

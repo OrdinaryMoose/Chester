@@ -78,6 +78,46 @@ describe('friction lifecycle', () => {
     expect(err).toMatch(/disposition must be one of/);
   });
 
+  it('applyOperations refuses to add FRICTION (must use manage_friction)', () => {
+    let s = initializeState('p');
+    let r = applyOperations(s, [
+      { op: 'add', type: 'EVIDENCE', statement: 'fact', source: 'codebase' },
+    ]);
+    s = r.state;
+    r = applyOperations(s, [
+      { op: 'add', type: 'NECESSARY_CONDITION', statement: 'NCa', collapse_test: 'a', grounding: ['EVID-1'], reasoning_chain: 'IF fact THEN NCa' },
+      { op: 'add', type: 'NECESSARY_CONDITION', statement: 'NCb', collapse_test: 'b', grounding: ['EVID-1'], reasoning_chain: 'IF fact THEN NCb' },
+    ]);
+    s = r.state;
+    r = applyOperations(s, [
+      { op: 'add', type: 'FRICTION', friction_shape: 'nc-nc-opposing-pull', anchor_a: 'NCON-1', anchor_b: 'NCON-2', disposition: 'lived-with' },
+    ]);
+    expect(r.errors.some(e => /FRICTION via submit_proof_update/.test(e))).toBe(true);
+    expect([...r.state.elements.values()].some(el => el.type === 'FRICTION' && el.id !== 'FRIC-1' && !el.id.startsWith('FRIC-'))).toBe(false);
+  });
+
+  it('applyOperations refuses to withdraw FRICTION (must use override_friction_disposition)', () => {
+    let s = initializeState('p');
+    let r = applyOperations(s, [
+      { op: 'add', type: 'EVIDENCE', statement: 'fact', source: 'codebase' },
+    ]);
+    s = r.state;
+    r = applyOperations(s, [
+      { op: 'add', type: 'NECESSARY_CONDITION', statement: 'NCa', collapse_test: 'a', grounding: ['EVID-1'], reasoning_chain: 'IF fact THEN NCa' },
+      { op: 'add', type: 'NECESSARY_CONDITION', statement: 'NCb', collapse_test: 'b', grounding: ['EVID-1'], reasoning_chain: 'IF fact THEN NCb' },
+    ]);
+    s = r.state;
+    let [, withFric] = manageFriction(s, {
+      op: 'add', friction_shape: 'nc-nc-opposing-pull',
+      anchor_a: 'NCON-1', anchor_b: 'NCON-2',
+      disposition: 'lived-with', statement: 'tension',
+    });
+    s = withFric;
+    r = applyOperations(s, [{ op: 'withdraw', target: 'FRIC-1' }]);
+    expect(r.errors.some(e => /override_friction_disposition/.test(e))).toBe(true);
+    expect(r.state.elements.get('FRIC-1').status).toBe('active');
+  });
+
   it('full lifecycle: auto-create from detection, override disposition, dismiss to phantom, surface in closing argument', () => {
     let s = initializeState('p');
     let r = applyOperations(s, [
