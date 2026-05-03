@@ -95,9 +95,12 @@ function dedupKey(c) {
 }
 
 export function runFrictionDetection(elements, concerns) {
+  // Suppress re-detection for any anchor-pair already covered by a FRICTION
+  // element, including withdrawn ones — a dismissed FRICTION is a deliberate
+  // designer disposition and must not silently re-emerge on the next mutation.
   const existingKeys = new Set();
   for (const [, el] of elements) {
-    if (el.type === 'FRICTION' && el.status === 'active') {
+    if (el.type === 'FRICTION') {
       existingKeys.add(dedupKey({ anchor_a: el.anchor_a, anchor_b: el.anchor_b, friction_shape: el.friction_shape }));
     }
   }
