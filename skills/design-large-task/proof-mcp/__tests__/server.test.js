@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync, unlinkSync, writeFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { handleOpenProof } from '../server.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const serverSource = readFileSync(join(__dirname, '../server.js'), 'utf-8');
@@ -100,5 +101,230 @@ describe('server.js — override_friction_disposition tool', () => {
 
   it('handler imports overrideFrictionDisposition', () => {
     expect(serverSource).toMatch(/overrideFrictionDisposition/);
+  });
+});
+
+describe('server.js — open_proof tool registration', () => {
+  it('declares open_proof tool', () => {
+    expect(serverSource).toMatch(/name:\s*'open_proof'/);
+  });
+
+  it('declares state_file and submission_material as required inputs', () => {
+    const block = serverSource.split("name: 'open_proof'")[1] ?? '';
+    expect(block).toMatch(/state_file/);
+    expect(block).toMatch(/submission_material/);
+    expect(block).toMatch(/required:\s*\[\s*'state_file'\s*,\s*'submission_material'\s*\]/);
+  });
+
+  it('keeps submission_material schema permissive (no additionalProperties:false)', () => {
+    const block = serverSource.split("name: 'open_proof'")[1] ?? '';
+    const submissionBlock = block.split("submission_material:")[1]?.split('}')[0] ?? '';
+    expect(submissionBlock).not.toMatch(/additionalProperties:\s*false/);
+  });
+
+  it('dispatches open_proof in switch', () => {
+    expect(serverSource).toMatch(/case\s+'open_proof'/);
+  });
+
+  it('handler function handleOpenProof exists', () => {
+    expect(serverSource).toMatch(/function\s+handleOpenProof/);
+  });
+});
+
+describe('handleOpenProof — three-phase orchestration', () => {
+  it('gate-pass writes state and sets proofStatus="open"', async () => {
+    const tmp = `/tmp/open-proof-pass-${Date.now()}.json`;
+    const args = {
+      state_file: tmp,
+      submission_material: {
+        problem_statement: 'a one-sentence problem.',
+        elements: [
+          { category: 'RULE', statement: 'A rule.', source: 'designer' },
+          {
+            category: 'NECESSARY_CONDITION',
+            statement: 'An NC.',
+            grounding: ['RULE-1'],
+            reasoning_chain: 'because R',
+            collapse_test: 'breaks if removed',
+            rejected_alternatives: ['alt1'],
+          },
+        ],
+      },
+    };
+    const response = handleOpenProof(args);
+    const payload = JSON.parse(response.content[0].text);
+    expect(payload.status).toBe('opened');
+    expect(payload.proof_open).toBe(true);
+    expect(payload.restructuring_report).toBeDefined();
+    expect(existsSync(tmp)).toBe(true);
+    const written = JSON.parse(readFileSync(tmp, 'utf-8'));
+    expect(written.proofStatus).toBe('open');
+    unlinkSync(tmp);
+  });
+
+  it('gate-fail does NOT write state', () => {
+    const tmp = `/tmp/open-proof-fail-${Date.now()}.json`;
+    const args = {
+      state_file: tmp,
+      submission_material: {
+        problem_statement: 'p',
+        elements: [{ category: 'RULE' }],  // missing statement → rejected → no admitted → gate fail
+      },
+    };
+    const response = handleOpenProof(args);
+    const payload = JSON.parse(response.content[0].text);
+    expect(payload.status).toBe('gate_failed');
+    expect(payload.proof_open).toBe(false);
+    expect(payload.restructuring_report).toBeDefined();
+    expect(payload.gate_failures).toBeDefined();
+    expect(existsSync(tmp)).toBe(false);
+  });
+
+  it('three phases execute in declared order (accept → restructure → open) — verified by observable side effects', () => {
+    const tmp = `/tmp/open-proof-order-${Date.now()}.json`;
+    handleOpenProof({
+      state_file: tmp,
+      submission_material: {
+        problem_statement: 'order test',
+        elements: [{ category: 'RULE', statement: 'r', source: 'designer' }],
+      },
+    });
+    const written = JSON.parse(readFileSync(tmp, 'utf-8'));
+    expect(written.proofStatus).toBe('open');
+    expect(Object.keys(written.elements).length).toBeGreaterThan(0);
+    expect(written.problemStatement).toBe('order test');
+    if (existsSync(tmp)) unlinkSync(tmp);
+  });
+
+  it('routes admitted Concern candidates through addConcern (state.concerns), not applyOperations', () => {
+    const tmp = `/tmp/open-proof-concern-${Date.now()}.json`;
+    const args = {
+      state_file: tmp,
+      submission_material: {
+        problem_statement: 'concern routing test',
+        elements: [
+          { category: 'Concern', label: 'A real concern label.', description: 'why it matters' },
+          { category: 'RULE', statement: 'A rule.', source: 'designer' },
+        ],
+      },
+    };
+    const response = handleOpenProof(args);
+    const payload = JSON.parse(response.content[0].text);
+    expect(payload.status).toBe('opened');
+    const written = JSON.parse(readFileSync(tmp, 'utf-8'));
+    expect(written.concerns.length).toBe(1);
+    expect(written.concerns[0].label).toBe('A real concern label.');
+    const elementValues = Object.values(written.elements);
+    expect(elementValues.find(e => e.type === 'Concern')).toBeUndefined();
+    expect(elementValues.find(e => e.type === 'RULE')).toBeDefined();
+    if (existsSync(tmp)) unlinkSync(tmp);
+  });
+
+  it('surfaces applyOperations errors as partial_write_failure', () => {
+    const tmp = `/tmp/open-proof-errors-${Date.now()}.json`;
+    const args = {
+      state_file: tmp,
+      submission_material: {
+        problem_statement: 'p',
+        elements: [
+          {
+            category: 'NECESSARY_CONDITION',
+            statement: 'NC depending on missing element',
+            grounding: ['EVID-99'],
+            reasoning_chain: 'because',
+            collapse_test: 'breaks',
+            rejected_alternatives: ['alt'],
+          },
+        ],
+      },
+    };
+    const response = handleOpenProof(args);
+    const payload = JSON.parse(response.content[0].text);
+    expect(payload.status).toBe('partial_write_failure');
+    expect(Array.isArray(payload.errors)).toBe(true);
+    expect(payload.errors.length).toBeGreaterThan(0);
+    if (existsSync(tmp)) unlinkSync(tmp);
+  });
+
+  it('resubmission overwrites prior partial state file', () => {
+    const tmp = `/tmp/open-proof-resub-${Date.now()}.json`;
+    writeFileSync(tmp, JSON.stringify({ stale: 'data' }));
+    const args = {
+      state_file: tmp,
+      submission_material: {
+        problem_statement: 'fresh',
+        elements: [{ category: 'RULE', statement: 'fresh rule', source: 'designer' }],
+      },
+    };
+    handleOpenProof(args);
+    const written = JSON.parse(readFileSync(tmp, 'utf-8'));
+    expect(written.stale).toBeUndefined();
+    expect(written.problemStatement).toBe('fresh');
+    unlinkSync(tmp);
+  });
+});
+
+describe('handleOpenProof — already-open refusal', () => {
+  it('refuses without invoking restructure when state file has proofStatus="open"', () => {
+    const tmp = `/tmp/already-open-${Date.now()}.json`;
+    const priorState = {
+      round: 5, problemStatement: 'prior', elements: {},
+      elementCounters: { EVIDENCE: 0, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 0, RISK: 0, RESOLVE_CONDITION: 0, FRICTION: 0 },
+      conditionCountHistory: [], elementCountHistory: [], challengeModesUsed: [], challengeLog: [], revisionLog: [], phaseTransitionRound: 0,
+      concerns: [], concernsLocked: false, concernCounter: 0, ratificationLog: [], frictionLog: [],
+      closingArgPresentedRound: null, closingArgGoRound: null,
+      proofStatus: 'open',
+    };
+    writeFileSync(tmp, JSON.stringify(priorState));
+    const sizeBefore = readFileSync(tmp, 'utf-8').length;
+
+    const response = handleOpenProof({
+      state_file: tmp,
+      submission_material: {
+        problem_statement: 'new',
+        elements: [{ category: 'RULE', statement: 'new rule', source: 'designer' }],
+      },
+    });
+    const payload = JSON.parse(response.content[0].text);
+    expect(payload.status).toBe('already_open');
+    expect(payload.diagnostic).toContain(tmp);
+
+    const sizeAfter = readFileSync(tmp, 'utf-8').length;
+    expect(sizeAfter).toBe(sizeBefore);
+    unlinkSync(tmp);
+  });
+
+  it('overwrites a malformed (non-JSON) state file on gate-pass — explicit catch-all behavior', () => {
+    const tmp = `/tmp/open-proof-malformed-${Date.now()}.json`;
+    writeFileSync(tmp, 'this is not valid JSON {{{');
+
+    const response = handleOpenProof({
+      state_file: tmp,
+      submission_material: {
+        problem_statement: 'recovery from malformed state',
+        elements: [{ category: 'RULE', statement: 'r', source: 'designer' }],
+      },
+    });
+    const payload = JSON.parse(response.content[0].text);
+    expect(payload.status).toBe('opened');
+    const written = JSON.parse(readFileSync(tmp, 'utf-8'));
+    expect(written.problemStatement).toBe('recovery from malformed state');
+    expect(written.proofStatus).toBe('open');
+    unlinkSync(tmp);
+  });
+});
+
+describe('initialize_proof retirement', () => {
+  it('TOOLS array does NOT contain initialize_proof entry', () => {
+    expect(serverSource).not.toMatch(/name:\s*'initialize_proof'/);
+  });
+
+  it('open_proof remains the only proof-opening entry point', () => {
+    expect(serverSource).toMatch(/name:\s*'open_proof'/);
+  });
+
+  it('server.js contains no remaining references to initialize_proof or handleInitialize', () => {
+    expect(serverSource).not.toContain('initialize_proof');
+    expect(serverSource).not.toContain('handleInitialize');
   });
 });

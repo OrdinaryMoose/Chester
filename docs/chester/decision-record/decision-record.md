@@ -311,3 +311,167 @@ supersedes: null
 artifact_refs:
   - working/20260430-02-rebuild-design-derivation/cluster-b-2-define-solve-closing/summary/cluster-b-2-define-solve-closing-summary-00.md
 ---
+
+---
+id: dr-20260504-01-permissive-boundary-internal-rigor
+date: 2026-05-04
+sprint: cluster-b-1-define-transition
+stage: design-large-task
+title: Permissive contract boundary with internal restructuring rigor
+decision: The Phase 4b contract surface (`open_proof`) accepts any submission shape without structural rejection at the MCP boundary; all rigor lives in the 4b-internal restructuring phase, with proof-open gated on per-element artifacts produced by that phase.
+rationale: NCON-2 binds the boundary to permissive because the caller is untrusted (R9), the contract is generic for any caller (R2), and assume-guarantee patterns (B-Method, SPARK, JML, Eiffel) place validation rigor at the receiver when senders are heterogeneous (EVID-5). Boundary rejection would force defining caller-side validation, contradicting R9 and breaking the contract's generic-caller property; rigor is preserved by NCON-3's open-gate verifier rather than by schema strictness. Future contract surfaces inside Chester that face untrusted callers must follow the same pattern — keep the schema permissive at the wire, push rigor inside, and gate transitions on artifacts the rigor produces.
+alternatives:
+  - Minimum-schema validation at boundary — rejected because it pulls validation to the caller side, violating R9.
+  - Reject empty submissions at boundary — rejected because defining 'empty' still requires caller-side compliance assumptions, violating R9.
+  - Accept-with-warnings — rejected because warnings imply a caller-side correction loop, contradicting R6's one-shot transition.
+tags: [architecture, governance]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-b-1-define-transition/design/cluster-b-1-define-transition-design-00.md
+  - working/20260430-02-rebuild-design-derivation/cluster-b-1-define-transition/spec/cluster-b-1-define-transition-spec-00.md
+---
+
+---
+id: dr-20260504-02-three-module-restructure-split
+date: 2026-05-04
+sprint: cluster-b-1-define-transition
+stage: plan-build
+title: Three-module split for restructure pipeline
+decision: The restructuring pipeline is split across three sibling modules — `restructure-schema.js` (data registry only), `restructure-rules.js` (pure predicates: assignActionLabel, isRejectedValue, validateReasoningAnchor), and `restructure.js` (top-level orchestrator plus provenance and metadata builders) — rather than collected into one file.
+rationale: Collapsing all seven responsibilities (registry, three predicates, provenance builder, metadata router, orchestrator) into one module would couple data declaration to rule evaluation to control flow, making each kind of change require navigating unrelated code. The split lets schema edits, rule-table edits, and orchestrator edits land in distinct files with mirrored test files (`restructure-schema.test.js`, `restructure-rules.test.js`, `restructure.test.js`). Future restructure-pipeline extensions (new categories, new action labels, new anchor formats) should preserve this layout — add to the matching module rather than reintroducing a monolith.
+alternatives:
+  - Single `restructure.js` file containing registry, predicates, and orchestrator — rejected because mixing seven responsibilities couples unrelated change axes and inflates the test file.
+  - Two modules (data + behavior) — rejected because rule predicates and orchestrator have different change cadences (rules are stable enums; orchestrator evolves with action-label additions); collapsing them re-couples the axes the split is meant to separate.
+tags: [architecture, convention]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-b-1-define-transition/plan/cluster-b-1-define-transition-plan-00.md
+  - working/20260430-02-rebuild-design-derivation/cluster-b-1-define-transition/summary/cluster-b-1-define-transition-summary-00.md
+---
+
+---
+id: dr-20260504-03-per-field-provenance-array
+date: 2026-05-04
+sprint: cluster-b-1-define-transition
+stage: plan-build
+title: Per-field provenance array with priority-promoted aggregate
+decision: Every admitted element's `provenance` carries a `field_provenance: [{field_name, action_label, reasoning_chain}]` array — one entry per typed field — plus an element-level `restructuring_action_label` computed by priority promotion (`gap-fill > reshape > verbatim-preserve`); the aggregate label never replaces per-field detail.
+rationale: A single element-level label is a lossy approximation that hides which fields were verbatim-preserved versus reshaped versus gap-filled, and once that aggregate hardens into the API contract downstream consumers can no longer recover field-level intent. Plan-smell flagged this as a Medium-severity smell; the fix preserves per-field granularity in `field_provenance` while keeping the aggregate as a documented, tested priority promotion. Future provenance schema changes must preserve per-field detail; collapsing to a single label is forbidden without superseding this record.
+alternatives:
+  - Single element-level action label only — rejected because it loses field-level intent and hardens lossy aggregation into the API contract (plan-smell finding).
+  - Per-field labels with no aggregate — rejected because the open-gate verifier and downstream consumers benefit from a single summary label for fast-path checks; the aggregate is additive, not substitutive.
+tags: [architecture, format]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-b-1-define-transition/plan/cluster-b-1-define-transition-plan-00.md
+  - working/20260430-02-rebuild-design-derivation/cluster-b-1-define-transition/plan/cluster-b-1-define-transition-plan-threat-report-00.md
+---
+
+---
+id: dr-20260504-04-resolve-condition-excluded-from-registry
+date: 2026-05-04
+sprint: cluster-b-1-define-transition
+stage: design-specify
+title: RESOLVE_CONDITION excluded from REQUIRED_FIELDS_REGISTRY
+decision: The `REQUIRED_FIELDS_REGISTRY` covers exactly six B.1-admittable categories (EVIDENCE, RULE, PERMISSION, NECESSARY_CONDITION, RISK, Concern); RESOLVE_CONDITION is intentionally absent, so RCs cannot enter the proof through the `open_proof` contract surface and must be added post-open via existing tools (`submit_proof_update` or `ratify_resolve_condition`).
+rationale: `applyOperations` validates `RC.problem_anchor` against `state.concerns`, which is empty immediately after `initializeState` runs inside `handleOpenProof` — admitting an RC at open would always fail the problem-anchor check, so the registry must reflect that constraint at the schema level rather than letting it surface as runtime rejection. FRICTION is also excluded for a different reason (B.2-generated via `manage_friction`, not received from callers). Future contract-surface extensions must preserve both exclusions; admitting RC at the contract requires first establishing Concerns inside `handleOpenProof` and is out of scope for B.1.
+alternatives:
+  - Include RESOLVE_CONDITION in the registry and let runtime validation reject — rejected because predictable structural impossibility belongs at the schema layer, not as runtime noise.
+  - Reorder `handleOpenProof` to provision Concerns before admitting RCs — rejected as out of scope for B.1; would require multi-pass restructuring and a Concern-first ordering rule the spec does not authorize.
+tags: [architecture, convention]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-b-1-define-transition/spec/cluster-b-1-define-transition-spec-00.md
+  - working/20260430-02-rebuild-design-derivation/cluster-b-1-define-transition/summary/cluster-b-1-define-transition-summary-00.md
+---
+
+---
+id: dr-20260504-05-concern-partition-routing
+date: 2026-05-04
+sprint: cluster-b-1-define-transition
+stage: execute-write
+title: Concern partition routing through addConcern
+decision: `handleOpenProof` partitions admitted candidates into typed elements (routed through `applyOperations` into `state.elements`) and Concerns (routed through `addConcern` into `state.concerns`); Concerns never flow through `applyOperations` and cannot leak into `state.elements`.
+rationale: Concerns live in a separate state slot (`state.concerns`) with their own lifecycle; routing them through `applyOperations` would require Concern-shaped op handling there and risk type bleed into `state.elements` if any branch missed the partition. Splitting at the orchestrator keeps each downstream API focused on one element family and makes the leak-prevention property structural rather than test-asserted. Future contract-surface code must preserve the partition; any new state slot added later (e.g., a Resolve Condition slot if cluster A relocates RCs) must follow the same partition-at-orchestrator pattern.
+alternatives:
+  - Route Concerns through `applyOperations` with a Concern op type — rejected because it widens applyOperations' surface and risks type bleed into `state.elements`.
+  - Route both through a single unified persistence call — rejected because Concerns and elements have different schemas, lifecycles, and downstream consumers; unification removes the structural partition that prevents leakage.
+tags: [architecture]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-b-1-define-transition/spec/cluster-b-1-define-transition-spec-00.md
+  - working/20260430-02-rebuild-design-derivation/cluster-b-1-define-transition/summary/cluster-b-1-define-transition-summary-00.md
+---
+
+---
+id: dr-20260504-06-esm-main-module-guard
+date: 2026-05-04
+sprint: cluster-b-1-define-transition
+stage: execute-write
+title: ESM main-module guard for vitest-importable servers
+decision: MCP server entry points guard their `main()` invocation with an ESM main-module check (`import.meta.url === \`file://${process.argv[1]}\``) so that vitest imports of the module do not launch the stdio server.
+rationale: Without the guard, importing `server.js` from a vitest test file would auto-launch the MCP stdio server, contending for stdin/stdout and breaking test isolation; the guard is the ESM analog of CommonJS's `if (require.main === module)` pattern. The fix surfaced because the new `open_proof` test surface needs to import handler functions from `server.js` directly. Future MCP server modules in Chester must include the same guard; importable-by-tests is the default, server-launches-on-direct-execution is the opt-in.
+alternatives:
+  - Split server.js into a library module plus a thin entry script that calls `main()` — rejected because it doubles the file count and most existing tests already import from server.js; the guard is the lower-friction fix.
+  - Mock `main()` in test setup — rejected because it requires per-suite mocking discipline that future tests would forget; the guard is structural and forget-proof.
+tags: [convention, tool]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-b-1-define-transition/summary/cluster-b-1-define-transition-summary-00.md
+---
+
+---
+id: dr-20260504-07-initialize-proof-retired
+date: 2026-05-04
+sprint: cluster-b-1-define-transition
+stage: execute-write
+title: Legacy initialize_proof tool retired in B.1
+decision: The legacy `initialize_proof` MCP tool (and its `handleInitialize` handler and TOOLS-array entry and dispatch case) is deleted in this sprint; `open_proof` becomes the sole proof-opening entry point.
+rationale: Keeping both tools live would create two parallel paths for proof opening — `initialize_proof` calling only `initializeState` plus `saveState`, and `open_proof` adding `applyOperations` between them — so any future change to proof initialization (e.g., a new required state field) would need to land in two handlers. Plan-smell flagged the duplication as Medium-severity. Earlier guidance (and the spec's initial draft) considered preserving `initialize_proof` for backward compatibility; the designer's mid-sprint direction was to retire it within B.1 rather than defer to a later cluster, so the retirement landed under T13 rather than waiting on cluster C.
+alternatives:
+  - Preserve `initialize_proof` unchanged for backward compatibility — rejected because the duplication smell hardens with each new init-time field and there are no external callers depending on it.
+  - Defer retirement to cluster C — rejected because the longer both tools coexist, the more test and skill-text cleanup the retirement requires; doing it inside B.1 keeps the contract surface clean from sprint close.
+tags: [architecture, revert, mcp]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-b-1-define-transition/plan/cluster-b-1-define-transition-plan-00.md
+  - working/20260430-02-rebuild-design-derivation/cluster-b-1-define-transition/summary/cluster-b-1-define-transition-summary-00.md
+---
+
+---
+id: dr-20260504-08-per-task-execution-mode
+date: 2026-05-04
+sprint: cluster-b-1-define-transition
+stage: plan-build
+title: Per-task Execution mode override in plan files
+decision: Plan files may declare `Execution mode: per-task` at the header and then carry an `Execution: inline | subagent` field on each individual task; execute-write reads the per-task field directly when the plan-wide mode is `per-task`, overriding the plan-wide heuristic.
+rationale: Plan-wide execution mode forces every task into the same dispatch shape, but cluster B.1's tasks split cleanly between two genuinely-complex orchestrators (T8 restructure, T11 handleOpenProof) that benefit from subagent isolation and twelve mechanical tasks (single-function additions, doc edits) that run cheaper inline. The per-task override lets the designer mark each task at plan-build time without wholesale-switching the sprint. Future plans should reuse this pattern when task complexity is bimodal; the precedent is set for execute-write to honor the per-task field whenever the plan declares per-task mode.
+alternatives:
+  - Plan-wide subagent mode for all tasks — rejected because twelve mechanical tasks pay subagent overhead for no isolation benefit.
+  - Plan-wide inline mode for all tasks — rejected because T8 and T11 carry nested logic and partition routing that benefits from subagent context isolation.
+  - Split into two plans (one per mode) — rejected because it fragments task ordering and forces two execute-write passes for one logical sprint.
+tags: [process, skill]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-b-1-define-transition/plan/cluster-b-1-define-transition-plan-00.md
+  - working/20260430-02-rebuild-design-derivation/cluster-b-1-define-transition/summary/cluster-b-1-define-transition-summary-00.md
+---
+
+---
+id: dr-20260504-09-open-proof-five-status-responses
+date: 2026-05-04
+sprint: cluster-b-1-define-transition
+stage: design-specify
+title: open_proof returns one of five named status values
+decision: `open_proof` returns one of exactly five status strings — `opened`, `gate_failed`, `partial_write_failure`, `save_failed`, `already_open` — and resubmissions to the same `state_file` are safe because the gate-fail and partial-write-failure paths write nothing.
+rationale: A single boolean success/fail or a free-form error message would erase the structural distinction between failure modes the caller needs to distinguish: gate failures produce a restructuring report the caller can inspect and resubmit against, partial-write failures surface `applyResult.errors` for inspection, save failures are filesystem-level, and already-open is a refusal that protects against unintentional overwrite. Each status carries a distinct response payload; merging any two would force the caller to reverse-engineer which path fired. Future tools that wrap multi-phase orchestration should follow the same pattern — one status per terminal state, resubmission-safe at every failure path.
+alternatives:
+  - Boolean success plus error string — rejected because callers cannot distinguish gate failures (resubmit with corrected material) from save failures (filesystem retry) from already-open (use a fresh state_file).
+  - Throw on failure, return on success — rejected because MCP error responses lose structured payload (the restructuring report and gate diagnostics) the caller needs to act on.
+  - Collapse `gate_failed` and `partial_write_failure` into one status — rejected because gate-fail writes nothing while partial-write-failure has already mutated state; the caller's recovery action differs.
+tags: [format, convention]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-b-1-define-transition/spec/cluster-b-1-define-transition-spec-00.md
+  - working/20260430-02-rebuild-design-derivation/cluster-b-1-define-transition/summary/cluster-b-1-define-transition-summary-00.md
+---

@@ -16,6 +16,9 @@ import {
   checkConcernCoverage, evaluateTrigger,
 } from './metrics.js';
 import { deriveClosingArgument } from './closing-argument.js';
+import { restructure } from './restructure.js';
+import { checkOpenGate } from './open-gate.js';
+import { existsSync } from 'node:fs';
 
 const ELEMENT_TYPES = ['EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK', 'RESOLVE_CONDITION', 'FRICTION'];
 
@@ -27,18 +30,6 @@ const server = new Server(
 // ── Tool Definitions ─────────────────────────────────────────────
 
 const TOOLS = [
-  {
-    name: 'initialize_proof',
-    description: 'Initialize a new design proof session with the necessary conditions model',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        problem_statement: { type: 'string', description: "The designer's verbatim problem statement" },
-        state_file: { type: 'string', description: 'Absolute path to persist state JSON' },
-      },
-      required: ['problem_statement', 'state_file'],
-    },
-  },
   {
     name: 'submit_proof_update',
     description: 'Submit a batch of proof operations (add, revise, withdraw) for the current round',
@@ -146,6 +137,18 @@ const TOOLS = [
     },
   },
   {
+    name: 'open_proof',
+    description: 'Open a proof from an untrusted caller submission. Restructures submission material into typed proof elements per a 4b-owned schema and writes initial state. Permissive at the boundary; rigor enforced internally.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        state_file: { type: 'string', description: 'Absolute path to write proof state JSON.' },
+        submission_material: { type: 'object', description: 'Free-form caller submission. Must include problem_statement (string).' },
+      },
+      required: ['state_file', 'submission_material'],
+    },
+  },
+  {
     name: 'ratify_resolve_condition',
     description: 'Ratify a single Resolve Condition. Sequential by design — accepts one element_id per call; batch shapes are not supported.',
     inputSchema: {
@@ -193,8 +196,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
   try {
     switch (name) {
-      case 'initialize_proof':
-        return handleInitialize(args);
       case 'submit_proof_update':
         return handleSubmitProofUpdate(args);
       case 'get_proof_state':
@@ -207,6 +208,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         return handleOverrideFrictionDisposition(args);
       case 'ratify_resolve_condition':
         return handleRatifyResolveCondition(args);
+      case 'open_proof':
+        return handleOpenProof(args);
       case 'present_closing_argument':
         return handlePresentClosingArgument(args);
       case 'confirm_closure_go':
@@ -220,29 +223,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 });
 
 // ── Tool Handlers ────────────────────────────────────────────────
-
-function handleInitialize({ problem_statement, state_file }) {
-  const state = initializeState(problem_statement);
-  saveState(state, state_file);
-
-  return {
-    content: [{
-      type: 'text',
-      text: JSON.stringify({
-        status: 'initialized',
-        element_types: ELEMENT_TYPES,
-        operations: ['add', 'revise', 'withdraw'],
-        concerns: [],
-        tools_added: [
-          'manage_concerns', 'ratify_resolve_condition',
-          'manage_friction', 'override_friction_disposition',
-          'present_closing_argument', 'confirm_closure_go',
-        ],
-        state_file,
-      }),
-    }],
-  };
-}
 
 function handleSubmitProofUpdate({ state_file, operations, challenge_used }) {
   let state = loadState(state_file);
@@ -435,6 +415,131 @@ function handleConfirmClosureGo({ state_file }) {
   return { content: [{ type: 'text', text: JSON.stringify(closure, null, 2) }] };
 }
 
+export function handleOpenProof({ state_file, submission_material }) {
+  // Pre-check: refuse if proof at this state file is already open.
+  if (existsSync(state_file)) {
+    try {
+      const existingState = loadState(state_file);
+      if (existingState.proofStatus === 'open') {
+        return {
+          content: [{ type: 'text', text: JSON.stringify({
+            status: 'already_open',
+            diagnostic: `Proof at ${state_file} is already open. Use a fresh state_file or initialize a new proof.`,
+            proof_open: true,
+          })}],
+        };
+      }
+    } catch (_e) {
+      // Malformed file: fall through to normal flow (will be overwritten on gate pass).
+    }
+  }
+
+  // Phase 1 — accept submission as-is. No structural validation.
+  const submission = submission_material || {};
+
+  // Phase 2 — restructure into typed proof elements.
+  const restructured = restructure(submission);
+
+  // Special case: problem_statement extraction failed.
+  if (restructured.rejection_diagnostic) {
+    return {
+      content: [{ type: 'text', text: JSON.stringify({
+        status: 'gate_failed',
+        restructuring_report: restructured.report,
+        gate_failures: [{ missing_artifact: 'problem_statement', diagnostic: restructured.rejection_diagnostic }],
+        rejected: restructured.rejected,
+        proof_open: false,
+      })}],
+    };
+  }
+
+  // Phase 3 — check open gate, then initialize and persist state on pass.
+  const gate = checkOpenGate(restructured.admitted, restructured.report);
+  if (!gate.permitted) {
+    return {
+      content: [{ type: 'text', text: JSON.stringify({
+        status: 'gate_failed',
+        restructuring_report: restructured.report,
+        gate_failures: gate.failures,
+        rejected: restructured.rejected,
+        proof_open: false,
+      })}],
+    };
+  }
+
+  // Gate pass: build state, apply elements, save.
+  let state = initializeState(restructured.problem_statement);
+
+  // Partition admitted into typed elements (go through applyOperations) and Concerns
+  // (go through addConcern; no entry in ELEMENT_TYPES, lives in state.concerns[]).
+  const admittedTypedElements = restructured.admitted.filter(a => a.category !== 'Concern');
+  const admittedConcerns = restructured.admitted.filter(a => a.category === 'Concern');
+
+  const ops = admittedTypedElements.map(adm => admittedToAddOp(adm));
+  const applyResult = applyOperations(state, ops);
+
+  // Surface applyOperations errors per Plan-Wide Implementation Discipline.
+  if (applyResult.errors && applyResult.errors.length > 0) {
+    const attemptedCount = admittedTypedElements.length + admittedConcerns.length;
+    const actuallyAdmittedCount = (applyResult.added ? applyResult.added.length : 0);
+    return {
+      content: [{ type: 'text', text: JSON.stringify({
+        status: 'partial_write_failure',
+        restructuring_report: restructured.report,
+        errors: applyResult.errors,
+        attempted_admit_count: attemptedCount,
+        actually_admitted_count: actuallyAdmittedCount,
+        proof_open: false,
+      })}],
+    };
+  }
+
+  state = applyResult.state;
+
+  // Provision admitted Concerns via addConcern (separate path).
+  for (const concernCandidate of admittedConcerns) {
+    const [, concernState] = addConcern(state, {
+      label: concernCandidate.label,
+      description: concernCandidate.description,
+    });
+    state = concernState;
+  }
+
+  state.proofStatus = 'open';
+  try {
+    saveState(state, state_file);
+  } catch (saveErr) {
+    return {
+      content: [{ type: 'text', text: JSON.stringify({
+        status: 'save_failed',
+        restructuring_report: restructured.report,
+        diagnostic: `saveState threw: ${saveErr.message}`,
+        proof_open: false,
+      })}],
+    };
+  }
+
+  return {
+    content: [{ type: 'text', text: JSON.stringify({
+      status: 'opened',
+      restructuring_report: restructured.report,
+      admitted_count: restructured.admitted.length,
+      rejected_count: restructured.rejected.length,
+      proof_open: true,
+    })}],
+  };
+}
+
+function admittedToAddOp(admitted) {
+  const { category, metadata, restructuring_action_label, provenance, ...typedFields } = admitted;
+  return {
+    op: 'add',
+    type: category,
+    ...typedFields,
+    restructuring: { metadata, restructuring_action_label, provenance },
+  };
+}
+
 // ── Startup ──────────────────────────────────────────────────────
 
 async function main() {
@@ -442,4 +547,6 @@ async function main() {
   await server.connect(transport);
 }
 
-main().catch(console.error);
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main().catch(console.error);
+}

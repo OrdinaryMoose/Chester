@@ -1,0 +1,2 @@
+[2026-05-04T02:17:31Z] pre-compact ERROR: failed to write snapshot
+[2026-05-04T02:19:54Z] post-compact WARN: session ID mismatch: snapshot=, current=914bc33c-6a5c-4d92-8551-aac137785419

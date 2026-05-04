@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mkdtempSync, rmSync, writeFileSync } from 'fs';
+import { mkdtempSync, rmSync, writeFileSync, unlinkSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
-import { loadState } from '../state.js';
+import { initializeState, loadState } from '../state.js';
 
 describe('loadState backfill for cluster B.2 fields', () => {
   let dir;
@@ -25,5 +25,46 @@ describe('loadState backfill for cluster B.2 fields', () => {
     expect(s.closingArgGoRound).toBeNull();
     expect(s.frictionLog).toEqual([]);
     expect(s.elementCounters.FRICTION).toBe(0);
+  });
+});
+
+describe('loadState proofStatus backfill', () => {
+  it('backfills proofStatus to "unopen" when missing from prior state', () => {
+    const tmpFile = `/tmp/test-loadstate-${Date.now()}.json`;
+    const priorState = {
+      round: 0,
+      problemStatement: 'test',
+      elements: {},
+      elementCounters: { EVIDENCE: 0, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 0, RISK: 0, RESOLVE_CONDITION: 0, FRICTION: 0 },
+      conditionCountHistory: [],
+      elementCountHistory: [],
+      challengeModesUsed: [],
+      challengeLog: [],
+      revisionLog: [],
+      phaseTransitionRound: 0,
+    };
+    writeFileSync(tmpFile, JSON.stringify(priorState));
+    const loaded = loadState(tmpFile);
+    expect(loaded.proofStatus).toBe('unopen');
+    unlinkSync(tmpFile);
+  });
+
+  it('preserves proofStatus when present in state file', () => {
+    const tmpFile = `/tmp/test-loadstate-${Date.now()}.json`;
+    const priorState = {
+      round: 0, problemStatement: 'test', elements: {},
+      elementCounters: { EVIDENCE: 0, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 0, RISK: 0, RESOLVE_CONDITION: 0, FRICTION: 0 },
+      conditionCountHistory: [], elementCountHistory: [], challengeModesUsed: [], challengeLog: [], revisionLog: [], phaseTransitionRound: 0,
+      proofStatus: 'open',
+    };
+    writeFileSync(tmpFile, JSON.stringify(priorState));
+    const loaded = loadState(tmpFile);
+    expect(loaded.proofStatus).toBe('open');
+    unlinkSync(tmpFile);
+  });
+
+  it('initializeState includes proofStatus="unopen" by default', () => {
+    const state = initializeState('test problem');
+    expect(state.proofStatus).toBe('unopen');
   });
 });

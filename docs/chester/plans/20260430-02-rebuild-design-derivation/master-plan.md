@@ -8,8 +8,8 @@ doc_status: "active"
 freeze_map:
   - { cluster: cluster-a-define-solve, status: done }
   - { cluster: cluster-b-define-transition, status: split }
-  - { cluster: cluster-b-1-define-transition, status: pending }
-  - { cluster: cluster-b-2-define-solve-closing, status: pending }
+  - { cluster: cluster-b-1-define-transition, status: done }
+  - { cluster: cluster-b-2-define-solve-closing, status: done }
   - { cluster: cluster-c-restructure-understand, status: pending }
 ---
 
@@ -245,4 +245,4 @@ There is no Cycle-2 for this master plan. Cluster outputs feed forward into desi
 
 ## 9. Active Cluster
 
-Cluster A is **done** (merged 2026-05-01). Cluster B was split into B.1 + B.2 (see §4.2). **Cluster B.2 — Phase 4b Closing-Argument Materialization** is the active sub-sprint; B.2 runs first (RULE-22 establishes the exit shape) and B.1 launches only after B.2 merges. Sessions entering this master plan should default to cluster B.2 unless explicitly directed elsewhere.
+Cluster A is **done** (merged 2026-05-01). Cluster B was split into B.1 + B.2 (see §4.2). Cluster B.2 — Phase 4b Closing-Argument Materialization — is **done** (merged 2026-05-02). Cluster B.1 — Phase 4b Initialization (open_proof contract surface) — is **done** (closed 2026-05-04 pending merge). **Cluster C — Restructure Understand** is the next active sub-sprint; B.1's REQUIRED_FIELDS_REGISTRY and the `submission_material` shape are read-only inheritance for C. Sessions entering this master plan should default to cluster C unless explicitly directed elsewhere.

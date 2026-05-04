@@ -1,0 +1,582 @@
+{
+  "round": 7,
+  "problemStatement": "Phase 4b needs a contract surface that accepts untrusted caller submissions, structures them into typed proof elements, and opens the proof.",
+  "elements": {
+    "RULE-1": {
+      "id": "RULE-1",
+      "type": "RULE",
+      "statement": "[R7 — precedence] B.1 rules supersede master plan, cluster B umbrella, and cluster B.2 rules. When a B.1 rule conflicts with an inherited rule, the B.1 rule prevails.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-2": {
+      "id": "RULE-2",
+      "type": "RULE",
+      "statement": "[R8 — inheritance gate, B.1 elements free] Inheritance from master plan, cluster B umbrella, or cluster B.2 does not auto-load. B.1-authored elements (Rules, Permissions, Concerns, Evidence, Risks, Necessary Conditions, Resolve Conditions) may enter the proof freely. External Rules, Permissions, or Evidence (from upstream sprints or other sources) require explicit designer ratification before adding.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": 6,
+      "revision": 1
+    },
+    "RULE-3": {
+      "id": "RULE-3",
+      "type": "RULE",
+      "statement": "[R9 — caller untrusted, 4b owns structure] The caller (any 4a-equivalent agent) cannot be trusted to submit contract information properly. Phase 4b is responsible for correctly formatting and structuring incoming material into the typed proof elements.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-4": {
+      "id": "RULE-4",
+      "type": "RULE",
+      "statement": "[R1] Phase 4b has no knowledge of Phase 4a. The contract surface accepts submissions from any caller; Phase 4b's runtime semantics are independent of what produces the submissions.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-5": {
+      "id": "RULE-5",
+      "type": "RULE",
+      "statement": "[R2] Phase 4b exposes a contract surface that any generic design system can submit information into. The contract is reusable beyond design-large-task.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-6": {
+      "id": "RULE-6",
+      "type": "RULE",
+      "statement": "[R3] Concerns are drafted upstream of the contract (in the caller's domain). The contract receives draft Concerns as part of submission material.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-7": {
+      "id": "RULE-7",
+      "type": "RULE",
+      "statement": "[R4] The caller does not validate Concerns. Validation is contract / Phase 4b responsibility.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-8": {
+      "id": "RULE-8",
+      "type": "RULE",
+      "statement": "[R5] Phase 4a (and any caller-side mechanism) is out of scope for this sprint. B.1's design subject is Phase 4b's contract surface and the post-submission internal mechanisms only.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-9": {
+      "id": "RULE-9",
+      "type": "RULE",
+      "statement": "[R6] The caller makes a single submission to Phase 4b. The transition action between caller and Phase 4b is one-shot; subsequent operations are Phase 4b-internal.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RCON-1": {
+      "id": "RCON-1",
+      "type": "RESOLVE_CONDITION",
+      "statement": "For each typed proof element category that 4b constructs (NC, Evidence, Rule, Permission, Risk, Concern, Resolve Condition), the proof construction process enumerates a required-fields-list and an optional-fields-list. Each required field is annotated with a one-sentence justification naming the downstream proof reasoning operation that depends on that field's presence. A constructed element containing all required fields is admitted to the proof; an element missing any required field after 4b's restructuring efforts is rejected with a diagnostic naming the missing field.",
+      "source": null,
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": "CERN-1",
+      "ratification": {
+        "ratifiedAtRound": 2,
+        "text": "Designer ratified via 'yes' response, Solve Step 12 (revised under R9 inversion)."
+      },
+      "status": "active",
+      "addedInRound": 2,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RCON-2": {
+      "id": "RCON-2",
+      "type": "RESOLVE_CONDITION",
+      "statement": "4b's proof construction provides a free-form metadata channel attached to each typed proof element — a structured-but-unvalidated field where 4b may carry context extracted from the untrusted caller submission that downstream proof reasoning does not structurally depend on. Context that downstream reasoning does structurally depend on is elevated to the element's typed required-fields-list per RC-1's discipline. The metadata channel is not validated by the proof; downstream reasoning may read it but may not require its presence to function.",
+      "source": null,
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": "CERN-2",
+      "ratification": {
+        "ratifiedAtRound": 2,
+        "text": "Designer ratified via 'yes' response, Solve Step 12 (revised under R9 inversion)."
+      },
+      "status": "active",
+      "addedInRound": 2,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RCON-3": {
+      "id": "RCON-3",
+      "type": "RESOLVE_CONDITION",
+      "statement": "Each typed proof element constructed by 4b carries a restructuring action label naming the operation performed: verbatim-preserve, reshape, gap-fill, infer, or derive. Elements where the restructured field value is empty, a placeholder string, or a literal redirect to the metadata channel are rejected as insufficient restructuring.",
+      "source": null,
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": "CERN-3",
+      "ratification": {
+        "ratifiedAtRound": 3,
+        "text": "Designer ratified via 'Approved' response, Solve Step 14."
+      },
+      "status": "active",
+      "addedInRound": 3,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RCON-4": {
+      "id": "RCON-4",
+      "type": "RESOLVE_CONDITION",
+      "statement": "Each typed proof element constructed by 4b carries a provenance record identifying (a) the source caller material citation (id, position, or quoted excerpt), (b) the restructuring action label per RC-3, and (c) the 4b-internal reasoning chain producing the field-level result when the action is reshape, gap-fill, infer, or derive. Verbatim-preserve actions require only the source citation.",
+      "source": null,
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": "CERN-4",
+      "ratification": {
+        "ratifiedAtRound": 3,
+        "text": "Designer ratified via 'Approved' response, Solve Step 14."
+      },
+      "status": "active",
+      "addedInRound": 3,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RCON-5": {
+      "id": "RCON-5",
+      "type": "RESOLVE_CONDITION",
+      "statement": "After restructuring completes and before the proof opens for downstream reasoning, 4b produces a restructuring report listing each constructed element's provenance per RC-4 and the original caller material it derives from. The report is observable to the caller or designer before proof open. If the interpretation diverges from intent, a new single-shot submission per R6 may be initiated; 4b discards the prior proof and restarts construction. No in-band amendment to a partially-built proof is permitted.",
+      "source": null,
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": "CERN-5",
+      "ratification": {
+        "ratifiedAtRound": 3,
+        "text": "Designer ratified via 'Approved' response, Solve Step 14."
+      },
+      "status": "active",
+      "addedInRound": 3,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "NCON-1": {
+      "id": "NCON-1",
+      "type": "NECESSARY_CONDITION",
+      "statement": "4b's contract surface implements three sequential phases: (1) accept submission, (2) restructure into typed proof elements, (3) open the proof. The restructure phase must be discrete, named, and observable.",
+      "source": null,
+      "grounding": [
+        "RULE-3",
+        "RULE-9",
+        "EVID-1",
+        "EVID-3"
+      ],
+      "collapse_test": "Without distinct restructuring phase, RC-3/RC-4/RC-5 have no place to attach; provenance and effort discipline can't gate; half-assing prevention dissolves; design-specify receives unstructured material.",
+      "reasoning_chain": "IF caller is untrusted (R9) AND 4b owns structuring (R9) AND submission is one-shot (R6) AND the existing proof MCP exposes initialize_proof as the proof-open boundary (EVID-1) AND design-specify downstream requires structured constraint envelope + resolution criterion + coverage map (EVID-3) THEN restructuring must be a discrete observable phase between accept and open, not implicit.",
+      "rejected_alternatives": [
+        "Inline restructuring during proof reasoning — provenance can't gate; restructuring becomes implicit.",
+        "Pre-validate at submission boundary — contradicts R9 (caller untrusted, can't gate caller-side compliance).",
+        "Merge restructure into open — loses the gate point for RC-5's pre-open report."
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 4,
+      "revisedInRound": 7,
+      "revision": 1
+    },
+    "NCON-2": {
+      "id": "NCON-2",
+      "type": "NECESSARY_CONDITION",
+      "statement": "The contract surface accepts any submission shape without structural rejection. All rigor lives in the 4b-internal restructuring phase.",
+      "source": null,
+      "grounding": [
+        "RULE-3",
+        "RULE-5",
+        "RULE-7",
+        "EVID-5"
+      ],
+      "collapse_test": "If boundary rejects on structure, 4b assumes valid input downstream; RC-1's restructuring discipline becomes redundant; CERN-3/4/5 dissolve because there's nothing to restructure; the contract loses its generic-caller property (R2).",
+      "reasoning_chain": "IF caller is untrusted (R9) AND contract is generic for any caller (R2) AND caller doesn't validate (R4) AND industry assume-guarantee patterns (B-Method, SPARK, JML, Eiffel) place rigor at receiver when senders are heterogeneous (EVID-5) THEN the boundary must accept any submission; rejection at boundary would require defining caller-side validation, violating R9.",
+      "rejected_alternatives": [
+        "Minimum-schema validation at boundary — pulls validation to caller side, violating R9.",
+        "Reject empty submissions — still requires defining 'empty,' violating untrusted assumption.",
+        "Accept-with-warnings — same boundary-validation problem in softer form; warnings imply caller-side correction loop, contradicting R6."
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 4,
+      "revisedInRound": 7,
+      "revision": 1
+    },
+    "NCON-3": {
+      "id": "NCON-3",
+      "type": "NECESSARY_CONDITION",
+      "statement": "The proof open event must verify presence of restructuring action labels (RC-3), provenance records (RC-4), and the restructuring report (RC-5) per constructed element. Open is refused if any artifact is missing.",
+      "source": null,
+      "grounding": [
+        "RULE-3",
+        "RULE-9",
+        "EVID-4",
+        "EVID-6",
+        "RCON-3",
+        "RCON-4",
+        "RCON-5"
+      ],
+      "collapse_test": "Without open gate, RC-3/4/5 are advisory only; lazy 4b skips them; CERN-3/4/5 reopen as live failure modes; R9's caller-untrusted assumption produces unverifiable proof state; restructuring artifacts become declared-but-unconsumed (matching EVID-6's failure pattern).",
+      "reasoning_chain": "IF caller is untrusted (R9) AND submission is one-shot with no recourse (R6) AND compiler frontends preserve translation provenance per AST node (EVID-4) AND declared-but-unconsumed flow artifacts is the dominant industry stage-handoff failure mode (EVID-6) AND the half-assing failure mode is gated by the three RC artifacts THEN open must verify artifacts before transitioning. Without the gate, lazy 4b admits half-restructured elements and the artifacts become the next declared-but-unconsumed failure case.",
+      "rejected_alternatives": [
+        "Self-policing during restructuring — assumes 4b's good faith, contradicts CERN-3's premise.",
+        "Post-open audit — distortion already in proof; downstream reasoning operates on bad data; R6's one-shot constraint means caller cannot correct.",
+        "Sampling check — partial coverage leaves gaps lazy 4b can exploit."
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 4,
+      "revisedInRound": 7,
+      "revision": 2
+    },
+    "EVID-1": {
+      "id": "EVID-1",
+      "type": "EVIDENCE",
+      "statement": "Phase 4b's existing proof MCP exposes initialize_proof, manage_concerns, ratify_resolve_condition, and submit_proof_update tools. The current API surface accepts a single initialize_proof call (problem_statement + state_file) plus post-init element operations (add/revise/withdraw) and Concern/RC management.",
+      "source": "codebase",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 6,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "EVID-2": {
+      "id": "EVID-2",
+      "type": "EVIDENCE",
+      "statement": "Cluster A's Resolve Condition model carries problem_anchor (single Concern ID), sequential designer ratification (one element_id per ratify call), and structural mapping to Concerns only (no NC anchor). RC ratification is the precedent B.1's proof construction discipline builds on.",
+      "source": "codebase",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 6,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "EVID-3": {
+      "id": "EVID-3",
+      "type": "EVIDENCE",
+      "statement": "design-specify (downstream consumer of Phase 4b output) requires three artifacts per master-plan §'What design-specify Needs': constraint envelope, resolution criterion, coverage map. The Phase 4b proof must produce material that maps cleanly to these three.",
+      "source": "codebase",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 6,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "EVID-4": {
+      "id": "EVID-4",
+      "type": "EVIDENCE",
+      "statement": "Compiler frontends (LLVM, GCC, Roslyn) and source-to-source translators preserve source location and translation provenance per AST node. Debug info, error reporting, and IDE tooling depend on this preservation. Provenance-during-translation is the industry-standard solution to the translation-blackbox problem.",
+      "source": "industry",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 6,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "EVID-5": {
+      "id": "EVID-5",
+      "type": "EVIDENCE",
+      "statement": "Assume-guarantee contract patterns (B-Method clauses, SPARK contracts, JML preconditions, Eiffel design-by-contract) place validation rigor at the receiver when senders are heterogeneous or untrusted. The receiver's contract states what it requires; the sender's burden is documented but not structurally enforced. Pattern matches the permissive-boundary + receiver-side-rigor shape.",
+      "source": "industry",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 6,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "EVID-6": {
+      "id": "EVID-6",
+      "type": "EVIDENCE",
+      "statement": "Per cluster B umbrella audit (now withdrawn from this proof but the observation stands): the existing problemfocused MCP flow declares Solve Leakage Ledger as Phase-4b seed material with no consuming step in the skill text. Declared-but-unconsumed flow artifacts is the dominant industry-reported failure mode for stage handoffs (Event-B refinement papers, NASA RTM literature).",
+      "source": "industry",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 6,
+      "revisedInRound": null,
+      "revision": 0
+    }
+  },
+  "elementCounters": {
+    "EVIDENCE": 6,
+    "RULE": 9,
+    "PERMISSION": 0,
+    "NECESSARY_CONDITION": 3,
+    "RISK": 0,
+    "RESOLVE_CONDITION": 5
+  },
+  "conditionCountHistory": [
+    0,
+    0,
+    0,
+    3,
+    3,
+    3,
+    3
+  ],
+  "elementCountHistory": [
+    9,
+    11,
+    14,
+    17,
+    17,
+    23,
+    23
+  ],
+  "challengeModesUsed": [],
+  "challengeLog": [],
+  "revisionLog": [
+    {
+      "target": "NCON-3",
+      "round": 5,
+      "revision": 1
+    },
+    {
+      "target": "RULE-2",
+      "round": 6,
+      "revision": 1
+    },
+    {
+      "target": "NCON-1",
+      "round": 7,
+      "revision": 1
+    },
+    {
+      "target": "NCON-2",
+      "round": 7,
+      "revision": 1
+    },
+    {
+      "target": "NCON-3",
+      "round": 7,
+      "revision": 2
+    }
+  ],
+  "phaseTransitionRound": 0,
+  "concerns": [
+    {
+      "id": "CERN-1",
+      "label": "4b-internal restructuring rigor",
+      "description": "How rigorously 4b validates the typed proof elements it constructs from untrusted caller material. Per R9, contract surface is permissive; rigor lives in construction. Drift risks: tighter (over-structures, rejects absorbable material) or looser (under-structures, malformed elements reach proof reasoning)."
+    },
+    {
+      "id": "CERN-2",
+      "label": "Caller-supplied context preservation in construction",
+      "description": "What context, if any, 4b extracts or preserves from untrusted caller material for downstream proof construction. Evidence in particular may benefit from richer construction context. Open: typed context fields per element, free-form metadata channel attached to elements, or both. Per R9, decision is 4b's, not caller's."
+    },
+    {
+      "id": "CERN-3",
+      "label": "Restructuring effort calibration",
+      "description": "Nothing prevents 4b from doing perfunctory restructuring: 1:1 field mapping, hollow gap-fills, premature admission. RC-1 passes structurally but content is mechanical. Lazy 4b satisfies letter, not spirit. Need a discipline requiring substantive restructuring work."
+    },
+    {
+      "id": "CERN-4",
+      "label": "Restructuring provenance",
+      "description": "No audit trail of what 4b did per element: verbatim-preserved vs reshaped vs gap-filled vs inferred. Designer reviewing proof state cannot tell which elements are caller-faithful vs 4b-interpreted. Without provenance, distortion is undiagnosable."
+    },
+    {
+      "id": "CERN-5",
+      "label": "Caller-intent fidelity check",
+      "description": "Under R6 (single submission), no path for caller to see/correct 4b's interpretation. 4b restructuring may silently distort caller intent. No recourse mechanism."
+    }
+  ],
+  "concernsLocked": true,
+  "concernCounter": 5,
+  "ratificationLog": [
+    {
+      "event": "ratified",
+      "target": "RCON-1",
+      "round": 2,
+      "ratificationText": "Designer ratified via 'yes' response, Solve Step 12 (revised under R9 inversion)."
+    },
+    {
+      "event": "ratified",
+      "target": "RCON-2",
+      "round": 2,
+      "ratificationText": "Designer ratified via 'yes' response, Solve Step 12 (revised under R9 inversion)."
+    },
+    {
+      "event": "ratified",
+      "target": "RCON-3",
+      "round": 3,
+      "ratificationText": "Designer ratified via 'Approved' response, Solve Step 14."
+    },
+    {
+      "event": "ratified",
+      "target": "RCON-4",
+      "round": 3,
+      "ratificationText": "Designer ratified via 'Approved' response, Solve Step 14."
+    },
+    {
+      "event": "ratified",
+      "target": "RCON-5",
+      "round": 3,
+      "ratificationText": "Designer ratified via 'Approved' response, Solve Step 14."
+    }
+  ]
+}

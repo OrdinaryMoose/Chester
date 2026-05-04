@@ -49,6 +49,7 @@ export function createElement(input, id, round) {
     grounding, collapse_test, reasoning_chain, rejected_alternatives,
     relieves, basis,
     problem_anchor,
+    restructuring,
   } = input;
 
   if (!ELEMENT_TYPES.includes(type)) {
@@ -136,7 +137,7 @@ export function createElement(input, id, round) {
     }
   }
 
-  return {
+  const element = {
     id,
     type,
     statement,
@@ -154,6 +155,10 @@ export function createElement(input, id, round) {
     revisedInRound: null,
     revision: 0,
   };
+  if (restructuring) {
+    element.restructuring = restructuring;
+  }
+  return element;
 }
 
 /**
