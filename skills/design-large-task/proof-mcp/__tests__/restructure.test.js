@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildProvenance, extractMetadata } from '../restructure.js';
+import { buildProvenance, extractMetadata, restructure } from '../restructure.js';
 
 describe('buildProvenance', () => {
   it('builds provenance with non-null reasoning_chain for non-verbatim actions', () => {
@@ -72,5 +72,87 @@ describe('extractMetadata', () => {
       registryEntry: { required: [{ name: 'label', justification: '' }], optional: [] },
     });
     expect(result).toEqual({});
+  });
+});
+
+describe('restructure (top-level)', () => {
+  it('returns rejection diagnostic when problem_statement absent', () => {
+    const result = restructure({});
+    expect(result.rejection_diagnostic).toMatch(/problem_statement/);
+    expect(result.problem_statement).toBeUndefined();
+  });
+
+  it('extracts problem_statement when present', () => {
+    const result = restructure({ problem_statement: 'a one-sentence problem.' });
+    expect(result.problem_statement).toBe('a one-sentence problem.');
+  });
+
+  it('returns admitted/rejected/report shape', () => {
+    const result = restructure({
+      problem_statement: 'test',
+      elements: [
+        { category: 'RULE', statement: 'A real rule.', source: 'designer' },
+      ],
+    });
+    expect(Array.isArray(result.admitted)).toBe(true);
+    expect(Array.isArray(result.rejected)).toBe(true);
+    expect(typeof result.report).toBe('string');
+    expect(result.report.length).toBeGreaterThan(0);
+  });
+
+  it('admits a candidate with all required fields and assigns labels', () => {
+    const result = restructure({
+      problem_statement: 'test',
+      elements: [
+        { category: 'RULE', statement: 'A real rule.', source: 'designer' },
+      ],
+    });
+    expect(result.admitted.length).toBe(1);
+    expect(result.admitted[0].restructuring_action_label).toBeDefined();
+    expect(result.admitted[0].provenance).toBeDefined();
+  });
+
+  it('rejects a candidate with missing required field', () => {
+    const result = restructure({
+      problem_statement: 'test',
+      elements: [
+        { category: 'RULE', source: 'designer' },  // missing statement
+      ],
+    });
+    expect(result.rejected.length).toBe(1);
+    expect(result.rejected[0].missing_fields).toContain('statement');
+  });
+
+  it('routes unknown caller fields into per-element metadata', () => {
+    const result = restructure({
+      problem_statement: 'test',
+      elements: [
+        { category: 'RULE', statement: 'A rule.', source: 'designer', caller_note: 'extra' },
+      ],
+    });
+    expect(result.admitted[0].metadata.caller_note).toBe('extra');
+  });
+
+  it('rejected entry diagnostic identifies field name AND failure mode (AC-3.2)', () => {
+    const result = restructure({
+      problem_statement: 'test',
+      elements: [
+        { label: 'TODO', category: 'Concern' },
+      ],
+    });
+    expect(result.rejected.length).toBe(1);
+    expect(result.rejected[0].diagnostic).toContain('label');
+    expect(result.rejected[0].diagnostic.toLowerCase()).toMatch(/placeholder|empty|redirect/);
+  });
+
+  it('admitted element provenance.action_label equals restructuring_action_label (AC-4.1)', () => {
+    const result = restructure({
+      problem_statement: 'test',
+      elements: [
+        { category: 'RULE', statement: 'A rule.', source: 'designer' },
+      ],
+    });
+    expect(result.admitted.length).toBe(1);
+    expect(result.admitted[0].provenance.action_label).toBe(result.admitted[0].restructuring_action_label);
   });
 });
