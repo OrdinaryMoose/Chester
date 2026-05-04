@@ -90,7 +90,7 @@ The plan was carried in fully-formed from the prior `plan-build` cycle (14 tasks
 - (Task 5 plan) — `WITHDRAWAL_DISPOSITIONS` was specified to follow the same pattern preemptively rather than waiting for the quality pass.
 - `ca89c7a` — `UNCLASSIFIED_DISPOSITION` (Task 10 quality fix).
 
-**Rationale.** Task 1's quality reviewer made the case in writing: doing the lift before Task 2 lands means Task 2 imports rather than duplicates. By Task 5 the pattern was the sprint's standing convention, so it was applied at task-write time rather than triggered by reviewer feedback. The pattern carries forward: any new closed set in cluster B.3 (additional element types, etc.) follows the same shape — module-level `Object.freeze` export, imported by callers, never inlined.
+**Rationale.** Task 1's quality reviewer made the case in writing: doing the lift before Task 2 lands means Task 2 imports rather than duplicates. By Task 5 the pattern was the sprint's standing convention, so it was applied at task-write time rather than triggered by reviewer feedback. The pattern carries forward: any new closed set in future cluster work (additional element types, etc.) follows the same shape — module-level `Object.freeze` export, imported by callers, never inlined.
 
 ---
 
