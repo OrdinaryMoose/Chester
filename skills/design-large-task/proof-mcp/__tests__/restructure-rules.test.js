@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { assignActionLabel, isRejectedValue } from '../restructure-rules.js';
+import { assignActionLabel, isRejectedValue, validateReasoningAnchor } from '../restructure-rules.js';
 
 describe('assignActionLabel — mechanical labels', () => {
   it('returns "verbatim-preserve" when caller field value matches expected type/format directly', () => {
@@ -68,5 +68,30 @@ describe('isRejectedValue', () => {
     [{ key: 'val' }, 'object'],
   ])('admits %j (%s)', (value, _desc) => {
     expect(isRejectedValue(value).rejected).toBe(false);
+  });
+});
+
+describe('validateReasoningAnchor', () => {
+  it.each([
+    ['rule:default-empty-grounding', 'rule citation'],
+    ['schema:RULE.statement', 'schema match'],
+    ['template:designer-merge-pattern-1', 'template id'],
+  ])('accepts valid anchor %s (%s)', (anchor, _desc) => {
+    expect(validateReasoningAnchor(anchor).valid).toBe(true);
+  });
+
+  it.each([
+    [null, 'null'],
+    [undefined, 'undefined'],
+    ['', 'empty'],
+    ['just-some-text', 'no prefix'],
+    ['rule:UPPERCASE-NOT-ALLOWED', 'rule with uppercase'],
+    ['schema:lowercase.field', 'schema with lowercase type'],
+    ['template:CapitalizedTemplate', 'template with caps'],
+    ['unknown:something', 'unknown prefix'],
+  ])('rejects invalid anchor %j (%s)', (anchor, _desc) => {
+    const result = validateReasoningAnchor(anchor);
+    expect(result.valid).toBe(false);
+    expect(typeof result.reason).toBe('string');
   });
 });

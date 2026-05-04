@@ -55,3 +55,28 @@ export function isRejectedValue(value) {
   }
   return { rejected: false, reason: '' };
 }
+
+/**
+ * validateReasoningAnchor — pure function. Checks whether a reasoning anchor
+ * conforms to one of the three accepted shapes:
+ *   - rule:[a-z0-9-]+
+ *   - schema:[A-Z_]+\.[a-z_]+
+ *   - template:[a-z0-9-]+
+ * Returns { valid: boolean, reason: string }.
+ */
+const ANCHOR_RULE_REGEX = /^rule:[a-z0-9-]+$/;
+const ANCHOR_SCHEMA_REGEX = /^schema:[A-Z_]+\.[a-z_]+$/;
+const ANCHOR_TEMPLATE_REGEX = /^template:[a-z0-9-]+$/;
+
+export function validateReasoningAnchor(anchor) {
+  if (typeof anchor !== 'string' || anchor.length === 0) {
+    return { valid: false, reason: 'anchor must be a non-empty string' };
+  }
+  if (ANCHOR_RULE_REGEX.test(anchor)) return { valid: true, reason: '' };
+  if (ANCHOR_SCHEMA_REGEX.test(anchor)) return { valid: true, reason: '' };
+  if (ANCHOR_TEMPLATE_REGEX.test(anchor)) return { valid: true, reason: '' };
+  return {
+    valid: false,
+    reason: `anchor "${anchor}" does not match accepted shapes (rule:|schema:|template:)`,
+  };
+}
