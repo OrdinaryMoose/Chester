@@ -1,7 +1,7 @@
 ---
 title: "Rebuild Design Derivation — Master Plan"
 path: "docs/chester/working/20260430-02-rebuild-design-derivation/master-plan.md"
-version: "v01.02"
+version: "v01.03"
 version_date: "2026-05-04"
 cycle_status: "Cycle-1 active"
 doc_status: "active"
@@ -204,13 +204,20 @@ This master plan operates inside `design-large-task` and updates `proof-mcp` and
 
 ### 4.4 Refactor Sub-Sprints
 
-Non-endstate sub-sprints follow the `task-NN-<slug>` naming pattern. These address tooling, documentation, or process issues that surface during cluster work but are not endstate-bearing. Each task is single-issue, runs its own design-small-task → plan-build → execute-write cycle (lighter than cluster pipelines), and inherits master plan Rules read-only. Tasks may not modify cluster Rules, NCs, Evidence, or master plan vocabulary, and contribute no Rules to downstream clusters.
+Non-endstate sub-sprints follow the `task-NN-<slug>` naming pattern. These address tooling, documentation, or process issues that surface during cluster work but are not endstate-bearing. Each task is single-issue and inherits master plan Rules read-only. Tasks may not modify cluster Rules, NCs, Evidence, or master plan vocabulary, and contribute no Rules to downstream clusters.
+
+**Pipeline weight scales with scope:**
+- **Trivial edits** (single-file text corrections, designer-directed wording, no investigation needed): bootstrap → execute → finish-write-records → finish-archive-artifacts → finish-close-worktree. Skip design and plan phases.
+- **Investigation-bearing tasks** (root-cause work, behavior changes, anything where the fix shape is unknown at task launch): design-small-task → plan-build → execute-write → execute-verify-complete → finish phase.
+
+Each task entry below declares its pipeline-weight class. The class is set at task registration; if a trivial edit surfaces unexpected complexity during execution, escalate to investigation-bearing by halting and re-bootstrapping under the heavier pipeline.
 
 Numbering is sequential across master plan lifetime: task-01, task-02, etc. Each task gets its own subdir, branch, worktree, and archive entry under master mode. Archive payload at finish carries the full master tree per master-mode discipline.
 
 #### 4.4.1 task-01 — Fix Stale B.3 Label
 
 - **Subdir:** `task-01-fix-staleb3-label/`
+- **Pipeline-weight class:** trivial edit
 - **Scope:** Cluster B.2 summary L127 references "Cluster B.3 (final cluster of master plan B): transition handoff from Phase 4a understanding to Phase 4b solve." Cluster B was split into B.1 + B.2 only; no B.3 exists. B.1 (closed 2026-05-04) absorbed the transition-handoff scope. The summary line is misleading for cluster-C-onwards readers and creates a false signal that more cluster-B work is pending.
 - **Exit criteria:**
   - B.2 summary edited in both `working/` and `plans/` locations to remove or correct the B.3 reference
@@ -222,6 +229,7 @@ Numbering is sequential across master plan lifetime: task-01, task-02, etc. Each
 #### 4.4.2 task-02 — Fix chester-trailer-write Harvest Under Master Mode
 
 - **Subdir:** `task-02-fix-trailer-write-harvest/`
+- **Pipeline-weight class:** investigation-bearing
 - **Scope:** `chester-trailer-write harvest` returned empty during cluster B.2's finish-write-records run, requiring manual harvest from artifact trailers (B.2 summary L178). Suspected path-resolution issue with master-mode nested directory layout (sub-sprint dirs under `working/<master-sprint>/<sub-sprint>/` instead of `working/<sub-sprint>/`). Affects every future master-mode sprint summary; cluster C will hit it again at finish.
 - **Exit criteria:**
   - Failure mode reproduced under master-mode layout
