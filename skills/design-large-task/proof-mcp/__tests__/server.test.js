@@ -313,3 +313,18 @@ describe('handleOpenProof — already-open refusal', () => {
     unlinkSync(tmp);
   });
 });
+
+describe('initialize_proof retirement', () => {
+  it('TOOLS array does NOT contain initialize_proof entry', () => {
+    expect(serverSource).not.toMatch(/name:\s*'initialize_proof'/);
+  });
+
+  it('open_proof remains the only proof-opening entry point', () => {
+    expect(serverSource).toMatch(/name:\s*'open_proof'/);
+  });
+
+  it('server.js contains no remaining references to initialize_proof or handleInitialize', () => {
+    expect(serverSource).not.toContain('initialize_proof');
+    expect(serverSource).not.toContain('handleInitialize');
+  });
+});

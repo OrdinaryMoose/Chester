@@ -31,18 +31,6 @@ const server = new Server(
 
 const TOOLS = [
   {
-    name: 'initialize_proof',
-    description: 'Initialize a new design proof session with the necessary conditions model',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        problem_statement: { type: 'string', description: "The designer's verbatim problem statement" },
-        state_file: { type: 'string', description: 'Absolute path to persist state JSON' },
-      },
-      required: ['problem_statement', 'state_file'],
-    },
-  },
-  {
     name: 'submit_proof_update',
     description: 'Submit a batch of proof operations (add, revise, withdraw) for the current round',
     inputSchema: {
@@ -208,8 +196,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
   try {
     switch (name) {
-      case 'initialize_proof':
-        return handleInitialize(args);
       case 'submit_proof_update':
         return handleSubmitProofUpdate(args);
       case 'get_proof_state':
@@ -237,29 +223,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 });
 
 // ── Tool Handlers ────────────────────────────────────────────────
-
-function handleInitialize({ problem_statement, state_file }) {
-  const state = initializeState(problem_statement);
-  saveState(state, state_file);
-
-  return {
-    content: [{
-      type: 'text',
-      text: JSON.stringify({
-        status: 'initialized',
-        element_types: ELEMENT_TYPES,
-        operations: ['add', 'revise', 'withdraw'],
-        concerns: [],
-        tools_added: [
-          'manage_concerns', 'ratify_resolve_condition',
-          'manage_friction', 'override_friction_disposition',
-          'present_closing_argument', 'confirm_closure_go',
-        ],
-        state_file,
-      }),
-    }],
-  };
-}
 
 function handleSubmitProofUpdate({ state_file, operations, challenge_used }) {
   let state = loadState(state_file);
