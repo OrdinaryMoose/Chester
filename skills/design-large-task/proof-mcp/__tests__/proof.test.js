@@ -548,3 +548,53 @@ describe('checkAllIntegrity — Resolve Conditions', () => {
     expect(warnings.some(w => w.type === 'unratified-rc')).toBe(true);
   });
 });
+
+describe('createElement restructuring extension', () => {
+  it('persists restructuring field when present in input', () => {
+    const restructuring = {
+      metadata: { caller_note: 'extra' },
+      restructuring_action_label: 'verbatim-preserve',
+      provenance: { source_citation: 'caller-input', action_label: 'verbatim-preserve', reasoning_chain: null },
+    };
+    const el = createElement(
+      { type: 'RULE', statement: 'foo', source: 'designer', restructuring },
+      'R-1',
+      1
+    );
+    expect(el.restructuring).toEqual(restructuring);
+  });
+
+  it('omits restructuring property entirely when input is absent', () => {
+    const el = createElement(
+      { type: 'RULE', statement: 'foo', source: 'designer' },
+      'R-1',
+      1
+    );
+    expect(Object.keys(el)).not.toContain('restructuring');
+  });
+
+  it('omits restructuring property when input is falsy', () => {
+    const el = createElement(
+      { type: 'RULE', statement: 'foo', source: 'designer', restructuring: null },
+      'R-1',
+      1
+    );
+    expect(Object.keys(el)).not.toContain('restructuring');
+  });
+
+  it('FRICTION early-return path does not include restructuring field', () => {
+    const el = createElement(
+      {
+        type: 'FRICTION',
+        friction_shape: 'nc-nc-opposing-pull',
+        anchor_a: 'NCON-1',
+        anchor_b: 'NCON-2',
+        disposition: 'lived-with',
+        restructuring: { foo: 'bar' },
+      },
+      'F-1',
+      1
+    );
+    expect(Object.keys(el)).not.toContain('restructuring');
+  });
+});
