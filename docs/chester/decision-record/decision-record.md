@@ -475,3 +475,79 @@ artifact_refs:
   - working/20260430-02-rebuild-design-derivation/cluster-b-1-define-transition/spec/cluster-b-1-define-transition-spec-00.md
   - working/20260430-02-rebuild-design-derivation/cluster-b-1-define-transition/summary/cluster-b-1-define-transition-summary-00.md
 ---
+
+---
+id: dr-20260504-10-task-nn-refactor-pattern
+date: 2026-05-04
+sprint: 20260430-02-rebuild-design-derivation
+stage: finish-write-records
+title: task-NN-<slug> pattern for non-endstate sub-sprints under master mode
+decision: Non-endstate sub-sprints under a master plan use the `task-NN-<slug>` naming pattern, sit parallel to cluster sub-sprints inside the master tree, are single-issue, and inherit master plan Rules read-only without contributing Rules to downstream clusters.
+rationale: Cluster letters (A/B/C) are reserved for endstate-bearing work; bundling tooling/doc/process cleanups into cluster sub-sprints would muddy the endstate accounting and create a false signal that the cleanup contributes to cluster Rules inheritance. The `task-NN` prefix signals "non-endstate, no Rules contribution" at a glance, so future cluster readers do not mistake the work for an endstate dependency. Numbering is sequential across the master plan's lifetime so any sub-sprint type registered later (LBDs, follow-up cycles) can coexist without collision.
+alternatives:
+  - Two micro-fixes on main with no sub-sprint — rejected because it violates master-plan discipline (every sub-sprint goes through pipeline) and leaves no archive trail for the cleanup work.
+  - Fold cleanup into cluster C launch as Task 0 — rejected because it muddies endstate scope (cleanup is not endstate point 1 or 2) and sets a bad precedent for future cluster readers who would assume cleanup contributes to cluster Rules.
+  - `lbd-NN-<slug>` naming — rejected in favor of `task-NN-<slug>` as a clearer "refactor/cleanup task" framing for non-endstate work.
+tags: [convention, governance, process]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/master-plan.md
+  - working/20260430-02-rebuild-design-derivation/task-01-fix-staleb3-label/summary/task-01-fix-staleb3-label-summary-00.md
+---
+
+---
+id: dr-20260504-11-task-pipeline-weight-classes
+date: 2026-05-04
+sprint: 20260430-02-rebuild-design-derivation
+stage: finish-write-records
+title: Trivial-edit and investigation-bearing pipeline-weight classes for task sub-sprints
+decision: Each task-NN sub-sprint declares a pipeline-weight class at registration — trivial-edit (skip design and plan; bootstrap → execute → finish) or investigation-bearing (full design-small-task → plan-build → execute-write → finish) — with a forced halt-and-re-bootstrap escalation if a trivial edit surfaces unexpected complexity during execution.
+rationale: Forcing every task-NN sub-sprint through design-small-task → plan-build → execute-write would over-engineer literal text corrections and one-line fixes, while skipping design entirely would miss legitimate investigation work where the fix shape is unknown at task launch. Declaring the class at registration time keeps the pattern truthful and visible in the master plan; the escalation rule prevents trivial tasks from silently absorbing investigation-grade scope without re-bootstrapping under heavier ceremony. Without the explicit class declaration, §4.4 would over-commit task-NN to a pipeline shape that does not fit single-file text corrections.
+alternatives:
+  - Single pipeline shape for all task-NN sub-sprints (always full design-small-task → plan-build → execute-write) — rejected because it is overhead for trivial text corrections and creates pressure to relax the cycle informally case-by-case.
+  - Per-task ad-hoc pipeline choice with no declared class — rejected because the pattern becomes invisible in the master plan and future tasks cannot consult precedent for similar-shaped work.
+  - Allow in-flight downgrade from investigation-bearing to trivial-edit — rejected; only escalation is permitted, because downgrading mid-flight discards work already invested in design or planning.
+tags: [process, convention, governance]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/master-plan.md
+  - working/20260430-02-rebuild-design-derivation/task-01-fix-staleb3-label/summary/task-01-fix-staleb3-label-summary-00.md
+---
+
+---
+id: dr-20260504-12-master-plan-deferments-section
+date: 2026-05-04
+sprint: 20260430-02-rebuild-design-derivation
+stage: finish-write-records
+title: Master plan §10 known-deferments-out-of-scope discipline
+decision: Master plans carry a §10 "Known Deferments — Out of Scope" section that records items surfaced during master-plan execution which are explicitly rejected from current scope but worth preserving across sub-sprint boundaries.
+rationale: Items surfaced mid-master that are real follow-up work but not in-scope for any active task or cluster (e.g. stamping-test dynamism in this master) would otherwise be lost between sub-sprint boundaries — sub-sprint summaries archive at merge but are not consulted as cross-sprint memory. Recording deferments in §10 of the master plan keeps them visible at every master-plan read and survives all sub-sprint archives. The section also discriminates "rejected for focus" from "rejected outright" — items in §10 are explicitly preserved for post-master refactor, not silently dropped.
+alternatives:
+  - Sibling tracker file `master-deferments.md` per the living-document pattern — rejected because it adds another cross-sprint file with the same persistence gap as master-plan.md but without the existing reading-order guarantees.
+  - Capture only inside per-task summaries — rejected because summaries are not consulted as cross-sprint memory and the deferment becomes invisible after the task closes.
+  - Open a new task-NN entry for every surfaced deferment — rejected because it absorbs scope into the master plan's task count even when the work is correctly out-of-scope (e.g. stamping-test dynamism belongs post-master, not as task-03).
+tags: [convention, process, governance]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/master-plan.md
+  - working/20260430-02-rebuild-design-derivation/task-01-fix-staleb3-label/summary/task-01-fix-staleb3-label-summary-00.md
+---
+
+---
+id: dr-20260504-13-master-plan-sync-between-archives
+date: 2026-05-04
+sprint: 20260430-02-rebuild-design-derivation/task-01-fix-staleb3-label
+stage: finish-write-records
+title: Sync working/master-plan.md to plans/ between archive merges to close living-document gap
+decision: When master-level living documents (master-plan.md and siblings) are edited mid-master between sub-sprint merges, sync them from `working/<master-sprint>/` to `plans/<master-sprint>/` and commit the diff on main as a standalone `docs(master-plan): ...` commit rather than waiting for the next sub-sprint's `finish-archive-artifacts` to carry the changes.
+rationale: The living-document persistence gap (root `CLAUDE.md` §"Master Plan Mode" and `docs/chester/CLAUDE.md`) means master-plan.md edits remain gitignored in working/ until the next sub-sprint's archive merge — sometimes days. Intermediate edits have no commit-level history, and stale entries can drift undetected because `git diff` cannot see them. Syncing manually between merges gives the master plan point-in-time git history without waiting on the archive cadence, while preserving the one-way working → plans flow (no reverse copy) and leaving `finish-archive-artifacts` as the canonical archive mechanism. This is a workaround pattern, not a fix to the underlying gap.
+alternatives:
+  - Wait for next sub-sprint's finish-archive-artifacts to carry edits — rejected when the master-plan edits register a new sub-sprint pattern (task-NN) the about-to-launch sub-sprint depends on; the launch would reference a pattern not yet in git on main.
+  - PostToolUse hook auto-syncing on every master-plan.md edit — rejected for now as out-of-scope for this sprint; remains a candidate fix for the underlying gap, surveyed in `master-plan-skill-living-document-problem-brief.md`.
+  - Embedded git in working/ — rejected as architecturally heavier than the manual sync workaround for the cadence this master plan needs.
+tags: [process, convention, worktree]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/master-plan.md
+  - working/20260430-02-rebuild-design-derivation/task-01-fix-staleb3-label/summary/task-01-fix-staleb3-label-summary-00.md
+---
