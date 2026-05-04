@@ -551,3 +551,94 @@ artifact_refs:
   - working/20260430-02-rebuild-design-derivation/master-plan.md
   - working/20260430-02-rebuild-design-derivation/task-01-fix-staleb3-label/summary/task-01-fix-staleb3-label-summary-00.md
 ---
+
+---
+id: dr-20260504-14-confidence-bias-audit-rule
+date: 2026-05-04
+sprint: 20260430-02-rebuild-design-derivation/task-02-fix-trailer-write-harvest
+stage: design-small-task
+title: Confidence-bias discrimination rule for shell-pipeline audits
+decision: Pipeline-and-strict-mode audits in shell scripts harden a site only when the no-match path is reachable in current usage; otherwise leave the pipeline intact and write a one-line safety-invariant comment naming the assumption that keeps it safe.
+rationale: Defensive bias produces clutter on pipelines whose no-match condition cannot be triggered by any current call site, while a bug-as-evidence rule (only fix sites with reproduced failures) leaves known-reachable hazards in place. Confidence bias splits the audit cleanly: harden where today's inputs can reach the failure, document where today's invariants block it, and put the burden of breakage on whoever later changes the invariant. Future shell-script audits in Chester should consult this rule before deciding harden-versus-document site by site.
+alternatives:
+  - Defensive bias (harden every pipeline whose grammar admits no-match) — rejected because it adds noise on call paths that cannot reach the failure under current usage and creates pressure to harden trivially-safe code.
+  - Bug-as-evidence (only fix sites with a reproduced failure) — rejected because it leaves known-reachable but not-yet-triggered hazards in place, which is the same posture that produced this task's bug.
+tags: [convention, process]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/task-02-fix-trailer-write-harvest/design/task-02-fix-trailer-write-harvest-design-00.md
+  - working/20260430-02-rebuild-design-derivation/task-02-fix-trailer-write-harvest/spec/task-02-fix-trailer-write-harvest-spec-00.md
+---
+
+---
+id: dr-20260504-15-test-invokes-local-source-not-path-wrapper
+date: 2026-05-04
+sprint: 20260430-02-rebuild-design-derivation/task-02-fix-trailer-write-harvest
+stage: design-specify
+title: Tests of plugin-cached scripts invoke local source directly, not via PATH wrapper
+decision: When a test exercises a fix to a script that is also cached in the plugin install (e.g. anything under `chester-util-config/`), the test invokes the local source directly via `bash "$REPO_ROOT/<path>"` and never via the PATH-resolved wrapper, because the wrapper exec's `$CHESTER_ROOT/...` which resolves to the plugin cache rather than the local repo.
+rationale: The PATH wrapper `bin/chester-trailer-write` exec's `$CHESTER_ROOT/chester-util-config/chester-trailer-write.sh` where `$CHESTER_ROOT` resolves to the plugin cache (`OrdinaryMoose/plugins/chester`), not the repo source. A test that follows ergonomic instinct and invokes via PATH would silently pass against un-fixed cached code unless `/refresh-chester` ran first, defeating the test's purpose. Direct local-source invocation locks the test against the repo's working tree so the fix is verifiable end-to-end without depending on plugin-cache state.
+alternatives:
+  - Run `/refresh-chester` as the first test step — rejected because tests cannot invoke user-scoped slash commands and the precondition would have to be a per-test handoff note rather than a test-internal guarantee.
+  - Test via PATH wrapper accepting the cache-staleness risk — rejected because a test that silently passes on un-fixed cached code is worse than no test for the fix.
+tags: [convention, tool]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/task-02-fix-trailer-write-harvest/spec/task-02-fix-trailer-write-harvest-spec-00.md
+  - working/20260430-02-rebuild-design-derivation/task-02-fix-trailer-write-harvest/spec/task-02-fix-trailer-write-harvest-spec-ground-truth-report-00.md
+---
+
+---
+id: dr-20260504-16-refresh-chester-precondition-end-to-end-validation
+date: 2026-05-04
+sprint: 20260430-02-rebuild-design-derivation/task-02-fix-trailer-write-harvest
+stage: design-specify
+title: /refresh-chester precondition for end-to-end validation of plugin-cached fixes
+decision: Any sprint that fixes a script also cached in the plugin install carries an explicit `/refresh-chester` precondition in the spec's end-to-end acceptance criteria and in the sprint's handoff notes, signaling that post-merge sprints which rely on the fix must refresh the plugin cache before invocation.
+rationale: Test-via-local-source verifies the fix at the repo level, but the PATH-resolved wrapper used by skills (e.g. `chester-trailer-write` in `finish-write-records` and `execute-write` stamping paths) continues to resolve to the cached plugin until `/refresh-chester` runs. Without an explicit precondition, downstream sprints might invoke the cached pre-fix version unknowingly, surfacing the same bug after it was supposedly fixed. Recording the precondition in the spec and handoff makes the cache-refresh step a normal part of the sprint's exit, not a tribal-knowledge afterthought.
+alternatives:
+  - Auto-refresh as part of `finish-archive-artifacts` — rejected because that skill cannot invoke user-scoped slash commands and the precondition belongs at the sprint boundary, not the archive step.
+  - Treat plugin-cache refresh as ambient developer hygiene — rejected because the cache-staleness window has historically caused silent test passes and bug recurrence; explicit precondition closes the loop.
+tags: [process, tool, convention]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/task-02-fix-trailer-write-harvest/spec/task-02-fix-trailer-write-harvest-spec-00.md
+  - working/20260430-02-rebuild-design-derivation/task-02-fix-trailer-write-harvest/summary/task-02-fix-trailer-write-harvest-summary-00.md
+---
+
+---
+id: dr-20260504-17-hybrid-execution-mode-pattern
+date: 2026-05-04
+sprint: 20260430-02-rebuild-design-derivation
+stage: plan-build
+title: Hybrid execution mode via per-task annotations on inline header
+decision: Plans whose execution mode is "hybrid" (some tasks dispatched to subagents, others run inline) declare it via per-task annotations layered on a single inline-mode header — not as a third top-level mode value — following cluster B.1's precedent.
+rationale: A third top-level execution mode (`hybrid`) would add a new dimension to the plan-build / execute-write contract and require new branches in both skills' mode-routing logic. Cluster B.1 already established the lightweight pattern: keep the header at `inline`, then mark individual tasks with `Dispatch: subagent` annotations where appropriate. The pattern preserves the binary inline/subagent contract at skill level while letting plans express mixed dispatch in plan-local prose. Future mixed-dispatch plans follow this convention rather than introducing new mode values.
+alternatives:
+  - New top-level `hybrid` mode in plan header and execute-write — rejected because it expands the skill contract for what is expressible by per-task annotations under the existing inline mode.
+  - Always-subagent or always-inline (no mixing) — rejected because real plans have tasks of mixed risk and decision-budget; forcing uniform dispatch over-spends or under-protects depending on the choice.
+tags: [convention, process, skill]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/task-02-fix-trailer-write-harvest/plan/task-02-fix-trailer-write-harvest-plan-00.md
+  - working/20260430-02-rebuild-design-derivation/cluster-b-1-define-transition/plan/cluster-b-1-define-transition-plan-00.md
+---
+
+---
+id: dr-20260504-18-mid-task-master-plan-sync-codified
+date: 2026-05-04
+sprint: 20260430-02-rebuild-design-derivation/task-02-fix-trailer-write-harvest
+stage: execute-write
+title: Mid-task working-to-plans sync codified as standard living-document pattern
+decision: Mid-task `working/<master-sprint>/master-plan.md` → `plans/<master-sprint>/master-plan.md` sync with a standalone `docs(master-plan): ... (mid-task sync)` commit on main is the standard pattern for any master-plan edit that downstream sub-sprints depend on, exercised inside execute-write task steps rather than only as a one-off pre-bootstrap workaround.
+rationale: Task-01 used the sync pattern as a pre-bootstrap step to land the task-NN registration before launching task-02 (`dr-20260504-13`). Task-02 used it again mid-execute-write to land a corrected scope attribution in §4.4.2 while the worktree commit landed on the task-02 branch. Two exercises in two consecutive sub-sprints make this the standard pattern for cross-sub-sprint living-document updates, not an emergency-only workaround. The commit-on-main with `(mid-task sync)` suffix discriminates these from regular `finish-archive-artifacts` archive commits and preserves git history at the moment of the edit, closing the living-document persistence gap for the duration of the master plan.
+alternatives:
+  - Restrict the sync pattern to pre-bootstrap only — rejected because mid-task scope corrections (e.g. task-02's §4.4.2 attribution fix) are real cases where a sub-sprint's own work modifies the master plan and waiting for the next archive merge would leave inaccurate text on main.
+  - Bundle all master-plan edits into the next archive merge — rejected because it stretches the staleness window and allows incorrect master-plan claims to sit on main between merges.
+tags: [process, convention, worktree]
+supersedes: dr-20260504-13-master-plan-sync-between-archives
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/master-plan.md
+  - working/20260430-02-rebuild-design-derivation/task-02-fix-trailer-write-harvest/plan/task-02-fix-trailer-write-harvest-plan-00.md
+  - working/20260430-02-rebuild-design-derivation/task-02-fix-trailer-write-harvest/summary/task-02-fix-trailer-write-harvest-summary-00.md
+---
