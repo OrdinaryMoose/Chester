@@ -16,6 +16,8 @@ import {
   checkConcernCoverage, evaluateTrigger,
 } from './metrics.js';
 import { deriveClosingArgument } from './closing-argument.js';
+import { restructure } from './restructure.js';
+import { checkOpenGate } from './open-gate.js';
 
 const ELEMENT_TYPES = ['EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK', 'RESOLVE_CONDITION', 'FRICTION'];
 
@@ -449,9 +451,110 @@ function handleConfirmClosureGo({ state_file }) {
   return { content: [{ type: 'text', text: JSON.stringify(closure, null, 2) }] };
 }
 
-function handleOpenProof(_args) {
+export function handleOpenProof({ state_file, submission_material }) {
+  // Phase 1 — accept submission as-is. No structural validation.
+  const submission = submission_material || {};
+
+  // Phase 2 — restructure into typed proof elements.
+  const restructured = restructure(submission);
+
+  // Special case: problem_statement extraction failed.
+  if (restructured.rejection_diagnostic) {
+    return {
+      content: [{ type: 'text', text: JSON.stringify({
+        status: 'gate_failed',
+        restructuring_report: restructured.report,
+        gate_failures: [{ missing_artifact: 'problem_statement', diagnostic: restructured.rejection_diagnostic }],
+        rejected: restructured.rejected,
+        proof_open: false,
+      })}],
+    };
+  }
+
+  // Phase 3 — check open gate, then initialize and persist state on pass.
+  const gate = checkOpenGate(restructured.admitted, restructured.report);
+  if (!gate.permitted) {
+    return {
+      content: [{ type: 'text', text: JSON.stringify({
+        status: 'gate_failed',
+        restructuring_report: restructured.report,
+        gate_failures: gate.failures,
+        rejected: restructured.rejected,
+        proof_open: false,
+      })}],
+    };
+  }
+
+  // Gate pass: build state, apply elements, save.
+  let state = initializeState(restructured.problem_statement);
+
+  // Partition admitted into typed elements (go through applyOperations) and Concerns
+  // (go through addConcern; no entry in ELEMENT_TYPES, lives in state.concerns[]).
+  const admittedTypedElements = restructured.admitted.filter(a => a.category !== 'Concern');
+  const admittedConcerns = restructured.admitted.filter(a => a.category === 'Concern');
+
+  const ops = admittedTypedElements.map(adm => admittedToAddOp(adm));
+  const applyResult = applyOperations(state, ops);
+
+  // Surface applyOperations errors per Plan-Wide Implementation Discipline.
+  if (applyResult.errors && applyResult.errors.length > 0) {
+    const attemptedCount = admittedTypedElements.length + admittedConcerns.length;
+    const actuallyAdmittedCount = (applyResult.added ? applyResult.added.length : 0);
+    return {
+      content: [{ type: 'text', text: JSON.stringify({
+        status: 'partial_write_failure',
+        restructuring_report: restructured.report,
+        errors: applyResult.errors,
+        attempted_admit_count: attemptedCount,
+        actually_admitted_count: actuallyAdmittedCount,
+        proof_open: false,
+      })}],
+    };
+  }
+
+  state = applyResult.state;
+
+  // Provision admitted Concerns via addConcern (separate path).
+  for (const concernCandidate of admittedConcerns) {
+    const [, concernState] = addConcern(state, {
+      label: concernCandidate.label,
+      description: concernCandidate.description,
+    });
+    state = concernState;
+  }
+
+  state.proofStatus = 'open';
+  try {
+    saveState(state, state_file);
+  } catch (saveErr) {
+    return {
+      content: [{ type: 'text', text: JSON.stringify({
+        status: 'save_failed',
+        restructuring_report: restructured.report,
+        diagnostic: `saveState threw: ${saveErr.message}`,
+        proof_open: false,
+      })}],
+    };
+  }
+
   return {
-    content: [{ type: 'text', text: JSON.stringify({ status: 'not_implemented', proof_open: false }) }],
+    content: [{ type: 'text', text: JSON.stringify({
+      status: 'opened',
+      restructuring_report: restructured.report,
+      admitted_count: restructured.admitted.length,
+      rejected_count: restructured.rejected.length,
+      proof_open: true,
+    })}],
+  };
+}
+
+function admittedToAddOp(admitted) {
+  const { category, metadata, restructuring_action_label, provenance, ...typedFields } = admitted;
+  return {
+    op: 'add',
+    type: category,
+    ...typedFields,
+    restructuring: { metadata, restructuring_action_label, provenance },
   };
 }
 
@@ -462,4 +565,6 @@ async function main() {
   await server.connect(transport);
 }
 
-main().catch(console.error);
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main().catch(console.error);
+}
