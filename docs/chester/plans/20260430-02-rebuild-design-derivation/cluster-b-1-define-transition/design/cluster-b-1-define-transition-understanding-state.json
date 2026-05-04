@@ -1,0 +1,3572 @@
+{
+  "schemaVersion": "problemfocused-v0.1",
+  "userPrompt": "Cluster B.1 — Phase 4b Initialization. Design how raw Phase 4a material (problem statement, Concerns, Evidence, Rules, Permissions, Resolve Conditions) types into the proof MCP at the boundary. Six pairings inherited from cluster-B NC-1. Two-channel raw-material model from NC-2 (problem statement explicit; everything else via agent session memory). Concern iteration mechanism from NC-3 with five integration constraints (sequential ratification preserved, late-lock procrastination gate, merge evidence bar, split RC autogeneration, invalidation-impact preview). Targets Solve Stage Opening section in design-large-task SKILL.md plus proof MCP source where initialization signature changes. Inherits 22 Rules + 3 NCs + 11 Evidence + PERM-1 + 5 Risks from cluster-B umbrella. Reads cluster-B.2 outputs (closing-argument materialization mechanism, two-yes closure model, mutation-clears-flags discipline) as Rules.",
+  "round": 3,
+  "overallThreshold": 0.65,
+  "tenetEntries": {
+    "problem_articulation": [
+      {
+        "text": "B.1's contract design has to structurally validate inbound material (per R4 — the caller does not validate) while not stripping the rationale, provenance, or conversational context the agent carried at transition time. Today's MCP tools were designed for an agent-internal turn-by-turn use pattern, not a generic single-transition intake. The single-transition reframe (R6) creates two design pressures pulling against each other: tight typed shapes for validation rigor, loose accommodation for caller-supplied context.",
+        "current_behavior": "no single-transition intake exists; tools assume turn-by-turn agent-driven calls; no provision for caller-supplied context to ride alongside typed material",
+        "desired_behavior": "single contract operation that validates structurally, accepts categorically-typed material, and carries caller-supplied context cleanly without forcing nuance into the typed shape",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      }
+    ],
+    "success_criteria": [
+      {
+        "text": "Contract surface defined comprehensively enough that the SKILL.md Solve Stage Opening section, the brief template Concerns section, and the proof MCP source changes are mechanical derivations from the contract spec rather than separate design decisions",
+        "observable": "design brief enumerates contract operations with typed shapes, state transitions, opening-protocol rules, and inheritance behavior; downstream artifacts (SKILL.md text, brief template, code) cite the contract spec section as their source",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Contract validates submissions structurally without rejecting nuance — any material a caller can express in the six categories is accepted; any context a caller considers load-bearing has a clean place to ride along (provenance, optional fields, or explicitly out-of-scope-at-boundary)",
+        "observable": "callers do not lose rationale, provenance, or conversational context they consider load-bearing in order to satisfy the contract",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "Contract surface stays small enough that the boundary is comprehensible at a glance and not bureaucratic",
+        "anti_goal": "the contract grows into a B-Method-style rigid clause structure that requires extensive caller ceremony",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      }
+    ],
+    "done_state_vision": [
+      {
+        "text": "Design brief states loose-middle as the locked contract rigor position, names the six categories with per-category required vs optional fields, and names the free-form metadata channel for caller-supplied context that downstream proof construction needs.",
+        "imagined_moment": "I open the cluster-b-1 design brief, see a table with six rows (one per category) listing required-fields and optional-fields, and a paragraph explaining the metadata channel's role in supplying construction context for Evidence in particular. I pass it to design-specify and the spec generation runs without me supplying additional context.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 3
+      }
+    ],
+    "constraint_envelope": [
+      {
+        "text": "Phase 4b has no knowledge of Phase 4a",
+        "constraint_type": "hard_limit",
+        "source": "designer R1",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Phase 4b has a contract that any generic design system can submit information into; the contract is the only legal cross-boundary surface",
+        "constraint_type": "hard_limit",
+        "source": "designer R2",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Concerns are drafted in Phase 4a (4a-side production)",
+        "constraint_type": "hard_limit",
+        "source": "designer R3",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Phase 4a does not validate Concerns; structural validation is contract-side, ratification is designer-side",
+        "constraint_type": "hard_limit",
+        "source": "designer R4",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Sequential ratification preserved — each Resolve Condition ratified one at a time",
+        "constraint_type": "inheritance",
+        "source": "cluster A NC-05",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Six categories the contract accepts are immutable: problem statement, Concerns, Evidence, Rules, Permissions, Resolve Conditions; Necessary Conditions and Risks excluded",
+        "constraint_type": "inheritance",
+        "source": "cluster B NC-1",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Phase 4b solve presumed valid and sufficient — default work is confirmation not refactor",
+        "constraint_type": "inheritance",
+        "source": "master plan RULE-6",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Plugin architecture preserved — multiple Phase 4a implementations coexist; contract is generic over them",
+        "constraint_type": "inheritance",
+        "source": "master plan §4.3",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "4a is out of scope for this sprint — no design discussion, vocabulary, or mechanism work crosses into 4a territory",
+        "constraint_type": "hard_limit",
+        "source": "designer R5",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "4a makes a single submission to 4b — the submission IS the transition action between the two systems",
+        "constraint_type": "hard_limit",
+        "source": "designer R6",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      }
+    ],
+    "scope_boundary": [
+      {
+        "text": "Updates to the Solve Stage Opening section in design-large-task SKILL.md (caller-facing documentation derived from the contract definition)",
+        "placement": "IN",
+        "source": "master plan §4.2.1 exit criteria",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Brief template Concerns and Resolve Condition sections updated to reflect the Concern lifecycle (draft vs ratified)",
+        "placement": "BORDERLINE",
+        "source": "derives from Concern lifecycle but lives in template artifact",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "CN/CERN ID-prefix inconsistency fix (RISK-4 carried forward)",
+        "placement": "BORDERLINE",
+        "source": "RISK-4 inherited from cluster-B handover; template fix not contract fix",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Closing-argument materialization mechanism",
+        "placement": "OUT",
+        "source": "cluster B.2 owns; B.1 emits state, B.2 reads it",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "4a-internal flow logic, mechanisms, and ratification-side responsibilities",
+        "placement": "OUT",
+        "source": "R1 + R3 + R4",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "4b-internal operations — Concern lock semantics, sequential RC ratification, four iteration mechanisms (merge bar, split autogen, late-lock gate, invalidation preview), state visibility for closing-side reads",
+        "placement": "IN",
+        "source": "master plan §4.2.1 + cluster B NC-3",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "Caller-context-preservation mechanism on the contract — how rationale, provenance, conversational thread ride alongside typed submission material",
+        "placement": "IN",
+        "source": "designer Concern 2 surfaced this turn",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      }
+    ],
+    "personal_use_case_map": [
+      {
+        "text": "Current session: defining Phase 4b's contract so the proof MCP can accept submissions cleanly without per-caller bespoke handling.",
+        "role": "current_me",
+        "scenario": "Mid-session on Chester master plan rebuild-design-derivation, working through cluster B sub-sprints; need contract design settled before plan-build can be specced.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 3
+      },
+      {
+        "text": "Months from now, extending Phase 4b for a new caller type (e.g., a CLI tool, a different Understanding flow): the brief tells me the validation philosophy and metadata channel rules so I don't have to re-derive them from scratch.",
+        "role": "future_me",
+        "scenario": "Returning to Chester after a gap to add a new caller; need to know whether the contract accepts the new shape without modification.",
+        "context_assumed_lost": "Specific reasoning chain that produced loose-middle vs tight; the six tensions debated this session; why metadata channel was chosen over typed context fields.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 3
+      }
+    ],
+    "cost_energy_budget": [
+      {
+        "text": "Designer concern about overengineering: contract surface should err on the side of small + clear boundaries, not exhaustive enumeration of every conceivable case",
+        "dimension": "complexity_ceiling",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "Designer concern about preserving agent context: design effort spent on context-preservation mechanism is well-spent if it keeps the typed shape minimal; effort spent on widening the typed shape to absorb every kind of context is poorly spent",
+        "dimension": "effort_tolerance",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      }
+    ],
+    "project_fit": [
+      {
+        "text": "Bureaucratic typed declaration patterns (B-Method-style rigid clauses, NASA RTM-style ceremony per requirement) misfit Chester's design-conversation aesthetic, which tolerates fluid material and trusts the agent + designer to handle nuance",
+        "alignment": "MISFIT",
+        "project_convention_referenced": "Chester design-conversation aesthetic — plain language, peer talk, low ceremony",
+        "override_reason": "the contract still needs structural validation for safety per R4; the design must find the minimum-viable structural shape that preserves caller flexibility, not adopt heavyweight enterprise contract patterns",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      }
+    ],
+    "open_questions_ledger": [
+      {
+        "text": "Is defining the Phase 4b contract surface comprehensively the full B.1 scope, or are there design decisions outside the contract definition that B.1 also owns?",
+        "question_source": "designer_hesitation",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Is the late-lock procrastination gate contract-enforced (the contract refuses certain operations after N rounds without lock) or caller-enforced (each design system handles deferral discipline internally)?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "How does the contract balance structural validation rigor (mandated by R4 — caller doesn't validate) against caller flexibility — what level of validation strictness is right?",
+        "question_source": "designer_hesitation",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "How does the single transition submission preserve caller-supplied context (rationale, provenance, conversational thread, alternatives considered) without overstuffing the typed categories?",
+        "question_source": "designer_hesitation",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "Does provenance metadata on each submitted item carry caller context, or do typed categories get optional context fields, or is caller context held in caller memory only and not part of the proof?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "What's the minimum-viable structural shape — required category tag plus minimal required fields per category, or richer typed schemas, or somewhere between?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      }
+    ]
+  },
+  "tenetScores": {
+    "problem_articulation": 1,
+    "success_criteria": 1,
+    "done_state_vision": 0.5,
+    "constraint_envelope": 1,
+    "scope_boundary": 1,
+    "personal_use_case_map": 0.667,
+    "cost_energy_budget": 1,
+    "project_fit": 0.5,
+    "open_questions_ledger": 1
+  },
+  "scoreHistory": [
+    {
+      "problem_articulation": 0,
+      "success_criteria": 0.333,
+      "done_state_vision": 0,
+      "constraint_envelope": 1,
+      "scope_boundary": 1,
+      "personal_use_case_map": 0,
+      "cost_energy_budget": 0,
+      "project_fit": 0,
+      "open_questions_ledger": 0.667
+    },
+    {
+      "problem_articulation": 1,
+      "success_criteria": 1,
+      "done_state_vision": 0,
+      "constraint_envelope": 1,
+      "scope_boundary": 1,
+      "personal_use_case_map": 0,
+      "cost_energy_budget": 1,
+      "project_fit": 0.5,
+      "open_questions_ledger": 1
+    },
+    {
+      "problem_articulation": 1,
+      "success_criteria": 1,
+      "done_state_vision": 0.5,
+      "constraint_envelope": 1,
+      "scope_boundary": 1,
+      "personal_use_case_map": 0.667,
+      "cost_energy_budget": 1,
+      "project_fit": 0.5,
+      "open_questions_ledger": 1
+    }
+  ],
+  "glossary": [
+    {
+      "canonical_name": "Phase 4a",
+      "aliases": [
+        "Understand stage"
+      ],
+      "definition": "The Understand stage of design-large-task. Produces raw, problem-side material in agent session memory.",
+      "source": {
+        "explorer": "prior-art",
+        "artifact": "master-plan.md vocabulary lock"
+      },
+      "sense_constraints": [
+        "Designer-locked verbatim",
+        "Not 'Phase 4', not 'Understanding phase'"
+      ],
+      "status": "DEPRECATED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "prior-art",
+            "artifact": "master-plan.md vocabulary lock"
+          }
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "also, lots of sprint b2 terms embedded that should be locked from previous",
+          "reason": "Status correction: locked by master plan vocabulary. Not pending B.1 ratification. Definition preserved verbatim; flipping to DEFINED."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Phase 4b",
+      "aliases": [
+        "Solve stage"
+      ],
+      "definition": "The Solve stage of design-large-task. Consumes Phase 4a material into a typed proof structure under the proof MCP.",
+      "source": {
+        "explorer": "prior-art",
+        "artifact": "master-plan.md vocabulary lock"
+      },
+      "sense_constraints": [
+        "Designer-locked verbatim"
+      ],
+      "status": "DEPRECATED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "prior-art",
+            "artifact": "master-plan.md vocabulary lock"
+          }
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "rule: 4b has no knowledge of 4a",
+          "reason": "Designer Rule: 4b has no knowledge of 4a. Prior definition said \"Consumes Phase 4a material\" — leak. Rewritten as self-description: builds proof from items received through its contract. The contract is the only thing 4b knows about its inputs."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Problem statement",
+      "aliases": [],
+      "definition": "The designer's confirmed hypothesis about what is broken or being solved. Carried into Phase 4b as the explicit channel-one input.",
+      "source": {
+        "explorer": "prior-art",
+        "artifact": "master-plan.md vocabulary lock"
+      },
+      "sense_constraints": [
+        "Designer-locked verbatim",
+        "Not a solution shape; describes the pain"
+      ],
+      "status": "DEPRECATED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "prior-art",
+            "artifact": "master-plan.md vocabulary lock"
+          }
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "rule: 4b has no knowledge of 4a",
+          "reason": "Designer Rule: 4b has no knowledge of 4a. Prior definition said \"Carried into Phase 4b as the explicit channel-one input\" — vestige of deprecated two-channel framing and implies a flow direction. Cleaned to category-only description."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Concern",
+      "aliases": [
+        "CN",
+        "CERN"
+      ],
+      "definition": "A PM-ratified issue anchored to the problem statement. Concerns are enumerated and locked at Phase 4b opening; each Concern anchors at least one Resolve Condition (or is covered by a Rule) for the closure gate.",
+      "source": {
+        "explorer": "prior-art",
+        "artifact": "cluster-A design brief NC-02"
+      },
+      "sense_constraints": [
+        "Designer-locked from cluster A; ID prefix CERN-N in code, CN-N in brief template (RISK-4 inconsistency)"
+      ],
+      "status": "DEPRECATED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "prior-art",
+            "artifact": "cluster-A design brief NC-02"
+          }
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "also, lots of sprint b2 terms embedded that should be locked from previous",
+          "reason": "Status correction: locked by cluster A. Inherited forward; B.1 does not re-ratify. Definition preserved; flipping to DEFINED."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Resolve Condition",
+      "aliases": [
+        "RC",
+        "RCON"
+      ],
+      "definition": "Sixth proof element type. PM-readable observable claim that, when ratified, certifies a Concern is addressed. Three fields: statement, problem_anchor (Concern ID), ratification.",
+      "source": {
+        "explorer": "prior-art",
+        "artifact": "cluster-A design brief NC-01"
+      },
+      "sense_constraints": [
+        "Designer-locked from cluster A",
+        "Five locked attributes: observable, designer-ratified, problem-statement-anchored, forward-looking, non-restrictive"
+      ],
+      "status": "DEPRECATED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "prior-art",
+            "artifact": "cluster-A design brief NC-01"
+          }
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "also, lots of sprint b2 terms embedded that should be locked from previous",
+          "reason": "Status correction: locked by cluster A. Inherited forward; B.1 does not re-ratify. Definition preserved; flipping to DEFINED."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Initialization sequence",
+      "aliases": [
+        "Solve Stage Opening"
+      ],
+      "definition": "The ordered set of steps that opens Phase 4b given raw material handed off from Phase 4a. B.1 is designing this sequence end to end.",
+      "source": {
+        "explorer": "prior-art",
+        "artifact": "master-plan.md §4.2.1 + cluster-B handover NC-1"
+      },
+      "sense_constraints": [
+        "Today's Solve Stage Opening is three steps and addresses only the problem statement channel"
+      ],
+      "status": "DEPRECATED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "prior-art",
+            "artifact": "master-plan.md §4.2.1 + cluster-B handover NC-1"
+          }
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "phase 4b has a contract that any generic 4a implementation can submit information into",
+          "reason": "Designer Rule reframes: not a fixed handoff sequence but a contract surface plus per-implementation ordering subject to contract rules."
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "why do we still have any references to any 4a structure in the definitions? rule should prevent that",
+          "reason": "Designer correction + rename. Prior definition referenced \"Phase 4a implementation makes contract submissions\" and \"specific Phase 4a implementations may submit in their own order\" — leaks. Also \"sequence\" framing presupposed a single fixed order; the contract expresses opening constraints, not a sequence. Renaming \"Initialization sequence\" → \"Opening protocol\" with old name as alias."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Six pairings",
+      "aliases": [],
+      "definition": "NC-1 from cluster-B umbrella. Six explicit Phase 4a → Phase 4b mappings, each with named responsibility: problem statement, Concerns, Evidence, Rules, Permissions, Resolve Conditions. Necessary Conditions and Risks are excluded from the boundary.",
+      "source": {
+        "explorer": "prior-art",
+        "artifact": "cluster-B handover-to-b1 NC-1"
+      },
+      "sense_constraints": [
+        "Inherited NC; B.1 must revalidate but not re-derive"
+      ],
+      "status": "DEPRECATED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "prior-art",
+            "artifact": "cluster-B handover-to-b1 NC-1"
+          }
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "phase 4b has a contract that any generic 4a implementation can submit information into",
+          "reason": "Designer Rule reframes the relationship: the six items are no longer pairings between two structured sides; they are categories the generic contract accepts. Identity of the six locked; relational shape revised."
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "why do we still have any references to any 4a structure in the definitions? rule should prevent that",
+          "reason": "Designer correction + rename. Prior definition mentioned \"raw-material categories\" and \"regardless of which Phase 4a implementation produced them\" — leaks. Also \"pairings\" implied 4a↔4b mapping shape now prohibited. Renaming \"Six pairings\" → \"Six categories\" with old name as alias for backward reference."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Two-channel raw material",
+      "aliases": [],
+      "definition": "NC-2 from cluster-B umbrella. Channel one is the problem statement carried explicitly into Phase 4b's entry. Channel two is everything else (draft Concerns, codebase observations, designer directives, identified Risks) accessible through agent session memory.",
+      "source": {
+        "explorer": "prior-art",
+        "artifact": "cluster-B handover-to-b1 NC-2"
+      },
+      "sense_constraints": [
+        "Inherited NC; B.1 must revalidate but not re-derive"
+      ],
+      "status": "DEPRECATED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "prior-art",
+            "artifact": "cluster-B handover-to-b1 NC-2"
+          }
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "phase 4b has a contract that any generic 4a implementation can submit information into",
+          "reason": "Designer Rule: contract reframe collapses both channels into one. The \"explicit-parameter vs session-memory\" distinction was meaningful only when Phase 4b could reach in; with all input flowing through the contract, the channel split dissolves. Replaced by Phase 4b contract + Contract submission."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Concern iteration",
+      "aliases": [],
+      "definition": "NC-3 from cluster-B umbrella. The Concern set is revised across Phase 4b as Evidence and Risk understanding shifts. Five integration constraints govern operations on Concerns and the Resolve Conditions anchored to them.",
+      "source": {
+        "explorer": "prior-art",
+        "artifact": "cluster-B handover-to-b1 NC-3"
+      },
+      "sense_constraints": [
+        "Inherited NC; B.1 must revalidate but not re-derive"
+      ],
+      "status": "DEPRECATED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "prior-art",
+            "artifact": "cluster-B handover-to-b1 NC-3"
+          }
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "approved",
+          "reason": "Designer en-bloc approval. Definition cleaned of Phase-4a leak (\"as Evidence and Risk understanding shifts\" → \"as understanding shifts\" — drops upstream-source assumption now that contract reframe makes producer agnostic). Flipping to DEFINED."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Sequential ratification",
+      "aliases": [],
+      "definition": "Cluster-A discipline preserved into Concern iteration: each Resolve Condition is ratified one at a time. No batch approval, no gestalt sign-off.",
+      "source": {
+        "explorer": "prior-art",
+        "artifact": "cluster-A design brief NC-05"
+      },
+      "sense_constraints": [
+        "Inherited locked discipline"
+      ],
+      "status": "DEPRECATED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "prior-art",
+            "artifact": "cluster-A design brief NC-05"
+          }
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "also, lots of sprint b2 terms embedded that should be locked from previous",
+          "reason": "Status correction: locked by cluster A. Inherited forward; B.1 does not re-ratify. Definition preserved; flipping to DEFINED."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Late-lock procrastination gate",
+      "aliases": [],
+      "definition": "First of NC-3's five integration constraints. A mechanism that prevents the designer from indefinitely deferring Concern lock as Phase 4b proceeds. Today, no such mechanism exists.",
+      "source": {
+        "explorer": "prior-art",
+        "artifact": "cluster-B handover-to-b1 NC-3"
+      },
+      "sense_constraints": [
+        "Mechanism shape is open in B.1"
+      ],
+      "status": "DEPRECATED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "prior-art",
+            "artifact": "cluster-B handover-to-b1 NC-3"
+          }
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "approved",
+          "reason": "Designer en-bloc approval; flipping to DEFINED with definition preserved."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Merge evidence bar",
+      "aliases": [],
+      "definition": "Second of NC-3's five integration constraints. Merging two Concerns into one requires Evidence citation supporting the collapse — merges may not happen on agent or designer instinct alone.",
+      "source": {
+        "explorer": "prior-art",
+        "artifact": "cluster-B handover-to-b1 NC-3"
+      },
+      "sense_constraints": [
+        "Mechanism shape is open in B.1"
+      ],
+      "status": "DEPRECATED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "prior-art",
+            "artifact": "cluster-B handover-to-b1 NC-3"
+          }
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "approved",
+          "reason": "Designer en-bloc approval; flipping to DEFINED."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Split RC autogeneration",
+      "aliases": [],
+      "definition": "Third of NC-3's five integration constraints. When one Concern is split into two, the Resolve Conditions anchored to the original are autogenerated for each new Concern rather than left to manual re-anchoring.",
+      "source": {
+        "explorer": "prior-art",
+        "artifact": "cluster-B handover-to-b1 NC-3"
+      },
+      "sense_constraints": [
+        "Mechanism shape is open in B.1"
+      ],
+      "status": "DEPRECATED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "prior-art",
+            "artifact": "cluster-B handover-to-b1 NC-3"
+          }
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "approved",
+          "reason": "Designer en-bloc approval; flipping to DEFINED."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Invalidation-impact preview",
+      "aliases": [],
+      "definition": "Fourth of NC-3's five integration constraints (the fifth is sequential ratification preserved). Before a merge or split commits, the designer sees which existing Resolve Conditions would lose ratification as a result.",
+      "source": {
+        "explorer": "prior-art",
+        "artifact": "cluster-B handover-to-b1 NC-3"
+      },
+      "sense_constraints": [
+        "Mechanism shape is open in B.1"
+      ],
+      "status": "DEPRECATED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "prior-art",
+            "artifact": "cluster-B handover-to-b1 NC-3"
+          }
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "approved",
+          "reason": "Designer en-bloc approval; flipping to DEFINED."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Closing argument",
+      "aliases": [],
+      "definition": "B.2's locked deliverable. The materialized walk of the live Resolve Condition set produced at proof closure, gated by a composite trigger and the two-yes model. B.1 inherits this as the exit shape its initialization sequence must thread into.",
+      "source": {
+        "explorer": "prior-art",
+        "artifact": "cluster-B.2 design brief"
+      },
+      "sense_constraints": [
+        "Inherited as Rule from B.2"
+      ],
+      "status": "DEPRECATED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "prior-art",
+            "artifact": "cluster-B.2 design brief"
+          }
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "also, lots of sprint b2 terms embedded that should be locked from previous",
+          "reason": "Status correction: locked by cluster B.2. Inherited forward as Rule; B.1 does not re-ratify. Definition preserved; flipping to DEFINED."
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "and most of these probably dont apply to b1 planning, internal to b2",
+          "reason": "B.2-internal. Closing argument is B.2's downstream deliverable; B.1's contract design doesn't engage with how it materializes. Will resurface at implementation time when B.1's contract integrates with B.2's closure mechanism, but not in B.1's design conversation vocabulary."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Two-yes model",
+      "aliases": [],
+      "definition": "B.2's closure pattern. Closure is permitted only when the designer presented and confirmed go for the closing argument in the same round; any subsequent state mutation clears both flags.",
+      "source": {
+        "explorer": "prior-art",
+        "artifact": "cluster-B.2 design brief NCON-4"
+      },
+      "sense_constraints": [
+        "Inherited as Rule from B.2"
+      ],
+      "status": "DEPRECATED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "prior-art",
+            "artifact": "cluster-B.2 design brief NCON-4"
+          }
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "also, lots of sprint b2 terms embedded that should be locked from previous",
+          "reason": "Status correction: locked by cluster B.2. Inherited forward as Rule; B.1 does not re-ratify. Definition preserved; flipping to DEFINED."
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "and most of these probably dont apply to b1 planning, internal to b2",
+          "reason": "B.2-internal closure-gate machinery. Not a B.1 design-conversation concern. B.1 designs the contract; B.2 owns the closure pattern around mutations."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Mutation-clears-flags discipline",
+      "aliases": [],
+      "definition": "B.2's invariant. Every state-mutating function calls clearClosingFlags at entry. Any new mutating operation B.1 introduces (such as Concern merge or split) inherits this requirement structurally.",
+      "source": {
+        "explorer": "prior-art",
+        "artifact": "cluster-B.2 spec NCON-4 / AC-5.5"
+      },
+      "sense_constraints": [
+        "Inherited structural invariant from B.2"
+      ],
+      "status": "DEPRECATED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "prior-art",
+            "artifact": "cluster-B.2 spec NCON-4 / AC-5.5"
+          }
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "also, lots of sprint b2 terms embedded that should be locked from previous",
+          "reason": "Status correction: locked by cluster B.2. Inherited forward as Rule; B.1 does not re-ratify. Definition preserved; flipping to DEFINED."
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "and most of these probably dont apply to b1 planning, internal to b2",
+          "reason": "B.2-internal implementation invariant. From B.1's design altitude the contract just supports operations; how B.2 wires flag-clearing around mutations is downstream implementation detail. Surfaces at spec/plan time, not in design vocabulary."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Pre-seeded proof",
+      "aliases": [],
+      "definition": "Master plan working name for the Phase 4a output shape that flows into Phase 4b. Cluster B is settling the actual transition mechanism; this term may be superseded by what B.1 ratifies.",
+      "source": {
+        "explorer": "prior-art",
+        "artifact": "master-plan.md vocabulary working glossary"
+      },
+      "sense_constraints": [
+        "Working name only; revisable in B.1"
+      ],
+      "status": "DEPRECATED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "prior-art",
+            "artifact": "master-plan.md vocabulary working glossary"
+          }
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "phase 4b can not depend on any phase 4a structured data / phase 4b has a contract that any generic 4a implementation can submit information into",
+          "reason": "Designer Rule: Phase 4b cannot depend on Phase 4a structured data. The term presumed Phase 4b reaches in to consume a Phase 4a output shape — the new contract reframe makes that direction prohibited. Term dissolves entirely."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Solve Leakage Ledger",
+      "aliases": [],
+      "definition": "Phase 4a-side ledger that preserves rejected solve-mode statements as input to Phase 4b. Today the ledger is declared in the problemfocused flow but has no consuming step in the Solve Stage Opening.",
+      "source": {
+        "explorer": "prior-art",
+        "artifact": "cluster-B handover-to-b1 EVID-7"
+      },
+      "sense_constraints": [
+        "Currently declared-but-unconsumed (RISK-5 candidate)"
+      ],
+      "status": "DEPRECATED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "prior-art",
+            "artifact": "cluster-B handover-to-b1 EVID-7"
+          }
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "phase 4b can not depend on any phase 4a structured data",
+          "reason": "Designer Rule prohibits Phase 4b reaching into Phase 4a structures. Ledger remains a problemfocused-internal construct; any cross-boundary use must flow through the contract."
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "what is this and why is still around? Solve Leakage Ledger",
+          "reason": "Designer challenge: term has no 4b-side role under R1 (4b has no knowledge of 4a). Originally seeded only because cluster-B handover EVID-7 flagged it as \"declared-but-unconsumed\" → RISK-5 candidate. R1 + R2 dissolve that risk: any ledger emission becomes a 4a-implementation-internal choice (translate ledger entries into Evidence submissions or hold locally), opaque to Phase 4b. Term is not B.1's design subject and not in the contract surface. Drop."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Six pairings",
+      "aliases": [],
+      "definition": "The six raw-material categories the Phase 4b contract accepts via submission, regardless of which Phase 4a implementation produced them: problem statement, Concerns, Evidence, Rules, Permissions, Resolve Conditions. Necessary Conditions and Risks are excluded from the contract surface.",
+      "source": null,
+      "sense_constraints": [
+        "Inherited NC from cluster B; identity of the six items locked",
+        "Definition reframed by designer Rule: contract-mediated, not Phase 4a→Phase 4b mapping"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "phase 4b has a contract that any generic 4a implementation can submit information into",
+          "reason": "Designer Rule reframes the relationship: the six items are no longer pairings between two structured sides; they are categories the generic contract accepts. Identity of the six locked; relational shape revised."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Initialization sequence",
+      "aliases": [
+        "Solve Stage Opening"
+      ],
+      "definition": "The Phase 4b contract surface plus the order in which a Phase 4a implementation makes contract submissions to open Phase 4b. B.1 is designing the contract surface and the canonical sequence; specific Phase 4a implementations may submit in their own order subject to contract rules.",
+      "source": null,
+      "sense_constraints": [
+        "Today's Solve Stage Opening is three steps and addresses only the problem-statement category",
+        "Sequence is per-implementation; contract surface is universal"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "phase 4b has a contract that any generic 4a implementation can submit information into",
+          "reason": "Designer Rule reframes: not a fixed handoff sequence but a contract surface plus per-implementation ordering subject to contract rules."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Solve Leakage Ledger",
+      "aliases": [],
+      "definition": "Problemfocused-implementation-specific construct that captures rejected solve-mode statements during Phase 4a. The implementation may choose to submit ledger entries through the Phase 4b contract (as Evidence or otherwise) or hold them locally; Phase 4b does not reach into the ledger.",
+      "source": null,
+      "sense_constraints": [
+        "Phase 4b makes no assumption about its existence — only the problemfocused implementation maintains it",
+        "If consumed, must arrive via contract submission like any other material"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "phase 4b can not depend on any phase 4a structured data",
+          "reason": "Designer Rule prohibits Phase 4b reaching into Phase 4a structures. Ledger remains a problemfocused-internal construct; any cross-boundary use must flow through the contract."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Phase 4b contract",
+      "aliases": [],
+      "definition": "The submission interface Phase 4b exposes for any Phase 4a implementation to deposit raw material. Channel-agnostic, structure-agnostic — the contract knows nothing about the producing implementation's internal shape. Categorical: each submission carries one of the six raw-material categories plus the producer's claim of category.",
+      "source": null,
+      "sense_constraints": [
+        "Designer Rule: Phase 4b cannot depend on any Phase 4a structured data — the contract is the only legal cross-boundary surface",
+        "B.1's primary design subject"
+      ],
+      "status": "DEPRECATED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "phase 4b has a contract that any generic 4a implementation can submit information into",
+          "reason": "Designer-issued Rule introduces the contract as the sole legal cross-boundary surface. Term needed to refer to it canonically."
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "why do we still have any references to any 4a structure in the definitions? rule should prevent that",
+          "reason": "Designer correction: previous definition still mentioned \"Phase 4a implementation\" and \"raw material\" — both leak the prohibited structural dependency. Rewritten to describe contract purely by what it exposes and how it validates."
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "rule: 4b has no knowledge of 4a",
+          "reason": "Designer Rule: 4b has no knowledge of 4a. Prior sense_constraint mentioned \"Phase 4a\" twice — even saying \"no reference to Phase 4a\" is a reference. Cleaned to self-describing language with no caller-domain terms."
+        },
+        {
+          "event": "REMOVE",
+          "round": 1,
+          "designer_quote": "rule; 4a makes a single submission to 4b (transition action between the two systems)",
+          "reason": "R6 reduces the contract to a single intake action. Prior definition implied a multi-operation API surface. Revised to single-transition framing; explicitly notes post-transition operations are 4b-internal."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Phase 4a implementation",
+      "aliases": [
+        "Understanding flow",
+        "4a impl"
+      ],
+      "definition": "Any pluggable Understand-stage flow (classic, problemfocused, team-interview, future ones) that produces raw material and calls into the Phase 4b contract. The contract is generic over implementations — none gets privileged access.",
+      "source": null,
+      "sense_constraints": [
+        "Plugin-architecture term: aligns with master plan §4.3 preserving multi-MCP / multi-flow arrangement",
+        "Generic — no specific implementation may be assumed by Phase 4b"
+      ],
+      "status": "DEPRECATED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "any generic 4a implementation can submit information into",
+          "reason": "Designer-issued Rule references \"any generic 4a implementation\" — needs canonical term for the category of pluggable producers."
+        },
+        {
+          "event": "REMOVE",
+          "round": 1,
+          "designer_quote": "draft concerns are a 4a consideration; adhere to the rules and dont cross boundaries. why are we trying to implement 4a considerations. Rule: 4a is out of scope for this sprint",
+          "reason": "4a-side concept, out of scope for B.1 per R5. Was kept as a contextual term but R5 + boundary-discipline correction makes it active vocabulary leak. Contract caller (already DEFINED) is the 4b-side noun for \"anything that submits\"; Design system is the broader caller category. Neither requires referencing Phase 4a implementations."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Contract submission",
+      "aliases": [
+        "submission"
+      ],
+      "definition": "A single act of a Phase 4a implementation calling the Phase 4b contract with one raw-material item. The submission carries the item, its claimed category (one of the six), and provenance. The contract validates and accepts or rejects; it does not interpret.",
+      "source": null,
+      "sense_constraints": [
+        "Validation is structural (category shape, required fields), not semantic (Phase 4b doesn't judge the content's quality)",
+        "Atomic — one submission carries one item"
+      ],
+      "status": "DEPRECATED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "phase 4b has a contract that any generic 4a implementation can submit information into",
+          "reason": "Need a canonical noun for the act of submitting through the contract — distinguishes from the contract surface itself and from the raw material."
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "why do we still have any references to any 4a structure in the definitions? rule should prevent that",
+          "reason": "Designer correction: prior definition named \"Phase 4a implementation calling\" — leak. Rewritten as inbound call from any caller."
+        },
+        {
+          "event": "REMOVE",
+          "round": 1,
+          "designer_quote": "rule; 4a makes a single submission to 4b (transition action between the two systems)",
+          "reason": "R6 introduces single-submission semantics. Prior definition framed submission as \"one item per call\" which presumed a stream of submissions over time. Renaming to \"Transition submission\" and defining it as the single comprehensive transition action."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Phase 4b contract",
+      "aliases": [],
+      "definition": "The submission interface Phase 4b exposes. Accepts items in one of the six categories with category-specific required fields and provenance; returns acceptance or structured rejection plus updated proof state. Validation is structural; content is not interpreted. Stateful — submissions accumulate proof state across the session. The contract is the only legal ingress to Phase 4b state.",
+      "source": null,
+      "sense_constraints": [
+        "Definition makes no reference to Phase 4a or any Phase 4a structure — the contract is self-describing",
+        "B.1's primary design subject"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "why do we still have any references to any 4a structure in the definitions? rule should prevent that",
+          "reason": "Designer correction: previous definition still mentioned \"Phase 4a implementation\" and \"raw material\" — both leak the prohibited structural dependency. Rewritten to describe contract purely by what it exposes and how it validates."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Contract submission",
+      "aliases": [
+        "submission"
+      ],
+      "definition": "A single atomic inbound call to the Phase 4b contract carrying one item, its claimed category (one of the six), and provenance metadata. Returns acceptance or structured rejection. Validated structurally; not interpreted.",
+      "source": null,
+      "sense_constraints": [
+        "Definition makes no reference to Phase 4a as the caller — callers are anonymous to the contract",
+        "Atomic — one submission carries one item"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "why do we still have any references to any 4a structure in the definitions? rule should prevent that",
+          "reason": "Designer correction: prior definition named \"Phase 4a implementation calling\" — leak. Rewritten as inbound call from any caller."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Six categories",
+      "aliases": [
+        "Six pairings"
+      ],
+      "definition": "The six categories the Phase 4b contract accepts: problem statement, Concerns, Evidence, Rules, Permissions, Resolve Conditions. Necessary Conditions and Risks are excluded from the contract surface.",
+      "source": null,
+      "sense_constraints": [
+        "Identity of the six items locked from cluster B NC-1",
+        "Renamed from 'Six pairings' — the prior name presupposed a bidirectional mapping shape that the contract reframe rules out"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "why do we still have any references to any 4a structure in the definitions? rule should prevent that",
+          "reason": "Designer correction + rename. Prior definition mentioned \"raw-material categories\" and \"regardless of which Phase 4a implementation produced them\" — leaks. Also \"pairings\" implied 4a↔4b mapping shape now prohibited. Renaming \"Six pairings\" → \"Six categories\" with old name as alias for backward reference."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Opening protocol",
+      "aliases": [
+        "Initialization sequence",
+        "Solve Stage Opening"
+      ],
+      "definition": "The portion of the Phase 4b contract that governs session opening — which categorical submissions the contract requires, allows, or refuses before per-turn operation begins. Defines preconditions and ordering constraints in terms the contract enforces, not in terms of any caller's internal flow.",
+      "source": null,
+      "sense_constraints": [
+        "Today's Solve Stage Opening is three caller-side steps coupling to Evidence/Rules categories — the new protocol expresses opening rules from the contract side only",
+        "Renamed from 'Initialization sequence' — the prior name implied a single sequence; the protocol expresses constraints, not a fixed sequence"
+      ],
+      "status": "DEPRECATED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "why do we still have any references to any 4a structure in the definitions? rule should prevent that",
+          "reason": "Designer correction + rename. Prior definition referenced \"Phase 4a implementation makes contract submissions\" and \"specific Phase 4a implementations may submit in their own order\" — leaks. Also \"sequence\" framing presupposed a single fixed order; the contract expresses opening constraints, not a sequence. Renaming \"Initialization sequence\" → \"Opening protocol\" with old name as alias."
+        },
+        {
+          "event": "REMOVE",
+          "round": 1,
+          "designer_quote": "rule; 4a makes a single submission to 4b (transition action between the two systems)",
+          "reason": "R6 collapses what was a multi-operation ordering question into a single-submission validation question. Opening protocol now describes the rules governing the one transition submission, not ordering across multiple operations."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Contract caller",
+      "aliases": [],
+      "definition": "From the Phase 4b contract's standpoint, anything that issues a contract submission. Anonymous — the contract distinguishes callers only by submission provenance metadata, never by their internal type or category. The Phase 4a side may organize callers into implementations (classic, problemfocused, team-interview) but Phase 4b sees only callers.",
+      "source": null,
+      "sense_constraints": [
+        "The 4b-side noun for the role 'Phase 4a implementation' plays from the 4a side",
+        "Use this term in any 4b-side definition to avoid leaking 'Phase 4a implementation'"
+      ],
+      "status": "DEPRECATED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "why do we still have any references to any 4a structure in the definitions? rule should prevent that",
+          "reason": "Need a 4b-side noun for callers so future definitions don't drift back to \"Phase 4a implementation\" framing. Phase 4a implementation remains valid as a 4a-side term; Contract caller is its 4b-side counterpart."
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "rule: 4b has no knowledge of 4a",
+          "reason": "Designer Rule: 4b has no knowledge of 4a. Prior definition mentioned \"Phase 4a side\" and named specific implementations (classic, problemfocused, team-interview) — leaks. Cleaned: caller is anonymous, 4b knows no further taxonomy."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Phase 4b",
+      "aliases": [
+        "Solve stage"
+      ],
+      "definition": "The Solve stage of design-large-task. Builds a typed proof structure from items received through its contract.",
+      "source": null,
+      "sense_constraints": [
+        "Designer-locked verbatim",
+        "Self-described — makes no reference to Phase 4a or any caller; the contract is the only thing 4b knows about its inputs"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "rule: 4b has no knowledge of 4a",
+          "reason": "Designer Rule: 4b has no knowledge of 4a. Prior definition said \"Consumes Phase 4a material\" — leak. Rewritten as self-description: builds proof from items received through its contract. The contract is the only thing 4b knows about its inputs."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Phase 4b contract",
+      "aliases": [],
+      "definition": "The submission interface Phase 4b exposes. Accepts items in one of the six categories with category-specific required fields and provenance; returns acceptance or structured rejection plus updated proof state. Validation is structural; content is not interpreted. Stateful — submissions accumulate proof state across the session. The contract is the only legal ingress to Phase 4b state.",
+      "source": null,
+      "sense_constraints": [
+        "Self-describing — uses no terms from any caller's domain",
+        "B.1's primary design subject"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "rule: 4b has no knowledge of 4a",
+          "reason": "Designer Rule: 4b has no knowledge of 4a. Prior sense_constraint mentioned \"Phase 4a\" twice — even saying \"no reference to Phase 4a\" is a reference. Cleaned to self-describing language with no caller-domain terms."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Contract caller",
+      "aliases": [],
+      "definition": "From the Phase 4b contract's standpoint, anything that issues a contract submission. Anonymous — the contract distinguishes callers only by submission provenance metadata, never by their internal type or category.",
+      "source": null,
+      "sense_constraints": [
+        "The 4b-side noun for any submitter; 4b knows no further taxonomy beyond this single category",
+        "Use this term in any 4b-side definition to avoid leaking caller-domain terms"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "rule: 4b has no knowledge of 4a",
+          "reason": "Designer Rule: 4b has no knowledge of 4a. Prior definition mentioned \"Phase 4a side\" and named specific implementations (classic, problemfocused, team-interview) — leaks. Cleaned: caller is anonymous, 4b knows no further taxonomy."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Problem statement",
+      "aliases": [],
+      "definition": "The designer's confirmed hypothesis about what is broken or being solved. One of the six categories the Phase 4b contract accepts.",
+      "source": null,
+      "sense_constraints": [
+        "Designer-locked verbatim",
+        "Not a solution shape; describes the pain"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "rule: 4b has no knowledge of 4a",
+          "reason": "Designer Rule: 4b has no knowledge of 4a. Prior definition said \"Carried into Phase 4b as the explicit channel-one input\" — vestige of deprecated two-channel framing and implies a flow direction. Cleaned to category-only description."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Design system",
+      "aliases": [
+        "Generic design system"
+      ],
+      "definition": "Any system that produces design material and submits it through the Phase 4b contract. Phase 4a is one such design system; others (CLI tools, web forms, automated fixtures, alternative design pipelines) may also call the contract. The contract is generic over design systems — none gets privileged access.",
+      "source": null,
+      "sense_constraints": [
+        "Caller category named in R2",
+        "Broader than 'Phase 4a implementation' — Phase 4b is reusable across multiple design systems, not coupled to design-large-task's particular Understand→Solve pipeline"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "r2 - phase 4b has a contract that any generic design systme can submit information into",
+          "reason": "Designer-revised R2 names \"generic design system\" as the caller category. Term needed to refer canonically. Generalizes beyond Phase 4a implementation — Phase 4b becomes reusable across any design system that produces submitted material."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Phase 4a",
+      "aliases": [
+        "Understand stage"
+      ],
+      "definition": "The Understand stage of design-large-task. Produces raw, problem-side material in agent session memory.",
+      "source": null,
+      "sense_constraints": [
+        "Designer-locked verbatim by master plan",
+        "Inherited; not subject to revision in B.1"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "also, lots of sprint b2 terms embedded that should be locked from previous",
+          "reason": "Status correction: locked by master plan vocabulary. Not pending B.1 ratification. Definition preserved verbatim; flipping to DEFINED."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Concern",
+      "aliases": [
+        "CN",
+        "CERN"
+      ],
+      "definition": "A PM-ratified issue anchored to the problem statement. Concerns are enumerated and locked at Phase 4b opening; each Concern anchors at least one Resolve Condition (or is covered by a Rule) for the closure gate.",
+      "source": null,
+      "sense_constraints": [
+        "Designer-locked from cluster A; inherited",
+        "ID prefix CERN-N in code, CN-N in brief template (RISK-4 inconsistency carried forward)"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "also, lots of sprint b2 terms embedded that should be locked from previous",
+          "reason": "Status correction: locked by cluster A. Inherited forward; B.1 does not re-ratify. Definition preserved; flipping to DEFINED."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Resolve Condition",
+      "aliases": [
+        "RC",
+        "RCON"
+      ],
+      "definition": "Sixth proof element type. PM-readable observable claim that, when ratified, certifies a Concern is addressed. Three fields: statement, problem_anchor (Concern ID), ratification.",
+      "source": null,
+      "sense_constraints": [
+        "Designer-locked from cluster A; inherited",
+        "Five locked attributes: observable, designer-ratified, problem-statement-anchored, forward-looking, non-restrictive"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "also, lots of sprint b2 terms embedded that should be locked from previous",
+          "reason": "Status correction: locked by cluster A. Inherited forward; B.1 does not re-ratify. Definition preserved; flipping to DEFINED."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Sequential ratification",
+      "aliases": [],
+      "definition": "Cluster-A discipline preserved into Concern iteration: each Resolve Condition is ratified one at a time. No batch approval, no gestalt sign-off.",
+      "source": null,
+      "sense_constraints": [
+        "Designer-locked from cluster A; inherited",
+        "Carried into B.1 unchanged"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "also, lots of sprint b2 terms embedded that should be locked from previous",
+          "reason": "Status correction: locked by cluster A. Inherited forward; B.1 does not re-ratify. Definition preserved; flipping to DEFINED."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Closing argument",
+      "aliases": [],
+      "definition": "B.2's locked deliverable. The materialized walk of the live Resolve Condition set produced at proof closure, gated by a composite trigger and the two-yes model. B.1 inherits as the exit shape its design must thread into.",
+      "source": null,
+      "sense_constraints": [
+        "Locked by cluster B.2; inherited as forward Rule",
+        "Not subject to revision in B.1"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "also, lots of sprint b2 terms embedded that should be locked from previous",
+          "reason": "Status correction: locked by cluster B.2. Inherited forward as Rule; B.1 does not re-ratify. Definition preserved; flipping to DEFINED."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Two-yes model",
+      "aliases": [],
+      "definition": "B.2's closure pattern. Closure permitted only when designer presented and confirmed go for the closing argument in the same round; any subsequent state mutation clears both flags.",
+      "source": null,
+      "sense_constraints": [
+        "Locked by cluster B.2 (NCON-4); inherited as forward Rule",
+        "Not subject to revision in B.1"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "also, lots of sprint b2 terms embedded that should be locked from previous",
+          "reason": "Status correction: locked by cluster B.2. Inherited forward as Rule; B.1 does not re-ratify. Definition preserved; flipping to DEFINED."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Mutation-clears-flags discipline",
+      "aliases": [],
+      "definition": "B.2's invariant. Every state-mutating function clears the two-yes flags at entry. Any new mutating operation B.1 introduces inherits this requirement structurally.",
+      "source": null,
+      "sense_constraints": [
+        "Locked by cluster B.2 (NCON-4 / AC-5.5); inherited as forward Rule",
+        "Structural invariant — applies to any mutation B.1 designs"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "also, lots of sprint b2 terms embedded that should be locked from previous",
+          "reason": "Status correction: locked by cluster B.2. Inherited forward as Rule; B.1 does not re-ratify. Definition preserved; flipping to DEFINED."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Concern iteration",
+      "aliases": [],
+      "definition": "The Concern set is revised across Phase 4b's session as understanding shifts. Five integration constraints govern operations on Concerns and the Resolve Conditions anchored to them. Umbrella term for the four mechanism candidates B.1 designs.",
+      "source": null,
+      "sense_constraints": [
+        "Inherited NC-3 from cluster B; ratified en-bloc by designer in B.1 Round One",
+        "Mechanism shapes for the four constraints below remain B.1's design subject"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "approved",
+          "reason": "Designer en-bloc approval. Definition cleaned of Phase-4a leak (\"as Evidence and Risk understanding shifts\" → \"as understanding shifts\" — drops upstream-source assumption now that contract reframe makes producer agnostic). Flipping to DEFINED."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Late-lock procrastination gate",
+      "aliases": [],
+      "definition": "First of NC-3's five integration constraints. A contract-side mechanism preventing the designer from indefinitely deferring Concern lock as Phase 4b proceeds. Today no such mechanism exists.",
+      "source": null,
+      "sense_constraints": [
+        "Inherited NC-3a; ratified by designer en-bloc in B.1 Round One",
+        "Mechanism shape is B.1's design subject"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "approved",
+          "reason": "Designer en-bloc approval; flipping to DEFINED with definition preserved."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Merge evidence bar",
+      "aliases": [],
+      "definition": "Second of NC-3's five integration constraints. Merging two Concerns into one requires Evidence citation supporting the collapse — merges may not happen on agent or designer instinct alone.",
+      "source": null,
+      "sense_constraints": [
+        "Inherited NC-3b; ratified by designer en-bloc in B.1 Round One",
+        "Mechanism shape is B.1's design subject"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "approved",
+          "reason": "Designer en-bloc approval; flipping to DEFINED."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Split RC autogeneration",
+      "aliases": [],
+      "definition": "Third of NC-3's five integration constraints. When one Concern is split into two, the Resolve Conditions anchored to the original are autogenerated for each new Concern rather than left to manual re-anchoring.",
+      "source": null,
+      "sense_constraints": [
+        "Inherited NC-3c; ratified by designer en-bloc in B.1 Round One",
+        "Mechanism shape is B.1's design subject"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "approved",
+          "reason": "Designer en-bloc approval; flipping to DEFINED."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Invalidation-impact preview",
+      "aliases": [],
+      "definition": "Fourth of NC-3's five integration constraints (the fifth is sequential ratification preserved). Before a merge or split commits, the designer sees which existing Resolve Conditions would lose ratification as a result.",
+      "source": null,
+      "sense_constraints": [
+        "Inherited NC-3d; ratified by designer en-bloc in B.1 Round One",
+        "Mechanism shape is B.1's design subject"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "approved",
+          "reason": "Designer en-bloc approval; flipping to DEFINED."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Draft Concern",
+      "aliases": [],
+      "definition": "A Concern in the pre-ratification state — submitted to the Phase 4b contract by a caller but not yet designer-ratified. Validates structurally on submission per contract rules; does not yet anchor Resolve Conditions or contribute to closure coverage. Becomes a ratified Concern via designer action.",
+      "source": null,
+      "sense_constraints": [
+        "Names the lifecycle state R3 + R4 introduce: 4a-drafted, contract-accepted, designer-not-yet-ratified",
+        "Distinct from ratified Concern (cluster-A canonical) which anchors RCs and contributes to closure"
+      ],
+      "status": "DEPRECATED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "rule: concerns are drafted in 4a / rule: 4a does not validate concerns",
+          "reason": "R3 + R4 introduce a Concern lifecycle: 4a drafts, 4a does not validate, contract validates structurally, designer ratifies. The pre-ratification state needs a name so we can talk about contract operations on drafts (submission, structural validation, designer ratification transition) distinct from operations on ratified Concerns (anchor RCs, lock, merge with evidence)."
+        },
+        {
+          "event": "REMOVE",
+          "round": 1,
+          "designer_quote": "draft concerns are a 4a consideration; adhere to the rules and dont cross boundaries. why are we trying to implement 4a considerations. Rule: 4a is out of scope for this sprint",
+          "reason": "Boundary violation. Per R3+R4, drafting happens in 4a; the draft state lives on the 4a side, not the contract side. R5 (4a out of scope for this sprint) makes the 4a-side state explicitly off-limits for B.1. The contract receives Concerns through submission and treats them per cluster A's model (added → lockable → anchors RCs); whatever pre-submission state existed is opaque to the contract. Term dissolves entirely."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Transition submission",
+      "aliases": [
+        "Contract submission",
+        "submission"
+      ],
+      "definition": "The single comprehensive inbound submission to the Phase 4b contract that effects the transition from any caller into Phase 4b. Carries all material the caller intends to deposit — problem statement plus any of the six categories the caller has produced — in one atomic call. Returns acceptance or structured rejection plus the initial Phase 4b state.",
+      "source": null,
+      "sense_constraints": [
+        "Per R6: 4a makes a single submission to 4b; the submission IS the transition action between the two systems",
+        "After the transition, no further caller submissions occur — all subsequent activity is 4b-internal"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 1,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 1,
+          "designer_quote": "rule; 4a makes a single submission to 4b (transition action between the two systems)",
+          "reason": "R6 introduces single-submission semantics. Prior definition framed submission as \"one item per call\" which presumed a stream of submissions over time. Renaming to \"Transition submission\" and defining it as the single comprehensive transition action."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Phase 4b contract",
+      "aliases": [],
+      "definition": "The single transition-intake interface Phase 4b exposes. Accepts one comprehensive transition submission containing material in any of the six categories with category-specific required fields and provenance; returns acceptance or structured rejection plus the initial Phase 4b state. Validation is structural; content is not interpreted. The contract is the only legal cross-boundary surface.",
+      "source": null,
+      "sense_constraints": [
+        "Per R6: a single transition action, not a multi-operation surface",
+        "Self-describing — uses no terms from any caller's domain",
+        "Post-transition operations on Phase 4b state are 4b-internal, not contract operations"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 1,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 1,
+          "designer_quote": "rule; 4a makes a single submission to 4b (transition action between the two systems)",
+          "reason": "R6 reduces the contract to a single intake action. Prior definition implied a multi-operation API surface. Revised to single-transition framing; explicitly notes post-transition operations are 4b-internal."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Opening protocol",
+      "aliases": [
+        "Initialization sequence",
+        "Solve Stage Opening"
+      ],
+      "definition": "The rules the Phase 4b contract enforces on the transition submission — which categories are required, which are optional, what required fields each category must carry, what structural validation runs, what initial Phase 4b state is produced on acceptance.",
+      "source": null,
+      "sense_constraints": [
+        "Per R6: applies to the single transition submission, not a sequence of operations",
+        "Defines preconditions and validation rules, not multi-step ordering"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 1,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 1,
+          "designer_quote": "rule; 4a makes a single submission to 4b (transition action between the two systems)",
+          "reason": "R6 collapses what was a multi-operation ordering question into a single-submission validation question. Opening protocol now describes the rules governing the one transition submission, not ordering across multiple operations."
+        }
+      ]
+    },
+    {
+      "canonical_name": "4b-internal operation",
+      "aliases": [
+        "post-transition operation"
+      ],
+      "definition": "Any operation on Phase 4b state that occurs after the transition submission — designer ratification of Resolve Conditions, Concern lock, Concern iteration mechanisms (merge, split, invalidation preview, late-lock gate), closing-argument-related state mutations. Not a contract operation; not driven by caller submission.",
+      "source": null,
+      "sense_constraints": [
+        "Per R6: distinct from the single contract transition; lives entirely inside Phase 4b",
+        "Designer interactions with Phase 4b post-transition fall in this category, as do agent operations on the proof state"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 1,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 1,
+          "designer_quote": "rule; 4a makes a single submission to 4b (transition action between the two systems)",
+          "reason": "R6 creates a sharp distinction between contract (single transition surface) and 4b-internal mechanisms (everything post-transition). Need a canonical term for the latter category so we can discuss 4b-internal mechanism design without confusing it with contract operations."
+        }
+      ]
+    }
+  ],
+  "vocabularyActionLog": [
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Pre-seeded proof"
+      ],
+      "new_term": null,
+      "reason": "Designer Rule: Phase 4b cannot depend on Phase 4a structured data. The term presumed Phase 4b reaches in to consume a Phase 4a output shape — the new contract reframe makes that direction prohibited. Term dissolves entirely.",
+      "designer_quote": "phase 4b can not depend on any phase 4a structured data / phase 4b has a contract that any generic 4a implementation can submit information into",
+      "classification": "DEPRECATE",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T13:32:17.870Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Two-channel raw material"
+      ],
+      "new_term": null,
+      "reason": "Designer Rule: contract reframe collapses both channels into one. The \"explicit-parameter vs session-memory\" distinction was meaningful only when Phase 4b could reach in; with all input flowing through the contract, the channel split dissolves. Replaced by Phase 4b contract + Contract submission.",
+      "designer_quote": "phase 4b has a contract that any generic 4a implementation can submit information into",
+      "classification": "DEPRECATE",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T13:32:32.133Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Six pairings"
+      ],
+      "new_term": null,
+      "reason": "Designer Rule reframes the relationship: the six items are no longer pairings between two structured sides; they are categories the generic contract accepts. Identity of the six locked; relational shape revised.",
+      "designer_quote": "phase 4b has a contract that any generic 4a implementation can submit information into",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T13:32:51.509Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Six pairings"
+      ],
+      "new_term": {
+        "canonical_name": "Six pairings"
+      },
+      "reason": "Designer Rule reframes the relationship: the six items are no longer pairings between two structured sides; they are categories the generic contract accepts. Identity of the six locked; relational shape revised.",
+      "designer_quote": "phase 4b has a contract that any generic 4a implementation can submit information into",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T13:32:51.509Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Initialization sequence"
+      ],
+      "new_term": null,
+      "reason": "Designer Rule reframes: not a fixed handoff sequence but a contract surface plus per-implementation ordering subject to contract rules.",
+      "designer_quote": "phase 4b has a contract that any generic 4a implementation can submit information into",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T13:32:56.921Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Initialization sequence"
+      ],
+      "new_term": {
+        "canonical_name": "Initialization sequence"
+      },
+      "reason": "Designer Rule reframes: not a fixed handoff sequence but a contract surface plus per-implementation ordering subject to contract rules.",
+      "designer_quote": "phase 4b has a contract that any generic 4a implementation can submit information into",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T13:32:56.922Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Solve Leakage Ledger"
+      ],
+      "new_term": null,
+      "reason": "Designer Rule prohibits Phase 4b reaching into Phase 4a structures. Ledger remains a problemfocused-internal construct; any cross-boundary use must flow through the contract.",
+      "designer_quote": "phase 4b can not depend on any phase 4a structured data",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T13:33:02.823Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Solve Leakage Ledger"
+      ],
+      "new_term": {
+        "canonical_name": "Solve Leakage Ledger"
+      },
+      "reason": "Designer Rule prohibits Phase 4b reaching into Phase 4a structures. Ledger remains a problemfocused-internal construct; any cross-boundary use must flow through the contract.",
+      "designer_quote": "phase 4b can not depend on any phase 4a structured data",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T13:33:02.824Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Phase 4b contract"
+      ],
+      "new_term": {
+        "canonical_name": "Phase 4b contract"
+      },
+      "reason": "Designer-issued Rule introduces the contract as the sole legal cross-boundary surface. Term needed to refer to it canonically.",
+      "designer_quote": "phase 4b has a contract that any generic 4a implementation can submit information into",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T13:33:08.635Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Phase 4a implementation"
+      ],
+      "new_term": {
+        "canonical_name": "Phase 4a implementation"
+      },
+      "reason": "Designer-issued Rule references \"any generic 4a implementation\" — needs canonical term for the category of pluggable producers.",
+      "designer_quote": "any generic 4a implementation can submit information into",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T13:33:14.571Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Contract submission"
+      ],
+      "new_term": {
+        "canonical_name": "Contract submission"
+      },
+      "reason": "Need a canonical noun for the act of submitting through the contract — distinguishes from the contract surface itself and from the raw material.",
+      "designer_quote": "phase 4b has a contract that any generic 4a implementation can submit information into",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T13:33:19.008Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Phase 4b contract"
+      ],
+      "new_term": null,
+      "reason": "Designer correction: previous definition still mentioned \"Phase 4a implementation\" and \"raw material\" — both leak the prohibited structural dependency. Rewritten to describe contract purely by what it exposes and how it validates.",
+      "designer_quote": "why do we still have any references to any 4a structure in the definitions? rule should prevent that",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:04:02.773Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Phase 4b contract"
+      ],
+      "new_term": {
+        "canonical_name": "Phase 4b contract"
+      },
+      "reason": "Designer correction: previous definition still mentioned \"Phase 4a implementation\" and \"raw material\" — both leak the prohibited structural dependency. Rewritten to describe contract purely by what it exposes and how it validates.",
+      "designer_quote": "why do we still have any references to any 4a structure in the definitions? rule should prevent that",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:04:02.773Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Contract submission"
+      ],
+      "new_term": null,
+      "reason": "Designer correction: prior definition named \"Phase 4a implementation calling\" — leak. Rewritten as inbound call from any caller.",
+      "designer_quote": "why do we still have any references to any 4a structure in the definitions? rule should prevent that",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:04:16.128Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Contract submission"
+      ],
+      "new_term": {
+        "canonical_name": "Contract submission"
+      },
+      "reason": "Designer correction: prior definition named \"Phase 4a implementation calling\" — leak. Rewritten as inbound call from any caller.",
+      "designer_quote": "why do we still have any references to any 4a structure in the definitions? rule should prevent that",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:04:16.128Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Six pairings"
+      ],
+      "new_term": null,
+      "reason": "Designer correction + rename. Prior definition mentioned \"raw-material categories\" and \"regardless of which Phase 4a implementation produced them\" — leaks. Also \"pairings\" implied 4a↔4b mapping shape now prohibited. Renaming \"Six pairings\" → \"Six categories\" with old name as alias for backward reference.",
+      "designer_quote": "why do we still have any references to any 4a structure in the definitions? rule should prevent that",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:04:23.147Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Six categories"
+      ],
+      "new_term": {
+        "canonical_name": "Six categories"
+      },
+      "reason": "Designer correction + rename. Prior definition mentioned \"raw-material categories\" and \"regardless of which Phase 4a implementation produced them\" — leaks. Also \"pairings\" implied 4a↔4b mapping shape now prohibited. Renaming \"Six pairings\" → \"Six categories\" with old name as alias for backward reference.",
+      "designer_quote": "why do we still have any references to any 4a structure in the definitions? rule should prevent that",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:04:23.147Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Initialization sequence"
+      ],
+      "new_term": null,
+      "reason": "Designer correction + rename. Prior definition referenced \"Phase 4a implementation makes contract submissions\" and \"specific Phase 4a implementations may submit in their own order\" — leaks. Also \"sequence\" framing presupposed a single fixed order; the contract expresses opening constraints, not a sequence. Renaming \"Initialization sequence\" → \"Opening protocol\" with old name as alias.",
+      "designer_quote": "why do we still have any references to any 4a structure in the definitions? rule should prevent that",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:04:31.160Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Opening protocol"
+      ],
+      "new_term": {
+        "canonical_name": "Opening protocol"
+      },
+      "reason": "Designer correction + rename. Prior definition referenced \"Phase 4a implementation makes contract submissions\" and \"specific Phase 4a implementations may submit in their own order\" — leaks. Also \"sequence\" framing presupposed a single fixed order; the contract expresses opening constraints, not a sequence. Renaming \"Initialization sequence\" → \"Opening protocol\" with old name as alias.",
+      "designer_quote": "why do we still have any references to any 4a structure in the definitions? rule should prevent that",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:04:31.160Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Contract caller"
+      ],
+      "new_term": {
+        "canonical_name": "Contract caller"
+      },
+      "reason": "Need a 4b-side noun for callers so future definitions don't drift back to \"Phase 4a implementation\" framing. Phase 4a implementation remains valid as a 4a-side term; Contract caller is its 4b-side counterpart.",
+      "designer_quote": "why do we still have any references to any 4a structure in the definitions? rule should prevent that",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:04:37.883Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Phase 4b"
+      ],
+      "new_term": null,
+      "reason": "Designer Rule: 4b has no knowledge of 4a. Prior definition said \"Consumes Phase 4a material\" — leak. Rewritten as self-description: builds proof from items received through its contract. The contract is the only thing 4b knows about its inputs.",
+      "designer_quote": "rule: 4b has no knowledge of 4a",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:05:30.152Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Phase 4b"
+      ],
+      "new_term": {
+        "canonical_name": "Phase 4b"
+      },
+      "reason": "Designer Rule: 4b has no knowledge of 4a. Prior definition said \"Consumes Phase 4a material\" — leak. Rewritten as self-description: builds proof from items received through its contract. The contract is the only thing 4b knows about its inputs.",
+      "designer_quote": "rule: 4b has no knowledge of 4a",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:05:30.152Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Phase 4b contract"
+      ],
+      "new_term": null,
+      "reason": "Designer Rule: 4b has no knowledge of 4a. Prior sense_constraint mentioned \"Phase 4a\" twice — even saying \"no reference to Phase 4a\" is a reference. Cleaned to self-describing language with no caller-domain terms.",
+      "designer_quote": "rule: 4b has no knowledge of 4a",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:05:34.730Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Phase 4b contract"
+      ],
+      "new_term": {
+        "canonical_name": "Phase 4b contract"
+      },
+      "reason": "Designer Rule: 4b has no knowledge of 4a. Prior sense_constraint mentioned \"Phase 4a\" twice — even saying \"no reference to Phase 4a\" is a reference. Cleaned to self-describing language with no caller-domain terms.",
+      "designer_quote": "rule: 4b has no knowledge of 4a",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:05:34.731Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Contract caller"
+      ],
+      "new_term": null,
+      "reason": "Designer Rule: 4b has no knowledge of 4a. Prior definition mentioned \"Phase 4a side\" and named specific implementations (classic, problemfocused, team-interview) — leaks. Cleaned: caller is anonymous, 4b knows no further taxonomy.",
+      "designer_quote": "rule: 4b has no knowledge of 4a",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:05:39.357Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Contract caller"
+      ],
+      "new_term": {
+        "canonical_name": "Contract caller"
+      },
+      "reason": "Designer Rule: 4b has no knowledge of 4a. Prior definition mentioned \"Phase 4a side\" and named specific implementations (classic, problemfocused, team-interview) — leaks. Cleaned: caller is anonymous, 4b knows no further taxonomy.",
+      "designer_quote": "rule: 4b has no knowledge of 4a",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:05:39.357Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Problem statement"
+      ],
+      "new_term": null,
+      "reason": "Designer Rule: 4b has no knowledge of 4a. Prior definition said \"Carried into Phase 4b as the explicit channel-one input\" — vestige of deprecated two-channel framing and implies a flow direction. Cleaned to category-only description.",
+      "designer_quote": "rule: 4b has no knowledge of 4a",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:05:42.931Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Problem statement"
+      ],
+      "new_term": {
+        "canonical_name": "Problem statement"
+      },
+      "reason": "Designer Rule: 4b has no knowledge of 4a. Prior definition said \"Carried into Phase 4b as the explicit channel-one input\" — vestige of deprecated two-channel framing and implies a flow direction. Cleaned to category-only description.",
+      "designer_quote": "rule: 4b has no knowledge of 4a",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:05:42.931Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Design system"
+      ],
+      "new_term": {
+        "canonical_name": "Design system"
+      },
+      "reason": "Designer-revised R2 names \"generic design system\" as the caller category. Term needed to refer canonically. Generalizes beyond Phase 4a implementation — Phase 4b becomes reusable across any design system that produces submitted material.",
+      "designer_quote": "r2 - phase 4b has a contract that any generic design systme can submit information into",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:12:01.732Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Solve Leakage Ledger"
+      ],
+      "new_term": null,
+      "reason": "Designer challenge: term has no 4b-side role under R1 (4b has no knowledge of 4a). Originally seeded only because cluster-B handover EVID-7 flagged it as \"declared-but-unconsumed\" → RISK-5 candidate. R1 + R2 dissolve that risk: any ledger emission becomes a 4a-implementation-internal choice (translate ledger entries into Evidence submissions or hold locally), opaque to Phase 4b. Term is not B.1's design subject and not in the contract surface. Drop.",
+      "designer_quote": "what is this and why is still around? Solve Leakage Ledger",
+      "classification": "DEPRECATE",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:17:08.222Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Phase 4a"
+      ],
+      "new_term": null,
+      "reason": "Status correction: locked by master plan vocabulary. Not pending B.1 ratification. Definition preserved verbatim; flipping to DEFINED.",
+      "designer_quote": "also, lots of sprint b2 terms embedded that should be locked from previous",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:18:17.993Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Phase 4a"
+      ],
+      "new_term": {
+        "canonical_name": "Phase 4a"
+      },
+      "reason": "Status correction: locked by master plan vocabulary. Not pending B.1 ratification. Definition preserved verbatim; flipping to DEFINED.",
+      "designer_quote": "also, lots of sprint b2 terms embedded that should be locked from previous",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:18:17.993Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Concern"
+      ],
+      "new_term": null,
+      "reason": "Status correction: locked by cluster A. Inherited forward; B.1 does not re-ratify. Definition preserved; flipping to DEFINED.",
+      "designer_quote": "also, lots of sprint b2 terms embedded that should be locked from previous",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:18:24.184Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Concern"
+      ],
+      "new_term": {
+        "canonical_name": "Concern"
+      },
+      "reason": "Status correction: locked by cluster A. Inherited forward; B.1 does not re-ratify. Definition preserved; flipping to DEFINED.",
+      "designer_quote": "also, lots of sprint b2 terms embedded that should be locked from previous",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:18:24.184Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Resolve Condition"
+      ],
+      "new_term": null,
+      "reason": "Status correction: locked by cluster A. Inherited forward; B.1 does not re-ratify. Definition preserved; flipping to DEFINED.",
+      "designer_quote": "also, lots of sprint b2 terms embedded that should be locked from previous",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:18:29.322Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Resolve Condition"
+      ],
+      "new_term": {
+        "canonical_name": "Resolve Condition"
+      },
+      "reason": "Status correction: locked by cluster A. Inherited forward; B.1 does not re-ratify. Definition preserved; flipping to DEFINED.",
+      "designer_quote": "also, lots of sprint b2 terms embedded that should be locked from previous",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:18:29.322Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Sequential ratification"
+      ],
+      "new_term": null,
+      "reason": "Status correction: locked by cluster A. Inherited forward; B.1 does not re-ratify. Definition preserved; flipping to DEFINED.",
+      "designer_quote": "also, lots of sprint b2 terms embedded that should be locked from previous",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:18:33.136Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Sequential ratification"
+      ],
+      "new_term": {
+        "canonical_name": "Sequential ratification"
+      },
+      "reason": "Status correction: locked by cluster A. Inherited forward; B.1 does not re-ratify. Definition preserved; flipping to DEFINED.",
+      "designer_quote": "also, lots of sprint b2 terms embedded that should be locked from previous",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:18:33.137Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Closing argument"
+      ],
+      "new_term": null,
+      "reason": "Status correction: locked by cluster B.2. Inherited forward as Rule; B.1 does not re-ratify. Definition preserved; flipping to DEFINED.",
+      "designer_quote": "also, lots of sprint b2 terms embedded that should be locked from previous",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:18:38.014Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Closing argument"
+      ],
+      "new_term": {
+        "canonical_name": "Closing argument"
+      },
+      "reason": "Status correction: locked by cluster B.2. Inherited forward as Rule; B.1 does not re-ratify. Definition preserved; flipping to DEFINED.",
+      "designer_quote": "also, lots of sprint b2 terms embedded that should be locked from previous",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:18:38.014Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Two-yes model"
+      ],
+      "new_term": null,
+      "reason": "Status correction: locked by cluster B.2. Inherited forward as Rule; B.1 does not re-ratify. Definition preserved; flipping to DEFINED.",
+      "designer_quote": "also, lots of sprint b2 terms embedded that should be locked from previous",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:18:42.658Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Two-yes model"
+      ],
+      "new_term": {
+        "canonical_name": "Two-yes model"
+      },
+      "reason": "Status correction: locked by cluster B.2. Inherited forward as Rule; B.1 does not re-ratify. Definition preserved; flipping to DEFINED.",
+      "designer_quote": "also, lots of sprint b2 terms embedded that should be locked from previous",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:18:42.658Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Mutation-clears-flags discipline"
+      ],
+      "new_term": null,
+      "reason": "Status correction: locked by cluster B.2. Inherited forward as Rule; B.1 does not re-ratify. Definition preserved; flipping to DEFINED.",
+      "designer_quote": "also, lots of sprint b2 terms embedded that should be locked from previous",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:18:46.630Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Mutation-clears-flags discipline"
+      ],
+      "new_term": {
+        "canonical_name": "Mutation-clears-flags discipline"
+      },
+      "reason": "Status correction: locked by cluster B.2. Inherited forward as Rule; B.1 does not re-ratify. Definition preserved; flipping to DEFINED.",
+      "designer_quote": "also, lots of sprint b2 terms embedded that should be locked from previous",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:18:46.631Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Closing argument"
+      ],
+      "new_term": null,
+      "reason": "B.2-internal. Closing argument is B.2's downstream deliverable; B.1's contract design doesn't engage with how it materializes. Will resurface at implementation time when B.1's contract integrates with B.2's closure mechanism, but not in B.1's design conversation vocabulary.",
+      "designer_quote": "and most of these probably dont apply to b1 planning, internal to b2",
+      "classification": "DEPRECATE",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:20:08.244Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Two-yes model"
+      ],
+      "new_term": null,
+      "reason": "B.2-internal closure-gate machinery. Not a B.1 design-conversation concern. B.1 designs the contract; B.2 owns the closure pattern around mutations.",
+      "designer_quote": "and most of these probably dont apply to b1 planning, internal to b2",
+      "classification": "DEPRECATE",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:20:10.906Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Mutation-clears-flags discipline"
+      ],
+      "new_term": null,
+      "reason": "B.2-internal implementation invariant. From B.1's design altitude the contract just supports operations; how B.2 wires flag-clearing around mutations is downstream implementation detail. Surfaces at spec/plan time, not in design vocabulary.",
+      "designer_quote": "and most of these probably dont apply to b1 planning, internal to b2",
+      "classification": "DEPRECATE",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T14:20:13.160Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Concern iteration"
+      ],
+      "new_term": null,
+      "reason": "Designer en-bloc approval. Definition cleaned of Phase-4a leak (\"as Evidence and Risk understanding shifts\" → \"as understanding shifts\" — drops upstream-source assumption now that contract reframe makes producer agnostic). Flipping to DEFINED.",
+      "designer_quote": "approved",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T15:10:29.993Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Concern iteration"
+      ],
+      "new_term": {
+        "canonical_name": "Concern iteration"
+      },
+      "reason": "Designer en-bloc approval. Definition cleaned of Phase-4a leak (\"as Evidence and Risk understanding shifts\" → \"as understanding shifts\" — drops upstream-source assumption now that contract reframe makes producer agnostic). Flipping to DEFINED.",
+      "designer_quote": "approved",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T15:10:29.994Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Late-lock procrastination gate"
+      ],
+      "new_term": null,
+      "reason": "Designer en-bloc approval; flipping to DEFINED with definition preserved.",
+      "designer_quote": "approved",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T15:10:33.831Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Late-lock procrastination gate"
+      ],
+      "new_term": {
+        "canonical_name": "Late-lock procrastination gate"
+      },
+      "reason": "Designer en-bloc approval; flipping to DEFINED with definition preserved.",
+      "designer_quote": "approved",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T15:10:33.831Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Merge evidence bar"
+      ],
+      "new_term": null,
+      "reason": "Designer en-bloc approval; flipping to DEFINED.",
+      "designer_quote": "approved",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T15:10:39.746Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Merge evidence bar"
+      ],
+      "new_term": {
+        "canonical_name": "Merge evidence bar"
+      },
+      "reason": "Designer en-bloc approval; flipping to DEFINED.",
+      "designer_quote": "approved",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T15:10:39.747Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Split RC autogeneration"
+      ],
+      "new_term": null,
+      "reason": "Designer en-bloc approval; flipping to DEFINED.",
+      "designer_quote": "approved",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T15:10:41.958Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Split RC autogeneration"
+      ],
+      "new_term": {
+        "canonical_name": "Split RC autogeneration"
+      },
+      "reason": "Designer en-bloc approval; flipping to DEFINED.",
+      "designer_quote": "approved",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T15:10:41.959Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Invalidation-impact preview"
+      ],
+      "new_term": null,
+      "reason": "Designer en-bloc approval; flipping to DEFINED.",
+      "designer_quote": "approved",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T15:10:45.123Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Invalidation-impact preview"
+      ],
+      "new_term": {
+        "canonical_name": "Invalidation-impact preview"
+      },
+      "reason": "Designer en-bloc approval; flipping to DEFINED.",
+      "designer_quote": "approved",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T15:10:45.123Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Draft Concern"
+      ],
+      "new_term": {
+        "canonical_name": "Draft Concern"
+      },
+      "reason": "R3 + R4 introduce a Concern lifecycle: 4a drafts, 4a does not validate, contract validates structurally, designer ratifies. The pre-ratification state needs a name so we can talk about contract operations on drafts (submission, structural validation, designer ratification transition) distinct from operations on ratified Concerns (anchor RCs, lock, merge with evidence).",
+      "designer_quote": "rule: concerns are drafted in 4a / rule: 4a does not validate concerns",
+      "classification": "PROPOSE",
+      "executed_round": 0,
+      "executed_at": "2026-05-03T15:26:17.635Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Draft Concern"
+      ],
+      "new_term": null,
+      "reason": "Boundary violation. Per R3+R4, drafting happens in 4a; the draft state lives on the 4a side, not the contract side. R5 (4a out of scope for this sprint) makes the 4a-side state explicitly off-limits for B.1. The contract receives Concerns through submission and treats them per cluster A's model (added → lockable → anchors RCs); whatever pre-submission state existed is opaque to the contract. Term dissolves entirely.",
+      "designer_quote": "draft concerns are a 4a consideration; adhere to the rules and dont cross boundaries. why are we trying to implement 4a considerations. Rule: 4a is out of scope for this sprint",
+      "classification": "DEPRECATE",
+      "executed_round": 1,
+      "executed_at": "2026-05-03T15:44:00.842Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Phase 4a implementation"
+      ],
+      "new_term": null,
+      "reason": "4a-side concept, out of scope for B.1 per R5. Was kept as a contextual term but R5 + boundary-discipline correction makes it active vocabulary leak. Contract caller (already DEFINED) is the 4b-side noun for \"anything that submits\"; Design system is the broader caller category. Neither requires referencing Phase 4a implementations.",
+      "designer_quote": "draft concerns are a 4a consideration; adhere to the rules and dont cross boundaries. why are we trying to implement 4a considerations. Rule: 4a is out of scope for this sprint",
+      "classification": "DEPRECATE",
+      "executed_round": 1,
+      "executed_at": "2026-05-03T15:44:04.982Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Contract submission"
+      ],
+      "new_term": null,
+      "reason": "R6 introduces single-submission semantics. Prior definition framed submission as \"one item per call\" which presumed a stream of submissions over time. Renaming to \"Transition submission\" and defining it as the single comprehensive transition action.",
+      "designer_quote": "rule; 4a makes a single submission to 4b (transition action between the two systems)",
+      "executed_round": 1,
+      "executed_at": "2026-05-03T16:16:59.846Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Transition submission"
+      ],
+      "new_term": {
+        "canonical_name": "Transition submission"
+      },
+      "reason": "R6 introduces single-submission semantics. Prior definition framed submission as \"one item per call\" which presumed a stream of submissions over time. Renaming to \"Transition submission\" and defining it as the single comprehensive transition action.",
+      "designer_quote": "rule; 4a makes a single submission to 4b (transition action between the two systems)",
+      "executed_round": 1,
+      "executed_at": "2026-05-03T16:16:59.847Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Phase 4b contract"
+      ],
+      "new_term": null,
+      "reason": "R6 reduces the contract to a single intake action. Prior definition implied a multi-operation API surface. Revised to single-transition framing; explicitly notes post-transition operations are 4b-internal.",
+      "designer_quote": "rule; 4a makes a single submission to 4b (transition action between the two systems)",
+      "executed_round": 1,
+      "executed_at": "2026-05-03T16:17:05.931Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Phase 4b contract"
+      ],
+      "new_term": {
+        "canonical_name": "Phase 4b contract"
+      },
+      "reason": "R6 reduces the contract to a single intake action. Prior definition implied a multi-operation API surface. Revised to single-transition framing; explicitly notes post-transition operations are 4b-internal.",
+      "designer_quote": "rule; 4a makes a single submission to 4b (transition action between the two systems)",
+      "executed_round": 1,
+      "executed_at": "2026-05-03T16:17:05.932Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "Opening protocol"
+      ],
+      "new_term": null,
+      "reason": "R6 collapses what was a multi-operation ordering question into a single-submission validation question. Opening protocol now describes the rules governing the one transition submission, not ordering across multiple operations.",
+      "designer_quote": "rule; 4a makes a single submission to 4b (transition action between the two systems)",
+      "executed_round": 1,
+      "executed_at": "2026-05-03T16:17:10.965Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "Opening protocol"
+      ],
+      "new_term": {
+        "canonical_name": "Opening protocol"
+      },
+      "reason": "R6 collapses what was a multi-operation ordering question into a single-submission validation question. Opening protocol now describes the rules governing the one transition submission, not ordering across multiple operations.",
+      "designer_quote": "rule; 4a makes a single submission to 4b (transition action between the two systems)",
+      "executed_round": 1,
+      "executed_at": "2026-05-03T16:17:10.966Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "4b-internal operation"
+      ],
+      "new_term": {
+        "canonical_name": "4b-internal operation"
+      },
+      "reason": "R6 creates a sharp distinction between contract (single transition surface) and 4b-internal mechanisms (everything post-transition). Need a canonical term for the latter category so we can discuss 4b-internal mechanism design without confusing it with contract operations.",
+      "designer_quote": "rule; 4a makes a single submission to 4b (transition action between the two systems)",
+      "classification": "PROPOSE",
+      "executed_round": 1,
+      "executed_at": "2026-05-03T16:17:17.460Z"
+    }
+  ],
+  "pendingVocabDispositions": [],
+  "termUsageHistory": {
+    "contract": [
+      1,
+      2,
+      3
+    ],
+    "surface": [
+      1,
+      2
+    ],
+    "defined": [
+      1
+    ],
+    "comprehensively": [
+      1
+    ],
+    "enough": [
+      1,
+      2
+    ],
+    "that": [
+      1,
+      2
+    ],
+    "the": [
+      1,
+      2,
+      3
+    ],
+    "skill": [
+      1
+    ],
+    "solve": [
+      1
+    ],
+    "stage": [
+      1
+    ],
+    "opening": [
+      1
+    ],
+    "section": [
+      1
+    ],
+    "brief": [
+      1,
+      3
+    ],
+    "template": [
+      1
+    ],
+    "concerns": [
+      1
+    ],
+    "and": [
+      1,
+      2,
+      3
+    ],
+    "proof": [
+      1,
+      3
+    ],
+    "phase": [
+      1,
+      3
+    ],
+    "has": [
+      1,
+      2
+    ],
+    "knowledge": [
+      1
+    ],
+    "any": [
+      1,
+      2
+    ],
+    "generic": [
+      1
+    ],
+    "design": [
+      1,
+      2,
+      3
+    ],
+    "system": [
+      1
+    ],
+    "can": [
+      1,
+      2,
+      3
+    ],
+    "submit": [
+      1
+    ],
+    "information": [
+      1
+    ],
+    "into": [
+      1,
+      2
+    ],
+    "only": [
+      1
+    ],
+    "legal": [
+      1
+    ],
+    "cross-boundary": [
+      1
+    ],
+    "are": [
+      1
+    ],
+    "drafted": [
+      1
+    ],
+    "side": [
+      1,
+      2
+    ],
+    "production": [
+      1
+    ],
+    "does": [
+      1,
+      2
+    ],
+    "not": [
+      1,
+      2
+    ],
+    "validate": [
+      1,
+      2
+    ],
+    "structural": [
+      1,
+      2
+    ],
+    "validation": [
+      1,
+      2,
+      3
+    ],
+    "contract-side": [
+      1
+    ],
+    "ratification": [
+      1,
+      2
+    ],
+    "designer-side": [
+      1
+    ],
+    "sequential": [
+      1,
+      2
+    ],
+    "preserved": [
+      1
+    ],
+    "each": [
+      1,
+      2
+    ],
+    "resolve": [
+      1
+    ],
+    "condition": [
+      1
+    ],
+    "ratified": [
+      1
+    ],
+    "one": [
+      1
+    ],
+    "time": [
+      1
+    ],
+    "six": [
+      1,
+      2,
+      3
+    ],
+    "categories": [
+      1,
+      2,
+      3
+    ],
+    "accepts": [
+      1
+    ],
+    "immutable": [
+      1
+    ],
+    "problem": [
+      1
+    ],
+    "statement": [
+      1
+    ],
+    "evidence": [
+      1
+    ],
+    "rules": [
+      1
+    ],
+    "permissions": [
+      1
+    ],
+    "conditions": [
+      1
+    ],
+    "necessary": [
+      1
+    ],
+    "risks": [
+      1
+    ],
+    "excluded": [
+      1
+    ],
+    "presumed": [
+      1
+    ],
+    "valid": [
+      1
+    ],
+    "sufficient": [
+      1
+    ],
+    "default": [
+      1
+    ],
+    "work": [
+      1,
+      2
+    ],
+    "confirmation": [
+      1
+    ],
+    "refactor": [
+      1
+    ],
+    "plugin": [
+      1
+    ],
+    "architecture": [
+      1
+    ],
+    "multiple": [
+      1
+    ],
+    "implementations": [
+      1
+    ],
+    "coexist": [
+      1
+    ],
+    "over": [
+      1
+    ],
+    "them": [
+      1
+    ],
+    "updates": [
+      1
+    ],
+    "design-large-task": [
+      1
+    ],
+    "caller-facing": [
+      1
+    ],
+    "documentation": [
+      1
+    ],
+    "derived": [
+      1
+    ],
+    "from": [
+      1,
+      3
+    ],
+    "definition": [
+      1
+    ],
+    "sections": [
+      1
+    ],
+    "updated": [
+      1
+    ],
+    "reflect": [
+      1
+    ],
+    "concern": [
+      1,
+      2
+    ],
+    "lifecycle": [
+      1
+    ],
+    "draft": [
+      1
+    ],
+    "cern": [
+      1
+    ],
+    "id-prefix": [
+      1
+    ],
+    "inconsistency": [
+      1
+    ],
+    "fix": [
+      1
+    ],
+    "risk-4": [
+      1
+    ],
+    "carried": [
+      1
+    ],
+    "forward": [
+      1
+    ],
+    "closing-argument": [
+      1
+    ],
+    "materialization": [
+      1
+    ],
+    "mechanism": [
+      1,
+      2
+    ],
+    "internal": [
+      1,
+      2
+    ],
+    "flow": [
+      1,
+      3
+    ],
+    "logic": [
+      1
+    ],
+    "mechanisms": [
+      1,
+      2
+    ],
+    "ratification-side": [
+      1
+    ],
+    "responsibilities": [
+      1
+    ],
+    "defining": [
+      1,
+      3
+    ],
+    "full": [
+      1
+    ],
+    "scope": [
+      1,
+      2
+    ],
+    "there": [
+      1
+    ],
+    "decisions": [
+      1
+    ],
+    "outside": [
+      1
+    ],
+    "also": [
+      1
+    ],
+    "owns": [
+      1
+    ],
+    "late-lock": [
+      1,
+      2
+    ],
+    "procrastination": [
+      1
+    ],
+    "gate": [
+      1,
+      2
+    ],
+    "contract-enforced": [
+      1
+    ],
+    "refuses": [
+      1
+    ],
+    "certain": [
+      1
+    ],
+    "operations": [
+      1,
+      2
+    ],
+    "after": [
+      1
+    ],
+    "rounds": [
+      1
+    ],
+    "without": [
+      1,
+      2,
+      3
+    ],
+    "lock": [
+      1,
+      2
+    ],
+    "caller-enforced": [
+      1
+    ],
+    "handles": [
+      1
+    ],
+    "deferral": [
+      1
+    ],
+    "structurally": [
+      2
+    ],
+    "inbound": [
+      2
+    ],
+    "material": [
+      2
+    ],
+    "per": [
+      2
+    ],
+    "caller": [
+      2,
+      3
+    ],
+    "while": [
+      2
+    ],
+    "stripping": [
+      2
+    ],
+    "rationale": [
+      2
+    ],
+    "provenance": [
+      2
+    ],
+    "conversational": [
+      2
+    ],
+    "validates": [
+      2
+    ],
+    "submissions": [
+      2,
+      3
+    ],
+    "rejecting": [
+      2
+    ],
+    "nuance": [
+      2
+    ],
+    "express": [
+      2
+    ],
+    "accepted": [
+      2
+    ],
+    "context": [
+      2
+    ],
+    "considers": [
+      2
+    ],
+    "stays": [
+      2
+    ],
+    "small": [
+      2
+    ],
+    "boundary": [
+      2
+    ],
+    "comprehensible": [
+      2
+    ],
+    "glance": [
+      2
+    ],
+    "bureaucratic": [
+      2
+    ],
+    "out": [
+      2
+    ],
+    "for": [
+      2,
+      3
+    ],
+    "this": [
+      2
+    ],
+    "sprint": [
+      2
+    ],
+    "discussion": [
+      2
+    ],
+    "vocabulary": [
+      2
+    ],
+    "crosses": [
+      2
+    ],
+    "territory": [
+      2
+    ],
+    "makes": [
+      2
+    ],
+    "single": [
+      2
+    ],
+    "submission": [
+      2
+    ],
+    "transition": [
+      2
+    ],
+    "action": [
+      2
+    ],
+    "between": [
+      2
+    ],
+    "two": [
+      2
+    ],
+    "systems": [
+      2
+    ],
+    "semantics": [
+      2
+    ],
+    "four": [
+      2
+    ],
+    "iteration": [
+      2
+    ],
+    "merge": [
+      2
+    ],
+    "bar": [
+      2
+    ],
+    "split": [
+      2
+    ],
+    "autogen": [
+      2
+    ],
+    "invalidation": [
+      2
+    ],
+    "preview": [
+      2
+    ],
+    "state": [
+      2
+    ],
+    "visibility": [
+      2
+    ],
+    "caller-context-preservation": [
+      2
+    ],
+    "how": [
+      2
+    ],
+    "thread": [
+      2
+    ],
+    "ride": [
+      2
+    ],
+    "alongside": [
+      2
+    ],
+    "typed": [
+      2
+    ],
+    "designer": [
+      2
+    ],
+    "about": [
+      2
+    ],
+    "overengineering": [
+      2
+    ],
+    "should": [
+      2
+    ],
+    "err": [
+      2
+    ],
+    "clear": [
+      2
+    ],
+    "boundaries": [
+      2
+    ],
+    "exhaustive": [
+      2
+    ],
+    "enumeration": [
+      2
+    ],
+    "every": [
+      2
+    ],
+    "conceivable": [
+      2
+    ],
+    "case": [
+      2
+    ],
+    "preserving": [
+      2
+    ],
+    "agent": [
+      2
+    ],
+    "effort": [
+      2
+    ],
+    "spent": [
+      2
+    ],
+    "context-preservation": [
+      2
+    ],
+    "well-spent": [
+      2
+    ],
+    "keeps": [
+      2
+    ],
+    "shape": [
+      2
+    ],
+    "minimal": [
+      2
+    ],
+    "widening": [
+      2
+    ],
+    "declaration": [
+      2
+    ],
+    "patterns": [
+      2
+    ],
+    "b-method-style": [
+      2
+    ],
+    "rigid": [
+      2
+    ],
+    "clauses": [
+      2
+    ],
+    "nasa": [
+      2
+    ],
+    "rtm-style": [
+      2
+    ],
+    "ceremony": [
+      2
+    ],
+    "requirement": [
+      2
+    ],
+    "misfit": [
+      2
+    ],
+    "chester": [
+      2
+    ],
+    "design-conversation": [
+      2
+    ],
+    "aesthetic": [
+      2
+    ],
+    "which": [
+      2
+    ],
+    "tolerates": [
+      2
+    ],
+    "fluid": [
+      2
+    ],
+    "balance": [
+      2
+    ],
+    "rigor": [
+      2,
+      3
+    ],
+    "mandated": [
+      2
+    ],
+    "doesn": [
+      2
+    ],
+    "against": [
+      2
+    ],
+    "flexibility": [
+      2
+    ],
+    "what": [
+      2
+    ],
+    "level": [
+      2
+    ],
+    "strictness": [
+      2
+    ],
+    "right": [
+      2
+    ],
+    "preserve": [
+      2
+    ],
+    "caller-supplied": [
+      2
+    ],
+    "alternatives": [
+      2
+    ],
+    "considered": [
+      2
+    ],
+    "overstuffing": [
+      2
+    ],
+    "metadata": [
+      2
+    ],
+    "submitted": [
+      2
+    ],
+    "item": [
+      2
+    ],
+    "carry": [
+      2
+    ],
+    "get": [
+      2
+    ],
+    "optional": [
+      2,
+      3
+    ],
+    "fields": [
+      2,
+      3
+    ],
+    "held": [
+      2
+    ],
+    "memory": [
+      2
+    ],
+    "minimum-viable": [
+      2
+    ],
+    "required": [
+      2,
+      3
+    ],
+    "category": [
+      2
+    ],
+    "tag": [
+      2
+    ],
+    "plus": [
+      2
+    ],
+    "richer": [
+      2
+    ],
+    "schemas": [
+      2
+    ],
+    "somewhere": [
+      2
+    ],
+    "states": [
+      3
+    ],
+    "loose-middle": [
+      3
+    ],
+    "locked": [
+      3
+    ],
+    "position": [
+      3
+    ],
+    "names": [
+      3
+    ],
+    "with": [
+      3
+    ],
+    "per-category": [
+      3
+    ],
+    "current": [
+      3
+    ],
+    "session": [
+      3
+    ],
+    "mcp": [
+      3
+    ],
+    "accept": [
+      3
+    ],
+    "cleanly": [
+      3
+    ],
+    "per-caller": [
+      3
+    ],
+    "bespoke": [
+      3
+    ],
+    "handling": [
+      3
+    ],
+    "months": [
+      3
+    ],
+    "now": [
+      3
+    ],
+    "extending": [
+      3
+    ],
+    "new": [
+      3
+    ],
+    "type": [
+      3
+    ],
+    "cli": [
+      3
+    ],
+    "tool": [
+      3
+    ],
+    "different": [
+      3
+    ],
+    "understanding": [
+      3
+    ],
+    "tells": [
+      3
+    ],
+    "philosophy": [
+      3
+    ]
+  },
+  "pendingOverrides": [],
+  "solveLeakageLedger": [
+    {
+      "origin_tenet": "problem_articulation",
+      "entry": {
+        "text": "Today's Solve Stage Opening describes three caller-side steps that address only the problem statement plus initial Evidence and Rule seeding. The other four of the six categories the Phase 4b contract accepts (Concerns, Resolve Conditions, Permissions, and the draft-vs-ratified lifecycle on Concerns) have no documented protocol. The gap shows up as caller ambiguity at session opening and at every subsequent moment a Concern, RC, or Permission comes into being.",
+        "current_behavior": "skill text covers a subset of the six categories; code accepts more than the text instructs; callers fall back on agent inference for the rest",
+        "desired_behavior": "the Phase 4b contract is defined comprehensively enough that the skill text becomes a mechanical derivation of contract operations rather than the authoritative source"
+      },
+      "errors": [
+        "problem_articulation: phase-vocabulary violation — solve-side tokens: protocol"
+      ],
+      "round": 1
+    },
+    {
+      "origin_tenet": "success_criteria",
+      "entry": {
+        "text": "Five NC-3 integration constraints are each addressed by either an explicit contract operation or an explicit protocol rule — none left as informal narrative for an implementer to interpret",
+        "anti_goal": "any of late-lock procrastination gate, merge evidence bar, split RC autogeneration, invalidation-impact preview, or sequential ratification preservation surfaces in the brief as 'TBD' or 'implementer discretion'"
+      },
+      "errors": [
+        "success_criteria: phase-vocabulary violation — solve-side tokens: protocol, operation"
+      ],
+      "round": 1
+    },
+    {
+      "origin_tenet": "scope_boundary",
+      "entry": {
+        "text": "Defining the Phase 4b contract surface comprehensively — what categorical submissions it accepts, what state transitions exist, what the opening protocol requires, what the Concern-iteration mechanisms look like as contract operations or protocol rules",
+        "placement": "IN",
+        "source": "R2 + cluster B NC-1 + master plan §4.2.1"
+      },
+      "errors": [
+        "scope_boundary: phase-vocabulary violation — solve-side tokens: protocol"
+      ],
+      "round": 1
+    },
+    {
+      "origin_tenet": "open_questions_ledger",
+      "entry": {
+        "text": "Where does Concern iteration live — as discrete contract operations (one per mechanism) or as protocol rules within fewer broader operations?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN"
+      },
+      "errors": [
+        "open_questions_ledger: phase-vocabulary violation — solve-side tokens: protocol"
+      ],
+      "round": 1
+    },
+    {
+      "origin_tenet": "open_questions_ledger",
+      "entry": {
+        "text": "Does 'contract' include state-transition semantics and opening-protocol ordering constraints, or only the operation shapes themselves?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN"
+      },
+      "errors": [
+        "open_questions_ledger: phase-vocabulary violation — solve-side tokens: protocol, operation"
+      ],
+      "round": 1
+    },
+    {
+      "origin_tenet": "open_questions_ledger",
+      "entry": {
+        "text": "Does the contract distinguish a Draft Concern state explicitly (separate operations for submission vs ratification), or fold both into a single 'add' operation as today?",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN"
+      },
+      "errors": [
+        "open_questions_ledger: phase-vocabulary violation — solve-side tokens: operation"
+      ],
+      "round": 1
+    },
+    {
+      "origin_tenet": "scope_boundary",
+      "entry": {
+        "text": "Single transition-submission interface — argument shape, structural validation rules, return shape, initial Phase 4b state produced",
+        "placement": "IN",
+        "source": "R2 + R6"
+      },
+      "errors": [
+        "scope_boundary: phase-vocabulary violation — solve-side tokens: interface"
+      ],
+      "round": 2
+    },
+    {
+      "origin_tenet": "done_state_vision",
+      "entry": {
+        "text": "design-specify consumes the brief and generates a contract module spec that any caller can implement against — no more questions about validation philosophy or context channel.",
+        "imagined_moment": "I run design-specify with the brief as input. The output spec includes contract surface signature, validation rules per category, metadata channel schema. I read it and recognize all my decisions intact, no drift, no gaps."
+      },
+      "errors": [
+        "done_state_vision: phase-vocabulary violation — solve-side tokens: module"
+      ],
+      "round": 3
+    }
+  ],
+  "repeatBackHistory": [
+    {
+      "round": 3,
+      "statement": "Phase 4b exposes a contract surface where a single submission opens the proof. The contract receives six categories of material — Necessary Conditions, Evidence, Rules, Permissions, Risks, Concerns. Contract structure must balance two tensions: how rigorously to validate incoming submissions (working position: loose-middle, validate only fields load-bearing for downstream operations), and how much caller-supplied context is required to build the proof internal data structures (evidence in particular).",
+      "designer_quote": "Phase 4b exposes a contract surface where a single submission opens the proof. The contract receives six categories of material — Necessary Conditions, Evidence, Rules, Permissions, Risks, Concerns. Contract structure must balance two tensions: how rigorously to validate incoming submissions (working position: loose-middle, validate only fields load-bearing for downstream operations), and how much caller-supplied context is required to build the proof internal data structures (evidence in particular)",
+      "designer_ratified": true,
+      "submitted_at": "2026-05-03T16:37:32.873Z"
+    }
+  ],
+  "transition": {
+    "ready": true,
+    "reasons": [],
+    "overall": 0.892
+  },
+  "transitionHistory": [
+    {
+      "ready": false,
+      "reasons": [
+        "problem_articulation below floor (0 < 0.4)",
+        "success_criteria below floor (0.333 < 0.4)",
+        "done_state_vision below floor (0 < 0.4)",
+        "personal_use_case_map below floor (0 < 0.4)",
+        "cost_energy_budget below floor (0 < 0.4)",
+        "project_fit below floor (0 < 0.4)",
+        "overall 0.367 below threshold 0.65"
+      ],
+      "overall": 0.367
+    },
+    {
+      "ready": false,
+      "reasons": [
+        "done_state_vision below floor (0 < 0.4)",
+        "personal_use_case_map below floor (0 < 0.4)"
+      ],
+      "overall": 0.775
+    },
+    {
+      "ready": true,
+      "reasons": [],
+      "overall": 0.892
+    }
+  ],
+  "warningsHistory": [
+    [],
+    [],
+    []
+  ]
+}
