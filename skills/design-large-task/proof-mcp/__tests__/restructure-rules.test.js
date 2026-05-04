@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { assignActionLabel } from '../restructure-rules.js';
+import { assignActionLabel, isRejectedValue } from '../restructure-rules.js';
 
 describe('assignActionLabel — mechanical labels', () => {
   it('returns "verbatim-preserve" when caller field value matches expected type/format directly', () => {
@@ -41,5 +41,32 @@ describe('assignActionLabel — mechanical labels', () => {
       requiredFieldName: 'statement',
     });
     expect(result.label).toBe(null);
+  });
+});
+
+describe('isRejectedValue', () => {
+  it.each([
+    ['', 'empty string'],
+    [null, 'null'],
+    ['TODO', 'TODO placeholder'],
+    ['todo', 'lowercase TODO'],
+    ['not specified', 'not-specified placeholder'],
+    ['Not Specified', 'cased not-specified'],
+    ['see metadata', 'redirect to metadata'],
+    ['See Metadata for details', 'redirect prefix'],
+  ])('rejects %j (%s)', (value, _desc) => {
+    const result = isRejectedValue(value);
+    expect(result.rejected).toBe(true);
+    expect(typeof result.reason).toBe('string');
+    expect(result.reason.length).toBeGreaterThan(0);
+  });
+
+  it.each([
+    ['Some real content', 'real string'],
+    ['A statement that mentions metadata in passing', 'real string with metadata word'],
+    [['anchor-1'], 'array'],
+    [{ key: 'val' }, 'object'],
+  ])('admits %j (%s)', (value, _desc) => {
+    expect(isRejectedValue(value).rejected).toBe(false);
   });
 });
