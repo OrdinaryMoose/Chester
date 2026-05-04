@@ -124,8 +124,9 @@ Twenty-plus existing test destructure sites in `state.test.js`, `concerns.test.j
 ## What Is Deferred or Open
 
 ### Carried forward to other clusters
-- **Cluster B.3 (final cluster of master plan B):** transition handoff from Phase 4a understanding to Phase 4b solve. Cluster B.2 produced the closing-argument structure but the structural carry-forward from understanding-state to proof-state is B.3's scope.
 - **Cluster C:** restructure understanding MCP. Not affected by B.2.
+
+*Erratum (2026-05-04, task-01-fix-staleb3-label): this section originally listed a "Cluster B.3" carry-forward for the Phase 4a→4b transition handoff. That work was scoped and delivered as Cluster B.1 (Phase 4b initialization, merged 2026-05-04 via `e8072a4`). The B.3 entry has been removed.*
 
 ### Deferred Minor findings (final code review)
 - `clearClosingFlags` exported helper is unused in production code (tests only). Either consume it across the seven mutating exports or remove the export. Per the JSDoc rationale and PA-4 design intent the inline-set pattern is intentional, so the export+test add minimal production value. Left as-is.
@@ -144,7 +145,7 @@ Twenty-plus existing test destructure sites in `state.test.js`, `concerns.test.j
 
 1. **Tree shape in cluster B.2 sprint subdir:** design/, spec/, plan/, summary/ all populated. Plan and threat report are stamped (`plan-build@v0004`); spec and ground-truth report stamped (`design-specify@v0003`); design files have no trailers (predates the convention).
 2. **Tuple shape contract on state.js mutating exports:** any new caller of `addConcern`/`manageFriction` MUST destructure as `[id, state, hints, err]`; `lockConcerns`/`ratifyResolveCondition`/`overrideFrictionDisposition` as `[state, hints, err]`. recordDesignerGo is `[state, err]` (no hints).
-3. **DRY pattern locked in `proof.js`:** any new closed set (e.g. additional element types in cluster B.3) follows the same pattern — module-level `Object.freeze` export, imported by callers, never inlined.
+3. **DRY pattern locked in `proof.js`:** any new closed set (e.g. additional element types in future cluster work) follows the same pattern — module-level `Object.freeze` export, imported by callers, never inlined.
 4. **Friction creation paths:** `manage_friction` is the canonical creation path. `submit_proof_update` add now refuses FRICTION. Auto-creation runs as a side effect of every mutating export for `permission-risk-linkage` shape only; the three heuristic shapes surface as `friction_hints[]` for designer confirmation.
 5. **Friction withdrawal paths:** `override_friction_disposition` with terminal disposition is the canonical dismissal path. `submit_proof_update` withdraw now refuses FRICTION targets. Withdrawn FRICTION elements suppress re-detection (sticky designer dismissal).
 6. **The eleventh closure condition:** any mutation to state nulls the two-yes flags, so designer must re-present and re-confirm to satisfy `checkClosure`. The eleven-condition `checkClosure` is the canonical closure gate; the three-arm `evaluateTrigger` is the gate for *presenting* the argument.
