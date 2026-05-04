@@ -1,7 +1,7 @@
 ---
 name: design-large-task
 description: "Default structural design skill for architectural or multi-decision work. Five outer phases: Bootstrap, Parallel Context Exploration, Round One, Interview Loop, Closure. Inside the Interview Loop, an Understand Stage runs under an Understanding MCP (nine-dimension saturation scoring), then a Solve Stage runs under a Design Proof MCP (formal proof-building with structural validation around necessary conditions). Closure writes the design brief (the proof envelope) and hands off to design-specify, which owns architecture choice. Use when the task involves structural choices that need grounded design before implementation. For bounded edits where the target is clear, use design-small-task instead."
-version: v0010
+version: v0011
 ---
 
 # Large-Task Design Discovery with Formal Proof Language
@@ -412,16 +412,20 @@ The Solve Stage opens with three steps before the proof-governed interview loop 
 1. **Problem statement: polish, readback, confirm** — take what the designer said about the problem (they often type quickly and roughly), polish the language lightly for clarity and grammar without changing the meaning or adding your own framing. Read it back to the designer in clean form: "Here's how I'd capture the problem — [polished version]. Does that sound right?" The designer must explicitly approve before you proceed. Do NOT expand it into an analysis, add requirements, or prescribe solution characteristics. The problem statement describes the pain, not the solution. Context (codebase observations, architectural constraints) belongs in separate proof elements, not embedded in the problem statement.
 
    **When `team-interview` was the active flow,** the problem statement was already polished and ratified during Round 5 synthesis — it is the team-ratified statement carried forward as the team consensus output. Replace polish/readback/confirm with a single confirmation prompt: "The team ratified this statement — confirm or revise?" If the designer revises, treat the revision as a designer-authored override of the ratified statement: capture the original ratified statement and the revision side-by-side under a `*Designer revision at Solve Stage opening:*` line in the handoff artifact's Ratification block (so the override is logged and the dissent trail is preserved per the flow file's Ratification section), then proceed to step 2 with the designer's revised statement. Do not re-enter the four-pole debate — the designer's revision is the final authority and Solve Stage continues against it.
-2. **Initialize proof MCP** — call `initialize_proof` with:
-   - `problem_statement`: the designer's confirmed (polished) problem statement
+2. **Open the proof** — call `open_proof` with:
    - `state_file`: `{CHESTER_WORKING_DIR}/{sprint-subdir}/design/{sprint-name}-proof-state.json`
-3. **Seed the proof** — call `submit_proof_update` with initial EVIDENCE elements (codebase facts discovered during the Understand Stage, source: "codebase") and RULE elements (designer-directed restrictions confirmed during the Understand Stage, source: "designer"). Do NOT create RULE or PERMISSION elements from your own analysis — only the designer can direct these.
+   - `submission_material`: an object containing
+     - `problem_statement`: the designer's confirmed one-sentence problem statement (string).
+     - `elements`: array of caller-drafted typed-element candidates (Concerns drafted in Phase 4a, Evidence collected from explorer findings, Rules surfaced during conversation, Permissions, Risks). Each entry carries a `category` field plus the typed fields appropriate to that category. Restructuring discipline lives inside Phase 4b — caller is not responsible for perfect formatting.
+
+   `open_proof` returns either `status: 'opened'` (proof is live) or `status: 'gate_failed' | 'partial_write_failure'` with a restructuring report. On failure, read the report, correct the submission material, and call `open_proof` again with the corrected submission. Resubmissions to the same `state_file` are safe — gate-fail and partial-write-failure paths write nothing, so no cleanup is required. Only the `already_open` refusal requires a different `state_file` (since the prior proof is live and protected).
+3. **Seed additional elements** — for any element not included in the initial `open_proof` submission (additional EVIDENCE collected after open, RULE elements surfaced later in conversation), call `submit_proof_update` with the appropriate operations. Do NOT create RULE or PERMISSION elements from your own analysis — only the designer can direct these.
 
 ### Proof MCP Toolset
 
 The Solve Stage uses the Design Proof MCP (`chester-design-proof`). Tools in invocation order across the stage:
 
-- **`initialize_proof`** — open a proof session with the designer's confirmed problem statement.
+- **`open_proof`** — open a proof from a single caller submission. Restructures untrusted material into typed proof elements per a 4b-owned schema; gates on per-element artifacts before opening.
 - **`submit_proof_update`** — apply a batch of element operations (`add` / `revise` / `withdraw`) for the current round. Validates types, references, and per-type required fields. **FRICTION elements must NOT be created or withdrawn here** — use the dedicated friction tools below.
 - **`get_proof_state`** — load current state and computed metrics (integrity, completeness, closure readiness).
 - **`manage_concerns`** — `add` or `lock` Concerns attached to the problem statement. Concerns anchor Resolve Conditions for closure coverage.
@@ -625,7 +629,7 @@ Applies to observations, information package, commentary, closing arguments, and
 - Proof state references (closure_permitted, grounding_coverage, element counts)
 - Understanding state references (transition_ready, group_saturation, gaps_summary, tenet_scores, glossary, pending_overrides, pending_vocab_dispositions, solve_leakage_ledger, vocabulary_action_log, repeat_back_history)
 - Challenge mode names (Contrarian, Simplifier, Ontologist)
-- MCP mechanism references (submit_understanding, submit_round_evidence, submit_proof_update, initialize_proof, initialize_understanding, seed_glossary, apply_vocabulary_action, resolve_override, integrity_warnings, etc.)
+- MCP mechanism references (submit_understanding, submit_round_evidence, submit_proof_update, open_proof, initialize_understanding, seed_glossary, apply_vocabulary_action, resolve_override, integrity_warnings, etc.)
 - Vocabulary action names (ADD, REMOVE, RENAME, SPLIT, MERGE, DEFER) and classification names (CONSISTENT, PROPOSE, DEPRECATE, DRIFT, CONFLICT) — surface their *substance* in plain language, never the label
 - Priority rule references
 
