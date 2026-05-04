@@ -178,6 +178,8 @@ plan-build@v0004
 
 (Harvested manually from artifact trailers — `chester-trailer-write harvest` returned empty, possibly a path-resolution issue with the master-mode nested directory layout. Worth investigating as a sprint-finish carry-forward item.)
 
+*Erratum (2026-05-04, task-02-fix-trailer-write-harvest): the path-resolution attribution above is wrong. Investigation 2026-05-04 established the real root cause: `chester-util-config/chester-trailer-write.sh` `do_harvest` runs under `set -euo pipefail`, and the per-artifact timestamp-capture pipeline at line 79 returns non-zero on no-match (older artifacts predating the stamping convention), which silently aborts the whole script before the fallback at line 80 can execute. Fixed by appending `|| :` to the pipeline. Independent of master-mode layout — reproduces on flat sprint dirs equally.*
+
 Skills invoked but not stamping artifacts in this sprint:
 - `chester:design-large-task` (design phase, no trailer convention applied to design briefs in this sprint)
 - `chester:execute-write` (orchestrated all 14 task implementations + 14 task quality reviews + 1 sprint-level code review)

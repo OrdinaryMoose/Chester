@@ -76,14 +76,16 @@ do_harvest() {
 
   while IFS= read -r -d '' file; do
     local created
-    created="$(grep -E '^<!-- created-at: ' "$file" | head -1 | sed -E 's/^<!-- created-at: (.*) -->$/\1/')"
+    created="$(grep -E '^<!-- created-at: ' "$file" | head -1 | sed -E 's/^<!-- created-at: (.*) -->$/\1/' || :)"
     [ -n "$created" ] || created="9999-99-99T99:99:99Z"  # files without created-at sort last
+    # Audit (task-02): awk does not return non-zero for no-match — pipeline is no-match-safe.
     awk -v ts="$created" -v fp="$file" '
       /^<!-- produced-by .* -->$/ { printf("%s\t%s\t%06d\t%s\n", ts, fp, NR, $0) }
     ' "$file" >> "$tmp"
   done < <(find "$sprint_dir" -type f -name '*.md' -print0)
 
   # Sort by (timestamp, file_path, position), dedupe by produced-by line, keep first.
+  # Audit (task-02): sort and awk both exit 0 on empty input — pipeline is empty-input-safe under the loop's current contract.
   sort -t $'\t' -k1,1 -k2,2 -k3,3n "$tmp" \
     | awk -F'\t' '!seen[$4]++ { print $4 }'
 }
