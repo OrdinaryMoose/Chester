@@ -50,6 +50,7 @@ export function initializeState(problemStatement) {
     frictionLog: [],
     closingArgPresentedRound: null,
     closingArgGoRound: null,
+    proofStatus: 'unopen',
   };
 }
 
@@ -458,6 +459,7 @@ export function loadState(filePath) {
   raw.elementCounters.FRICTION ??= 0;
   raw.closingArgPresentedRound ??= null;
   raw.closingArgGoRound ??= null;
+  raw.proofStatus ??= 'unopen';
   for (const [, el] of raw.elements) {
     el.problem_anchor ??= null;
     el.ratification ??= null;
