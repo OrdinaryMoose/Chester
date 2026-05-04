@@ -146,6 +146,18 @@ const TOOLS = [
     },
   },
   {
+    name: 'open_proof',
+    description: 'Open a proof from an untrusted caller submission. Restructures submission material into typed proof elements per a 4b-owned schema and writes initial state. Permissive at the boundary; rigor enforced internally.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        state_file: { type: 'string', description: 'Absolute path to write proof state JSON.' },
+        submission_material: { type: 'object', description: 'Free-form caller submission. Must include problem_statement (string).' },
+      },
+      required: ['state_file', 'submission_material'],
+    },
+  },
+  {
     name: 'ratify_resolve_condition',
     description: 'Ratify a single Resolve Condition. Sequential by design — accepts one element_id per call; batch shapes are not supported.',
     inputSchema: {
@@ -207,6 +219,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         return handleOverrideFrictionDisposition(args);
       case 'ratify_resolve_condition':
         return handleRatifyResolveCondition(args);
+      case 'open_proof':
+        return handleOpenProof(args);
       case 'present_closing_argument':
         return handlePresentClosingArgument(args);
       case 'confirm_closure_go':
@@ -433,6 +447,12 @@ function handleConfirmClosureGo({ state_file }) {
   saveState(newState, state_file);
   const closure = checkClosure(newState);
   return { content: [{ type: 'text', text: JSON.stringify(closure, null, 2) }] };
+}
+
+function handleOpenProof(_args) {
+  return {
+    content: [{ type: 'text', text: JSON.stringify({ status: 'not_implemented', proof_open: false }) }],
+  };
 }
 
 // ── Startup ──────────────────────────────────────────────────────

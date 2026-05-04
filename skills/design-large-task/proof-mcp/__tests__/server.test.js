@@ -102,3 +102,30 @@ describe('server.js — override_friction_disposition tool', () => {
     expect(serverSource).toMatch(/overrideFrictionDisposition/);
   });
 });
+
+describe('server.js — open_proof tool registration', () => {
+  it('declares open_proof tool', () => {
+    expect(serverSource).toMatch(/name:\s*'open_proof'/);
+  });
+
+  it('declares state_file and submission_material as required inputs', () => {
+    const block = serverSource.split("name: 'open_proof'")[1] ?? '';
+    expect(block).toMatch(/state_file/);
+    expect(block).toMatch(/submission_material/);
+    expect(block).toMatch(/required:\s*\[\s*'state_file'\s*,\s*'submission_material'\s*\]/);
+  });
+
+  it('keeps submission_material schema permissive (no additionalProperties:false)', () => {
+    const block = serverSource.split("name: 'open_proof'")[1] ?? '';
+    const submissionBlock = block.split("submission_material:")[1]?.split('}')[0] ?? '';
+    expect(submissionBlock).not.toMatch(/additionalProperties:\s*false/);
+  });
+
+  it('dispatches open_proof in switch', () => {
+    expect(serverSource).toMatch(/case\s+'open_proof'/);
+  });
+
+  it('handler function handleOpenProof exists', () => {
+    expect(serverSource).toMatch(/function\s+handleOpenProof/);
+  });
+});
