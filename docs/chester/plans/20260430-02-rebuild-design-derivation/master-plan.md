@@ -1,7 +1,7 @@
 ---
 title: "Rebuild Design Derivation — Master Plan"
 path: "docs/chester/working/20260430-02-rebuild-design-derivation/master-plan.md"
-version: "v01.05"
+version: "v01.06"
 version_date: "2026-05-04"
 cycle_status: "Cycle-1 active"
 doc_status: "active"
@@ -11,7 +11,7 @@ freeze_map:
   - { cluster: cluster-b-1-define-transition, status: done }
   - { cluster: cluster-b-2-define-solve-closing, status: done }
   - { task: task-01-fix-staleb3-label, status: done }
-  - { task: task-02-fix-trailer-write-harvest, status: active }
+  - { task: task-02-fix-trailer-write-harvest, status: done }
   - { cluster: cluster-c-restructure-understand, status: pending }
 ---
 
@@ -239,7 +239,7 @@ Numbering is sequential across master plan lifetime: task-01, task-02, etc. Each
   - Test added (Case 7 of `tests/test-trailer-harvest.sh`) covering the un-stamped-artifact trigger via direct local-source invocation
   - Paper-trail corrections: this entry rewritten; closing-cluster summary L179 erratum landed
 - **Depends on:** none
-- **Status:** active
+- **Status:** done — merged to main 2026-05-04 (merge commit `fbd781a`, archive commit `382a9ee`)
 
 ## 5. Evidence Register
 
@@ -288,7 +288,7 @@ There is no Cycle-2 for this master plan. Cluster outputs feed forward into desi
 
 Cluster A is **done** (merged 2026-05-01). Cluster B was split into B.1 + B.2 (see §4.2). Cluster B.2 — Phase 4b Closing-Argument Materialization — is **done** (merged 2026-05-02). Cluster B.1 — Phase 4b Initialization (open_proof contract surface) — is **done** (merged 2026-05-04).
 
-Two refactor sub-sprints (task-01-fix-staleb3-label, task-02-fix-trailer-write-harvest; see §4.4) run before Cluster C launches. **task-01** is **done** (merged 2026-05-04 via `3fa9ffa`). **task-02** is the active sub-sprint. After task-02 merges, **Cluster C — Restructure Understand** becomes active; B.1's `REQUIRED_FIELDS_REGISTRY` and the `submission_material` shape are read-only inheritance for C. Sessions entering this master plan should default to task-02; once task-02 merges, default to cluster C.
+Two refactor sub-sprints (task-01-fix-staleb3-label, task-02-fix-trailer-write-harvest; see §4.4) ran before Cluster C launch. **task-01** is **done** (merged 2026-05-04 via `3fa9ffa`). **task-02** is **done** (merged 2026-05-04 via `fbd781a`). **Cluster C — Restructure Understand** is the active sub-sprint; B.1's `REQUIRED_FIELDS_REGISTRY` and the `submission_material` shape are read-only inheritance for C. Sessions entering this master plan should default to cluster C.
 
 ## 10. Known Deferments — Out of Scope
 
