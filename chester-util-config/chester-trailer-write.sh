@@ -76,7 +76,7 @@ do_harvest() {
 
   while IFS= read -r -d '' file; do
     local created
-    created="$(grep -E '^<!-- created-at: ' "$file" | head -1 | sed -E 's/^<!-- created-at: (.*) -->$/\1/')"
+    created="$(grep -E '^<!-- created-at: ' "$file" | head -1 | sed -E 's/^<!-- created-at: (.*) -->$/\1/' || :)"
     [ -n "$created" ] || created="9999-99-99T99:99:99Z"  # files without created-at sort last
     awk -v ts="$created" -v fp="$file" '
       /^<!-- produced-by .* -->$/ { printf("%s\t%s\t%06d\t%s\n", ts, fp, NR, $0) }

@@ -4,6 +4,9 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 TRAILER="$SCRIPT_DIR/bin/chester-trailer-write"
+# Case 7 invokes the local source directly to bypass the PATH wrapper's
+# plugin-cache exec — needed for any case that exercises an un-released fix.
+SCRIPT="$SCRIPT_DIR/chester-util-config/chester-trailer-write.sh"
 
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
@@ -100,6 +103,27 @@ LINE_A=$(echo "$OUT1" | grep -n 'skill-a@v0001' | cut -d: -f1)
 LINE_Z=$(echo "$OUT1" | grep -n 'skill-z@v0001' | cut -d: -f1)
 [ -n "$LINE_A" ] && [ -n "$LINE_Z" ] && [ "$LINE_A" -lt "$LINE_Z" ] \
   || fail "case6: file-path tiebreak failed (a=$LINE_A z=$LINE_Z)"
+
+# Case 7: tolerate un-stamped artifacts (task-02 bug fix).
+# Older artifacts predating the stamping convention have no <!-- created-at: ... -->
+# trailer. Without the fix, `set -euo pipefail` plus the no-match grep silently
+# aborts the script before the line-80 fallback can run. Invoke local source
+# directly (not via wrapper) so the test exercises the in-worktree fix, not
+# the plugin-cache copy.
+mkdir -p "$TMP/sprint3"
+cat > "$TMP/sprint3/unstamped.md" <<'EOF'
+# Older artifact predating the stamping convention
+content
+EOF
+cat > "$TMP/sprint3/stamped.md" <<'EOF'
+# Stamped
+<!-- created-at: 2026-04-30T16:00:00Z -->
+<!-- produced-by skill-foo@v0001 -->
+EOF
+OUT="$(bash "$SCRIPT" harvest "$TMP/sprint3")" \
+  || fail "case7: harvest aborted on un-stamped artifact (exit $?)"
+echo "$OUT" | grep -Fxq "<!-- produced-by skill-foo@v0001 -->" \
+  || fail "case7: stamped artifact's produced-by line missing from output"
 
 if [ "$ERRORS" -gt 0 ]; then
   echo "FAIL: $ERRORS error(s) in trailer-write harvest"
