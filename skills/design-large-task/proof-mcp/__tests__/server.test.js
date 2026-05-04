@@ -263,3 +263,53 @@ describe('handleOpenProof — three-phase orchestration', () => {
     unlinkSync(tmp);
   });
 });
+
+describe('handleOpenProof — already-open refusal', () => {
+  it('refuses without invoking restructure when state file has proofStatus="open"', () => {
+    const tmp = `/tmp/already-open-${Date.now()}.json`;
+    const priorState = {
+      round: 5, problemStatement: 'prior', elements: {},
+      elementCounters: { EVIDENCE: 0, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 0, RISK: 0, RESOLVE_CONDITION: 0, FRICTION: 0 },
+      conditionCountHistory: [], elementCountHistory: [], challengeModesUsed: [], challengeLog: [], revisionLog: [], phaseTransitionRound: 0,
+      concerns: [], concernsLocked: false, concernCounter: 0, ratificationLog: [], frictionLog: [],
+      closingArgPresentedRound: null, closingArgGoRound: null,
+      proofStatus: 'open',
+    };
+    writeFileSync(tmp, JSON.stringify(priorState));
+    const sizeBefore = readFileSync(tmp, 'utf-8').length;
+
+    const response = handleOpenProof({
+      state_file: tmp,
+      submission_material: {
+        problem_statement: 'new',
+        elements: [{ category: 'RULE', statement: 'new rule', source: 'designer' }],
+      },
+    });
+    const payload = JSON.parse(response.content[0].text);
+    expect(payload.status).toBe('already_open');
+    expect(payload.diagnostic).toContain(tmp);
+
+    const sizeAfter = readFileSync(tmp, 'utf-8').length;
+    expect(sizeAfter).toBe(sizeBefore);
+    unlinkSync(tmp);
+  });
+
+  it('overwrites a malformed (non-JSON) state file on gate-pass — explicit catch-all behavior', () => {
+    const tmp = `/tmp/open-proof-malformed-${Date.now()}.json`;
+    writeFileSync(tmp, 'this is not valid JSON {{{');
+
+    const response = handleOpenProof({
+      state_file: tmp,
+      submission_material: {
+        problem_statement: 'recovery from malformed state',
+        elements: [{ category: 'RULE', statement: 'r', source: 'designer' }],
+      },
+    });
+    const payload = JSON.parse(response.content[0].text);
+    expect(payload.status).toBe('opened');
+    const written = JSON.parse(readFileSync(tmp, 'utf-8'));
+    expect(written.problemStatement).toBe('recovery from malformed state');
+    expect(written.proofStatus).toBe('open');
+    unlinkSync(tmp);
+  });
+});

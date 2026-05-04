@@ -18,6 +18,7 @@ import {
 import { deriveClosingArgument } from './closing-argument.js';
 import { restructure } from './restructure.js';
 import { checkOpenGate } from './open-gate.js';
+import { existsSync } from 'node:fs';
 
 const ELEMENT_TYPES = ['EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK', 'RESOLVE_CONDITION', 'FRICTION'];
 
@@ -452,6 +453,24 @@ function handleConfirmClosureGo({ state_file }) {
 }
 
 export function handleOpenProof({ state_file, submission_material }) {
+  // Pre-check: refuse if proof at this state file is already open.
+  if (existsSync(state_file)) {
+    try {
+      const existingState = loadState(state_file);
+      if (existingState.proofStatus === 'open') {
+        return {
+          content: [{ type: 'text', text: JSON.stringify({
+            status: 'already_open',
+            diagnostic: `Proof at ${state_file} is already open. Use a fresh state_file or initialize a new proof.`,
+            proof_open: true,
+          })}],
+        };
+      }
+    } catch (_e) {
+      // Malformed file: fall through to normal flow (will be overwritten on gate pass).
+    }
+  }
+
   // Phase 1 — accept submission as-is. No structural validation.
   const submission = submission_material || {};
 
