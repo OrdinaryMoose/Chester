@@ -1,7 +1,7 @@
 ---
 title: "Rebuild Design Derivation — Master Plan"
 path: "docs/chester/working/20260430-02-rebuild-design-derivation/master-plan.md"
-version: "v01.04"
+version: "v01.05"
 version_date: "2026-05-04"
 cycle_status: "Cycle-1 active"
 doc_status: "active"
@@ -226,16 +226,18 @@ Numbering is sequential across master plan lifetime: task-01, task-02, etc. Each
 - **Depends on:** none
 - **Status:** done — merged to main 2026-05-04 (merge commit `3fa9ffa`, archive commit `349b663`)
 
-#### 4.4.2 task-02 — Fix chester-trailer-write Harvest Under Master Mode
+#### 4.4.2 task-02 — Fix chester-trailer-write Harvest Silent-Abort Bug
 
 - **Subdir:** `task-02-fix-trailer-write-harvest/`
 - **Pipeline-weight class:** investigation-bearing
-- **Scope:** `chester-trailer-write harvest` returned empty during cluster B.2's finish-write-records run, requiring manual harvest from artifact trailers (B.2 summary L178). Suspected path-resolution issue with master-mode nested directory layout (sub-sprint dirs under `working/<master-sprint>/<sub-sprint>/` instead of `working/<sub-sprint>/`). Affects every future master-mode sprint summary; cluster C will hit it again at finish.
+- **Scope:** `chester-trailer-write harvest` returned empty during cluster B.2's finish-write-records run, requiring manual harvest from artifact trailers (B.2 summary L179). Investigation 2026-05-04 established the root cause: the `do_harvest` function runs under `set -euo pipefail`, and the per-artifact timestamp-capture pipeline at line 79 returns non-zero when grep finds no `<!-- created-at: ... -->` line in an artifact (older artifacts predating the stamping convention), which silently aborts the script before the line-80 fallback can execute. Originally suspected to be a master-mode nested-directory-layout issue; investigation showed the bug is independent of layout — any sprint with at least one un-stamped artifact reproduces it on flat sprint dirs equally. Affects every sprint summary that runs harvest against a directory containing un-stamped artifacts.
 - **Exit criteria:**
-  - Failure mode reproduced under master-mode layout
-  - Root cause identified (path resolution, env var, or traversal logic)
-  - Fix applied to `chester-trailer-write` (or wherever path resolution lives)
-  - Test added covering master-mode nested-layout harvest
+  - Failure mode reproduced under any sprint layout (master-mode or flat) with un-stamped artifacts present
+  - Root cause identified: `set -e` + pipefail + grep-no-match silent abort in the per-artifact loop's timestamp-capture pipeline
+  - Fix applied to `chester-util-config/chester-trailer-write.sh` `do_harvest` function (swallow-the-exit suffix on the timestamp-capture pipeline)
+  - Audit findings present in `do_harvest`: every pipeline-and-strict-mode interaction either hardened or carrying a one-sentence safety invariant comment (confidence-bias rule)
+  - Test added (Case 7 of `tests/test-trailer-harvest.sh`) covering the un-stamped-artifact trigger via direct local-source invocation
+  - Paper-trail corrections: this entry rewritten; closing-cluster summary L179 erratum landed
 - **Depends on:** none
 - **Status:** active
 
