@@ -1,0 +1,10 @@
+{
+  "sprintName": "20260503-01-harden-claude-md-hygiene",
+  "branchName": "20260503-01-harden-claude-md-hygiene",
+  "sessionStartTimestamp": "2026-05-03T12:35:36Z",
+  "jsonlSessionId": null,
+  "skillVersion": {
+    "utilDesignPartnerRole": "f92c291d9c32768fe9359b9cc5f95d87793b7b50",
+    "designLargeTask": "f5bd8200c8300599ace64bd1e76e2f1e6222a0c8"
+  }
+}

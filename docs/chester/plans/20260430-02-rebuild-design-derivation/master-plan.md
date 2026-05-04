@@ -1,8 +1,8 @@
 ---
 title: "Rebuild Design Derivation — Master Plan"
 path: "docs/chester/working/20260430-02-rebuild-design-derivation/master-plan.md"
-version: "v01.01"
-version_date: "2026-04-30"
+version: "v01.02"
+version_date: "2026-05-04"
 cycle_status: "Cycle-1 active"
 doc_status: "active"
 freeze_map:
@@ -10,6 +10,8 @@ freeze_map:
   - { cluster: cluster-b-define-transition, status: split }
   - { cluster: cluster-b-1-define-transition, status: done }
   - { cluster: cluster-b-2-define-solve-closing, status: done }
+  - { task: task-01-fix-staleb3-label, status: active }
+  - { task: task-02-fix-trailer-write-harvest, status: pending }
   - { cluster: cluster-c-restructure-understand, status: pending }
 ---
 
@@ -200,6 +202,35 @@ This master plan operates inside `design-large-task` and updates `proof-mcp` and
 - **Depends on:** Cluster A and Cluster B
 - **Status:** pending
 
+### 4.4 Refactor Sub-Sprints
+
+Non-endstate sub-sprints follow the `task-NN-<slug>` naming pattern. These address tooling, documentation, or process issues that surface during cluster work but are not endstate-bearing. Each task is single-issue, runs its own design-small-task → plan-build → execute-write cycle (lighter than cluster pipelines), and inherits master plan Rules read-only. Tasks may not modify cluster Rules, NCs, Evidence, or master plan vocabulary, and contribute no Rules to downstream clusters.
+
+Numbering is sequential across master plan lifetime: task-01, task-02, etc. Each task gets its own subdir, branch, worktree, and archive entry under master mode. Archive payload at finish carries the full master tree per master-mode discipline.
+
+#### 4.4.1 task-01 — Fix Stale B.3 Label
+
+- **Subdir:** `task-01-fix-staleb3-label/`
+- **Scope:** Cluster B.2 summary L127 references "Cluster B.3 (final cluster of master plan B): transition handoff from Phase 4a understanding to Phase 4b solve." Cluster B was split into B.1 + B.2 only; no B.3 exists. B.1 (closed 2026-05-04) absorbed the transition-handoff scope. The summary line is misleading for cluster-C-onwards readers and creates a false signal that more cluster-B work is pending.
+- **Exit criteria:**
+  - B.2 summary edited in both `working/` and `plans/` locations to remove or correct the B.3 reference
+  - Replacement wording accurately describes B.1's actual scope absorption
+  - No code changes
+- **Depends on:** none
+- **Status:** active
+
+#### 4.4.2 task-02 — Fix chester-trailer-write Harvest Under Master Mode
+
+- **Subdir:** `task-02-fix-trailer-write-harvest/`
+- **Scope:** `chester-trailer-write harvest` returned empty during cluster B.2's finish-write-records run, requiring manual harvest from artifact trailers (B.2 summary L178). Suspected path-resolution issue with master-mode nested directory layout (sub-sprint dirs under `working/<master-sprint>/<sub-sprint>/` instead of `working/<sub-sprint>/`). Affects every future master-mode sprint summary; cluster C will hit it again at finish.
+- **Exit criteria:**
+  - Failure mode reproduced under master-mode layout
+  - Root cause identified (path resolution, env var, or traversal logic)
+  - Fix applied to `chester-trailer-write` (or wherever path resolution lives)
+  - Test added covering master-mode nested-layout harvest
+- **Depends on:** none
+- **Status:** pending
+
 ## 5. Evidence Register
 
 Evidence carried from this master-planning session:
@@ -243,6 +274,14 @@ This master plan operates as a single cycle. Each cluster's exit criteria fire a
 
 There is no Cycle-2 for this master plan. Cluster outputs feed forward into design-specify → plan-build → execute-write per Chester's normal pipeline; no further META-planning is anticipated.
 
-## 9. Active Cluster
+## 9. Active Sub-Sprint
 
-Cluster A is **done** (merged 2026-05-01). Cluster B was split into B.1 + B.2 (see §4.2). Cluster B.2 — Phase 4b Closing-Argument Materialization — is **done** (merged 2026-05-02). Cluster B.1 — Phase 4b Initialization (open_proof contract surface) — is **done** (closed 2026-05-04 pending merge). **Cluster C — Restructure Understand** is the next active sub-sprint; B.1's REQUIRED_FIELDS_REGISTRY and the `submission_material` shape are read-only inheritance for C. Sessions entering this master plan should default to cluster C unless explicitly directed elsewhere.
+Cluster A is **done** (merged 2026-05-01). Cluster B was split into B.1 + B.2 (see §4.2). Cluster B.2 — Phase 4b Closing-Argument Materialization — is **done** (merged 2026-05-02). Cluster B.1 — Phase 4b Initialization (open_proof contract surface) — is **done** (merged 2026-05-04).
+
+Two refactor sub-sprints (task-01-fix-staleb3-label, task-02-fix-trailer-write-harvest; see §4.4) run before Cluster C launches. **task-01** is the active sub-sprint; task-02 follows. After both tasks merge, **Cluster C — Restructure Understand** becomes active; B.1's `REQUIRED_FIELDS_REGISTRY` and the `submission_material` shape are read-only inheritance for C. Sessions entering this master plan should default to the active task; once both tasks merge, default to cluster C.
+
+## 10. Known Deferments — Out of Scope
+
+Items surfaced during master-plan execution that are explicitly out of scope for this master and its task sub-sprints. Recorded here so they are not lost.
+
+- **Stamping-test dynamism.** All five `tests/test-stamping-*.sh` files are equality-pinned to a hardcoded skill version. When a stamped skill bumps for unrelated reasons, the test fails until manually re-pinned. First flagged in cluster B.1 summary L114 ("should be made dynamic in a follow-up"); re-encountered 2026-05-04 (test-stamping-design-large-task.sh re-pinned v0009 → v0011). Mitigation in place: test comment now records the bump-trail pattern. Rejected as task-03 in this master plan to preserve focus on cluster C. Deferred to post-master-plan refactor.
