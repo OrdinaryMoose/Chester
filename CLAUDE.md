@@ -68,6 +68,8 @@ Sprint name format: `YYYYMMDD-##-verb-noun-noun` where `##` is the next availabl
 
 Run individual tests: `bash tests/test-<name>.sh`
 
+Run all: `for t in tests/test-*.sh; do bash "$t" || echo "FAIL: $t"; done`
+
 Tests are self-contained bash scripts. They validate hooks, config resolution, and integration behavior.
 
 ## Key Scripts
@@ -93,6 +95,8 @@ claude --plugin-dir /home/mike/Documents/CodeProjects/Chester
 Skills are live-reloaded — edit SKILL.md files and use `/reload-plugins` to pick up changes.
 
 ## Master Plan Mode
+
+**Currently active:** `20260430-02-rebuild-design-derivation` (per `docs/chester/working/.active-master`). Read `docs/chester/working/20260430-02-rebuild-design-derivation/CLAUDE.md` after this file before sub-cluster work.
 
 Some pieces of Chester work span multiple sub-sprints under one umbrella plan (e.g. `20260430-02-rebuild-design-derivation` with three cluster sub-sprints). Master Plan Mode is a breadcrumb-toggled overlay over the default sprint conventions.
 
