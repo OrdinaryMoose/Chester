@@ -1,0 +1,303 @@
+{
+  "round": 1,
+  "problemStatement": "Redesign design-large-task as a one-system architecture using the existing proof MCP throughout, eliminating the Phase 4a / Phase 4b separation while preserving the original Chester insight of channeling completion drive into structured artifacts. Address: how the proof initializes from invocation + research, how information advances the proof under designer consent, how the conversation discipline channels without the failed in-conversation gating mechanisms, how the resulting proof transfers to design-specify with sufficient fidelity to produce architecture matching designer intent.",
+  "elements": {
+    "EVID-1": {
+      "id": "EVID-1",
+      "type": "EVIDENCE",
+      "statement": "design-large-task skill currently exists with two-stage Phase 4a / Phase 4b structure",
+      "source": "codebase",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {},
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[7]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      }
+    },
+    "EVID-2": {
+      "id": "EVID-2",
+      "type": "EVIDENCE",
+      "statement": "Proof MCP exists with element types: NC, Rule, Permission, Evidence, Risk, Concern, Resolve Condition, Friction",
+      "source": "codebase",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {},
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[8]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      }
+    },
+    "EVID-3": {
+      "id": "EVID-3",
+      "type": "EVIDENCE",
+      "statement": "Subagent dispatch during conversation is infeasible at >5 min/round (observed during prior cluster-c session)",
+      "source": "session-observation",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {},
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[9]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      }
+    },
+    "EVID-4": {
+      "id": "EVID-4",
+      "type": "EVIDENCE",
+      "statement": "Designer-codebase asymmetry in large systems: in 250k-LOC codebases, no human can be authority on patterns; the codebase carries knowledge no individual holds",
+      "source": "industry",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {},
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[10]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      }
+    },
+    "EVID-5": {
+      "id": "EVID-5",
+      "type": "EVIDENCE",
+      "statement": "Five prior interview systems failed in Chester sprint history (chester small-task / generic LLM-as-interviewer; classic; architectural; problemfocused; team-interview; lens architecture rebuild)",
+      "source": "prior-art",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {},
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[11]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      }
+    },
+    "EVID-6": {
+      "id": "EVID-6",
+      "type": "EVIDENCE",
+      "statement": "Channel-don't-prohibit principle is foundational in plan-mode-design-guard rationale: agent's completion drive needs productive redirection via structured artifact production, not behavioral prohibition",
+      "source": "prior-art",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {},
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[12]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      }
+    }
+  },
+  "elementCounters": {
+    "EVIDENCE": 6,
+    "RULE": 0,
+    "PERMISSION": 0,
+    "NECESSARY_CONDITION": 0,
+    "RISK": 0,
+    "RESOLVE_CONDITION": 0,
+    "FRICTION": 0
+  },
+  "conditionCountHistory": [
+    0
+  ],
+  "elementCountHistory": [
+    6
+  ],
+  "challengeModesUsed": [],
+  "challengeLog": [],
+  "revisionLog": [],
+  "phaseTransitionRound": 0,
+  "concerns": [
+    {
+      "id": "CERN-1",
+      "label": "Proof system transition into design system",
+      "description": "How to transition the design proof system into the design system (one-system architecture migration)"
+    },
+    {
+      "id": "CERN-2",
+      "label": "Interview initiation to set the proof",
+      "description": "Initiation of the interview to initially set the proof"
+    },
+    {
+      "id": "CERN-3",
+      "label": "Information presentation to advance the proof",
+      "description": "How information is presented to the designer to properly advance the proof"
+    },
+    {
+      "id": "CERN-4",
+      "label": "Proof advancement requires designer consent",
+      "description": "Agent advancing the proof without consent of the designer"
+    },
+    {
+      "id": "CERN-5",
+      "label": "Draft rule re-evaluation under new architecture",
+      "description": "All prior-corpus rules (master plan R1-R10, cluster A, cluster B.1, cluster B.2, cluster C drafts) are held as draft pending review; each requires designer ratification before inclusion in the proof"
+    },
+    {
+      "id": "CERN-6",
+      "label": "Balance between proof and interview responsibilities",
+      "description": "Balancing what the proof does versus what the interview does"
+    },
+    {
+      "id": "CERN-7",
+      "label": "Specify handoff fidelity to designer intent",
+      "description": "Proper information provided to design-specify, needed to create proper architecture that correctly addresses designer's intent"
+    }
+  ],
+  "concernsLocked": false,
+  "concernCounter": 7,
+  "ratificationLog": [],
+  "frictionLog": [],
+  "closingArgPresentedRound": null,
+  "closingArgGoRound": null,
+  "proofStatus": "open"
+}

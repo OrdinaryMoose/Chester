@@ -1,0 +1,49 @@
+{
+  "purpose": "Proof MCP initialization seed for cluster-c-restructure-understand. All rules invalidated per designer (master plan, A, B.1, B.2, all cluster C drafts). Problem statement and concerns approved. Evidence pruned to load-bearing facts only. Use this to populate the proof MCP after session restart.",
+  "session_context": {
+    "all_rules_invalidated": true,
+    "rules_invalidation_scope": "master plan R1-R10, cluster A rules, cluster B.1 R1-R9 + RC-1-5 + NCON-1-3, cluster B.2 RC1-7 + NCON-1-7 + S-RULEs, all cluster C drafts (R03, R13, R20, R24-R39)",
+    "problemfocused_mcp_excluded_from_evidence": true,
+    "session_pivots": [
+      "two-system architecture questioned and replaced by one-system (proof MCP from session start, no Phase 4a/4b separation)",
+      "lens architecture (3-lens shared-understanding mechanism) abandoned",
+      "Plan Mode confirmed failed (did nothing, caused transition friction)",
+      "subagent dispatch infeasible during conversation (>5min/round breaks feasibility)",
+      "designer-codebase asymmetry recognized (250k-LOC systems mean designer can't be authority on patterns)",
+      "channel-don't-prohibit principle is foundational from plan-mode-design-guard"
+    ]
+  },
+  "problem_statement": "Redesign design-large-task as a one-system architecture using the existing proof MCP throughout, eliminating the Phase 4a / Phase 4b separation while preserving the original Chester insight of channeling completion drive into structured artifacts. Address: how the proof initializes from invocation + research, how information advances the proof under designer consent, how the conversation discipline channels without the failed in-conversation gating mechanisms, how the resulting proof transfers to design-specify with sufficient fidelity to produce architecture matching designer intent.",
+  "concerns": [
+    {"id": "CN-1", "label": "Proof system transition into design system", "description": "How to transition the design proof system into the design system (one-system architecture migration)"},
+    {"id": "CN-2", "label": "Interview initiation to set the proof", "description": "Initiation of the interview to initially set the proof"},
+    {"id": "CN-3", "label": "Information presentation to advance the proof", "description": "How information is presented to the designer to properly advance the proof"},
+    {"id": "CN-4", "label": "Proof advancement requires designer consent", "description": "Agent advancing the proof without consent of the designer"},
+    {"id": "CN-5", "label": "Draft rule re-evaluation under new architecture", "description": "All of the draft rules — re-evaluate which apply, which dissolve, which need revising under one-system model"},
+    {"id": "CN-6", "label": "Balance between proof and interview responsibilities", "description": "Balancing what the proof does versus what the interview does"},
+    {"id": "CN-7", "label": "Specify handoff fidelity to designer intent", "description": "Proper information provided to design-specify, needed to create proper architecture that correctly addresses designer's intent"}
+  ],
+  "evidence": [
+    {"id": "EV-A", "source": "codebase", "statement": "design-large-task skill currently exists with two-stage Phase 4a / Phase 4b structure"},
+    {"id": "EV-B", "source": "codebase", "statement": "Proof MCP exists with element types: NC, Rule, Permission, Evidence, Risk, Concern, Resolve Condition, Friction"},
+    {"id": "EV-D", "source": "designer-direct", "statement": "Subagent dispatch during conversation is infeasible at >5 min/round"},
+    {"id": "EV-E", "source": "designer-direct", "statement": "Designer-codebase asymmetry: designer cannot be authority on patterns in 250k-LOC systems"},
+    {"id": "EV-F", "source": "designer-direct", "statement": "Five prior interview systems failed (chester small-task / generic LLM-as-interviewer; classic; architectural; problemfocused; team-interview; lens architecture rebuild)"},
+    {"id": "EV-G", "source": "designer-direct", "statement": "Channel-don't-prohibit principle is foundational from plan-mode-design-guard rationale: agent's completion drive needs productive redirection via structured artifact production, not behavioral prohibition"}
+  ],
+  "rules": [],
+  "permissions": [],
+  "necessary_conditions": [],
+  "risks": [],
+  "resolve_conditions": [],
+  "friction": [],
+  "phantoms": [],
+  "next_steps_for_resumed_session": [
+    "Read this seed file at session start",
+    "Initialize proof MCP with problem_statement above",
+    "Add concerns CN-1 through CN-7 via manage_concerns",
+    "Add evidence EV-A, EV-B, EV-D, EV-E, EV-F, EV-G via submit_proof_update",
+    "Begin per-turn solve cycle: agent proposes NCs/Rules/Permissions/Risks/RCs anchored to concerns; designer ratifies each; no element advances without consent (CN-4)",
+    "Closure via two-yes gate: designer reviews closing argument and says go or back"
+  ]
+}

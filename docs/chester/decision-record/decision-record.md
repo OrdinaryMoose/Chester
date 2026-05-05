@@ -642,3 +642,79 @@ artifact_refs:
   - working/20260430-02-rebuild-design-derivation/task-02-fix-trailer-write-harvest/plan/task-02-fix-trailer-write-harvest-plan-00.md
   - working/20260430-02-rebuild-design-derivation/task-02-fix-trailer-write-harvest/summary/task-02-fix-trailer-write-harvest-summary-00.md
 ---
+
+---
+id: dr-20260505-01-evidence-source-observability-rule
+date: 2026-05-05
+sprint: 20260430-02-rebuild-design-derivation/cluster-c-restructure-understand
+stage: design-large-task
+title: EVIDENCE source must name an observable source, never the designer
+decision: EVIDENCE elements in any proof MCP submission must carry a `source` that names an observable channel (codebase, industry, prior-art, session-observation, etc.); `source: "designer"` is forbidden because the designer is not a source of evidence — only observable sources are.
+rationale: A first `open_proof` call in cluster C failed validation when four evidence entries carried `source: "designer"`. The designer ratified the underlying principle: a designer-direct claim is a Rule (designer-directed restriction) or a Permission, not Evidence. EVIDENCE provenance must trace to something a third party could observe — code, industry practice, prior-art records, session traces. The proof MCP's source enum is permissive on observable labels but rejects the designer-source shape, and that asymmetry is by design. Future proof work routes designer claims to RULE/PERMISSION elements and reserves EVIDENCE for observable provenance.
+alternatives:
+  - Allow `source: "designer"` as a special EVIDENCE provenance — rejected because it conflates designer-directed restriction (RULE) with observable evidence; the type system loses meaning when a designer's claim can be either.
+  - Tighten EVIDENCE source to a closed enum like `{codebase}` only — rejected because real proof work draws on industry practice, prior-art, and in-session observation as legitimate observable sources; the closed-set would force misclassification.
+tags: [convention, mcp]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-c-restructure-understand/design/cluster-c-restructure-understand-design-00.md
+  - working/20260430-02-rebuild-design-derivation/cluster-c-restructure-understand/summary/cluster-c-restructure-understand-summary-00.md
+---
+
+---
+id: dr-20260505-02-master-rules-set-aside-cluster-internal-not-retracted
+date: 2026-05-05
+sprint: 20260430-02-rebuild-design-derivation/cluster-c-restructure-understand
+stage: design-large-task
+title: Master-plan rules set aside for a cluster's internal session, not retracted at master level
+decision: When a master-plan pivot amendment sets aside master-level rules (e.g. R1–R10) for a cluster's internal proof session, the set-aside scopes to that cluster's session only — the master rules remain authoritative for clusters that already shipped against them and for any cluster that does not invoke the pivot.
+rationale: The 2026-05-04 cluster C pivot set R1–R10 aside for cluster C's internal session per the proof seed manifest. That set-aside is now inherited by cluster D (via §11 / §12 amendments) but does not retroactively invalidate cluster A or B.1/B.2's shipped work, which remains framed by R1–R10. A blanket master-level retraction would orphan the prior clusters' provenance; the cluster-internal-scoped set-aside preserves the rule corpus while letting a single cluster reauthor what it needs. Future master-plan pivots that invalidate rules should follow the same scoping discipline: set aside for the affected cluster's session, do not retract from the master corpus.
+alternatives:
+  - Retract the set-aside rules from the master rule corpus entirely — rejected because shipped clusters were designed and ratified under those rules and a master-level retraction would orphan their provenance.
+  - Hard-fork a new master plan when rules need to be set aside — rejected as disproportionate when the inheritance chain (A and B.1/B.2 carry forward as shipped capabilities) remains intact; only the unshipped cluster's framing changes.
+tags: [process, master-plan-mode, governance]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/master-plan.md
+  - working/20260430-02-rebuild-design-derivation/CLAUDE.md
+  - working/20260430-02-rebuild-design-derivation/cluster-c-restructure-understand/design/cluster-c-restructure-understand-design-00.md
+---
+
+---
+id: dr-20260505-03-cluster-transfer-on-charter-level-reframe
+date: 2026-05-05
+sprint: 20260430-02-rebuild-design-derivation/cluster-c-restructure-understand
+stage: design-large-task
+title: Charter-level designer reframes force cluster transfer, not in-band amendment
+decision: When a designer reframe introduces organizing principles that the active cluster's charter does not carry — i.e. the reframe operates at higher altitude than the cluster's problem framing — the right move is to close the cluster without delivery and open a new sub-sprint with the reframed charter; in-band proof amendment is reserved for architecture-level moves within the existing charter altitude.
+rationale: Cluster C absorbed its 2026-05-04 architecture pivot in-band (same problem, different shape) by §11 amendment. It could not absorb its 2026-05-05 reframe (different organizing principles, different problem altitude — "Design is the code"; "Purpose is Shared Understanding") because those principles sit above the architecture choice cluster C was about to make. Mechanism-level constraints reinforced the transfer path: cluster B.1 R6 forbids problem-statement amendment after restructuring, and `manage_concerns` exposes only `add` and `lock` — no `withdraw` — so the seven existing concerns could not be replaced in-band. The discriminating signal is whether the restatement introduces organizing principles the charter does not already carry; if yes, transfer; if no, amend. This is the master plan's first cluster-without-delivery and sets the precedent for handling charter-level reframes across all future master plans.
+alternatives:
+  - Force the reframe in-band via a third pivot amendment — rejected because the charter could not carry the new organizing principles and mechanism constraints (R6, no-withdraw API) blocked the in-band path; the result would be an amendment-of-amendment chain that obscures the reframe's altitude.
+  - Discard the reframe and continue cluster C on the pre-reframe charter — rejected because the reframe was designer-ratified at higher altitude than the charter; ignoring it would commit cluster C to a problem the designer no longer wanted solved.
+  - Pause cluster C indefinitely and address the reframe later — rejected because cluster sequencing locks downstream work behind cluster C; an indefinite pause stalls the master plan, and a clean transfer preserves momentum.
+tags: [process, master-plan-mode, convention]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/master-plan.md
+  - working/20260430-02-rebuild-design-derivation/cluster-c-restructure-understand/design/cluster-c-restructure-understand-design-00.md
+  - working/20260430-02-rebuild-design-derivation/cluster-c-restructure-understand/summary/cluster-c-restructure-understand-summary-00.md
+---
+
+---
+id: dr-20260505-04-closed-without-delivery-cluster-status
+date: 2026-05-05
+sprint: 20260430-02-rebuild-design-derivation/cluster-c-restructure-understand
+stage: finish-write-records
+title: closed-without-delivery cluster lifecycle state with scope-transfer pointer
+decision: Master-plan freeze-map entries gain a `closed-without-delivery` status value paired with a `scope-transferred-to:` field naming the receiving sub-sprint, capturing clusters that produced reasoning trail and inheritance for a successor but never closed a proof or shipped code.
+rationale: Cluster C produced no shipped capability but produced load-bearing reasoning trail (two pivots, source-classification correction, vocabulary corpus) that cluster D inherits as opening seed. The existing lifecycle states (pending / active / done / split) do not describe this shape — `done` implies delivery, `pending` implies not-yet-started, `split` implies decomposition into siblings of the same charter. The new state names the actual shape: charter retired, learnings transferred, no delivery. The paired `scope-transferred-to:` field makes the inheritance pointer machine-readable so future readers and tooling can trace the chain from a closed cluster to its successor without parsing prose. Future master plans use this pair when a cluster's charter retires mid-flight under a designer reframe or other charter-level move.
+alternatives:
+  - Reuse `done` status with a prose note about non-delivery — rejected because it conflates shipped and unshipped clusters in the freeze-map, breaking the at-a-glance read of what the master plan delivered.
+  - Reuse `split` status — rejected because split implies decomposition into siblings carrying the same charter; cluster C's transfer is a charter-altitude shift to a single successor, not a decomposition.
+  - Delete the freeze-map entry entirely — rejected because the cluster's reasoning trail is paper trail and the inheritance pointer to cluster D needs to be discoverable from the master plan's index, not buried in design documents.
+tags: [convention, master-plan-mode, format]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/master-plan.md
+  - working/20260430-02-rebuild-design-derivation/cluster-c-restructure-understand/summary/cluster-c-restructure-understand-summary-00.md
+---
