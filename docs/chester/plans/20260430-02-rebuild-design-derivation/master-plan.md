@@ -1,8 +1,8 @@
 ---
 title: "Rebuild Design Derivation — Master Plan"
 path: "docs/chester/working/20260430-02-rebuild-design-derivation/master-plan.md"
-version: "v01.06"
-version_date: "2026-05-04"
+version: "v01.07"
+version_date: "2026-05-05"
 cycle_status: "Cycle-1 active"
 doc_status: "active"
 freeze_map:
@@ -12,7 +12,8 @@ freeze_map:
   - { cluster: cluster-b-2-define-solve-closing, status: done }
   - { task: task-01-fix-staleb3-label, status: done }
   - { task: task-02-fix-trailer-write-harvest, status: done }
-  - { cluster: cluster-c-restructure-understand, status: pending }
+  - { cluster: cluster-c-restructure-understand, status: closed-without-delivery, scope-transferred-to: cluster-d-build-shared-understanding }
+  - { cluster: cluster-d-build-shared-understanding, status: pending }
 ---
 
 # Rebuild Design Derivation — Master Plan
@@ -288,10 +289,118 @@ There is no Cycle-2 for this master plan. Cluster outputs feed forward into desi
 
 Cluster A is **done** (merged 2026-05-01). Cluster B was split into B.1 + B.2 (see §4.2). Cluster B.2 — Phase 4b Closing-Argument Materialization — is **done** (merged 2026-05-02). Cluster B.1 — Phase 4b Initialization (open_proof contract surface) — is **done** (merged 2026-05-04).
 
-Two refactor sub-sprints (task-01-fix-staleb3-label, task-02-fix-trailer-write-harvest; see §4.4) ran before Cluster C launch. **task-01** is **done** (merged 2026-05-04 via `3fa9ffa`). **task-02** is **done** (merged 2026-05-04 via `fbd781a`). **Cluster C — Restructure Understand** is the active sub-sprint; B.1's `REQUIRED_FIELDS_REGISTRY` and the `submission_material` shape are read-only inheritance for C. Sessions entering this master plan should default to cluster C.
+Two refactor sub-sprints (task-01-fix-staleb3-label, task-02-fix-trailer-write-harvest; see §4.4) ran before Cluster C launch. **task-01** is **done** (merged 2026-05-04 via `3fa9ffa`). **task-02** is **done** (merged 2026-05-04 via `fbd781a`).
+
+**Cluster C — Restructure Understand** is **closed without delivery 2026-05-05.** The cluster C session pivoted twice: first 2026-05-04 to a one-system architecture (eliminating the Phase 4a / Phase 4b split — see §11), then 2026-05-05 to a higher-altitude reframe organized around two designer-ratified principles ("Design is the code"; "Purpose is Shared Understanding"). The 2026-05-05 reframe restated the problem at a level cluster C's charter could not absorb in-band. Cluster C closes; its session learnings (organizing principles, reframed problem statement, seven new concerns, six evidence pieces) transfer to **Cluster D — Build Shared Understanding** (see §4.5) which becomes the active sub-sprint. Sessions entering this master plan should default to cluster D.
 
 ## 10. Known Deferments — Out of Scope
 
 Items surfaced during master-plan execution that are explicitly out of scope for this master and its task sub-sprints. Recorded here so they are not lost.
 
 - **Stamping-test dynamism.** All five `tests/test-stamping-*.sh` files are equality-pinned to a hardcoded skill version. When a stamped skill bumps for unrelated reasons, the test fails until manually re-pinned. First flagged in cluster B.1 summary L114 ("should be made dynamic in a follow-up"); re-encountered 2026-05-04 (test-stamping-design-large-task.sh re-pinned v0009 → v0011). Mitigation in place: test comment now records the bump-trail pattern. Rejected as task-03 in this master plan to preserve focus on cluster C. Deferred to post-master-plan refactor.
+
+### 4.5 Cluster D — Build Shared Understanding
+
+- **Type:** Design + implementation cluster
+- **Subdir:** `cluster-d-build-shared-understanding/`
+- **Endstate Points:** 1, 2, 3, 4 (replaces cluster C's coverage under further reframe; point 5 still cluster A's)
+- **Objective:** Build a unified design system organized around two designer-ratified organizing principles, delivering commonly understood design requirements to `design-specify`. Reframes cluster C's one-system architecture pivot at higher altitude — cluster C asked "how do we eliminate the Phase 4a / Phase 4b split"; cluster D asks "how do we create a unified design system that builds shared understanding and hands commonly understood requirements to specify."
+- **Organizing principles (designer-ratified 2026-05-05):**
+  1. **"Design is the code."** Give the agent and designer a formal language to operate with — harness the drive toward implementation back into design altitude. Rule-class: the design system speaks design, not solve.
+  2. **"The purpose is to create Shared Understanding."** Through shared understanding the design system delivers a commonly understood set of design requirements to the Specify system. Rule-class: every mechanism in the design system serves shared-understanding production.
+- **Problem statement (designer-ratified 2026-05-05):** *How do we create a unified design system that builds shared understanding of the problem that delivers commonly understood design requirements to the Specify system.*
+- **Concerns (designer-drafted 2026-05-05, sub-sprint will ratify and lock):**
+  1. Initial information available to the skill and how the initial topic and concerns are derived
+  2. Explore agents researching information relevant to our topic
+  3. Presentation layer — how information is provided to the designer to build shared understanding
+  4. Proof layer — how the agent faithfully manages information to build shared understanding
+  5. Agent and designer cooperatively advancing the proof
+  6. Proof system directing agent research for the next round presentation
+  7. Proper information provided to specify so it creates architecture that correctly addresses designer's intent
+- **Inheritance:**
+  - Cluster A + B.1 + B.2 shipped capabilities (proof MCP element types, RC, Concern, submission_material contract, restructuring + provenance, closing argument, two-yes closure gate, friction, phantoms, dispositions) — read-only inheritance
+  - Cluster C session learnings (the organizing principles, the reframed problem statement, the 7 concerns, the 6 evidence pieces with reclassified sources) — carried forward as the cluster D opening seed
+  - Master plan R1–R10 still set aside for cluster D internal session per cluster C pivot amendment; cluster D reauthors any rule it needs
+  - Vocabulary corpus at `cluster-a-define-solve/summary/vocabulary-corpus-2026-05-05.md` — read-only inheritance
+- **Exit criteria:**
+  - Cluster D design brief committed
+  - design-specify run; plan-build run; execute-write delivered
+  - The two organizing principles operationalized in the resulting `design-large-task` skill (formal-language-for-design-altitude + shared-understanding-as-purpose)
+  - Handoff from `design-large-task` to `design-specify` carries enough fidelity that specify produces architecture matching designer intent (CN-7 closure)
+- **Depends on:** Cluster A + B.1 + B.2 (all done). Inherits cluster C session as opening seed.
+- **Status:** pending
+
+## 11. Pivot Amendment — Cluster C (2026-05-04)
+
+**Trigger:** Cluster C session 2026-05-04 surfaced that the Phase 4a / Phase 4b separation is itself the structural defect cluster C was supposed to repair. Designer ratified a hard pivot to a **one-system architecture** for the design-derivation pipeline. See `cluster-c-restructure-understand/design/cluster-c-proof-seed.json` for the session-internal restart manifest.
+
+### What Changes
+
+- **§2 Endstate points 1–4** are reshaped for cluster C scope. Point 1 ("Phase 4a focuses on design-level planning") and point 2 ("Phase 4a understanding MCP revised into a more formalized language") presume a Phase 4a that the pivot dissolves. Point 3 ("Phase 4a → Phase 4b process is defined") is moot when the boundary disappears. Point 4 ("Phase 4b solve confirmed valid") survives in spirit — the proof MCP carries the full session — but the "Phase 4b" framing is retired. **Point 5 (end criteria formalized) stands unchanged.**
+- **§4.3 (Cluster C — Restructure Understand)** is retired as an active charter. Cluster C's new objective: redesign `design-large-task` as a one-system architecture using the existing proof MCP throughout, eliminating the Phase 4a / Phase 4b separation while preserving the Chester insight of channeling completion drive into structured artifacts. Concerns CN-1..CN-7 in the proof seed are the load-bearing decomposition.
+- **§6 Rules R1–R10** are set aside for cluster C's internal session per the designer-ratified rules invalidation in the proof seed. They are NOT retracted at the master level — they remain the framing under which cluster A and clusters B.1/B.2 designed and shipped. Cluster C reauthors any rule it needs.
+
+### What Stays
+
+- **§4.1 Cluster A and §4.2 Cluster B.1 + B.2 deliverables** stand unchanged. Resolve Conditions, Concerns, the open_proof submission_material contract, the closing argument materialization mechanism, the two-yes closure gate, phantoms, friction, dispositions, restructuring + provenance — all live in the proof MCP as shipped capabilities. Cluster C's one-system redesign uses these.
+- **§5 Evidence Register** stands. EVID-1 through EVID-7 remain valid evidence for the master plan's reasoning history.
+- **§7 Risks** stand as awareness items; cluster C may issue cluster-scope risks against its own proof.
+- **§8 Cycle Discipline** unchanged: cluster C is the final cluster of cycle-1. When cluster C closes, the master plan closes.
+
+### Cluster C Operative Statement
+
+> Redesign design-large-task as a one-system architecture using the existing proof MCP throughout, eliminating the Phase 4a / Phase 4b separation while preserving the original Chester insight of channeling completion drive into structured artifacts. Address: how the proof initializes from invocation + research, how information advances the proof under designer consent, how the conversation discipline channels without the failed in-conversation gating mechanisms, how the resulting proof transfers to design-specify with sufficient fidelity to produce architecture matching designer intent.
+
+Concerns CN-1..CN-7 (proof seed) anchor the redesign:
+- CN-1 Proof system transition into design system
+- CN-2 Interview initiation to set the proof
+- CN-3 Information presentation to advance the proof
+- CN-4 Proof advancement requires designer consent
+- CN-5 Draft rule re-evaluation under new architecture
+- CN-6 Balance between proof and interview responsibilities
+- CN-7 Specify handoff fidelity to designer intent
+
+### Pivot Pre-Conditions Recorded
+
+Recorded as foundational evidence for the cluster C resumed session (proof seed):
+- Subagent dispatch infeasible mid-conversation (>5 min/round breaks feasibility)
+- Designer-codebase asymmetry: designer cannot be authority on patterns in 250k-LOC systems
+- Five prior interview systems failed (chester small-task / classic / architectural / problemfocused / team-interview / lens architecture rebuild)
+- Channel-don't-prohibit principle is foundational (from plan-mode-design-guard rationale)
+
+### Freeze-Map Update
+
+`cluster-c-restructure-understand` status remains `pending` but the charter behind it is the post-pivot one-system redesign, not the original Restructure Understand objective. The freeze-map entry is unchanged; this amendment is the authoritative redirection.
+
+## 12. Reframe Amendment — Cluster C → Cluster D Transfer (2026-05-05)
+
+**Trigger:** The cluster C session resumed 2026-05-05 under the §11 one-system framing, opened a fresh proof with the seeded problem statement + 7 Concerns + 6 Evidence (post-source reclassification), surfaced a heuristic friction hint between two concerns, and during friction resolution the designer reframed the problem at higher altitude.
+
+### What Changed
+
+The 2026-05-04 pivot replaced *"restructure Phase 4a"* with *"redesign as one-system architecture using existing proof MCP."* The 2026-05-05 reframe replaces that with *"create a unified design system that builds shared understanding and delivers commonly understood requirements to Specify."*
+
+The new framing introduces two designer-ratified organizing principles:
+
+1. **"Design is the code."** Formal language for the agent and designer; the design system speaks design altitude, not solve altitude. The agent's drive toward implementation is harnessed back into design altitude through the language itself.
+2. **"The purpose is to create Shared Understanding."** The design system's reason for existing is to produce shared understanding between agent and designer. Through that shared understanding, the system delivers a commonly understood set of design requirements to Specify.
+
+The seven concerns reshape (CN-1..CN-7 from the §11 framing retire; the new seven are listed in §4.5 cluster D charter).
+
+### Why This Is a Cluster Transfer, Not Another In-Cluster Pivot
+
+The §11 one-system pivot was an architecture-level move — same problem, different shape. The 2026-05-05 reframe is a charter-level move — different problem altitude. "Eliminate the 4a/4b boundary" is a structural target; "create a unified design system that produces shared understanding for Specify handoff" is a system-purpose target. The latter dictates everything the former would design and adds two organizing principles that no cluster C charter (original or pivot) carried.
+
+Cluster B.1 R6's "in-band amendment forbidden after restructuring" applies twice over: the problem statement cannot amend in-band, and the concerns set cannot withdraw via the current MCP API. Fresh sub-sprint is the structurally correct path.
+
+### What Cluster C Leaves Behind
+
+- The pivot amendment in §11 stands as paper trail
+- The cluster C design document captures the closed session's reasoning trail (open proof state at `-state-01.json`, 7 admitted concerns, 6 evidence elements, friction hint surfacing, designer reframe)
+- The cluster D charter (§4.5) inherits cluster C's session learnings as opening seed material
+
+### Status Update
+
+- Cluster C status: **closed without delivery, scope transferred to cluster D**
+- Cluster D status: **pending** (active sub-sprint per §9)
+- Master plan endstate points 1–4 ownership transfers from cluster C to cluster D; point 5 (cluster A) unchanged

@@ -1,0 +1,1516 @@
+{
+  "session_id": "b4a20dec-920c-44e5-97e9-176acc4fb003",
+  "timestamp": "2026-05-04T16:18:07Z",
+  "sprint_name": "20260430-02-rebuild-design-derivation/cluster-c-restructure-understand",
+  "phase": "understand",
+  "understanding": {
+    "schemaVersion": "problemfocused-v0.1",
+    "userPrompt": "Cluster C of the rebuild-design-derivation master plan: restructure the targeted Phase 4a Understanding MCP (problemfocused per current swap line) so its altitude is design-level (not solve-level) and its language is formalized enough to transition cleanly into Phase 4b's proof MCP per cluster B's transition process. Settle Phase 4a operational target (what the agent builds per turn). Validate Discovery lens atomicity for Scope / Givens / Dependencies (or replace with different lenses). Define opening sequence (vocabulary first vs other). Modify only one Understanding MCP; plugin architecture (swap-line + per-flow reference files + multi-package MCP server arrangement) is preserved. Cluster A delivered Resolve Conditions (six-element category, five locked attributes) and Concerns (enumerated, PM-ratified). Cluster B delivered open_proof submission_material contract and present_closing_argument flow. Cluster C must produce Phase 4a output that Phase 4b's existing open_proof admits structurally, not via agent translation (RULE-10).",
+    "round": 0,
+    "overallThreshold": 0.65,
+    "tenetEntries": {
+      "problem_articulation": [],
+      "success_criteria": [],
+      "done_state_vision": [],
+      "constraint_envelope": [],
+      "scope_boundary": [],
+      "personal_use_case_map": [],
+      "cost_energy_budget": [],
+      "project_fit": [],
+      "open_questions_ledger": []
+    },
+    "tenetScores": {
+      "problem_articulation": 0,
+      "success_criteria": 0,
+      "done_state_vision": 0,
+      "constraint_envelope": 0,
+      "scope_boundary": 0,
+      "personal_use_case_map": 0,
+      "cost_energy_budget": 0,
+      "project_fit": 0,
+      "open_questions_ledger": 0
+    },
+    "scoreHistory": [],
+    "glossary": [
+      {
+        "canonical_name": "Phase 4a",
+        "aliases": [
+          "Understand stage",
+          "Understanding stage"
+        ],
+        "definition": "The Understand stage of design-large-task. Conversation-only stage that converges on a problem statement, glossary, and supporting evidence before the proof opens.",
+        "source": {
+          "explorer": "master-plan",
+          "artifact": "master-plan.md §3 Pre-Existing State"
+        },
+        "sense_constraints": [
+          "Designer-locked phase name. Not Phase 4 understand, not Stage A."
+        ],
+        "status": "PROPOSED-PENDING-DESIGNER",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "master-plan",
+              "artifact": "master-plan.md §3 Pre-Existing State"
+            }
+          }
+        ]
+      },
+      {
+        "canonical_name": "Phase 4b",
+        "aliases": [
+          "Solve stage"
+        ],
+        "definition": "The Solve stage of design-large-task. Builds a formal proof of necessary conditions, evidence, rules, permissions, risks, concerns, resolve conditions; closes with a closing argument.",
+        "source": {
+          "explorer": "master-plan",
+          "artifact": "master-plan.md §3 Pre-Existing State"
+        },
+        "sense_constraints": [
+          "Designer-locked phase name."
+        ],
+        "status": "PROPOSED-PENDING-DESIGNER",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "master-plan",
+              "artifact": "master-plan.md §3 Pre-Existing State"
+            }
+          }
+        ]
+      },
+      {
+        "canonical_name": "Resolve Condition",
+        "aliases": [
+          "RC",
+          "resolution claim"
+        ],
+        "definition": "Cluster A six-element category. Each carries three fields (statement, problem-anchor, ratification) and the five locked attributes (observable, designer-ratified, problem-statement-anchored, forward-looking, non-restrictive). Names what observable state counts as the problem being solved.",
+        "source": {
+          "explorer": "prior-art",
+          "artifact": "cluster-a-define-solve-design-00.md"
+        },
+        "sense_constraints": [
+          "NOT acceptance criteria (deprecated). NOT necessary condition."
+        ],
+        "status": "PROPOSED-PENDING-DESIGNER",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "prior-art",
+              "artifact": "cluster-a-define-solve-design-00.md"
+            }
+          }
+        ]
+      },
+      {
+        "canonical_name": "Concern",
+        "aliases": [],
+        "definition": "Cluster A construct. Enumerated, PM-ratified named aspect of the problem statement. Each Resolve Condition anchors to exactly one Concern; coverage requires every Concern have at least one ratified RC or covering Rule.",
+        "source": {
+          "explorer": "prior-art",
+          "artifact": "cluster-a-define-solve-design-00.md"
+        },
+        "sense_constraints": [
+          "PM-readable label, not engineer-altitude. Distinct from Risk."
+        ],
+        "status": "DEPRECATED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "prior-art",
+              "artifact": "cluster-a-define-solve-design-00.md"
+            }
+          },
+          {
+            "event": "REMOVE",
+            "round": 0,
+            "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+            "reason": "B.1 R3/R4 refined cluster A's Concern definition: caller-drafted + 4b-validated. B.1 precedence over A."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Targeted Understanding MCP",
+        "aliases": [
+          "targeted MCP",
+          "the Phase 4a flow under restructure"
+        ],
+        "definition": "The single Phase 4a flow cluster C modifies — currently the problemfocused flow per the swap line in design-large-task SKILL.md. The other two flows (classic, team-interview) are deprecation candidates handled in a future sprint, not modified by this cluster.",
+        "source": {
+          "explorer": "codebase",
+          "artifact": "skills/design-large-task/SKILL.md swap-line block"
+        },
+        "sense_constraints": [],
+        "status": "DEPRECATED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "codebase",
+              "artifact": "skills/design-large-task/SKILL.md swap-line block"
+            }
+          },
+          {
+            "event": "REMOVE",
+            "round": 0,
+            "designer_quote": "tier 1 and 2 and r28 and r29 draft are good",
+            "reason": "Old definition said 'only one flow's contents change'. Cluster C is also adding mechanism-level plugin host structure. Refresh."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Plugin architecture",
+        "aliases": [],
+        "definition": "The pluggable Phase 4a structure: a single swap-line in SKILL.md, per-flow reference files under references/, and a multi-package MCP server arrangement. Cluster C preserves this architecture; only one flow's contents change.",
+        "source": {
+          "explorer": "codebase",
+          "artifact": "skills/design-large-task/SKILL.md swap-line block + .claude-plugin/mcp.json"
+        },
+        "sense_constraints": [
+          "Architecture is Rule-locked, not redesigned."
+        ],
+        "status": "DEPRECATED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "codebase",
+              "artifact": "skills/design-large-task/SKILL.md swap-line block + .claude-plugin/mcp.json"
+            }
+          },
+          {
+            "event": "REMOVE",
+            "round": 0,
+            "designer_quote": "tier 1 and 2 and r28 and r29 draft are good",
+            "reason": "Existing 'Plugin architecture' entry described only the flow-level swap. R03 renamed it canonically. Cluster C extends with mechanism-level slots; refresh covers both layers."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Tenet",
+        "aliases": [
+          "axis",
+          "dimension"
+        ],
+        "definition": "One of the nine problem-side axes the current Phase 4a flow scores per round (problem articulation, success criteria, done-state vision, constraint envelope, scope boundary, personal use case map, cost-energy budget, project fit, open questions ledger). Each tenet has tenet-specific required fields per submission.",
+        "source": {
+          "explorer": "codebase",
+          "artifact": "skills/design-large-task/understanding-mcp-problemfocused/scoring.js TENETS"
+        },
+        "sense_constraints": [
+          "Cluster A's element-categories are not tenets. Tenets are the Understand stage's per-round building units."
+        ],
+        "status": "DEPRECATED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "codebase",
+              "artifact": "skills/design-large-task/understanding-mcp-problemfocused/scoring.js TENETS"
+            }
+          },
+          {
+            "event": "REMOVE",
+            "round": 0,
+            "designer_quote": "go with the lens",
+            "reason": "Designer ratified Option C + lens absorbs tenet. Discovery lens becomes canonical probe-scaffolding name; tenet retires. Master plan §4.3 explicitly named lens as cluster C deliverable."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Phase-Vocabulary Classifier",
+        "aliases": [
+          "altitude classifier",
+          "vocabulary classifier"
+        ],
+        "definition": "Server-enforced lexical mechanism that rejects solve-side tokens (payload, schema, sync/async, factory, hexagonal, etc.) and architectural-prescription phrases at the API boundary. Offending entries route to the Solve Leakage Ledger instead of scoring.",
+        "source": {
+          "explorer": "codebase",
+          "artifact": "scoring.js classifyPhaseVocabulary"
+        },
+        "sense_constraints": [],
+        "status": "PROPOSED-PENDING-DESIGNER",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "codebase",
+              "artifact": "scoring.js classifyPhaseVocabulary"
+            }
+          }
+        ]
+      },
+      {
+        "canonical_name": "Solve Leakage Ledger",
+        "aliases": [
+          "leakage ledger"
+        ],
+        "definition": "A per-session ledger preserving rejected solve-mode statements as Phase 4b handoff seed. Currently agent-translated into proof elements at Solve Stage opening — not structurally wired.",
+        "source": {
+          "explorer": "codebase",
+          "artifact": "scoring.js + state.js solveLeakageLedger"
+        },
+        "sense_constraints": [],
+        "status": "PROPOSED-PENDING-DESIGNER",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "codebase",
+              "artifact": "scoring.js + state.js solveLeakageLedger"
+            }
+          }
+        ]
+      },
+      {
+        "canonical_name": "Active glossary",
+        "aliases": [],
+        "definition": "The designer-ratified vocabulary tracked round-to-round. Returned in every submit response. Vocabulary actions (ADD, REMOVE, RENAME, SPLIT, MERGE, DEFER) gated by classification → action matrix. Drives canonical naming in all designer-facing output.",
+        "source": {
+          "explorer": "codebase",
+          "artifact": "scoring.js Vocabulary Lockdown Classifier"
+        },
+        "sense_constraints": [],
+        "status": "PROPOSED-PENDING-DESIGNER",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "codebase",
+              "artifact": "scoring.js Vocabulary Lockdown Classifier"
+            }
+          }
+        ]
+      },
+      {
+        "canonical_name": "Discovery lens",
+        "aliases": [
+          "lens",
+          "probing angle"
+        ],
+        "definition": "Working-glossary term from master plan: an agent-side probing angle for Phase 4a per-turn structure. Current candidates are Scope, Givens, Dependencies; cluster C validates atomicity and sufficiency, or replaces with different lenses.",
+        "source": {
+          "explorer": "master-plan",
+          "artifact": "master CLAUDE.md Vocabulary Lock — Working Glossary"
+        },
+        "sense_constraints": [
+          "Working name, revisable inside cluster C."
+        ],
+        "status": "DEPRECATED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "master-plan",
+              "artifact": "master CLAUDE.md Vocabulary Lock — Working Glossary"
+            }
+          },
+          {
+            "event": "REMOVE",
+            "round": 0,
+            "designer_quote": "go with the lens",
+            "reason": "Lens-absorbs-tenet path ratified. Discovery lens becomes canonical probe-scaffolding name; old tenet concept retires."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Pre-seeded proof",
+        "aliases": [
+          "Phase 4a output shape"
+        ],
+        "definition": "Working-glossary term from master plan: a name for Phase 4a's output shape. Cluster B settled the transition mechanism (open_proof + restructure-schema registry); cluster C settles what Phase 4a builds per turn that fills that shape.",
+        "source": {
+          "explorer": "master-plan",
+          "artifact": "master CLAUDE.md Vocabulary Lock — Working Glossary"
+        },
+        "sense_constraints": [
+          "Working name, revisable inside cluster C. NOT the proof itself — the seed material."
+        ],
+        "status": "DEPRECATED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "master-plan",
+              "artifact": "master CLAUDE.md Vocabulary Lock — Working Glossary"
+            }
+          },
+          {
+            "event": "REMOVE",
+            "round": 0,
+            "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+            "reason": "B.1 superseded master-plan working name. Designer set precedence B.1 &gt; B.2 &gt; A &gt; master plan."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Operational target",
+        "aliases": [],
+        "definition": "What the agent builds per turn at design altitude. Master plan §4.3 names this as a cluster-C deliverable to settle. Currently the per-turn product is per-tenet evidence entries; cluster C may keep, reshape, or replace that target.",
+        "source": {
+          "explorer": "master-plan",
+          "artifact": "master-plan.md §4.3 cluster C exit criteria"
+        },
+        "sense_constraints": [
+          "What the agent builds, not what the designer feels. Behavioral target, not score target."
+        ],
+        "status": "DEPRECATED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "master-plan",
+              "artifact": "master-plan.md §4.3 cluster C exit criteria"
+            }
+          },
+          {
+            "event": "REMOVE",
+            "round": 0,
+            "designer_quote": "tier 1 and 2 and r28 and r29 draft are good",
+            "reason": "R13/R26/R27 settled the two-layer model. Old definition called it a deliverable to settle; now resolved."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Structural transition",
+        "aliases": [
+          "structural handoff"
+        ],
+        "definition": "Master plan RULE-10 demand: Phase 4a output must be admissible by Phase 4b without agent reformatting. Distinct from translational transition (current state) where the agent reshapes per-tenet ledgers, leakage entries, and glossary into the open_proof submission shape.",
+        "source": {
+          "explorer": "master-plan",
+          "artifact": "master-plan.md §6 RULE-10"
+        },
+        "sense_constraints": [
+          "Opposite of translational transition."
+        ],
+        "status": "DEPRECATED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "master-plan",
+              "artifact": "master-plan.md §6 RULE-10"
+            }
+          },
+          {
+            "event": "REMOVE",
+            "round": 0,
+            "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+            "reason": "Master plan RULE-10 demand for structural transition is satisfied at boundary by B.1 NCON-2 (permissive boundary) + R9 (4b owns formatting). Cluster C produces submission material; 4b restructures."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Solve-drive",
+        "aliases": [],
+        "definition": "Designer-ratified core tenet (master plan): the agent has a built-in drive toward solving — a designed-for property. Cluster C does NOT prohibit the drive; it gives the drive a design-altitude landing target.",
+        "source": {
+          "explorer": "master-plan",
+          "artifact": "master CLAUDE.md Designer-Ratified Core Tenets"
+        },
+        "sense_constraints": [],
+        "status": "PROPOSED-PENDING-DESIGNER",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "master-plan",
+              "artifact": "master CLAUDE.md Designer-Ratified Core Tenets"
+            }
+          }
+        ]
+      },
+      {
+        "canonical_name": "Design altitude",
+        "aliases": [
+          "problem altitude",
+          "PM altitude"
+        ],
+        "definition": "The problem-side framing register: what is broken, what is wanted, what constraints exist, what the system means. Contrasted with solve altitude (how to build it, mechanisms, named patterns, type names). Phase 4a's job is to stay at design altitude.",
+        "source": {
+          "explorer": "master-plan",
+          "artifact": "master CLAUDE.md Designer-Ratified Core Tenets — Design = the problem (what), not the implementation (how)"
+        },
+        "sense_constraints": [
+          "Distinct from solve altitude."
+        ],
+        "status": "PROPOSED-PENDING-DESIGNER",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "master-plan",
+              "artifact": "master CLAUDE.md Designer-Ratified Core Tenets — Design = the problem (what), not the implementation (how)"
+            }
+          }
+        ]
+      },
+      {
+        "canonical_name": "Submission material",
+        "aliases": [
+          "caller submission",
+          "submission_material"
+        ],
+        "definition": "B.1 canonical name for the caller-output shape passed one-shot into open_proof. Free-form object containing problem_statement and an elements[] array of caller-drafted typed-element candidates (Concerns, Evidence, Rules, Permissions, Risks, NCs). Phase 4b's permissive boundary accepts any shape; restructuring inside Phase 4b absorbs reformatting. Supersedes master-plan working name 'Pre-seeded proof'.",
+        "source": null,
+        "sense_constraints": [
+          "B.1 R6: one-shot. NOT re-submittable in-band; only via fresh submission per RC-5.",
+          "B.1 R3: contains draft Concerns; caller does not validate them."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+            "reason": "B.1 superseded master-plan working name. Designer set precedence B.1 &gt; B.2 &gt; A &gt; master plan."
+          }
+        ]
+      },
+      {
+        "canonical_name": "One-shot submission",
+        "aliases": [
+          "single-shot submission",
+          "caller submission event"
+        ],
+        "definition": "B.1 R6 framing of the Phase 4a → Phase 4b handoff: the caller makes a single submission to the permissive boundary; subsequent operations are Phase-4b-internal. Translation across the boundary is absorbed by Phase 4b's restructuring phase, not avoided. Replaces master-plan working framing 'Structural transition / no-translation handoff'.",
+        "source": null,
+        "sense_constraints": [
+          "B.1 R6: in-band amendment forbidden after restructuring; only fresh submission per RC-5.",
+          "Translation is owned by Phase 4b restructuring (R9 + NCON-2), not by Phase 4a output discipline."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+            "reason": "Master plan RULE-10 demand for structural transition is satisfied at boundary by B.1 NCON-2 (permissive boundary) + R9 (4b owns formatting). Cluster C produces submission material; 4b restructures."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Concern",
+        "aliases": [
+          "draft Concern",
+          "CERN"
+        ],
+        "definition": "Caller-drafted, designer-ratified named aspect of the problem statement. B.1 R3: drafted upstream of the contract (Phase 4a's job per cluster C). B.1 R4: caller does not validate; Phase 4b validates. Each Resolve Condition anchors to exactly one Concern; coverage requires every Concern carry at least one ratified RC or covering Rule. Sequential designer ratification per cluster A (one element_id per ratify call).",
+        "source": null,
+        "sense_constraints": [
+          "B.1 R3 + R4: caller drafts, Phase 4b validates. Cluster A: PM-readable label, sequentially ratified.",
+          "Distinct from Risk."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+            "reason": "B.1 R3/R4 refined cluster A's Concern definition: caller-drafted + 4b-validated. B.1 precedence over A."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Caller",
+        "aliases": [
+          "upstream",
+          "4a-equivalent agent"
+        ],
+        "definition": "B.1 R1/R2/R9 framing: any upstream agent that submits material into Phase 4b's contract surface. Phase 4b has no knowledge of Phase 4a; it accepts submissions from any caller. Cluster C designs Phase 4a as one specific caller. The contract is reusable beyond design-large-task.",
+        "source": null,
+        "sense_constraints": [
+          "B.1 R9: caller is untrusted. Phase 4b owns formatting and structuring.",
+          "B.1 R5: cluster B.1 deemed Phase 4a out of scope; cluster C specifies the caller."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+            "reason": "B.1 R1 names the upstream of the contract surface as 'caller'. Cluster C designs the specific caller (Phase 4a problemfocused flow)."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Restructuring",
+        "aliases": [
+          "restructure phase",
+          "4b-internal restructuring"
+        ],
+        "definition": "B.1 NCON-1 phase: Phase 4b's discrete, named, observable phase between accepting a submission and opening the proof. 4b structures untrusted caller material into typed proof elements. Each element acquires a restructuring action label and a provenance record before the open gate runs.",
+        "source": null,
+        "sense_constraints": [
+          "B.1 NCON-1: discrete, named, observable. Not implicit, not inline.",
+          "Phase-4b-internal — not visible to caller until restructuring report is produced."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+            "reason": "B.1 NCON-1 introduces restructuring as a discrete phase. Cluster C's design altitude conversation references this 4b-internal verb."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Restructuring action label",
+        "aliases": [
+          "action label",
+          "restructure label"
+        ],
+        "definition": "B.1 RC-3 closed-set tag attached to each typed proof element produced during restructuring. Five values: verbatim-preserve, reshape, gap-fill, infer, derive. Empty/placeholder/redirect values cause restructuring rejection.",
+        "source": null,
+        "sense_constraints": [
+          "Closed set: verbatim-preserve | reshape | gap-fill | infer | derive."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+            "reason": "B.1 RC-3 introduces the closed-set action label. Important for cluster C: caller drafts honestly, restructuring labels how 4b reshaped each field."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Provenance",
+        "aliases": [
+          "provenance record",
+          "field provenance"
+        ],
+        "definition": "B.1 RC-4 record carried by each restructured element: (a) source caller-material citation (id, position, or quoted excerpt), (b) restructuring action label, (c) 4b-internal reasoning chain when action is reshape / gap-fill / infer / derive. Verbatim-preserve actions need only citation.",
+        "source": null,
+        "sense_constraints": [
+          "Per-element, per-field. Must point back to caller submission material."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+            "reason": "B.1 RC-4. Cluster C's caller-side discipline is shaped by what 4b will demand provenance over."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Permissive boundary",
+        "aliases": [
+          "permissive contract",
+          "permissive surface"
+        ],
+        "definition": "B.1 NCON-2: the contract surface accepts any submission shape without structural rejection at the API edge. All rigor lives in the 4b-internal restructuring phase. Means cluster C does not need perfect formatting on submission material; restructuring absorbs reshape / gap-fill / normalization.",
+        "source": null,
+        "sense_constraints": [
+          "No boundary rejection on shape. Rejection happens at the open gate after restructuring."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+            "reason": "B.1 NCON-2 reframes the entire transition discipline: caller does not need to be structurally perfect. Major shape constraint on cluster C's operational target."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Open gate",
+        "aliases": [
+          "proof open gate"
+        ],
+        "definition": "B.1 NCON-3: open is refused unless every restructured element carries a restructuring action label, a provenance record, and a 4b-internal reasoning chain (when action is reshape / gap-fill / infer / derive). Returns either status 'opened' or 'gate_failed' with a restructuring report.",
+        "source": null,
+        "sense_constraints": [
+          "Verifies artifacts before transitioning proofStatus to 'open'."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+            "reason": "B.1 NCON-3. Names the verification step between restructuring and proof open."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Closing argument",
+        "aliases": [
+          "closing arg"
+        ],
+        "definition": "B.2 RC-1: a single self-contained artifact derived as a pure read from current proof state. Walks every live Resolve Condition end-to-end with grounding back to NCs, Evidence, Rules. Includes phantom elements with closed dispositions and live friction. Designer reads in one pass; no per-section ratification.",
+        "source": null,
+        "sense_constraints": [
+          "B.2 RC-3: read-only and idempotent over current proof state.",
+          "B.2 NCON-5: self-contained, single-read, no required interactive expansion."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+            "reason": "B.2 deliverable. Final shape of Phase 4b's output to design-specify; the proof's case for itself."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Two-yes closure gate",
+        "aliases": [
+          "two-yes gate",
+          "closure gate"
+        ],
+        "definition": "B.2 NCON-4: closure permitted only when designer (1) consents to view the closing argument and (2) says 'go' against it in the same round. The 'go' IS the ratification. Any state-mutating proof tool call clears both consents.",
+        "source": null,
+        "sense_constraints": [
+          "Both flags clear on any mutation per B.2 S-RULE-7 living-document."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+            "reason": "B.2 NCON-4. Anchors how Phase 4b closes; cluster C's submission feeds the chain that ends here."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Phantom element",
+        "aliases": [
+          "phantom NC",
+          "phantom RC"
+        ],
+        "definition": "B.2 NCON-6: a NC or RC live in a prior round and later withdrawn or revised-cleared. Tagged with a closed-set disposition: consolidated, superseded, found-redundant, found-incorrect, scope-removed. Walked in the closing argument as part of the proof's reasoning trail.",
+        "source": null,
+        "sense_constraints": [
+          "Closed disposition set per NCON-6."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+            "reason": "B.2 NCON-6. Cluster C's design conversation may produce withdrawn/revised proof elements during Solve; phantom is how they live in the closing argument."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Friction",
+        "aliases": [
+          "friction element"
+        ],
+        "definition": "B.2 NCON-7: a tension between two existing proof elements. Four detection shapes: NC-NC opposing pull, RC-Rule conflict, Permission-Risk linkage, Concern-Concern competition. Stored as proof state with a closed-set disposition (lived-with, relieved-by-exception, dissolved-by-revision, dissolved-by-scope-cut, not-really-friction). Agent assigns initial; designer overrides or dismisses. Closure does not block on lived-with friction.",
+        "source": null,
+        "sense_constraints": [
+          "Four detection shapes only. Closed disposition set."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+            "reason": "B.2 NCON-7. Cluster C's Solve stage will encounter friction; vocabulary must be locked."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Disposition",
+        "aliases": [
+          "element disposition"
+        ],
+        "definition": "B.2 closed-set value attached to phantom elements (consolidated, superseded, found-redundant, found-incorrect, scope-removed) and friction elements (lived-with, relieved-by-exception, dissolved-by-revision, dissolved-by-scope-cut, not-really-friction). Names how the proof carries the element forward into the closing argument.",
+        "source": null,
+        "sense_constraints": [
+          "Two distinct closed sets: phantom dispositions and friction dispositions."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+            "reason": "B.2 vocabulary. Phantom and friction both rely on dispositions; making the term canonical avoids repeated re-explanation."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Interview Plugin system",
+        "aliases": [
+          "Plugin host architecture"
+        ],
+        "definition": "The host architecture for the design-large-task interview. Two layers of pluggability: (1) flow-level swap line in SKILL.md selecting one of the active flows (problemfocused / classic / team-interview); (2) mechanism-level plugin slots inside the targeted flow (personality slot, verbosity slot, more later per R20/R24/R25). Preserved by R03; extended by cluster C with the mechanism-level layer.",
+        "source": null,
+        "sense_constraints": [
+          "R03: preserved, not redesigned at the flow-level swap layer.",
+          "Cluster C extends with mechanism-level slots only inside the targeted flow."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "tier 1 and 2 and r28 and r29 draft are good",
+            "reason": "Existing 'Plugin architecture' entry described only the flow-level swap. R03 renamed it canonically. Cluster C extends with mechanism-level slots; refresh covers both layers."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Targeted Understanding MCP",
+        "aliases": [
+          "targeted MCP",
+          "the Phase 4a flow under restructure"
+        ],
+        "definition": "The single Phase 4a flow cluster C modifies and extends — currently the problemfocused flow per the swap line in design-large-task SKILL.md. Cluster C extends it from a monolithic flow into a plugin host with mechanism-level slots (personality, verbosity, more later). The other two flows (classic, team-interview) are deprecation candidates handled in a future sprint.",
+        "source": null,
+        "sense_constraints": [
+          "Modified AND extended by cluster C; not just edited.",
+          "Other Understanding flows out of scope per R02."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "tier 1 and 2 and r28 and r29 draft are good",
+            "reason": "Old definition said 'only one flow's contents change'. Cluster C is also adding mechanism-level plugin host structure. Refresh."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Operational target",
+        "aliases": [],
+        "definition": "What the targeted flow produces per turn under cluster C's reshape. Two layers: (1) submission contribution (uniform across active plugins, accumulating into submission material; categorized in the six B.1-admittable categories); (2) designer-facing presentation render (plugin-shaped per active personality + verbosity plugins). Plugin-stable per R13.",
+        "source": null,
+        "sense_constraints": [
+          "Two-layer: content layer (host-managed) + presentation layer (plugin-controlled).",
+          "Submission contribution is plugin-invariant; presentation render is plugin-shaped."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "tier 1 and 2 and r28 and r29 draft are good",
+            "reason": "R13/R26/R27 settled the two-layer model. Old definition called it a deliverable to settle; now resolved."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Plugin slot",
+        "aliases": [
+          "slot"
+        ],
+        "definition": "Tier 1 mechanism vocabulary: a host-side extension point that accepts at most one active plugin from a registry at any moment (R28). Each slot has its own contract — what the plugin reads from host state, what render output it produces. Today's slots: personality slot, verbosity slot. More can be added per R20.",
+        "source": null,
+        "sense_constraints": [
+          "At most one active plugin per slot per R28.",
+          "Multiple slots can be filled simultaneously per R29."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "tier 1 and 2 and r28 and r29 draft are good",
+            "reason": "Tier 1 mechanism vocab. Designer ratified Tier 1/2 split."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Plugin",
+        "aliases": [],
+        "definition": "Tier 1 mechanism vocabulary: a registered entry that fills a plugin slot when active. Stateless; reads host state and produces presentation-layer output per its slot's contract. Specific kinds (personality, verbosity) define what the plugin controls; the generic 'plugin' term names the abstraction.",
+        "source": null,
+        "sense_constraints": [
+          "Stateless. Host owns all persistent state.",
+          "Each plugin entry is registered against one specific slot."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "tier 1 and 2 and r28 and r29 draft are good",
+            "reason": "Tier 1 mechanism vocab. Generic abstraction over personality/verbosity entries."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Content layer",
+        "aliases": [],
+        "definition": "Tier 1 mechanism vocabulary: the host's content-management responsibilities — submission accumulation, vocabulary discipline, content-altitude policing, repeat-back gate, override stack, leakage ledger, structured-thinking history. Stable across plugin swaps. Plugin-invariant per R13.",
+        "source": null,
+        "sense_constraints": [
+          "Host-owned, not plugin-controlled.",
+          "Stable across plugin swaps."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "tier 1 and 2 and r28 and r29 draft are good",
+            "reason": "Tier 1. Names the host-managed half of the two-layer split."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Presentation layer",
+        "aliases": [],
+        "definition": "Tier 1 mechanism vocabulary: what plugins control — density, depth, voice, vocabulary register of the per-turn render to the designer. Plugin-shaped. Does not change submission material per R26 + R27.",
+        "source": null,
+        "sense_constraints": [
+          "Plugin-controlled, not host-owned.",
+          "Affects designer-facing output only; never submission."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "tier 1 and 2 and r28 and r29 draft are good",
+            "reason": "Tier 1. Names the plugin-controlled half of the two-layer split."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Submission contribution",
+        "aliases": [],
+        "definition": "Tier 1 mechanism vocabulary: per-turn additive output to the host's accumulating submission material. Categorized in the six B.1-admittable categories (Concerns, Evidence, Rules, Permissions, Risks, NCs). Plugin-invariant per R13. Host-managed inside the content layer.",
+        "source": null,
+        "sense_constraints": [
+          "Six B.1-admittable categories only.",
+          "Plugin-invariant: same content regardless of active plugins."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "tier 1 and 2 and r28 and r29 draft are good",
+            "reason": "Tier 1. Names what accumulates per turn into submission material."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Personality plugin",
+        "aliases": [
+          "persona plugin"
+        ],
+        "definition": "Tier 2 plugin-type vocabulary: the kind of plugin that controls presentation altitude (depth and granularity of detail surfaced to designer). Fills the personality slot. Initial registry entries per designer scenario: PM (Product Manager), Software Architect, Coding Expert. Designer-orchestrated swaps; forward-only effect.",
+        "source": null,
+        "sense_constraints": [
+          "Controls presentation altitude only; never content altitude.",
+          "Does not change submission material per R27."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "tier 1 and 2 and r28 and r29 draft are good",
+            "reason": "Tier 2. Names R27's plugin kind."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Presentation altitude",
+        "aliases": [
+          "render altitude",
+          "persona depth"
+        ],
+        "definition": "Tier 2 plugin-type vocabulary: the depth and granularity of detail surfaced to the designer in conversation, controlled by the active personality plugin. Distinct from content altitude (master-plan-locked at design altitude for submission). Coding Expert presents at deep technical altitude; PM presents at design altitude; Software Architect sits between.",
+        "source": null,
+        "sense_constraints": [
+          "Distinct from design altitude (content discipline).",
+          "Operates on presentation layer only."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "tier 1 and 2 and r28 and r29 draft are good",
+            "reason": "Tier 2. Resolves the 'altitude' overload from prior turn. Distinct from design altitude."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Verbosity plugin",
+        "aliases": [],
+        "definition": "Tier 2 plugin-type vocabulary: the kind of plugin that controls information density of the rendered text per turn. Fills the verbosity slot. Initial registry entries per designer scenario: terse, middle, high. Does not change submission material per R26.",
+        "source": null,
+        "sense_constraints": [
+          "Controls density only; never content amount or altitude.",
+          "Does not change submission material per R26."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "tier 1 and 2 and r28 and r29 draft are good",
+            "reason": "Tier 2. Names R26's plugin kind."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Discovery lens",
+        "aliases": [
+          "lens",
+          "probing angle"
+        ],
+        "definition": "Canonical name for probe scaffolding under cluster C's plugin-host model. An agent-side probing angle that drives what the host surfaces per turn (drives the personality plugin's selection of what to discuss, drives coverage tracking under R32). Distinct from submission contribution per R31; not scored; never enters submission directly. Master plan candidate set: Scope / Givens / Dependencies. Cluster C validates atomicity and sufficiency — the 9 prior-flow tenets retire under this absorption.",
+        "source": null,
+        "sense_constraints": [
+          "Probe scaffolding only; not scored, not submitted, never plugin-controlled.",
+          "Master plan candidate cardinality: 3 lenses (Scope, Givens, Dependencies). Cluster C validates or revises.",
+          "Absorbed the prior 'tenet' role per designer ratification 2026-05-04."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "go with the lens",
+            "reason": "Lens-absorbs-tenet path ratified. Discovery lens becomes canonical probe-scaffolding name; old tenet concept retires."
+          }
+        ]
+      }
+    ],
+    "vocabularyActionLog": [
+      {
+        "action": "REMOVE",
+        "target_terms": [
+          "Pre-seeded proof"
+        ],
+        "new_term": null,
+        "reason": "B.1 superseded master-plan working name. Designer set precedence B.1 &gt; B.2 &gt; A &gt; master plan.",
+        "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T11:42:01.259Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Submission material"
+        ],
+        "new_term": {
+          "canonical_name": "Submission material"
+        },
+        "reason": "B.1 superseded master-plan working name. Designer set precedence B.1 &gt; B.2 &gt; A &gt; master plan.",
+        "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T11:42:01.259Z"
+      },
+      {
+        "action": "REMOVE",
+        "target_terms": [
+          "Structural transition"
+        ],
+        "new_term": null,
+        "reason": "Master plan RULE-10 demand for structural transition is satisfied at boundary by B.1 NCON-2 (permissive boundary) + R9 (4b owns formatting). Cluster C produces submission material; 4b restructures.",
+        "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T11:42:07.779Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "One-shot submission"
+        ],
+        "new_term": {
+          "canonical_name": "One-shot submission"
+        },
+        "reason": "Master plan RULE-10 demand for structural transition is satisfied at boundary by B.1 NCON-2 (permissive boundary) + R9 (4b owns formatting). Cluster C produces submission material; 4b restructures.",
+        "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T11:42:07.779Z"
+      },
+      {
+        "action": "REMOVE",
+        "target_terms": [
+          "Concern"
+        ],
+        "new_term": null,
+        "reason": "B.1 R3/R4 refined cluster A's Concern definition: caller-drafted + 4b-validated. B.1 precedence over A.",
+        "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T11:42:14.879Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Concern"
+        ],
+        "new_term": {
+          "canonical_name": "Concern"
+        },
+        "reason": "B.1 R3/R4 refined cluster A's Concern definition: caller-drafted + 4b-validated. B.1 precedence over A.",
+        "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T11:42:14.879Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Caller"
+        ],
+        "new_term": {
+          "canonical_name": "Caller"
+        },
+        "reason": "B.1 R1 names the upstream of the contract surface as 'caller'. Cluster C designs the specific caller (Phase 4a problemfocused flow).",
+        "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T11:42:28.565Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Restructuring"
+        ],
+        "new_term": {
+          "canonical_name": "Restructuring"
+        },
+        "reason": "B.1 NCON-1 introduces restructuring as a discrete phase. Cluster C's design altitude conversation references this 4b-internal verb.",
+        "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T11:42:34.675Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Restructuring action label"
+        ],
+        "new_term": {
+          "canonical_name": "Restructuring action label"
+        },
+        "reason": "B.1 RC-3 introduces the closed-set action label. Important for cluster C: caller drafts honestly, restructuring labels how 4b reshaped each field.",
+        "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T11:42:40.391Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Provenance"
+        ],
+        "new_term": {
+          "canonical_name": "Provenance"
+        },
+        "reason": "B.1 RC-4. Cluster C's caller-side discipline is shaped by what 4b will demand provenance over.",
+        "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T11:42:45.752Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Permissive boundary"
+        ],
+        "new_term": {
+          "canonical_name": "Permissive boundary"
+        },
+        "reason": "B.1 NCON-2 reframes the entire transition discipline: caller does not need to be structurally perfect. Major shape constraint on cluster C's operational target.",
+        "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T11:42:51.480Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Open gate"
+        ],
+        "new_term": {
+          "canonical_name": "Open gate"
+        },
+        "reason": "B.1 NCON-3. Names the verification step between restructuring and proof open.",
+        "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T11:42:56.500Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Closing argument"
+        ],
+        "new_term": {
+          "canonical_name": "Closing argument"
+        },
+        "reason": "B.2 deliverable. Final shape of Phase 4b's output to design-specify; the proof's case for itself.",
+        "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T11:43:03.560Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Two-yes closure gate"
+        ],
+        "new_term": {
+          "canonical_name": "Two-yes closure gate"
+        },
+        "reason": "B.2 NCON-4. Anchors how Phase 4b closes; cluster C's submission feeds the chain that ends here.",
+        "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T11:43:09.520Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Phantom element"
+        ],
+        "new_term": {
+          "canonical_name": "Phantom element"
+        },
+        "reason": "B.2 NCON-6. Cluster C's design conversation may produce withdrawn/revised proof elements during Solve; phantom is how they live in the closing argument.",
+        "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T11:43:15.329Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Friction"
+        ],
+        "new_term": {
+          "canonical_name": "Friction"
+        },
+        "reason": "B.2 NCON-7. Cluster C's Solve stage will encounter friction; vocabulary must be locked.",
+        "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T11:43:22.153Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Disposition"
+        ],
+        "new_term": {
+          "canonical_name": "Disposition"
+        },
+        "reason": "B.2 vocabulary. Phantom and friction both rely on dispositions; making the term canonical avoids repeated re-explanation.",
+        "designer_quote": "vocabulary was refined in b1; order of precedence for all vocabulary, rules, permissions, etc is b1&gt;b2&gt;A&gt;master plan. Update",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T11:43:26.315Z"
+      },
+      {
+        "action": "REMOVE",
+        "target_terms": [
+          "Plugin architecture"
+        ],
+        "new_term": null,
+        "reason": "Existing 'Plugin architecture' entry described only the flow-level swap. R03 renamed it canonically. Cluster C extends with mechanism-level slots; refresh covers both layers.",
+        "designer_quote": "tier 1 and 2 and r28 and r29 draft are good",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T14:10:38.338Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Interview Plugin system"
+        ],
+        "new_term": {
+          "canonical_name": "Interview Plugin system"
+        },
+        "reason": "Existing 'Plugin architecture' entry described only the flow-level swap. R03 renamed it canonically. Cluster C extends with mechanism-level slots; refresh covers both layers.",
+        "designer_quote": "tier 1 and 2 and r28 and r29 draft are good",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T14:10:38.339Z"
+      },
+      {
+        "action": "REMOVE",
+        "target_terms": [
+          "Targeted Understanding MCP"
+        ],
+        "new_term": null,
+        "reason": "Old definition said 'only one flow's contents change'. Cluster C is also adding mechanism-level plugin host structure. Refresh.",
+        "designer_quote": "tier 1 and 2 and r28 and r29 draft are good",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T14:10:44.880Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Targeted Understanding MCP"
+        ],
+        "new_term": {
+          "canonical_name": "Targeted Understanding MCP"
+        },
+        "reason": "Old definition said 'only one flow's contents change'. Cluster C is also adding mechanism-level plugin host structure. Refresh.",
+        "designer_quote": "tier 1 and 2 and r28 and r29 draft are good",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T14:10:44.881Z"
+      },
+      {
+        "action": "REMOVE",
+        "target_terms": [
+          "Operational target"
+        ],
+        "new_term": null,
+        "reason": "R13/R26/R27 settled the two-layer model. Old definition called it a deliverable to settle; now resolved.",
+        "designer_quote": "tier 1 and 2 and r28 and r29 draft are good",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T14:10:52.115Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Operational target"
+        ],
+        "new_term": {
+          "canonical_name": "Operational target"
+        },
+        "reason": "R13/R26/R27 settled the two-layer model. Old definition called it a deliverable to settle; now resolved.",
+        "designer_quote": "tier 1 and 2 and r28 and r29 draft are good",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T14:10:52.115Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Plugin slot"
+        ],
+        "new_term": {
+          "canonical_name": "Plugin slot"
+        },
+        "reason": "Tier 1 mechanism vocab. Designer ratified Tier 1/2 split.",
+        "designer_quote": "tier 1 and 2 and r28 and r29 draft are good",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T14:10:56.412Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Plugin"
+        ],
+        "new_term": {
+          "canonical_name": "Plugin"
+        },
+        "reason": "Tier 1 mechanism vocab. Generic abstraction over personality/verbosity entries.",
+        "designer_quote": "tier 1 and 2 and r28 and r29 draft are good",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T14:11:00.973Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Content layer"
+        ],
+        "new_term": {
+          "canonical_name": "Content layer"
+        },
+        "reason": "Tier 1. Names the host-managed half of the two-layer split.",
+        "designer_quote": "tier 1 and 2 and r28 and r29 draft are good",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T14:11:05.508Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Presentation layer"
+        ],
+        "new_term": {
+          "canonical_name": "Presentation layer"
+        },
+        "reason": "Tier 1. Names the plugin-controlled half of the two-layer split.",
+        "designer_quote": "tier 1 and 2 and r28 and r29 draft are good",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T14:11:09.703Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Submission contribution"
+        ],
+        "new_term": {
+          "canonical_name": "Submission contribution"
+        },
+        "reason": "Tier 1. Names what accumulates per turn into submission material.",
+        "designer_quote": "tier 1 and 2 and r28 and r29 draft are good",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T14:11:13.945Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Personality plugin"
+        ],
+        "new_term": {
+          "canonical_name": "Personality plugin"
+        },
+        "reason": "Tier 2. Names R27's plugin kind.",
+        "designer_quote": "tier 1 and 2 and r28 and r29 draft are good",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T14:11:19.369Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Presentation altitude"
+        ],
+        "new_term": {
+          "canonical_name": "Presentation altitude"
+        },
+        "reason": "Tier 2. Resolves the 'altitude' overload from prior turn. Distinct from design altitude.",
+        "designer_quote": "tier 1 and 2 and r28 and r29 draft are good",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T14:11:24.235Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Verbosity plugin"
+        ],
+        "new_term": {
+          "canonical_name": "Verbosity plugin"
+        },
+        "reason": "Tier 2. Names R26's plugin kind.",
+        "designer_quote": "tier 1 and 2 and r28 and r29 draft are good",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T14:11:27.388Z"
+      },
+      {
+        "action": "REMOVE",
+        "target_terms": [
+          "Tenet"
+        ],
+        "new_term": null,
+        "reason": "Designer ratified Option C + lens absorbs tenet. Discovery lens becomes canonical probe-scaffolding name; tenet retires. Master plan §4.3 explicitly named lens as cluster C deliverable.",
+        "designer_quote": "go with the lens",
+        "classification": "DEPRECATE",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T14:18:41.327Z"
+      },
+      {
+        "action": "REMOVE",
+        "target_terms": [
+          "Discovery lens"
+        ],
+        "new_term": null,
+        "reason": "Lens-absorbs-tenet path ratified. Discovery lens becomes canonical probe-scaffolding name; old tenet concept retires.",
+        "designer_quote": "go with the lens",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T14:18:49.017Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Discovery lens"
+        ],
+        "new_term": {
+          "canonical_name": "Discovery lens"
+        },
+        "reason": "Lens-absorbs-tenet path ratified. Discovery lens becomes canonical probe-scaffolding name; old tenet concept retires.",
+        "designer_quote": "go with the lens",
+        "executed_round": 0,
+        "executed_at": "2026-05-04T14:18:49.017Z"
+      }
+    ],
+    "pendingVocabDispositions": [],
+    "termUsageHistory": {},
+    "pendingOverrides": [],
+    "solveLeakageLedger": [],
+    "repeatBackHistory": [],
+    "transition": {
+      "ready": false,
+      "reasons": [
+        "session just initialized"
+      ]
+    },
+    "transitionHistory": [],
+    "warningsHistory": []
+  },
+  "enforcement": null
+}

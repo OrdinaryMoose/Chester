@@ -141,3 +141,48 @@ This master is activated by `.active-master` breadcrumb at the working-directory
 ## Known Risks
 
 See master-plan.md section 7. RISK-1 through RISK-7 are inherited by all clusters as awareness; clusters may surface cluster-specific risks against their own proofs without master-level escalation unless a cluster's risk invalidates a master-level Rule.
+
+## Cluster D Charter — Build Shared Understanding (2026-05-05)
+
+Cluster D supersedes cluster C as the active sub-sprint. See master-plan.md §4.5 and §12 for the full charter and the reframe lineage.
+
+### Two Organizing Principles (designer-ratified 2026-05-05)
+
+1. **"Design is the code."** The design system has a formal language that the agent and designer operate within. The agent's drive toward implementation is harnessed back into design altitude through that language. Rule-class for cluster D.
+2. **"The purpose is to create Shared Understanding."** The design system's reason for existing is to produce shared understanding between agent and designer. Through shared understanding the system delivers commonly understood design requirements to Specify. Rule-class for cluster D.
+
+### Cluster D Operative Statement
+
+> How do we create a unified design system that builds shared understanding of the problem that delivers commonly understood design requirements to the Specify system.
+
+Seven concerns anchor the design (sub-sprint will ratify and lock):
+
+1. Initial information available to the skill and how the initial topic and concerns are derived
+2. Explore agents researching information relevant to our topic
+3. Presentation layer — how information is provided to the designer to build shared understanding
+4. Proof layer — how the agent faithfully manages information to build shared understanding
+5. Agent and designer cooperatively advancing the proof
+6. Proof system directing agent research for the next round presentation
+7. Proper information provided to specify so it creates architecture that correctly addresses designer's intent
+
+### Inheritance for Cluster D
+
+- All A + B.1 + B.2 shipped capabilities
+- Cluster C session learnings (organizing principles + reframed problem statement + 7 concerns + 6 evidence pieces with reclassified sources) carried forward as cluster D opening seed
+- Master plan R1–R10 still set aside per §11; cluster D reauthors any rule it needs
+- Vocabulary corpus at `cluster-a-define-solve/summary/vocabulary-corpus-2026-05-05.md`
+
+## Pivot Amendment — Cluster C (2026-05-04)
+
+Cluster C session 2026-05-04 surfaced that the Phase 4a / Phase 4b separation is the structural defect cluster C was supposed to repair. Designer ratified a **one-system architecture** pivot. See master-plan.md §11 for the full amendment and `cluster-c-restructure-understand/design/cluster-c-proof-seed.json` for the session-internal restart manifest. **Status:** Cluster C closed without delivery 2026-05-05; scope transferred to cluster D (see above).
+
+### Implications for This CLAUDE.md
+
+- **Endstate Five-Point Picture** — points 1–4 are reshaped for cluster C scope. Cluster C's new ownership is the one-system redesign. Point 5 (end criteria formalized) stands.
+- **Architecture — The Phase 4a / Phase 4b Pipeline** section is paper trail for clusters A and B; for cluster C, the 4a/4b split dissolves.
+- **Vocabulary Lock — Phase Names** (`Phase 4a`, `Phase 4b`) are preserved as immutable historical names in master plan paper trail. Cluster C's conversation does not need them; the proof MCP runs continuously without a named boundary.
+- **The Resolution-Claim Five Attributes** stand unchanged. RC element survives the pivot.
+- **What design-specify Needs (the consumer-pull shape)** stands unchanged. Constraint envelope + resolution criterion + coverage map are the master-level commitments to specify; cluster C produces them via one system rather than a two-stage handoff.
+- **Designer-Ratified Core Tenets** stand unchanged.
+- **Rules Inheritance** — master plan R1–R10 are set aside for cluster C's internal session per the proof seed. They remain the framing under which clusters A and B designed and shipped; cluster C reauthors any rule it needs.
+- **Three-Layer Discipline** unchanged.
