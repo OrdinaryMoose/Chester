@@ -547,6 +547,4 @@ async function main() {
   await server.connect(transport);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
-  main().catch(console.error);
-}
+main().catch(console.error);
