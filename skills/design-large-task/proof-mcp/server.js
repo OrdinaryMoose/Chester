@@ -313,6 +313,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         return { content: [{ type: 'text', text: `Unknown tool: ${name}` }], isError: true };
     }
   } catch (err) {
+    if (err && err.code) {
+      return {
+        content: [{ type: 'text', text: JSON.stringify({ code: err.code, message: err.message }) }],
+        isError: true,
+      };
+    }
     return { content: [{ type: 'text', text: err.message }], isError: true };
   }
 });

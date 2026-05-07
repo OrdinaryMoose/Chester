@@ -116,6 +116,15 @@ export function recordClosingArgPresented(state, consent) {
   const newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
   newState.closingArgPresentedRound = newState.round;
+  appendOperationLog(newState, {
+    round: newState.round,
+    op: 'present',
+    entityId: null,
+    type: null,
+    consent,
+    changedFields: ['closingArgPresentedRound'],
+    provenance: { presentedAtRound: newState.round },
+  });
   return [newState, null];
 }
 
@@ -721,6 +730,15 @@ export function markChallengeUsed(state, mode) {
   newState.closingArgGoRound = null;
   newState.challengeModesUsed.push(mode);
   newState.challengeLog.push(mode);
+  appendOperationLog(newState, {
+    round: newState.round,
+    op: 'mark-challenge',
+    entityId: null,
+    type: null,
+    consent: null,
+    changedFields: ['challengeModesUsed', 'challengeLog'],
+    provenance: { mode },
+  });
   return newState;
 }
 

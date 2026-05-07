@@ -38,4 +38,14 @@ describe('schema version', () => {
     const s = loadState(p);
     expect(s.schemaVersion).toBe(1);
   });
+
+  it('loadState SCHEMA_VERSION_TOO_NEW error has structured code', () => {
+    const p = tmpFile(JSON.stringify({ schemaVersion: 99, round: 0, elements: [], concerns: [] }));
+    try {
+      loadState(p);
+      throw new Error('expected loadState to throw');
+    } catch (err) {
+      expect(err.code).toBe('SCHEMA_VERSION_TOO_NEW');
+    }
+  });
 });
