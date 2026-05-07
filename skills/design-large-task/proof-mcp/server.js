@@ -8,7 +8,7 @@ import {
   initializeState, applyOperations, markChallengeUsed, saveState, loadState,
   addConcern, lockConcerns, ratifyConcern, ratifyResolveCondition,
   manageFriction, overrideFrictionDisposition,
-  recordClosingArgPresented, recordDesignerGo,
+  recordClosingArgPresented, recordDesignerGo, reopenProof,
   manageDefinitions,
   withdrawElement, withdrawConcern, withdrawDefinition,
   appendOperationLog,
@@ -260,6 +260,18 @@ const TOOLS = [
       required: ['state_file', 'consent'],
     },
   },
+  {
+    name: 'reopen_proof',
+    description: 'Reopen a closed proof. Captures the pre-reopen closing-argument envelope into lastClosureArtifact, clears both two-yes flags, and transitions proofStatus closed→open. Refuses if proof is not currently closed (NOT_CLOSED).',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        state_file: { type: 'string', description: 'Absolute path to state JSON' },
+        consent: CONSENT_SCHEMA,
+      },
+      required: ['state_file', 'consent'],
+    },
+  },
 ];
 
 // ── Request Handlers ─────────────────────────────────────────────
@@ -293,6 +305,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         return handlePresentClosingArgument(args);
       case 'confirm_closure_go':
         return handleConfirmClosureGo(args);
+      case 'reopen_proof':
+        return handleReopenProof(args);
       case 'withdraw':
         return handleWithdraw(args);
       default:
@@ -580,6 +594,25 @@ function handleConfirmClosureGo({ state_file, consent }) {
   saveState(newState, state_file);
   const closure = checkClosure(newState);
   return { content: [{ type: 'text', text: JSON.stringify(closure, null, 2) }] };
+}
+
+export function handleReopenProof({ state_file, consent }) {
+  const state = loadState(state_file);
+  const [newState, err] = reopenProof(state, consent);
+  if (err) {
+    let code;
+    if (err.startsWith('INVALID_CONSENT')) code = 'INVALID_CONSENT';
+    else if (err.startsWith('NOT_CLOSED')) code = 'NOT_CLOSED';
+    else code = 'DOMAIN_ERROR';
+    return {
+      content: [{ type: 'text', text: JSON.stringify({ code, message: err }) }],
+      isError: true,
+    };
+  }
+  saveState(newState, state_file);
+  return {
+    content: [{ type: 'text', text: JSON.stringify({ reopened: true, proofStatus: 'open' }) }],
+  };
 }
 
 /**
