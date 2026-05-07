@@ -13,43 +13,43 @@ function withFlagsSet(state) {
 describe('mutation-clears-flags', () => {
   it('applyOperations clears flags', () => {
     let s = withFlagsSet(initializeState('p'));
-    let r = applyOperations(s, [{ op: 'add', type: 'EVIDENCE', statement: 'e', source: 'codebase' }]);
+    let r = applyOperations(s, [{ op: 'add', type: 'EVIDENCE', statement: 'e', source: 'codebase' }], { source: 'designer', rationale: 'test' });
     s = r.state;
     s.closingArgPresentedRound = 3; s.closingArgGoRound = 3;
-    r = applyOperations(s, [{ op: 'add', type: 'NECESSARY_CONDITION', statement: 'NC', collapse_test: 'a', grounding: ['EVID-1'], reasoning_chain: 'IF e THEN NC' }]);
+    r = applyOperations(s, [{ op: 'add', type: 'NECESSARY_CONDITION', statement: 'NC', collapse_test: 'a', grounding: ['EVID-1'], reasoning_chain: 'IF e THEN NC' }], { source: 'designer', rationale: 'test' });
     expect(r.state.closingArgPresentedRound).toBeNull();
     expect(r.state.closingArgGoRound).toBeNull();
   });
 
   it('addConcern clears flags', () => {
     let s = withFlagsSet(initializeState('p'));
-    const [, newS] = addConcern(s, { label: 'C', description: 'd' });
+    const [, newS] = addConcern(s, { label: 'C', description: 'd' }, { source: 'designer', rationale: 'test' });
     expect(newS.closingArgPresentedRound).toBeNull();
     expect(newS.closingArgGoRound).toBeNull();
   });
 
   it('lockConcerns clears flags', () => {
     let s = initializeState('p');
-    const [, sa] = addConcern(s, { label: 'C', description: 'd' });
+    const [, sa] = addConcern(s, { label: 'C', description: 'd' }, { source: 'designer', rationale: 'test' });
     s = withFlagsSet(sa);
-    const [newS] = lockConcerns(s);
+    const [newS] = lockConcerns(s, { source: 'designer', rationale: 'test' });
     expect(newS.closingArgPresentedRound).toBeNull();
     expect(newS.closingArgGoRound).toBeNull();
   });
 
   it('ratifyResolveCondition clears flags', () => {
     let s = initializeState('p');
-    const [, sa] = addConcern(s, { label: 'C', description: 'd' });
+    const [, sa] = addConcern(s, { label: 'C', description: 'd' }, { source: 'designer', rationale: 'test' });
     s = sa;
-    [s] = lockConcerns(s);
-    let r = applyOperations(s, [{ op: 'add', type: 'EVIDENCE', statement: 'e', source: 'codebase' }]);
+    [s] = lockConcerns(s, { source: 'designer', rationale: 'test' });
+    let r = applyOperations(s, [{ op: 'add', type: 'EVIDENCE', statement: 'e', source: 'codebase' }], { source: 'designer', rationale: 'test' });
     s = r.state;
     r = applyOperations(s, [
       { op: 'add', type: 'NECESSARY_CONDITION', statement: 'NC', collapse_test: 'a', grounding: ['EVID-1'], reasoning_chain: 'IF e THEN NC' },
       { op: 'add', type: 'RESOLVE_CONDITION', statement: 'RC', problem_anchor: 'CERN-1', grounding: ['NCON-1'] },
-    ]);
+    ], { source: 'designer', rationale: 'test' });
     s = withFlagsSet(r.state);
-    const [newS] = ratifyResolveCondition(s, { elementId: 'RCON-1', ratificationText: 'ok' });
+    const [newS] = ratifyResolveCondition(s, { elementId: 'RCON-1', ratificationText: 'ok' }, { source: 'designer', rationale: 'test' });
     expect(newS.closingArgPresentedRound).toBeNull();
     expect(newS.closingArgGoRound).toBeNull();
   });
@@ -63,38 +63,38 @@ describe('mutation-clears-flags', () => {
 
   it('manageFriction add clears flags', () => {
     let s = initializeState('p');
-    let r = applyOperations(s, [{ op: 'add', type: 'EVIDENCE', statement: 'e', source: 'codebase' }]);
+    let r = applyOperations(s, [{ op: 'add', type: 'EVIDENCE', statement: 'e', source: 'codebase' }], { source: 'designer', rationale: 'test' });
     s = r.state;
     r = applyOperations(s, [
       { op: 'add', type: 'NECESSARY_CONDITION', statement: 'NC1', collapse_test: 'a', grounding: ['EVID-1'], reasoning_chain: 'IF e THEN NC1' },
       { op: 'add', type: 'NECESSARY_CONDITION', statement: 'NC2', collapse_test: 'b', grounding: ['EVID-1'], reasoning_chain: 'IF e THEN NC2' },
-    ]);
+    ], { source: 'designer', rationale: 'test' });
     s = withFlagsSet(r.state);
     const [, newS] = manageFriction(s, {
       op: 'add', friction_shape: 'nc-nc-opposing-pull',
       anchor_a: 'NCON-1', anchor_b: 'NCON-2',
       disposition: 'lived-with', statement: 'x',
-    });
+    }, { source: 'designer', rationale: 'test' });
     expect(newS.closingArgPresentedRound).toBeNull();
     expect(newS.closingArgGoRound).toBeNull();
   });
 
   it('overrideFrictionDisposition clears flags', () => {
     let s = initializeState('p');
-    let r = applyOperations(s, [{ op: 'add', type: 'EVIDENCE', statement: 'e', source: 'codebase' }]);
+    let r = applyOperations(s, [{ op: 'add', type: 'EVIDENCE', statement: 'e', source: 'codebase' }], { source: 'designer', rationale: 'test' });
     s = r.state;
     r = applyOperations(s, [
       { op: 'add', type: 'NECESSARY_CONDITION', statement: 'NC1', collapse_test: 'a', grounding: ['EVID-1'], reasoning_chain: 'IF e THEN NC1' },
       { op: 'add', type: 'NECESSARY_CONDITION', statement: 'NC2', collapse_test: 'b', grounding: ['EVID-1'], reasoning_chain: 'IF e THEN NC2' },
-    ]);
+    ], { source: 'designer', rationale: 'test' });
     s = r.state;
     [, s] = manageFriction(s, {
       op: 'add', friction_shape: 'nc-nc-opposing-pull',
       anchor_a: 'NCON-1', anchor_b: 'NCON-2',
       disposition: 'lived-with', statement: 'x',
-    });
+    }, { source: 'designer', rationale: 'test' });
     s = withFlagsSet(s);
-    const [newS] = overrideFrictionDisposition(s, { elementId: 'FRIC-1', disposition: 'relieved-by-exception' });
+    const [newS] = overrideFrictionDisposition(s, { elementId: 'FRIC-1', disposition: 'relieved-by-exception' }, { source: 'designer', rationale: 'test' });
     expect(newS.closingArgPresentedRound).toBeNull();
     expect(newS.closingArgGoRound).toBeNull();
   });

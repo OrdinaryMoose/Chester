@@ -41,6 +41,29 @@ export const WITHDRAWAL_DISPOSITIONS = [
 // branch when the field is omitted; consumed by closing-argument render as the fallback tag.
 export const UNCLASSIFIED_DISPOSITION = 'unclassified';
 
+// Consent token sources accepted by mutating tools. Every state-mutating tool requires
+// a consent token from the caller; presence + correct shape gates mutation entirely.
+export const CONSENT_SOURCES = ['designer', 'agent-proposed-designer-confirmed'];
+
+/**
+ * Validate a consent token's shape. Mutating tools must reject ({ valid: false, ... })
+ * before any state mutation, flag clear, or round increment.
+ * @param {object|undefined|null} token
+ * @returns {{valid: boolean, reason?: string}}
+ */
+export function validateConsentToken(token) {
+  if (!token || typeof token !== 'object') {
+    return { valid: false, reason: 'consent token missing or not an object' };
+  }
+  if (!CONSENT_SOURCES.includes(token.source)) {
+    return { valid: false, reason: `consent.source must be one of ${CONSENT_SOURCES.join(', ')}; got ${token.source}` };
+  }
+  if (token.rationale !== undefined && typeof token.rationale !== 'string') {
+    return { valid: false, reason: 'consent.rationale must be a string when present' };
+  }
+  return { valid: true };
+}
+
 /**
  * Create an element object from input, validating required fields by type.
  * @param {object} input - Element fields from caller

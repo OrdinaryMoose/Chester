@@ -10,7 +10,7 @@ import {
   manageFriction, overrideFrictionDisposition,
   recordClosingArgPresented, recordDesignerGo,
 } from './state.js';
-import { checkAllIntegrity, FRICTION_SHAPES, FRICTION_DISPOSITIONS, WITHDRAWAL_DISPOSITIONS } from './proof.js';
+import { checkAllIntegrity, FRICTION_SHAPES, FRICTION_DISPOSITIONS, WITHDRAWAL_DISPOSITIONS, CONSENT_SOURCES } from './proof.js';
 import {
   computeCompleteness, computeGroundingCoverage, detectChallenge, checkClosure,
   checkConcernCoverage, evaluateTrigger,
@@ -22,10 +22,35 @@ import { existsSync } from 'node:fs';
 
 const ELEMENT_TYPES = ['EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK', 'RESOLVE_CONDITION', 'FRICTION'];
 
+// Shared schema fragment for the consent token required by every mutating tool.
+const CONSENT_SCHEMA = {
+  type: 'object',
+  description: 'Consent token authorizing this mutation. Required by all mutating tools.',
+  properties: {
+    source: {
+      type: 'string',
+      enum: CONSENT_SOURCES,
+      description: 'Origin of the consent.',
+    },
+    rationale: { type: 'string', description: 'Optional rationale for the mutation.' },
+  },
+  required: ['source'],
+};
+
 const server = new Server(
   { name: 'chester-design-proof', version: '2.0.0' },
   { capabilities: { tools: {} } }
 );
+
+// Classify a state-layer error string into the MCP error response shape.
+// INVALID_CONSENT: ... is the only currently-defined coded class; everything else
+// is a domain error (e.g. integrity check failure, NOT_FOUND).
+function classifyStateError(err) {
+  return {
+    code: err.startsWith('INVALID_CONSENT') ? 'INVALID_CONSENT' : 'DOMAIN_ERROR',
+    message: err,
+  };
+}
 
 // ── Tool Definitions ─────────────────────────────────────────────
 
@@ -77,8 +102,9 @@ const TOOLS = [
           enum: ['contrarian', 'simplifier', 'ontologist'],
           description: 'Optional challenge mode used this round',
         },
+        consent: CONSENT_SCHEMA,
       },
-      required: ['state_file', 'operations'],
+      required: ['state_file', 'operations', 'consent'],
     },
   },
   {
@@ -102,8 +128,9 @@ const TOOLS = [
         op: { type: 'string', enum: ['add', 'lock'] },
         label: { type: 'string', description: 'Concern label (required for op=add)' },
         description: { type: 'string', description: 'Optional Concern description (op=add only)' },
+        consent: CONSENT_SCHEMA,
       },
-      required: ['state_file', 'op'],
+      required: ['state_file', 'op', 'consent'],
     },
   },
   {
@@ -119,8 +146,9 @@ const TOOLS = [
         anchor_b: { type: 'string', description: 'Second anchor element ID' },
         disposition: { type: 'string', enum: FRICTION_DISPOSITIONS, description: 'Designer\'s stance toward this friction' },
         statement: { type: 'string', description: 'Optional human-readable description of the tension' },
+        consent: CONSENT_SCHEMA,
       },
-      required: ['state_file', 'op', 'friction_shape', 'anchor_a', 'anchor_b', 'disposition'],
+      required: ['state_file', 'op', 'friction_shape', 'anchor_a', 'anchor_b', 'disposition', 'consent'],
     },
   },
   {
@@ -132,8 +160,9 @@ const TOOLS = [
         state_file: { type: 'string', description: 'Absolute path to state JSON' },
         element_id: { type: 'string', description: 'FRIC-N ID of the friction to update' },
         disposition: { type: 'string', enum: FRICTION_DISPOSITIONS, description: 'New disposition' },
+        consent: CONSENT_SCHEMA,
       },
-      required: ['state_file', 'element_id', 'disposition'],
+      required: ['state_file', 'element_id', 'disposition', 'consent'],
     },
   },
   {
@@ -157,8 +186,9 @@ const TOOLS = [
         state_file: { type: 'string', description: 'Absolute path to state JSON' },
         element_id: { type: 'string', description: 'RCON-N ID of the Resolve Condition to ratify' },
         ratification: { type: 'string', description: "PM's sign-off text" },
+        consent: CONSENT_SCHEMA,
       },
-      required: ['state_file', 'element_id', 'ratification'],
+      required: ['state_file', 'element_id', 'ratification', 'consent'],
     },
   },
   {
@@ -168,8 +198,9 @@ const TOOLS = [
       type: 'object',
       properties: {
         state_file: { type: 'string', description: 'Absolute path to state JSON' },
+        consent: CONSENT_SCHEMA,
       },
-      required: ['state_file'],
+      required: ['state_file', 'consent'],
     },
   },
   {
@@ -179,8 +210,9 @@ const TOOLS = [
       type: 'object',
       properties: {
         state_file: { type: 'string', description: 'Absolute path to state JSON' },
+        consent: CONSENT_SCHEMA,
       },
-      required: ['state_file'],
+      required: ['state_file', 'consent'],
     },
   },
 ];
@@ -224,10 +256,24 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
 // ── Tool Handlers ────────────────────────────────────────────────
 
-function handleSubmitProofUpdate({ state_file, operations, challenge_used }) {
+function handleSubmitProofUpdate({ state_file, operations, challenge_used, consent }) {
   let state = loadState(state_file);
 
-  const result = applyOperations(state, operations);
+  const result = applyOperations(state, operations, consent);
+
+  const consentRejected = result.errors.some(e => typeof e === 'string' && e.startsWith('INVALID_CONSENT'));
+  if (consentRejected) {
+    return {
+      content: [{
+        type: 'text',
+        text: JSON.stringify({
+          code: 'INVALID_CONSENT',
+          message: result.errors.find(e => e.startsWith('INVALID_CONSENT')),
+        }),
+      }],
+      isError: true,
+    };
+  }
 
   const anySuccess = result.added.length > 0 ||
     result.revised.length > 0 ||
@@ -301,23 +347,23 @@ function handleGetProofState({ state_file }) {
   return { content: [{ type: 'text', text: JSON.stringify(response) }] };
 }
 
-function handleManageConcerns({ state_file, op, label, description }) {
+function handleManageConcerns({ state_file, op, label, description, consent }) {
   let state = loadState(state_file);
   if (op === 'add') {
     if (!label) {
       return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: 'label required for op=add' }) }], isError: true };
     }
-    const [concernId, newState, friction_hints, err] = addConcern(state, { label, description });
+    const [concernId, newState, friction_hints, err] = addConcern(state, { label, description }, consent);
     if (err) {
-      return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: err }) }], isError: true };
+      return { content: [{ type: 'text', text: JSON.stringify(classifyStateError(err)) }], isError: true };
     }
     saveState(newState, state_file);
     return { content: [{ type: 'text', text: JSON.stringify({ status: 'accepted', concern_id: concernId, concerns_count: newState.concerns.length, friction_hints }) }] };
   }
   if (op === 'lock') {
-    const [newState, friction_hints, err] = lockConcerns(state);
+    const [newState, friction_hints, err] = lockConcerns(state, consent);
     if (err) {
-      return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: err }) }], isError: true };
+      return { content: [{ type: 'text', text: JSON.stringify(classifyStateError(err)) }], isError: true };
     }
     saveState(newState, state_file);
     return { content: [{ type: 'text', text: JSON.stringify({ status: 'accepted', locked: true, concerns_count: newState.concerns.length, friction_hints }) }] };
@@ -325,11 +371,11 @@ function handleManageConcerns({ state_file, op, label, description }) {
   return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: `Unknown op: ${op}` }) }], isError: true };
 }
 
-function handleManageFriction({ state_file, op, friction_shape, anchor_a, anchor_b, disposition, statement }) {
+function handleManageFriction({ state_file, op, friction_shape, anchor_a, anchor_b, disposition, statement, consent }) {
   let state = loadState(state_file);
-  const [fricId, newState, friction_hints, err] = manageFriction(state, { op, friction_shape, anchor_a, anchor_b, disposition, statement });
+  const [fricId, newState, friction_hints, err] = manageFriction(state, { op, friction_shape, anchor_a, anchor_b, disposition, statement }, consent);
   if (err) {
-    return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: err }) }], isError: true };
+    return { content: [{ type: 'text', text: JSON.stringify(classifyStateError(err)) }], isError: true };
   }
   saveState(newState, state_file);
   return {
@@ -346,11 +392,11 @@ function handleManageFriction({ state_file, op, friction_shape, anchor_a, anchor
   };
 }
 
-function handleOverrideFrictionDisposition({ state_file, element_id, disposition }) {
+function handleOverrideFrictionDisposition({ state_file, element_id, disposition, consent }) {
   let state = loadState(state_file);
-  const [newState, friction_hints, err] = overrideFrictionDisposition(state, { elementId: element_id, disposition });
+  const [newState, friction_hints, err] = overrideFrictionDisposition(state, { elementId: element_id, disposition }, consent);
   if (err) {
-    return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: err }) }], isError: true };
+    return { content: [{ type: 'text', text: JSON.stringify(classifyStateError(err)) }], isError: true };
   }
   saveState(newState, state_file);
   const target = newState.elements.get(element_id);
@@ -368,11 +414,11 @@ function handleOverrideFrictionDisposition({ state_file, element_id, disposition
   };
 }
 
-function handleRatifyResolveCondition({ state_file, element_id, ratification }) {
+function handleRatifyResolveCondition({ state_file, element_id, ratification, consent }) {
   let state = loadState(state_file);
-  const [newState, friction_hints, err] = ratifyResolveCondition(state, { elementId: element_id, ratificationText: ratification });
+  const [newState, friction_hints, err] = ratifyResolveCondition(state, { elementId: element_id, ratificationText: ratification }, consent);
   if (err) {
-    return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: err }) }], isError: true };
+    return { content: [{ type: 'text', text: JSON.stringify(classifyStateError(err)) }], isError: true };
   }
   saveState(newState, state_file);
   const target = newState.elements.get(element_id);
@@ -392,22 +438,30 @@ function handleRatifyResolveCondition({ state_file, element_id, ratification }) 
   };
 }
 
-function handlePresentClosingArgument({ state_file }) {
+function handlePresentClosingArgument({ state_file, consent }) {
   let state = loadState(state_file);
   const trigger = evaluateTrigger(state);
   if (!trigger.permitted) {
     return { content: [{ type: 'text', text: JSON.stringify({ permitted: false, reasons: trigger.reasons }, null, 2) }] };
   }
   const argument = deriveClosingArgument(state);
-  state = recordClosingArgPresented(state);
+  const [newState, presentErr] = recordClosingArgPresented(state, consent);
+  if (presentErr) {
+    const code = presentErr.startsWith('INVALID_CONSENT') ? 'INVALID_CONSENT' : 'DOMAIN_ERROR';
+    return { content: [{ type: 'text', text: JSON.stringify({ code, message: presentErr }) }], isError: true };
+  }
+  state = newState;
   saveState(state, state_file);
   return { content: [{ type: 'text', text: JSON.stringify(argument, null, 2) }] };
 }
 
-function handleConfirmClosureGo({ state_file }) {
+function handleConfirmClosureGo({ state_file, consent }) {
   let state = loadState(state_file);
-  const [newState, err] = recordDesignerGo(state);
+  const [newState, err] = recordDesignerGo(state, consent);
   if (err) {
+    if (err.startsWith('INVALID_CONSENT')) {
+      return { content: [{ type: 'text', text: JSON.stringify({ code: 'INVALID_CONSENT', message: err }) }], isError: true };
+    }
     return { content: [{ type: 'text', text: JSON.stringify({ permitted: false, reason: err }, null, 2) }] };
   }
   saveState(newState, state_file);
@@ -476,7 +530,11 @@ export function handleOpenProof({ state_file, submission_material }) {
   const admittedConcerns = restructured.admitted.filter(a => a.category === 'Concern');
 
   const ops = admittedTypedElements.map(adm => admittedToAddOp(adm));
-  const applyResult = applyOperations(state, ops);
+  // open_proof bridges untrusted submission to typed elements; consent is the
+  // open_proof submission itself. Synthesize an internal token here; Task 11
+  // will lift consent to the open_proof boundary.
+  const openProofConsent = { source: 'agent-proposed-designer-confirmed', rationale: 'open_proof submission gate' };
+  const applyResult = applyOperations(state, ops, openProofConsent);
 
   // Surface applyOperations errors per Plan-Wide Implementation Discipline.
   if (applyResult.errors && applyResult.errors.length > 0) {
@@ -501,7 +559,7 @@ export function handleOpenProof({ state_file, submission_material }) {
     const [, concernState] = addConcern(state, {
       label: concernCandidate.label,
       description: concernCandidate.description,
-    });
+    }, openProofConsent);
     state = concernState;
   }
 

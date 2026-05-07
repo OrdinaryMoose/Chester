@@ -10,7 +10,7 @@
  */
 
 import { readFileSync, writeFileSync, renameSync } from 'fs';
-import { createElement, validateRefs, checkAllIntegrity, FRICTION_DISPOSITIONS, TERMINAL_FRICTION_DISPOSITIONS, WITHDRAWAL_DISPOSITIONS, UNCLASSIFIED_DISPOSITION, SCHEMA_VERSION } from './proof.js';
+import { createElement, validateRefs, checkAllIntegrity, FRICTION_DISPOSITIONS, TERMINAL_FRICTION_DISPOSITIONS, WITHDRAWAL_DISPOSITIONS, UNCLASSIFIED_DISPOSITION, SCHEMA_VERSION, validateConsentToken } from './proof.js';
 import { computeCompleteness, computeGroundingCoverage, detectChallenge, detectStall, checkClosure } from './metrics.js';
 import { runFrictionDetection } from './friction-detection.js';
 
@@ -77,13 +77,18 @@ export function clearClosingFlags(state) {
  * Record that the closing argument was presented in the current round.
  * Returns a new state without mutating input.
  * @param {object} state
- * @returns {object}
+ * @param {object} consent - Consent token; validated pre-flight.
+ * @returns {[object, string|null]} [newState, error]
  */
-export function recordClosingArgPresented(state) {
+export function recordClosingArgPresented(state, consent) {
+  const consentCheck = validateConsentToken(consent);
+  if (!consentCheck.valid) {
+    return [state, `INVALID_CONSENT: ${consentCheck.reason}`];
+  }
   const newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
   newState.closingArgPresentedRound = newState.round;
-  return newState;
+  return [newState, null];
 }
 
 /**
@@ -91,9 +96,14 @@ export function recordClosingArgPresented(state) {
  * presented in the current round (mismatch indicates state has shifted since
  * presentation; designer must re-present).
  * @param {object} state
+ * @param {object} consent - Consent token; validated pre-flight.
  * @returns {[object, string|null]} [newState, error]
  */
-export function recordDesignerGo(state) {
+export function recordDesignerGo(state, consent) {
+  const consentCheck = validateConsentToken(consent);
+  if (!consentCheck.valid) {
+    return [state, `INVALID_CONSENT: ${consentCheck.reason}`];
+  }
   if (state.closingArgPresentedRound !== state.round) {
     const presentedDesc = state.closingArgPresentedRound ?? 'never';
     return [state, `closing argument presented in round ${presentedDesc}, current round ${state.round}; call present_closing_argument first`];
@@ -145,7 +155,11 @@ function processFriction(state) {
  * @param {{label: string, description?: string}} input
  * @returns {[string|null, object, Array<object>, string|null]} [concernId, newState, friction_hints, error]
  */
-export function addConcern(state, { label, description }) {
+export function addConcern(state, { label, description }, consent) {
+  const consentCheck = validateConsentToken(consent);
+  if (!consentCheck.valid) {
+    return [null, state, [], `INVALID_CONSENT: ${consentCheck.reason}`];
+  }
   if (state.concernsLocked) {
     return [null, state, [], 'Concerns are locked; cannot add'];
   }
@@ -166,7 +180,11 @@ export function addConcern(state, { label, description }) {
  * @param {object} state
  * @returns {[object, Array<object>, string|null]} [newState, friction_hints, error]
  */
-export function lockConcerns(state) {
+export function lockConcerns(state, consent) {
+  const consentCheck = validateConsentToken(consent);
+  if (!consentCheck.valid) {
+    return [state, [], `INVALID_CONSENT: ${consentCheck.reason}`];
+  }
   if (state.concernsLocked) {
     return [state, [], 'Concerns already locked'];
   }
@@ -190,7 +208,11 @@ export function lockConcerns(state) {
  * @param {{elementId: string, ratificationText: string}} input
  * @returns {[object, Array<object>, string|null]} [newState, friction_hints, error]
  */
-export function ratifyResolveCondition(state, { elementId, ratificationText }) {
+export function ratifyResolveCondition(state, { elementId, ratificationText }, consent) {
+  const consentCheck = validateConsentToken(consent);
+  if (!consentCheck.valid) {
+    return [state, [], `INVALID_CONSENT: ${consentCheck.reason}`];
+  }
   const target = state.elements.get(elementId);
   if (!target) {
     return [state, [], `Element "${elementId}" not found`];
@@ -245,7 +267,24 @@ export function generateId(state, type) {
  * @param {Array<object>} operations
  * @returns {object}
  */
-export function applyOperations(state, operations) {
+export function applyOperations(state, operations, consent) {
+  const consentCheck = validateConsentToken(consent);
+  if (!consentCheck.valid) {
+    // Preserve return-object shape; do NOT clone, increment round, or clear flags.
+    return {
+      state,
+      added: [],
+      revised: [],
+      withdrawn: [],
+      errors: [`INVALID_CONSENT: ${consentCheck.reason}`],
+      integrityWarnings: [],
+      completeness: null,
+      challengeTrigger: null,
+      stallDetected: false,
+      closure: { permitted: false, reasons: [] },
+      friction_hints: [],
+    };
+  }
   let current = structuredClone(state);
   current.elements = cloneElements(state.elements);
   current.closingArgPresentedRound = null;
@@ -486,7 +525,11 @@ export function loadState(filePath) {
  * @param {object} input - { op: 'add', friction_shape, anchor_a, anchor_b, disposition, statement? }
  * @returns {[string|null, object, Array<object>, string|null]} [id, newState, friction_hints, error] — id is null when error is non-null. Mirrors addConcern.
  */
-export function manageFriction(state, input) {
+export function manageFriction(state, input, consent) {
+  const consentCheck = validateConsentToken(consent);
+  if (!consentCheck.valid) {
+    return [null, state, [], `INVALID_CONSENT: ${consentCheck.reason}`];
+  }
   const { op } = input;
   if (op !== 'add') {
     return [null, state, [], `Unknown manage_friction op: ${op}`];
@@ -526,7 +569,11 @@ export function manageFriction(state, input) {
  * @param {{elementId: string, disposition: string}} input
  * @returns {[object, Array<object>, string|null]} [newState, friction_hints, error]
  */
-export function overrideFrictionDisposition(state, { elementId, disposition }) {
+export function overrideFrictionDisposition(state, { elementId, disposition }, consent) {
+  const consentCheck = validateConsentToken(consent);
+  if (!consentCheck.valid) {
+    return [state, [], `INVALID_CONSENT: ${consentCheck.reason}`];
+  }
   const target = state.elements.get(elementId);
   if (!target) {
     return [state, [], `unknown element id: ${elementId}`];

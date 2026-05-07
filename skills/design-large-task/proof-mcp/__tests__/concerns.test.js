@@ -15,23 +15,23 @@ describe('Concerns lifecycle — full integration', () => {
 
   it('enumerate → lock → add RC → ratify → close', () => {
     let state = initializeState('How to ensure correctness?');
-    [, state] = addConcern(state, { label: 'Correctness', description: 'system rejects invalid input' });
-    [, state] = addConcern(state, { label: 'Performance' });
-    [state] = lockConcerns(state);
+    [, state] = addConcern(state, { label: 'Correctness', description: 'system rejects invalid input' }, { source: 'designer', rationale: 'test' });
+    [, state] = addConcern(state, { label: 'Performance' }, { source: 'designer', rationale: 'test' });
+    [state] = lockConcerns(state, { source: 'designer', rationale: 'test' });
 
     let result = applyOperations(state, [
       { op: 'add', type: 'EVIDENCE', statement: 'audit', source: 'codebase' },
       { op: 'add', type: 'NECESSARY_CONDITION', statement: 'must validate', grounding: ['EVID-1'], collapse_test: 'breaks', reasoning_chain: 'IF...THEN', rejected_alternatives: ['skip'] },
       { op: 'add', type: 'RESOLVE_CONDITION', statement: 'invalid input rejected', problem_anchor: 'CERN-1' },
-    ]);
+    ], { source: 'designer', rationale: 'test' });
     expect(result.errors).toEqual([]);
     state = result.state;
-    [state] = ratifyResolveCondition(state, { elementId: 'RCON-1', ratificationText: 'PM approves' });
+    [state] = ratifyResolveCondition(state, { elementId: 'RCON-1', ratificationText: 'PM approves' }, { source: 'designer', rationale: 'test' });
 
     result = applyOperations(state, [
       { op: 'add', type: 'RULE', statement: 'preserve performance baseline', source: 'designer' },
       { op: 'revise', target: 'NCON-1', statement: 'must validate inputs robustly' },
-    ]);
+    ], { source: 'designer', rationale: 'test' });
     expect(result.errors).toEqual([]);
     state = result.state;
     state.phaseTransitionRound = 1;
@@ -47,10 +47,10 @@ describe('Concerns lifecycle — full integration', () => {
 
   it('refuses to add Concern after lock; coverage refuses on uncovered Concern', () => {
     let state = initializeState('test');
-    [, state] = addConcern(state, { label: 'A' });
-    [, state] = addConcern(state, { label: 'B' });
-    [state] = lockConcerns(state);
-    const [id, sameState, , err] = addConcern(state, { label: 'C' });
+    [, state] = addConcern(state, { label: 'A' }, { source: 'designer', rationale: 'test' });
+    [, state] = addConcern(state, { label: 'B' }, { source: 'designer', rationale: 'test' });
+    [state] = lockConcerns(state, { source: 'designer', rationale: 'test' });
+    const [id, sameState, , err] = addConcern(state, { label: 'C' }, { source: 'designer', rationale: 'test' });
     expect(id).toBeNull();
     expect(err).toMatch(/locked/i);
     expect(sameState.concerns).toHaveLength(2);
@@ -60,7 +60,7 @@ describe('Concerns lifecycle — full integration', () => {
     const result = applyOperations(state, [
       { op: 'add', type: 'EVIDENCE', statement: 'fact', source: 'codebase' },
       { op: 'add', type: 'NECESSARY_CONDITION', statement: 'NC', grounding: ['EVID-1'], collapse_test: 'breaks', reasoning_chain: 'IF...THEN', rejected_alternatives: ['alt'] },
-    ]);
+    ], { source: 'designer', rationale: 'test' });
     state = result.state;
     state.elements.get('NCON-1').revisedInRound = 2;
     const closure = checkClosure(state);
@@ -71,13 +71,13 @@ describe('Concerns lifecycle — full integration', () => {
 
   it('round-trips state with concerns + ratificationLog through saveState/loadState', () => {
     let state = initializeState('test');
-    [, state] = addConcern(state, { label: 'X', description: 'd' });
-    [state] = lockConcerns(state);
+    [, state] = addConcern(state, { label: 'X', description: 'd' }, { source: 'designer', rationale: 'test' });
+    [state] = lockConcerns(state, { source: 'designer', rationale: 'test' });
     const result = applyOperations(state, [
       { op: 'add', type: 'RESOLVE_CONDITION', statement: 's', problem_anchor: 'CERN-1' },
-    ]);
+    ], { source: 'designer', rationale: 'test' });
     state = result.state;
-    [state] = ratifyResolveCondition(state, { elementId: 'RCON-1', ratificationText: 'ok' });
+    [state] = ratifyResolveCondition(state, { elementId: 'RCON-1', ratificationText: 'ok' }, { source: 'designer', rationale: 'test' });
 
     const path = join(tmp, 'state.json');
     saveState(state, path);
