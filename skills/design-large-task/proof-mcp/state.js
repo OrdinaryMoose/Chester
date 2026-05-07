@@ -10,7 +10,7 @@
  */
 
 import { readFileSync, writeFileSync } from 'fs';
-import { createElement, validateRefs, checkAllIntegrity, FRICTION_DISPOSITIONS, TERMINAL_FRICTION_DISPOSITIONS, WITHDRAWAL_DISPOSITIONS, UNCLASSIFIED_DISPOSITION } from './proof.js';
+import { createElement, validateRefs, checkAllIntegrity, FRICTION_DISPOSITIONS, TERMINAL_FRICTION_DISPOSITIONS, WITHDRAWAL_DISPOSITIONS, UNCLASSIFIED_DISPOSITION, SCHEMA_VERSION } from './proof.js';
 import { computeCompleteness, computeGroundingCoverage, detectChallenge, detectStall, checkClosure } from './metrics.js';
 import { runFrictionDetection } from './friction-detection.js';
 
@@ -31,6 +31,7 @@ const ID_PREFIX = {
  */
 export function initializeState(problemStatement) {
   return {
+    schemaVersion: SCHEMA_VERSION,
     round: 0,
     problemStatement,
     elements: new Map(),
@@ -448,6 +449,14 @@ export function saveState(state, filePath) {
  */
 export function loadState(filePath) {
   const raw = JSON.parse(readFileSync(filePath, 'utf-8'));
+  // Refuse forward-incompatible state before any backfill — newer schemas may
+  // carry fields whose absence we'd silently paper over with `??=` defaults.
+  if (raw.schemaVersion !== undefined && raw.schemaVersion > SCHEMA_VERSION) {
+    const err = new Error(`schemaVersion ${raw.schemaVersion} exceeds runtime SCHEMA_VERSION ${SCHEMA_VERSION}`);
+    err.code = 'SCHEMA_VERSION_TOO_NEW';
+    throw err;
+  }
+  raw.schemaVersion ??= SCHEMA_VERSION;
   raw.elements = new Map(Object.entries(raw.elements));
   // Backfill cluster-A fields when loading pre-cluster-A state files
   raw.concerns ??= [];

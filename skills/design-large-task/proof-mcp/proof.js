@@ -10,6 +10,11 @@
  *   RISK       — identified hazards attached to specific conditions
  */
 
+// Schema version for persisted state files. Bump on any breaking change to the
+// on-disk shape; loadState refuses files whose schemaVersion exceeds this value
+// and backfills the field on older files that predate versioning.
+export const SCHEMA_VERSION = 1;
+
 export const ELEMENT_TYPES = [
   'EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK', 'RESOLVE_CONDITION', 'FRICTION',
 ];
