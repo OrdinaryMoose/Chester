@@ -476,6 +476,14 @@ export function applyOperations(state, operations, consent) {
             fields: semanticFieldsChanged,
           });
         }
+        // Reset NC ratificationStatus to 'draft' on statement or grounding revise
+        // (NC-18, RULE-8). Mirrors RC ratification-clearing-on-revise.
+        if (
+          target.type === 'NECESSARY_CONDITION' &&
+          (op.statement !== undefined || op.grounding !== undefined)
+        ) {
+          target.ratificationStatus = 'draft';
+        }
         target.revision++;
         target.revisedInRound = current.round;
         current.revisionLog.push({
@@ -649,6 +657,8 @@ export function loadState(filePath) {
     el.problem_anchor ??= null;
     el.ratification ??= null;
     if (el.status === 'withdrawn') el.withdrawal_disposition ??= UNCLASSIFIED_DISPOSITION;
+    // NC-only ratificationStatus (NC-18, RULE-8): legacy NCs default to 'draft'.
+    if (el.type === 'NECESSARY_CONDITION') el.ratificationStatus ??= 'draft';
   }
   return raw;
 }

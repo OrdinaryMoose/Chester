@@ -183,6 +183,11 @@ export function createElement(input, id, round) {
     revisedInRound: null,
     revision: 0,
   };
+  // NC-only ratificationStatus (NC-18, RULE-8): bulk-ratified at confirm_closure_go;
+  // any revise of statement or grounding resets to 'draft'. Orthogonal to .status.
+  if (type === 'NECESSARY_CONDITION') {
+    element.ratificationStatus = 'draft';
+  }
   if (restructuring) {
     element.restructuring = restructuring;
   }
