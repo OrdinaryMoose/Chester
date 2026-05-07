@@ -6,6 +6,7 @@ import {
   detectChallenge,
   checkClosure,
   checkConcernCoverage,
+  concernsRatificationGate,
 } from '../metrics.js';
 
 // --- helpers ---
@@ -622,5 +623,65 @@ describe('checkClosure — Concerns and Resolve Conditions (conditions 7-10)', (
     const c = checkClosure(state);
     expect(c.permitted).toBe(true);
     expect(c.reasons).toEqual([]);
+  });
+});
+
+// =============================================================================
+// concernsRatificationGate (NC-9) — pure gate used by present_closing_argument
+// =============================================================================
+describe('concernsRatificationGate', () => {
+  it('returns CONCERNS_UNLOCKED when concernsLocked is false', () => {
+    const s = { concernsLocked: false, concerns: [{ id: 'CERN-1', status: 'ratified' }] };
+    const r = concernsRatificationGate(s);
+    expect(r.passed).toBe(false);
+    expect(r.code).toBe('CONCERNS_UNLOCKED');
+    expect(typeof r.message).toBe('string');
+  });
+
+  it('returns CONCERNS_UNRATIFIED when any Concern is draft', () => {
+    const s = {
+      concernsLocked: true,
+      concerns: [
+        { id: 'CERN-1', status: 'ratified' },
+        { id: 'CERN-2', status: 'draft' },
+      ],
+    };
+    const r = concernsRatificationGate(s);
+    expect(r.passed).toBe(false);
+    expect(r.code).toBe('CONCERNS_UNRATIFIED');
+    expect(r.message).toMatch(/1 draft/);
+  });
+
+  it('returns passed: true when locked and all ratified', () => {
+    const s = { concernsLocked: true, concerns: [{ id: 'CERN-1', status: 'ratified' }] };
+    expect(concernsRatificationGate(s).passed).toBe(true);
+  });
+
+  it('passes when concerns array is empty (gate is structural)', () => {
+    const s = { concernsLocked: true, concerns: [] };
+    expect(concernsRatificationGate(s).passed).toBe(true);
+  });
+
+  it('checks locked before ratification — unlocked + draft surfaces UNLOCKED', () => {
+    const s = {
+      concernsLocked: false,
+      concerns: [{ id: 'CERN-1', status: 'draft' }],
+    };
+    const r = concernsRatificationGate(s);
+    expect(r.code).toBe('CONCERNS_UNLOCKED');
+  });
+
+  it('counts multiple draft Concerns in the message', () => {
+    const s = {
+      concernsLocked: true,
+      concerns: [
+        { id: 'CERN-1', status: 'draft' },
+        { id: 'CERN-2', status: 'draft' },
+        { id: 'CERN-3', status: 'ratified' },
+      ],
+    };
+    const r = concernsRatificationGate(s);
+    expect(r.code).toBe('CONCERNS_UNRATIFIED');
+    expect(r.message).toMatch(/2 draft/);
   });
 });

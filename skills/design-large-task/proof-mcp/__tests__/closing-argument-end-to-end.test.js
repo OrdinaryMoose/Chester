@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { initializeState, applyOperations, addConcern, lockConcerns, ratifyResolveCondition, recordClosingArgPresented, recordDesignerGo } from '../state.js';
+import { initializeState, applyOperations, addConcern, lockConcerns, ratifyConcern, ratifyResolveCondition, recordClosingArgPresented, recordDesignerGo } from '../state.js';
 import { evaluateTrigger, checkClosure } from '../metrics.js';
 import { deriveClosingArgument } from '../closing-argument.js';
 
@@ -9,6 +9,7 @@ describe('closing-argument end-to-end', () => {
     let [, sa] = addConcern(s, { label: 'concern X', description: 'd' }, { source: 'designer', rationale: 'test' });
     s = sa;
     [s] = lockConcerns(s, { source: 'designer', rationale: 'test' });
+    [s] = ratifyConcern(s, 'CERN-1', { source: 'designer', rationale: 'test' });
     let r = applyOperations(s, [
       { op: 'add', type: 'EVIDENCE', statement: 'fact', source: 'codebase' },
       { op: 'add', type: 'NECESSARY_CONDITION', statement: 'must Q', collapse_test: 'breaks if no Q', grounding: ['EVID-1'], reasoning_chain: 'IF fact THEN must Q', rejected_alternatives: ['alt1'] },

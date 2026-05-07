@@ -16,7 +16,7 @@ import {
 import { checkAllIntegrity, FRICTION_SHAPES, FRICTION_DISPOSITIONS, WITHDRAWAL_DISPOSITIONS, CONSENT_SOURCES, SCHEMA_VERSION, validateConsentToken, entityType } from './proof.js';
 import {
   computeCompleteness, computeGroundingCoverage, detectChallenge, checkClosure,
-  checkConcernCoverage, evaluateTrigger,
+  checkConcernCoverage, evaluateTrigger, concernsRatificationGate,
 } from './metrics.js';
 import { deriveClosingArgument } from './closing-argument.js';
 import { restructure } from './restructure.js';
@@ -538,11 +538,24 @@ function handleRatifyResolveCondition({ state_file, element_id, ratification, co
   };
 }
 
-function handlePresentClosingArgument({ state_file, consent }) {
+export function handlePresentClosingArgument({ state_file, consent }) {
   let state = loadState(state_file);
+  // Hard gate (NC-9): Concerns must be locked AND fully ratified before any
+  // closing-argument generation. Gate failures are isError responses with a
+  // structured code so callers can differentiate refusal types.
+  const gate = concernsRatificationGate(state);
+  if (!gate.passed) {
+    return {
+      content: [{ type: 'text', text: JSON.stringify({ code: gate.code, message: gate.message }) }],
+      isError: true,
+    };
+  }
   const trigger = evaluateTrigger(state);
   if (!trigger.permitted) {
-    return { content: [{ type: 'text', text: JSON.stringify({ permitted: false, reasons: trigger.reasons }, null, 2) }] };
+    return {
+      content: [{ type: 'text', text: JSON.stringify({ code: 'TRIGGER_NOT_MET', reasons: trigger.reasons }) }],
+      isError: true,
+    };
   }
   const argument = deriveClosingArgument(state);
   const [newState, presentErr] = recordClosingArgPresented(state, consent);

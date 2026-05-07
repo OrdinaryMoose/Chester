@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync, existsSync, unlinkSync, writeFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { handleOpenProof, handleManageDefinitions, handleGetProofState } from '../server.js';
-import { initializeState, saveState } from '../state.js';
+import { handleOpenProof, handleManageDefinitions, handleGetProofState, handlePresentClosingArgument } from '../server.js';
+import { initializeState, saveState, addConcern, lockConcerns, ratifyConcern } from '../state.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const serverSource = readFileSync(join(__dirname, '../server.js'), 'utf-8');
@@ -439,6 +439,56 @@ describe('server.js — manage_definitions tool', () => {
     expect(payload.code).toBe('DOMAIN_ERROR');
     expect(payload.message).toMatch(/withdraw/);
     unlinkSync(tmp);
+  });
+});
+
+describe('handlePresentClosingArgument — concernsRatificationGate (NC-9)', () => {
+  const TEST_CONSENT = { source: 'designer', rationale: 'present' };
+
+  it('returns isError with CONCERNS_UNLOCKED when concerns are not locked', () => {
+    const tmp = `/tmp/present-unlocked-${Date.now()}.json`;
+    let s = initializeState('p');
+    [, s] = addConcern(s, { label: 'CERN-A', description: 'd' }, { source: 'designer', rationale: 't' });
+    // intentionally do NOT lock
+    saveState(s, tmp);
+    const resp = handlePresentClosingArgument({ state_file: tmp, consent: TEST_CONSENT });
+    expect(resp.isError).toBe(true);
+    const payload = JSON.parse(resp.content[0].text);
+    expect(payload.code).toBe('CONCERNS_UNLOCKED');
+    if (existsSync(tmp)) unlinkSync(tmp);
+  });
+
+  it('returns isError with CONCERNS_UNRATIFIED when at least one Concern is draft', () => {
+    const tmp = `/tmp/present-unratified-${Date.now()}.json`;
+    let s = initializeState('p');
+    [, s] = addConcern(s, { label: 'CERN-A', description: 'd' }, { source: 'designer', rationale: 't' });
+    [s] = lockConcerns(s, { source: 'designer', rationale: 't' });
+    // Concerns remain in 'draft' status (not ratified) → gate must refuse with CONCERNS_UNRATIFIED.
+    saveState(s, tmp);
+    const resp = handlePresentClosingArgument({ state_file: tmp, consent: TEST_CONSENT });
+    expect(resp.isError).toBe(true);
+    const payload = JSON.parse(resp.content[0].text);
+    expect(payload.code).toBe('CONCERNS_UNRATIFIED');
+    expect(payload.message).toMatch(/draft/);
+    if (existsSync(tmp)) unlinkSync(tmp);
+  });
+
+  it('returns isError with TRIGGER_NOT_MET when gate passes but trigger floors are unmet', () => {
+    const tmp = `/tmp/present-trigger-${Date.now()}.json`;
+    const consent = { source: 'designer', rationale: 't' };
+    let s = initializeState('p');
+    [, s] = addConcern(s, { label: 'CERN-A', description: 'd' }, consent);
+    [s] = lockConcerns(s, consent);
+    [s] = ratifyConcern(s, 'CERN-1', consent);
+    // Gate passes (locked + ratified) but state has no NCs / RCs / Evidence — trigger floors fail.
+    saveState(s, tmp);
+    const resp = handlePresentClosingArgument({ state_file: tmp, consent: TEST_CONSENT });
+    expect(resp.isError).toBe(true);
+    const payload = JSON.parse(resp.content[0].text);
+    expect(payload.code).toBe('TRIGGER_NOT_MET');
+    expect(Array.isArray(payload.reasons)).toBe(true);
+    expect(payload.reasons.length).toBeGreaterThan(0);
+    if (existsSync(tmp)) unlinkSync(tmp);
   });
 });
 

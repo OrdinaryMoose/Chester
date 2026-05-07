@@ -390,6 +390,32 @@ export const CLOSING_ARG_FLOORS = Object.freeze({
   minRound: 3,
 });
 
+/**
+ * Pure gate: tests Concerns ratification readiness for closing-argument flow.
+ * Order matters — locked is checked first, then ratification status.
+ * @param {object} state
+ * @returns {{ passed: true } | { passed: false, code: string, message: string }}
+ */
+export function concernsRatificationGate(state) {
+  if (!state || !state.concernsLocked) {
+    return {
+      passed: false,
+      code: 'CONCERNS_UNLOCKED',
+      message: 'Concerns must be locked before closing argument',
+    };
+  }
+  const concerns = Array.isArray(state.concerns) ? state.concerns : [];
+  const draftCount = concerns.filter((c) => c && c.status === 'draft').length;
+  if (draftCount > 0) {
+    return {
+      passed: false,
+      code: 'CONCERNS_UNRATIFIED',
+      message: `Concerns must all be ratified; ${draftCount} draft remain`,
+    };
+  }
+  return { passed: true };
+}
+
 // Test-only override: pass a partial floors object to evaluateTrigger via the second arg
 // so tests can vary thresholds without mutating the frozen module-level constant.
 // Production callers always omit the second arg and get the frozen defaults.
@@ -425,7 +451,17 @@ export function evaluateTrigger(state, overrides) {
   }
   if (!allHaveCollapse) reasons.push('not all active NCs have collapse_test');
   if (!anyHasAlt) reasons.push('no NC has rejected_alternatives');
-  if (!state.concernsLocked) reasons.push('Concerns must be locked');
+  // Concerns ratification gate (locked first, then draft count) — surfaces as a
+  // reason string in this pure-function path; the server-side handler upgrades
+  // gate failure to an isError response with structured code.
+  const gate = concernsRatificationGate(state);
+  if (!gate.passed) {
+    if (gate.code === 'CONCERNS_UNLOCKED') {
+      reasons.push('Concerns must be locked');
+    } else {
+      reasons.push(gate.message);
+    }
+  }
   // Coverage check is meaningful only after Concerns are locked — matches checkClosure semantics.
   if (state.concernsLocked) {
     const { uncovered } = checkConcernCoverage(state);

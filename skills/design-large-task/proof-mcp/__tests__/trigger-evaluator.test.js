@@ -1,13 +1,14 @@
 // proof-mcp/__tests__/trigger-evaluator.test.js
 import { describe, it, expect } from 'vitest';
 import { evaluateTrigger, CLOSING_ARG_FLOORS } from '../metrics.js';
-import { initializeState, applyOperations, addConcern, lockConcerns, ratifyResolveCondition } from '../state.js';
+import { initializeState, applyOperations, addConcern, lockConcerns, ratifyConcern, ratifyResolveCondition } from '../state.js';
 
 function buildClosureReadyState() {
   let s = initializeState('p');
   let [, sa] = addConcern(s, { label: 'broad concern X', description: 'd' }, { source: 'designer', rationale: 'test' });
   s = sa;
   [s] = lockConcerns(s, { source: 'designer', rationale: 'test' });
+  [s] = ratifyConcern(s, 'CERN-1', { source: 'designer', rationale: 'test' });
   let r = applyOperations(s, [
     { op: 'add', type: 'EVIDENCE', statement: 'fact-1', source: 'codebase' },
     { op: 'add', type: 'NECESSARY_CONDITION', statement: 'must Q', collapse_test: 'breaks if no Q', grounding: ['EVID-1'], reasoning_chain: 'IF fact-1 THEN must Q', rejected_alternatives: ['alt'] },
