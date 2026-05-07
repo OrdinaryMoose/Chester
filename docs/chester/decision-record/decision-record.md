@@ -718,3 +718,113 @@ artifact_refs:
   - working/20260430-02-rebuild-design-derivation/master-plan.md
   - working/20260430-02-rebuild-design-derivation/cluster-c-restructure-understand/summary/cluster-c-restructure-understand-summary-00.md
 ---
+
+---
+id: dr-20260507-01-architecture-a-universal-surface-over-heterogeneous-storage
+date: 2026-05-07
+sprint: cluster-d-1
+stage: design-specify
+title: Architecture A — universal generic tool surface over heterogeneous internal storage
+decision: Cluster D.1's proof layer ships as Architecture A — a universal generic MCP tool surface (one withdraw verb, shared validators, shared consent gate) layered over the existing heterogeneous internal storage (Map<id, element>, concerns[], definitions[]) without collapsing to a homogeneous registry.
+rationale: Three architectures were red-teamed against the brief. A's findings were spec-time correctable with no architecture revision; C had structural impossibilities (concernsLocked is a global gate not per-entity status, NC-18 dual-status axis collision, hostile alien-typed legacy archive state); Hybrid introduced new contradictions (NC-7 deprecate removal violated a designer-locked NC; CERN-/CONC- prefix mismatch; federated registry without removing tool aliases). A's blast radius was smallest, B.2-shipped code preserved, no migration. Future cluster-D and cluster-E proof work builds on this layer; reversing the choice would void the shipped code.
+alternatives:
+  - Architecture C (homogeneous entity registry over collapsed Map) — rejected because concernsLocked global gate cannot collapse to per-entity status, NC-18 active/withdrawn vs Draft/Ratified are orthogonal axes the homogeneous shell cannot host, and migration policy for alien legacy state files (CONSTRAINT/GIVEN/OPEN/BOUNDARY/DECISION) was undefined.
+  - Hybrid (federated registry over heterogeneous stores) — rejected because the plan unilaterally removed the brief-ratified NC-7 deprecate operation, the federated abstraction added complexity without retiring the per-category tool aliases, and applyOperations FRICTION guards forced a preserve-or-remove decision the plan did not make.
+  - Architecture B (skill-orchestrated proof reasoning) — rejected at the F-A-C suitability gate because co-locating proof orchestration inside the skill body that D.2 will fill with presentation logic breaks the brief §1 service-independence claim.
+tags: [architecture, mcp]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1/design/cluster-d-1-design-00.md
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1/spec/cluster-d-1-spec-03.md
+---
+
+---
+id: dr-20260507-02-consent-token-shape-lock
+date: 2026-05-07
+sprint: cluster-d-1
+stage: execute-write
+title: Consent token shape locked across every mutating proof tool
+decision: Every mutating proof MCP tool requires a consent argument of shape `{ source: 'designer' | 'agent-proposed-designer-confirmed', rationale?: string }`, validated through a single shared `validateConsentToken` helper before any state change.
+rationale: NC-8 requires consent on every mutation. A single closed shape with two source values (designer-direct vs agent-proposed-designer-confirmed) and an optional rationale string is sufficient to discriminate the two legitimate provenance paths the proof system models, while keeping the schema small enough to thread cleanly through all mutating handlers, processFriction, and applyOperations. Future proof tools (cluster D successors and any later proof-MCP extension) inherit this shape rather than inventing per-tool consent arguments.
+alternatives:
+  - Per-tool consent shapes — rejected because each new mutating tool would re-derive the validation logic, drift would accumulate, and the audit trail would mix incompatible source vocabularies.
+  - Boolean consent flag — rejected because NC-8 requires source-of-consent provenance, not just yes/no; designer vs agent-proposed-designer-confirmed must be discriminable downstream.
+  - Free-form consent metadata object — rejected because validators cannot enforce "every mutation has consent" without a closed schema; agents would omit fields under prompt drift.
+tags: [convention, mcp, governance]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1/spec/cluster-d-1-spec-03.md
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1/plan/cluster-d-1-plan-00.md
+---
+
+---
+id: dr-20260507-03-perm-1-friction-carve-out-from-universal-withdraw
+date: 2026-05-07
+sprint: cluster-d-1
+stage: design-specify
+title: PERM-1 carves FRICTION out of universal withdraw; override_friction_disposition is the lone path
+decision: PERM-1 is registered against NC-5 (universal withdrawal grammar) granting FRICTION an exception — FRICTION terminal disposition routes exclusively through `override_friction_disposition`, not through the universal `withdraw` tool, and the universal withdraw schema rejects FRICTION at the door.
+rationale: NC-5 frames withdrawal as "universal in semantics" — every category preserves the element and stamps a closed disposition. But FRICTION's terminal-disposition vocabulary (`lived-with`, `relieved-by-exception`, `dissolved-by-revision`, `dissolved-by-scope-cut`, `not-really-friction`) is semantically irreconcilable with non-FRICTION's set (`consolidated`, `superseded`, `found-redundant`, `found-incorrect`, `scope-removed`). Collapsing both into one verb would force false synonymy. The Permission preserves the universal-grammar claim at the semantic level (element preserved, closed disposition set) while documenting at the architecture level that the tool surface carries two terminal verbs. Future architectures considering universal-CRUD over the proof layer must register a comparable carve-out or invent a vocabulary unification.
+alternatives:
+  - Collapse FRICTION terminal disposition into universal withdraw with a unified vocabulary — rejected because the two disposition sets describe genuinely disjoint semantic categories (FRICTION dispositions describe how a friction was resolved; non-FRICTION dispositions describe why an element was retracted) and unification would lose information.
+  - Drop universal withdraw entirely and ship per-category withdraw verbs — rejected because eight of nine categories share the disposition vocabulary; per-category fan-out would duplicate the same disposition list eight times.
+  - Treat FRICTION carve-out as undocumented exception — rejected because NC-5 is designer-ratified and an undocumented exception leaves future agents unable to distinguish "the architecture has a gap" from "the architecture has a sanctioned carve-out".
+tags: [architecture, mcp, governance]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1/spec/cluster-d-1-spec-03.md
+---
+
+---
+id: dr-20260507-04-universal-withdraw-fan-out-over-heterogeneous-storage
+date: 2026-05-07
+sprint: cluster-d-1
+stage: execute-write
+title: Universal withdraw verb dispatches to three internal callees over heterogeneous storage
+decision: The universal `withdraw` MCP tool keeps storage heterogeneous — its handler routes by category to one of three internal functions (element-Map withdraw, concerns[] withdraw, definitions[] deprecate) rather than collapsing the underlying state into a homogeneous registry.
+rationale: Architecture A's universal-tool ideal lives at the surface; the storage layer remains B.2-shipped (Map<id, element>, concerns[], definitions[]). Trying to homogenize storage was Architecture C's path and failed at concernsLocked semantics, dual-status axis collision, and migration of alien archive state. Routing inside the handler is a small fan-out that preserves the existing fields while delivering the caller-uniform tool. The pattern (universal verb at surface; internal dispatch by category) becomes the template for any future generic proof-tool addition, and a future cleanup pass that collapses storage stays a separate decision the architecture invites without forcing.
+alternatives:
+  - Collapse storage to a homogeneous Map keyed by entity id — rejected for Architecture C reasons (concernsLocked is a global gate not a per-entity status; status axes are orthogonal; migration of alien legacy types undefined).
+  - Three independent withdraw tools at the MCP surface — rejected because callers would lose the uniform CRUD shape that motivates Architecture A; the universal verb is the point.
+tags: [architecture, mcp]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1/plan/cluster-d-1-plan-00.md
+---
+
+---
+id: dr-20260507-05-bulk-ratify-on-close-with-flag-preservation-exception
+date: 2026-05-07
+sprint: cluster-d-1
+stage: design-specify
+title: confirm_closure_go bulk-ratifies and is the sole closing-flag preservation exception
+decision: At `confirm_closure_go`, RULE-9 fires server-side: every active draft NC and every active unratified RC bulk-ratifies, and `recordDesignerGo` is the documented sole exception to the established `clearClosingFlags` pattern that every other mutation observes.
+rationale: NC-12 and RULE-9 together require closure to bulk-ratify any element still in draft so the closing artifact carries no unratified content. Every other mutation in proof.js calls `clearClosingFlags` to invalidate any in-flight closing argument, because mutation invalidates the prior derivation. Closure itself cannot clear the closing flags — the flags ARE the closure record. The exception is therefore structural, not incidental: the close path preserves flags by design, all other paths clear them by invariant. Future contributors editing mutation paths must retain the clear-flags invariant; future contributors editing the close path must retain the preservation exception. The asymmetry is load-bearing.
+alternatives:
+  - Have `recordDesignerGo` clear and re-stamp the closing flags — rejected because the flags carry the very `closingArgGoRound` and closure provenance that closure exists to record; clearing them mid-close would erase the artifact.
+  - Delegate bulk-ratify to the skill caller — rejected because RULE-9 is a server invariant; a skill that forgot to bulk-ratify before closing would ship unratified content in the closing envelope, violating the NC-9 hard gate.
+  - Skip bulk-ratify and require all elements ratified before close — rejected because the proof workflow allows elements to remain in draft up to closure; forcing pre-closure ratification would push the entire ratification pass into a separate skill step.
+tags: [architecture, mcp, governance]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1/spec/cluster-d-1-spec-03.md
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1/plan/cluster-d-1-plan-00.md
+---
+
+---
+id: dr-20260507-06-operationlog-completeness-as-audit-of-record
+date: 2026-05-07
+sprint: cluster-d-1
+stage: execute-write
+title: operationLog append on every mutation as audit of record
+decision: NC-4's operationLog is the proof system's audit of record — every mutating function in proof-mcp must append an entry, with no exceptions; the final code review folded fixes for `recordClosingArgPresented` and `markChallengeUsed` to make the coverage exhaustive.
+rationale: NC-4 requires an operationLog entry on every mutation so the proof history is reconstructible from the persisted state alone. Per-task implementation initially missed two mutation paths (`recordClosingArgPresented` and `markChallengeUsed`) — the cross-task review caught them as a class. Once a single mutation path skips the append, the log becomes "mostly complete" rather than "the audit of record", and downstream consumers cannot trust it as ground truth. The structural rule is now: any function that writes to state appends to operationLog in the same call, with consent token and operation summary; reviewers treat a mutation without an append as a defect, not an omission. Future proof-MCP extensions inherit this invariant.
+alternatives:
+  - Sample operationLog at higher-traffic paths only — rejected because partial coverage forfeits the "audit of record" claim; a designer reading state cannot tell whether a missing entry means "no mutation occurred" or "mutation occurred but skipped logging".
+  - Move logging to a wrapper layer — rejected because mutating functions in proof.js are called from multiple handlers and applyOperations branches; a wrapper would either miss internal call paths or duplicate entries.
+tags: [architecture, mcp, audit]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1/spec/cluster-d-1-spec-03.md
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1/plan/cluster-d-1-plan-00.md
+---
