@@ -13,6 +13,7 @@ import { readFileSync, writeFileSync, renameSync } from 'fs';
 import { createElement, validateRefs, checkAllIntegrity, FRICTION_DISPOSITIONS, TERMINAL_FRICTION_DISPOSITIONS, WITHDRAWAL_DISPOSITIONS, UNCLASSIFIED_DISPOSITION, SCHEMA_VERSION, validateConsentToken } from './proof.js';
 import { computeCompleteness, computeGroundingCoverage, detectChallenge, detectStall, checkClosure } from './metrics.js';
 import { runFrictionDetection } from './friction-detection.js';
+import { validateDefinitionInput, createDefinition, queryOverlapCandidates } from './definitions.js';
 
 const ID_PREFIX = {
   EVIDENCE: 'EVID-',
@@ -53,6 +54,9 @@ export function initializeState(problemStatement) {
     closingArgGoRound: null,
     proofStatus: 'unopen',
     operationLog: [],
+    definitions: [],
+    definitionCounter: 0,
+    definitionLog: [],
   };
 }
 
@@ -584,7 +588,7 @@ export function applyOperations(state, operations, consent) {
   // Compute post-operation metadata
   const integrityWarnings = checkAllIntegrity(current.elements);
   const completeness = {
-    ...computeCompleteness(current.elements),
+    ...computeCompleteness(current.elements, current),
     groundingCoverage: computeGroundingCoverage(current.elements),
   };
   const challengeTrigger = detectChallenge(current);
@@ -672,6 +676,17 @@ export function loadState(filePath) {
   raw.closingArgGoRound ??= null;
   raw.proofStatus ??= 'unopen';
   raw.operationLog ??= [];
+  raw.definitions ??= [];
+  raw.definitionCounter ??= 0;
+  raw.definitionLog ??= [];
+  for (const d of raw.definitions) {
+    d.status ??= 'draft';
+    d.aliases ??= [];
+    d.sense_constraints ??= null;
+    d.history ??= [];
+    d.revision ??= 0;
+    d.revisedInRound ??= null;
+  }
   for (const [, el] of raw.elements) {
     el.problem_anchor ??= null;
     el.ratification ??= null;
@@ -806,6 +821,182 @@ export function overrideFrictionDisposition(state, { elementId, disposition }, c
   const fricResult = processFriction(newState, consent, 'overrideFrictionDisposition');
   newState = fricResult.state;
   return [newState, fricResult.hints, null];
+}
+
+/**
+ * Manage Definitions (vocabulary entries) on the proof state.
+ *
+ * Ops:
+ *   - 'add'           : create a draft Definition; requires consent
+ *   - 'revise'        : update definition/sense_constraints/aliases on an
+ *                       existing Definition; appends a history entry; requires consent
+ *   - 'ratify'        : transition status draft → ratified; requires consent
+ *   - 'query-overlap' : token-overlap search; consent NOT required
+ *   - 'deprecate'     : routes to universal withdraw (Task 10); returns DOMAIN_ERROR stub here
+ *
+ * @param {object} state
+ * @param {string} op
+ * @param {object} payload
+ * @param {object} consent
+ * @returns {[any, object, string|null]} [id_or_matches, newState, errorOrNull]
+ */
+export function manageDefinitions(state, op, payload, consent) {
+  // query-overlap is a read-only op — no consent required.
+  if (op === 'query-overlap') {
+    const matches = queryOverlapCandidates(state.definitions ?? [], payload?.canonical_name ?? '');
+    return [matches, state, null];
+  }
+
+  const consentCheck = validateConsentToken(consent);
+  if (!consentCheck.valid) {
+    return [null, state, `INVALID_CONSENT: ${consentCheck.reason}`];
+  }
+
+  if (op === 'deprecate') {
+    return [null, state, "DOMAIN_ERROR: use withdraw(category: 'DEFINITION', id, disposition, consent) for deprecation"];
+  }
+
+  if (op === 'add') {
+    const v = validateDefinitionInput(payload);
+    if (!v.valid) {
+      return [null, state, `DOMAIN_ERROR: ${v.reason}`];
+    }
+    let newState = structuredClone(state);
+    newState.elements = cloneElements(state.elements);
+    newState.closingArgPresentedRound = null;
+    newState.closingArgGoRound = null;
+    newState.definitionCounter++;
+    const id = `DEFN-${newState.definitionCounter}`;
+    const source = consent.source === 'designer' ? 'designer' : 'agent-derivation';
+    const def = createDefinition(payload, id, newState.round, source);
+    newState.definitions.push(def);
+    newState.definitionLog.push({
+      event: 'added',
+      definitionId: id,
+      round: newState.round,
+      canonical_name: def.canonical_name,
+    });
+    appendOperationLog(newState, {
+      round: newState.round,
+      op: 'add',
+      entityId: id,
+      type: 'DEFINITION',
+      consent,
+      changedFields: null,
+      provenance: {
+        initialPayload: {
+          canonical_name: def.canonical_name,
+          aliases: def.aliases,
+          definition: def.definition,
+          sense_constraints: def.sense_constraints,
+        },
+      },
+    });
+    const friction = processFriction(newState, consent, 'manageDefinitions:add');
+    return [id, friction.state, null];
+  }
+
+  if (op === 'revise') {
+    const id = payload?.id;
+    if (!id) return [null, state, 'DOMAIN_ERROR: id required for revise'];
+    const target = (state.definitions ?? []).find(d => d.id === id);
+    if (!target) {
+      return [null, state, `NOT_FOUND: definition ${id} not found`];
+    }
+    if (target.status === 'withdrawn' || target.status === 'deprecated') {
+      return [null, state, `DOMAIN_ERROR: cannot revise definition ${id} with status ${target.status}`];
+    }
+    let newState = structuredClone(state);
+    newState.elements = cloneElements(state.elements);
+    newState.closingArgPresentedRound = null;
+    newState.closingArgGoRound = null;
+    const t = newState.definitions.find(d => d.id === id);
+    const before = {
+      definition: t.definition,
+      sense_constraints: t.sense_constraints,
+      aliases: [...(t.aliases ?? [])],
+    };
+    const changedFields = [];
+    if (payload.definition !== undefined && payload.definition !== t.definition) {
+      t.definition = payload.definition;
+      changedFields.push('definition');
+    }
+    if (payload.sense_constraints !== undefined && payload.sense_constraints !== t.sense_constraints) {
+      t.sense_constraints = payload.sense_constraints;
+      changedFields.push('sense_constraints');
+    }
+    if (payload.aliases !== undefined) {
+      t.aliases = payload.aliases;
+      changedFields.push('aliases');
+    }
+    t.history = t.history ?? [];
+    t.history.push({
+      round: newState.round,
+      definition: before.definition,
+      sense_constraints: before.sense_constraints,
+      aliases: before.aliases,
+    });
+    t.revision = (t.revision ?? 0) + 1;
+    t.revisedInRound = newState.round;
+    // Revising a ratified Definition reverts it to draft (mirrors NC ratificationStatus pattern).
+    if (t.status === 'ratified' && changedFields.length > 0) {
+      t.status = 'draft';
+      changedFields.push('status');
+    }
+    newState.definitionLog.push({
+      event: 'revised',
+      definitionId: id,
+      round: newState.round,
+      revision: t.revision,
+      fields: changedFields,
+    });
+    appendOperationLog(newState, {
+      round: newState.round,
+      op: 'revise',
+      entityId: id,
+      type: 'DEFINITION',
+      consent,
+      changedFields,
+      provenance: { before, after: { definition: t.definition, sense_constraints: t.sense_constraints, aliases: t.aliases }, revision: t.revision },
+    });
+    return [id, newState, null];
+  }
+
+  if (op === 'ratify') {
+    const id = payload?.id;
+    if (!id) return [null, state, 'DOMAIN_ERROR: id required for ratify'];
+    const target = (state.definitions ?? []).find(d => d.id === id);
+    if (!target) {
+      return [null, state, `NOT_FOUND: definition ${id} not found`];
+    }
+    if (target.status === 'withdrawn' || target.status === 'deprecated') {
+      return [null, state, `DOMAIN_ERROR: cannot ratify definition ${id} with status ${target.status}`];
+    }
+    let newState = structuredClone(state);
+    newState.elements = cloneElements(state.elements);
+    newState.closingArgPresentedRound = null;
+    newState.closingArgGoRound = null;
+    const t = newState.definitions.find(d => d.id === id);
+    const before = t.status;
+    t.status = 'ratified';
+    newState.definitionLog.push({
+      event: 'ratified',
+      definitionId: id,
+      round: newState.round,
+    });
+    appendOperationLog(newState, {
+      round: newState.round,
+      op: 'ratify',
+      entityId: id,
+      type: 'DEFINITION',
+      consent,
+      changedFields: ['status'],
+      provenance: { before, after: 'ratified' },
+    });
+    return [id, newState, null];
+  }
+
+  return [null, state, `DOMAIN_ERROR: unknown manage_definitions op: ${op}`];
 }
 
 /**

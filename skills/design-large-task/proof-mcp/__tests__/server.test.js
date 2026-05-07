@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync, existsSync, unlinkSync, writeFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { handleOpenProof } from '../server.js';
+import { handleOpenProof, handleManageDefinitions, handleGetProofState } from '../server.js';
+import { initializeState, saveState } from '../state.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const serverSource = readFileSync(join(__dirname, '../server.js'), 'utf-8');
@@ -314,6 +315,85 @@ describe('handleOpenProof — already-open refusal', () => {
     const written = JSON.parse(readFileSync(tmp, 'utf-8'));
     expect(written.problemStatement).toBe('recovery from malformed state');
     expect(written.proofStatus).toBe('open');
+    unlinkSync(tmp);
+  });
+});
+
+describe('server.js — manage_definitions tool', () => {
+  it('declares manage_definitions tool', () => {
+    expect(serverSource).toMatch(/name:\s*'manage_definitions'/);
+  });
+
+  it('declares op enum [add, revise, deprecate, ratify, query-overlap]', () => {
+    const block = serverSource.split("name: 'manage_definitions'")[1] ?? '';
+    expect(block).toMatch(/enum:\s*\[\s*'add',\s*'revise',\s*'deprecate',\s*'ratify',\s*'query-overlap'\s*\]/);
+  });
+
+  it('dispatches manage_definitions in switch', () => {
+    expect(serverSource).toMatch(/case\s+'manage_definitions'/);
+  });
+
+  it('add op writes definition; get_proof_state response includes definitions and operationLog fields', () => {
+    const tmp = `/tmp/manage-defs-${Date.now()}.json`;
+    const seed = initializeState('a problem');
+    saveState(seed, tmp);
+
+    const addResp = handleManageDefinitions({
+      state_file: tmp,
+      op: 'add',
+      canonical_name: 'Concern',
+      definition: 'A concern is X',
+      consent: { source: 'designer', rationale: 't' },
+    });
+    const addPayload = JSON.parse(addResp.content[0].text);
+    expect(addPayload.status).toBe('accepted');
+    expect(addPayload.definition_id).toMatch(/^DEFN-/);
+
+    const getResp = handleGetProofState({ state_file: tmp });
+    const stateOut = JSON.parse(getResp.content[0].text);
+    expect(Array.isArray(stateOut.definitions)).toBe(true);
+    expect(stateOut.definitions.length).toBe(1);
+    expect(stateOut.definitions[0].canonical_name).toBe('Concern');
+    expect(Array.isArray(stateOut.operationLog)).toBe(true);
+    expect(stateOut.operationLog.some(e => e.type === 'DEFINITION' && e.op === 'add')).toBe(true);
+    expect(typeof stateOut.definitionCounter).toBe('number');
+    expect(Array.isArray(stateOut.definitionLog)).toBe(true);
+    expect(stateOut.schemaVersion).toBeDefined();
+    expect(stateOut.proofStatus).toBeDefined();
+
+    unlinkSync(tmp);
+  });
+
+  it('add op rejects without consent (INVALID_CONSENT)', () => {
+    const tmp = `/tmp/manage-defs-noconsent-${Date.now()}.json`;
+    saveState(initializeState('p'), tmp);
+    const resp = handleManageDefinitions({
+      state_file: tmp,
+      op: 'add',
+      canonical_name: 'X',
+      definition: 'd',
+    });
+    expect(resp.isError).toBe(true);
+    const payload = JSON.parse(resp.content[0].text);
+    expect(payload.code).toBe('INVALID_CONSENT');
+    unlinkSync(tmp);
+  });
+
+  it('deprecate op returns DOMAIN_ERROR routing to withdraw', () => {
+    const tmp = `/tmp/manage-defs-deprecate-${Date.now()}.json`;
+    saveState(initializeState('p'), tmp);
+    handleManageDefinitions({
+      state_file: tmp, op: 'add', canonical_name: 'X', definition: 'd',
+      consent: { source: 'designer', rationale: 't' },
+    });
+    const resp = handleManageDefinitions({
+      state_file: tmp, op: 'deprecate', id: 'DEFN-1',
+      consent: { source: 'designer', rationale: 't' },
+    });
+    expect(resp.isError).toBe(true);
+    const payload = JSON.parse(resp.content[0].text);
+    expect(payload.code).toBe('DOMAIN_ERROR');
+    expect(payload.message).toMatch(/withdraw/);
     unlinkSync(tmp);
   });
 });

@@ -14,11 +14,14 @@ import { traverseGroundingChain, checkAllIntegrity } from './proof.js';
 export const STALL_WINDOW = 3;
 
 /**
- * Compute completeness metrics from the elements map.
+ * Compute completeness metrics from the elements map. Optionally accepts state
+ * for cross-cutting counters (Definitions live in state.definitions, not in
+ * the elements Map). When `state` is omitted, definition counters are zero.
  * @param {Map} elements
+ * @param {object} [state]
  * @returns {object}
  */
-export function computeCompleteness(elements) {
+export function computeCompleteness(elements, state) {
   let total_elements = 0;
   let active_elements = 0;
   let condition_count = 0;
@@ -65,6 +68,10 @@ export function computeCompleteness(elements) {
     if (el.revisedInRound !== null) revision_count++;
   }
 
+  const definitions = state?.definitions ?? [];
+  const definition_count = definitions.length;
+  const ratified_definition_count = definitions.filter(d => d.status === 'ratified').length;
+
   return {
     total_elements,
     active_elements,
@@ -80,6 +87,8 @@ export function computeCompleteness(elements) {
     revision_count,
     friction_count,
     live_friction_count,
+    definition_count,
+    ratified_definition_count,
   };
 }
 
@@ -393,7 +402,7 @@ export function evaluateTrigger(state, overrides) {
     minRound: overrides?.minRound ?? CLOSING_ARG_FLOORS.minRound,
   };
   const reasons = [];
-  const completeness = computeCompleteness(state.elements);
+  const completeness = computeCompleteness(state.elements, state);
   const groundingCoverage = computeGroundingCoverage(state.elements);
 
   // Per-signal floors

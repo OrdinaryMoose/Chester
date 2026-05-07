@@ -9,6 +9,7 @@ import {
   addConcern, lockConcerns, ratifyConcern, ratifyResolveCondition,
   manageFriction, overrideFrictionDisposition,
   recordClosingArgPresented, recordDesignerGo,
+  manageDefinitions,
 } from './state.js';
 import { checkAllIntegrity, FRICTION_SHAPES, FRICTION_DISPOSITIONS, WITHDRAWAL_DISPOSITIONS, CONSENT_SOURCES } from './proof.js';
 import {
@@ -206,6 +207,24 @@ const TOOLS = [
     },
   },
   {
+    name: 'manage_definitions',
+    description: 'Manage vocabulary Definitions (NC-7, RULE-5). Ops: add (create draft), revise (update; appends history; reverts ratified→draft), ratify (draft→ratified), query-overlap (read-only token search; no consent required), deprecate (routes to universal withdraw — Task 10).',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        state_file: { type: 'string', description: 'Absolute path to state JSON' },
+        op: { type: 'string', enum: ['add', 'revise', 'deprecate', 'ratify', 'query-overlap'] },
+        canonical_name: { type: 'string', description: 'Canonical name (required for op=add; payload for query-overlap)' },
+        aliases: { type: 'array', items: { type: 'string' }, description: 'Alias names (op=add/revise)' },
+        definition: { type: 'string', description: 'Definition text (required for op=add; optional for revise)' },
+        sense_constraints: { type: 'string', description: 'Optional sense constraints (op=add/revise)' },
+        id: { type: 'string', description: 'DEFN-N id (required for op=revise/deprecate/ratify)' },
+        consent: CONSENT_SCHEMA,
+      },
+      required: ['state_file', 'op'],
+    },
+  },
+  {
     name: 'confirm_closure_go',
     description: "Designer go-choice against the presented closing argument. Refuses if the closing argument was not presented in the current round (state has shifted; re-present first).",
     inputSchema: {
@@ -238,6 +257,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         return handleManageConcerns(args);
       case 'manage_friction':
         return handleManageFriction(args);
+      case 'manage_definitions':
+        return handleManageDefinitions(args);
       case 'override_friction_disposition':
         return handleOverrideFrictionDisposition(args);
       case 'ratify_resolve_condition':
@@ -324,12 +345,12 @@ function handleSubmitProofUpdate({ state_file, operations, challenge_used, conse
   };
 }
 
-function handleGetProofState({ state_file }) {
+export function handleGetProofState({ state_file }) {
   const state = loadState(state_file);
 
   const integrityWarnings = checkAllIntegrity(state.elements);
   const completeness = {
-    ...computeCompleteness(state.elements),
+    ...computeCompleteness(state.elements, state),
     groundingCoverage: computeGroundingCoverage(state.elements),
   };
   const challengeTrigger = detectChallenge(state);
@@ -401,6 +422,45 @@ function handleManageFriction({ state_file, op, friction_shape, anchor_a, anchor
         friction_shape,
         disposition,
         friction_hints,
+      }),
+    }],
+  };
+}
+
+export function handleManageDefinitions({ state_file, op, canonical_name, aliases, definition, sense_constraints, id, consent }) {
+  let state = loadState(state_file);
+
+  // query-overlap is read-only; consent not required, no save.
+  if (op === 'query-overlap') {
+    const [matches] = manageDefinitions(state, op, { canonical_name }, undefined);
+    return {
+      content: [{
+        type: 'text',
+        text: JSON.stringify({
+          status: 'accepted',
+          matches: (matches ?? []).map(d => ({
+            id: d.id, canonical_name: d.canonical_name, aliases: d.aliases, status: d.status,
+          })),
+        }),
+      }],
+    };
+  }
+
+  const payload = { canonical_name, aliases, definition, sense_constraints, id };
+  const [resultId, newState, err] = manageDefinitions(state, op, payload, consent);
+  if (err) {
+    return { content: [{ type: 'text', text: JSON.stringify(classifyStateError(err)) }], isError: true };
+  }
+  saveState(newState, state_file);
+  const def = (newState.definitions ?? []).find(d => d.id === resultId);
+  return {
+    content: [{
+      type: 'text',
+      text: JSON.stringify({
+        status: 'accepted',
+        definition_id: resultId,
+        definition_status: def?.status ?? null,
+        definitions_count: (newState.definitions ?? []).length,
       }),
     }],
   };

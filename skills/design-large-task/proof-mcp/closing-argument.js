@@ -41,7 +41,7 @@ export function deriveClosingArgument(state) {
       dispositionTag: el.disposition, statement: el.statement,
     }));
 
-  const completeness = computeCompleteness(state.elements);
+  const completeness = computeCompleteness(state.elements, state);
   const groundingCoverage = computeGroundingCoverage(state.elements);
   const closure = checkClosure(state);
 

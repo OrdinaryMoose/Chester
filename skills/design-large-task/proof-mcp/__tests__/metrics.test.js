@@ -59,7 +59,21 @@ describe('computeCompleteness', () => {
       revision_count: 0,
       friction_count: 0,
       live_friction_count: 0,
+      definition_count: 0,
+      ratified_definition_count: 0,
     });
+  });
+
+  it('returns definition_count and ratified_definition_count keys', () => {
+    const result = computeCompleteness(new Map(), {
+      definitions: [
+        { id: 'DEFN-1', status: 'draft' },
+        { id: 'DEFN-2', status: 'ratified' },
+        { id: 'DEFN-3', status: 'ratified' },
+      ],
+    });
+    expect(result.definition_count).toBe(3);
+    expect(result.ratified_definition_count).toBe(2);
   });
 
   it('counts elements by type', () => {
