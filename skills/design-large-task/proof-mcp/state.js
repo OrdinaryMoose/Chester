@@ -52,7 +52,29 @@ export function initializeState(problemStatement) {
     closingArgPresentedRound: null,
     closingArgGoRound: null,
     proofStatus: 'unopen',
+    operationLog: [],
   };
+}
+
+/**
+ * Append an entry to state.operationLog. Mutates state in place.
+ * Intended use: only inside a mutating export, after state has been cloned and
+ * after the mutation has succeeded — this writes to the cloned state, never
+ * the caller's reference.
+ * @param {object} state - cloned state to append to
+ * @param {object} entry - { round, op, entityId?, type?, consent?, changedFields?, provenance? }
+ */
+function appendOperationLog(state, entry) {
+  state.operationLog = state.operationLog || [];
+  state.operationLog.push({
+    round: entry.round,
+    op: entry.op,
+    entityId: entry.entityId ?? null,
+    type: entry.type ?? null,
+    consent: entry.consent ?? null,
+    changedFields: entry.changedFields ?? null,
+    provenance: entry.provenance ?? null,
+  });
 }
 
 /**
@@ -170,6 +192,15 @@ export function addConcern(state, { label, description }, consent) {
   newState.concernCounter++;
   const id = `CERN-${newState.concernCounter}`;
   newState.concerns.push({ id, label, description: description ?? null });
+  appendOperationLog(newState, {
+    round: newState.round,
+    op: 'add',
+    entityId: id,
+    type: 'CONCERN',
+    consent,
+    changedFields: null,
+    provenance: { initialPayload: { label, description: description ?? null } },
+  });
   const fricResult = processFriction(newState);
   newState = fricResult.state;
   return [id, newState, fricResult.hints, null];
@@ -196,6 +227,15 @@ export function lockConcerns(state, consent) {
   newState.closingArgPresentedRound = null;
   newState.closingArgGoRound = null;
   newState.concernsLocked = true;
+  appendOperationLog(newState, {
+    round: newState.round,
+    op: 'lock',
+    entityId: null,
+    type: null,
+    consent,
+    changedFields: ['concernsLocked'],
+    provenance: { concernCount: newState.concerns.length },
+  });
   const fricResult = processFriction(newState);
   newState = fricResult.state;
   return [newState, fricResult.hints, null];
@@ -237,6 +277,15 @@ export function ratifyResolveCondition(state, { elementId, ratificationText }, c
     target: elementId,
     round: state.round,
     ratificationText,
+  });
+  appendOperationLog(newState, {
+    round: newState.round,
+    op: 'ratify',
+    entityId: elementId,
+    type: 'RESOLVE_CONDITION',
+    consent,
+    changedFields: ['ratification'],
+    provenance: { ratificationText },
   });
   const fricResult = processFriction(newState);
   newState = fricResult.state;
@@ -329,6 +378,15 @@ export function applyOperations(state, operations, consent) {
         const element = createElement(op, id, current.round);
         current.elements.set(id, element);
         added.push(id);
+        appendOperationLog(current, {
+          round: current.round,
+          op: 'add',
+          entityId: id,
+          type: op.type,
+          consent,
+          changedFields: null,
+          provenance: { initialPayload: { ...op } },
+        });
         break;
       }
       case 'revise': {
@@ -345,14 +403,23 @@ export function applyOperations(state, operations, consent) {
         if (op.problem_anchor !== undefined && target.problem_anchor !== op.problem_anchor) {
           semanticFieldsChanged.push('problem_anchor');
         }
-        if (op.statement !== undefined) target.statement = op.statement;
-        if (op.problem_anchor !== undefined) target.problem_anchor = op.problem_anchor;
-        if (op.grounding !== undefined) target.grounding = op.grounding;
-        if (op.basis !== undefined) target.basis = op.basis;
-        if (op.collapse_test !== undefined) target.collapse_test = op.collapse_test;
-        if (op.reasoning_chain !== undefined) target.reasoning_chain = op.reasoning_chain;
-        if (op.rejected_alternatives !== undefined) target.rejected_alternatives = op.rejected_alternatives;
-        if (op.relieves !== undefined) target.relieves = op.relieves;
+        const changedFields = [];
+        const before = {};
+        const after = {};
+        const noteChange = (field, value) => {
+          before[field] = target[field];
+          target[field] = value;
+          after[field] = value;
+          changedFields.push(field);
+        };
+        if (op.statement !== undefined) noteChange('statement', op.statement);
+        if (op.problem_anchor !== undefined) noteChange('problem_anchor', op.problem_anchor);
+        if (op.grounding !== undefined) noteChange('grounding', op.grounding);
+        if (op.basis !== undefined) noteChange('basis', op.basis);
+        if (op.collapse_test !== undefined) noteChange('collapse_test', op.collapse_test);
+        if (op.reasoning_chain !== undefined) noteChange('reasoning_chain', op.reasoning_chain);
+        if (op.rejected_alternatives !== undefined) noteChange('rejected_alternatives', op.rejected_alternatives);
+        if (op.relieves !== undefined) noteChange('relieves', op.relieves);
         // Clear ratification if a ratified RESOLVE_CONDITION had statement or problem_anchor revised
         if (
           target.type === 'RESOLVE_CONDITION' &&
@@ -375,6 +442,15 @@ export function applyOperations(state, operations, consent) {
           revision: target.revision,
         });
         revised.push(op.target);
+        appendOperationLog(current, {
+          round: current.round,
+          op: 'revise',
+          entityId: op.target,
+          type: target.type,
+          consent,
+          changedFields,
+          provenance: { before, after, revision: target.revision },
+        });
         break;
       }
       case 'withdraw': {
@@ -403,6 +479,15 @@ export function applyOperations(state, operations, consent) {
         target.status = 'withdrawn';
         target.withdrawal_disposition = disposition;
         withdrawn.push(op.target);
+        appendOperationLog(current, {
+          round: current.round,
+          op: 'withdraw',
+          entityId: op.target,
+          type: target.type,
+          consent,
+          changedFields: ['status', 'withdrawal_disposition'],
+          provenance: { withdrawal_disposition: disposition },
+        });
         break;
       }
       default:
@@ -510,6 +595,7 @@ export function loadState(filePath) {
   raw.closingArgPresentedRound ??= null;
   raw.closingArgGoRound ??= null;
   raw.proofStatus ??= 'unopen';
+  raw.operationLog ??= [];
   for (const [, el] of raw.elements) {
     el.problem_anchor ??= null;
     el.ratification ??= null;
@@ -557,6 +643,23 @@ export function manageFriction(state, input, consent) {
     friction_shape: input.friction_shape,
     disposition: input.disposition,
   });
+  appendOperationLog(withId, {
+    round: withId.round,
+    op: 'add',
+    entityId: id,
+    type: 'FRICTION',
+    consent,
+    changedFields: null,
+    provenance: {
+      initialPayload: {
+        friction_shape: input.friction_shape,
+        anchor_a: input.anchor_a,
+        anchor_b: input.anchor_b,
+        disposition: input.disposition,
+        statement: input.statement ?? null,
+      },
+    },
+  });
   const fricResult = processFriction(withId);
   return [id, fricResult.state, fricResult.hints, null];
 }
@@ -598,14 +701,28 @@ export function overrideFrictionDisposition(state, { elementId, disposition }, c
     oldDisposition,
     newDisposition: disposition,
   });
+  const changedFields = ['disposition'];
   if (TERMINAL_FRICTION_DISPOSITIONS.includes(disposition)) {
     t.status = 'withdrawn';
+    changedFields.push('status');
     newState.frictionLog.push({
       event: 'dismissed',
       frictionId: elementId,
       round: newState.round,
     });
   }
+  appendOperationLog(newState, {
+    round: newState.round,
+    op: 'revise',
+    entityId: elementId,
+    type: 'FRICTION',
+    consent,
+    changedFields,
+    provenance: {
+      before: { disposition: oldDisposition },
+      after: { disposition },
+    },
+  });
   const fricResult = processFriction(newState);
   newState = fricResult.state;
   return [newState, fricResult.hints, null];
