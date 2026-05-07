@@ -9,7 +9,7 @@
  *   - Tracks conditionCountHistory instead of openCountHistory
  */
 
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync, renameSync } from 'fs';
 import { createElement, validateRefs, checkAllIntegrity, FRICTION_DISPOSITIONS, TERMINAL_FRICTION_DISPOSITIONS, WITHDRAWAL_DISPOSITIONS, UNCLASSIFIED_DISPOSITION, SCHEMA_VERSION } from './proof.js';
 import { computeCompleteness, computeGroundingCoverage, detectChallenge, detectStall, checkClosure } from './metrics.js';
 import { runFrictionDetection } from './friction-detection.js';
@@ -439,7 +439,9 @@ export function saveState(state, filePath) {
     ...state,
     elements: Object.fromEntries(state.elements),
   };
-  writeFileSync(filePath, JSON.stringify(serializable, null, 2), 'utf-8');
+  const tmpPath = filePath + '.tmp';
+  writeFileSync(tmpPath, JSON.stringify(serializable, null, 2), 'utf-8');
+  renameSync(tmpPath, filePath);
 }
 
 /**
