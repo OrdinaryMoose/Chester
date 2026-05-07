@@ -114,7 +114,7 @@ describe('addConcern', () => {
     expect(err1).toBeNull();
     expect(id1).toBe('CERN-1');
     expect(state1.concerns).toHaveLength(1);
-    expect(state1.concerns[0]).toEqual({ id: 'CERN-1', label: 'First', description: 'D1' });
+    expect(state1.concerns[0]).toEqual({ id: 'CERN-1', label: 'First', description: 'D1', status: 'draft' });
     expect(state1.concernCounter).toBe(1);
 
     const [id2, state2, , err2] = addConcern(state1, { label: 'Second' }, { source: 'designer', rationale: 'test' });

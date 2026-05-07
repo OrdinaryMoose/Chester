@@ -6,7 +6,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { ListToolsRequestSchema, CallToolRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 import {
   initializeState, applyOperations, markChallengeUsed, saveState, loadState,
-  addConcern, lockConcerns, ratifyResolveCondition,
+  addConcern, lockConcerns, ratifyConcern, ratifyResolveCondition,
   manageFriction, overrideFrictionDisposition,
   recordClosingArgPresented, recordDesignerGo,
 } from './state.js';
@@ -120,14 +120,15 @@ const TOOLS = [
   },
   {
     name: 'manage_concerns',
-    description: 'Add or lock Concerns attached to the problem statement. Concerns anchor Resolve Conditions for closure coverage.',
+    description: 'Add, lock, or ratify Concerns attached to the problem statement. Concerns anchor Resolve Conditions for closure coverage; ratify transitions a Concern from draft to ratified.',
     inputSchema: {
       type: 'object',
       properties: {
         state_file: { type: 'string', description: 'Absolute path to state JSON' },
-        op: { type: 'string', enum: ['add', 'lock'] },
+        op: { type: 'string', enum: ['add', 'lock', 'ratify'] },
         label: { type: 'string', description: 'Concern label (required for op=add)' },
         description: { type: 'string', description: 'Optional Concern description (op=add only)' },
+        concern_id: { type: 'string', description: 'CERN-N id of the Concern to ratify (required for op=ratify)' },
         consent: CONSENT_SCHEMA,
       },
       required: ['state_file', 'op', 'consent'],
@@ -347,7 +348,7 @@ function handleGetProofState({ state_file }) {
   return { content: [{ type: 'text', text: JSON.stringify(response) }] };
 }
 
-function handleManageConcerns({ state_file, op, label, description, consent }) {
+function handleManageConcerns({ state_file, op, label, description, concern_id, consent }) {
   let state = loadState(state_file);
   if (op === 'add') {
     if (!label) {
@@ -367,6 +368,18 @@ function handleManageConcerns({ state_file, op, label, description, consent }) {
     }
     saveState(newState, state_file);
     return { content: [{ type: 'text', text: JSON.stringify({ status: 'accepted', locked: true, concerns_count: newState.concerns.length, friction_hints }) }] };
+  }
+  if (op === 'ratify') {
+    if (!concern_id) {
+      return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: 'concern_id required for op=ratify' }) }], isError: true };
+    }
+    const [newState, err] = ratifyConcern(state, concern_id, consent);
+    if (err) {
+      return { content: [{ type: 'text', text: JSON.stringify(classifyStateError(err)) }], isError: true };
+    }
+    saveState(newState, state_file);
+    const concern = newState.concerns.find(c => c.id === concern_id);
+    return { content: [{ type: 'text', text: JSON.stringify({ status: 'accepted', concern_id, concern_status: concern.status }) }] };
   }
   return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: `Unknown op: ${op}` }) }], isError: true };
 }

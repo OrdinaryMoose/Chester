@@ -22,8 +22,12 @@ describe('server.js — manage_concerns tool', () => {
     expect(serverSource).toMatch(/name:\s*'manage_concerns'/);
   });
 
-  it('manage_concerns op enum lists add and lock', () => {
-    expect(serverSource).toMatch(/op:\s*\{[^}]*enum:\s*\[\s*'add',\s*'lock'\s*\]/s);
+  it('manage_concerns op enum lists add, lock, and ratify', () => {
+    expect(serverSource).toMatch(/op:\s*\{[^}]*enum:\s*\[\s*'add',\s*'lock',\s*'ratify'\s*\]/s);
+  });
+
+  it('dispatches ratify op in manage_concerns handler', () => {
+    expect(serverSource).toMatch(/op\s*===\s*'ratify'/);
   });
 });
 

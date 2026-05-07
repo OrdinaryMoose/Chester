@@ -191,7 +191,7 @@ export function addConcern(state, { label, description }, consent) {
   newState.closingArgGoRound = null;
   newState.concernCounter++;
   const id = `CERN-${newState.concernCounter}`;
-  newState.concerns.push({ id, label, description: description ?? null });
+  newState.concerns.push({ id, label, description: description ?? null, status: 'draft' });
   appendOperationLog(newState, {
     round: newState.round,
     op: 'add',
@@ -239,6 +239,48 @@ export function lockConcerns(state, consent) {
   const fricResult = processFriction(newState);
   newState = fricResult.state;
   return [newState, fricResult.hints, null];
+}
+
+/**
+ * Ratify a single Concern. Transitions Concern.status from 'draft' to 'ratified'.
+ * Refuses unknown id (NOT_FOUND) or invalid consent (INVALID_CONSENT).
+ * Clears two-yes closing flags and appends an operationLog entry.
+ * @param {object} state
+ * @param {string} concernId
+ * @param {object} consent
+ * @returns {[object, string|null]} [newState, error]
+ */
+export function ratifyConcern(state, concernId, consent) {
+  const consentCheck = validateConsentToken(consent);
+  if (!consentCheck.valid) {
+    return [state, `INVALID_CONSENT: ${consentCheck.reason}`];
+  }
+  const exists = state.concerns.some(c => c.id === concernId);
+  if (!exists) {
+    return [state, `NOT_FOUND: concern ${concernId} not found`];
+  }
+  const newState = structuredClone(state);
+  newState.elements = cloneElements(state.elements);
+  newState.closingArgPresentedRound = null;
+  newState.closingArgGoRound = null;
+  const concern = newState.concerns.find(c => c.id === concernId);
+  const before = concern.status ?? 'draft';
+  concern.status = 'ratified';
+  newState.ratificationLog.push({
+    event: 'concern-ratified',
+    concernId,
+    round: newState.round,
+  });
+  appendOperationLog(newState, {
+    round: newState.round,
+    op: 'ratify',
+    entityId: concernId,
+    type: 'CONCERN',
+    consent,
+    changedFields: ['status'],
+    provenance: { before, after: 'ratified' },
+  });
+  return [newState, null];
 }
 
 /**
@@ -588,6 +630,13 @@ export function loadState(filePath) {
   raw.concerns ??= [];
   raw.concernsLocked ??= false;
   raw.concernCounter ??= 0;
+  // Backfill per-Concern status: locked-list legacy state implies all concerns
+  // were already ratified under the prior model; unlocked legacy state defaults
+  // each concern to draft.
+  const defaultConcernStatus = raw.concernsLocked ? 'ratified' : 'draft';
+  for (const c of raw.concerns) {
+    c.status ??= defaultConcernStatus;
+  }
   raw.ratificationLog ??= [];
   raw.frictionLog ??= [];
   raw.elementCounters.RESOLVE_CONDITION ??= 0;
