@@ -147,6 +147,7 @@ const TOOLS = [
         anchor_b: { type: 'string', description: 'Second anchor element ID' },
         disposition: { type: 'string', enum: FRICTION_DISPOSITIONS, description: 'Designer\'s stance toward this friction' },
         statement: { type: 'string', description: 'Optional human-readable description of the tension' },
+        source: { type: 'string', description: 'Provenance tag (e.g., "session-observation", "agent-derivation"). Defaults to "agent-derivation".' },
         consent: CONSENT_SCHEMA,
       },
       required: ['state_file', 'op', 'friction_shape', 'anchor_a', 'anchor_b', 'disposition', 'consent'],
@@ -384,9 +385,9 @@ function handleManageConcerns({ state_file, op, label, description, concern_id, 
   return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: `Unknown op: ${op}` }) }], isError: true };
 }
 
-function handleManageFriction({ state_file, op, friction_shape, anchor_a, anchor_b, disposition, statement, consent }) {
+function handleManageFriction({ state_file, op, friction_shape, anchor_a, anchor_b, disposition, statement, source, consent }) {
   let state = loadState(state_file);
-  const [fricId, newState, friction_hints, err] = manageFriction(state, { op, friction_shape, anchor_a, anchor_b, disposition, statement }, consent);
+  const [fricId, newState, friction_hints, err] = manageFriction(state, { op, friction_shape, anchor_a, anchor_b, disposition, statement, source }, consent);
   if (err) {
     return { content: [{ type: 'text', text: JSON.stringify(classifyStateError(err)) }], isError: true };
   }

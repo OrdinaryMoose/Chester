@@ -105,6 +105,7 @@ export function createElement(input, id, round) {
       anchor_b: input.anchor_b,
       disposition: input.disposition,
       statement: input.statement ?? '',
+      source: input.source ?? 'agent-derivation',
       addedInRound: round,
       revisedInRound: null,
       revision: 0,

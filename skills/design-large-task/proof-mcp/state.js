@@ -146,7 +146,7 @@ export function recordDesignerGo(state, consent) {
  * @param {object} state
  * @returns {{state: object, hints: Array<object>}}
  */
-function processFriction(state) {
+function processFriction(state, parentConsent = null, parentOp = null) {
   const { hints, autoCreate } = runFrictionDetection(state.elements, state.concerns);
   for (const candidate of autoCreate) {
     const [id, withId] = generateId(state, 'FRICTION');
@@ -158,7 +158,9 @@ function processFriction(state) {
       anchor_b: candidate.anchor_b,
       disposition: 'lived-with',
       statement: candidate.statement,
+      source: 'agent-derivation',
     }, id, state.round);
+    element.creationConsent = parentConsent ?? null;
     state.elements.set(id, element);
     state.frictionLog.push({
       event: 'auto-added',
@@ -166,6 +168,23 @@ function processFriction(state) {
       round: state.round,
       friction_shape: candidate.friction_shape,
       disposition: 'lived-with',
+      parentConsent: parentConsent ?? null,
+      parentOp: parentOp ?? null,
+    });
+    appendOperationLog(state, {
+      round: state.round,
+      op: 'auto-create-friction',
+      entityId: id,
+      type: 'FRICTION',
+      consent: parentConsent ?? null,
+      changedFields: null,
+      provenance: {
+        shape: candidate.friction_shape,
+        anchor_a: candidate.anchor_a,
+        anchor_b: candidate.anchor_b,
+        parentOp: parentOp ?? null,
+        parentConsent: parentConsent ?? null,
+      },
     });
   }
   return { state, hints };
@@ -201,7 +220,7 @@ export function addConcern(state, { label, description }, consent) {
     changedFields: null,
     provenance: { initialPayload: { label, description: description ?? null } },
   });
-  const fricResult = processFriction(newState);
+  const fricResult = processFriction(newState, consent, 'addConcern');
   newState = fricResult.state;
   return [id, newState, fricResult.hints, null];
 }
@@ -236,7 +255,7 @@ export function lockConcerns(state, consent) {
     changedFields: ['concernsLocked'],
     provenance: { concernCount: newState.concerns.length },
   });
-  const fricResult = processFriction(newState);
+  const fricResult = processFriction(newState, consent, 'lockConcerns');
   newState = fricResult.state;
   return [newState, fricResult.hints, null];
 }
@@ -329,7 +348,7 @@ export function ratifyResolveCondition(state, { elementId, ratificationText }, c
     changedFields: ['ratification'],
     provenance: { ratificationText },
   });
-  const fricResult = processFriction(newState);
+  const fricResult = processFriction(newState, consent, 'ratifyResolveCondition');
   newState = fricResult.state;
   return [newState, fricResult.hints, null];
 }
@@ -548,7 +567,7 @@ export function applyOperations(state, operations, consent) {
   // Run friction detection BEFORE history/metrics so auto-created FRICTION
   // elements participate in the post-operation snapshot. Rebinding `current`
   // here is load-bearing — without it, auto-created FRICTION elements vanish.
-  const fricResult = processFriction(current);
+  const fricResult = processFriction(current, consent, 'applyOperations');
   current = fricResult.state;
   const friction_hints = fricResult.hints;
 
@@ -659,6 +678,8 @@ export function loadState(filePath) {
     if (el.status === 'withdrawn') el.withdrawal_disposition ??= UNCLASSIFIED_DISPOSITION;
     // NC-only ratificationStatus (NC-18, RULE-8): legacy NCs default to 'draft'.
     if (el.type === 'NECESSARY_CONDITION') el.ratificationStatus ??= 'draft';
+    // FRICTION source (NC-3): legacy frictions default to 'agent-derivation'.
+    if (el.type === 'FRICTION') el.source ??= 'agent-derivation';
   }
   return raw;
 }
@@ -719,7 +740,7 @@ export function manageFriction(state, input, consent) {
       },
     },
   });
-  const fricResult = processFriction(withId);
+  const fricResult = processFriction(withId, consent, 'manageFriction');
   return [id, fricResult.state, fricResult.hints, null];
 }
 
@@ -782,7 +803,7 @@ export function overrideFrictionDisposition(state, { elementId, disposition }, c
       after: { disposition },
     },
   });
-  const fricResult = processFriction(newState);
+  const fricResult = processFriction(newState, consent, 'overrideFrictionDisposition');
   newState = fricResult.state;
   return [newState, fricResult.hints, null];
 }
