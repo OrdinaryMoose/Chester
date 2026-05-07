@@ -1,0 +1,2727 @@
+{
+  "session_id": "2379d5dd-1726-47c0-af39-2929da806aee",
+  "timestamp": "2026-05-06T10:44:50Z",
+  "sprint_name": "20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding",
+  "phase": "understand",
+  "understanding": {
+    "schemaVersion": "problemfocused-v0.1",
+    "userPrompt": "Cluster D — Build Shared Understanding (master-plan §4.5).\n\nTwo designer-ratified organizing principles:\n1. \"Design is the code.\" Give the agent and designer a formal language to operate with to harness the drive toward implementation back into a design level altitude.\n2. \"The purpose is to create Shared Understanding. Through shared understanding the design system delivers a commonly understood set of design requirements to the Specify system.\"\n\nProblem statement: How do we create a unified design system that builds shared understanding of the problem that delivers commonly understood design requirements to the Specify system?\n\nConcerns: (1) initial information available to the skill and how the initial topic and concerns are derived; (2) explore agents researching information relevant to our topic; (3) presentation layer — how information is provided to the designer to build shared understanding; (4) proof layer — how the agent faithfully manages information to build shared understanding; (5) agent and designer cooperatively advancing the proof; (6) proof system directing agent research for next round presentation; (7) proper information provided to specify so it creates architecture matching designer intent.",
+    "round": 0,
+    "overallThreshold": 0.65,
+    "tenetEntries": {
+      "problem_articulation": [],
+      "success_criteria": [],
+      "done_state_vision": [],
+      "constraint_envelope": [],
+      "scope_boundary": [],
+      "personal_use_case_map": [],
+      "cost_energy_budget": [],
+      "project_fit": [],
+      "open_questions_ledger": []
+    },
+    "tenetScores": {
+      "problem_articulation": 0,
+      "success_criteria": 0,
+      "done_state_vision": 0,
+      "constraint_envelope": 0,
+      "scope_boundary": 0,
+      "personal_use_case_map": 0,
+      "cost_energy_budget": 0,
+      "project_fit": 0,
+      "open_questions_ledger": 0
+    },
+    "scoreHistory": [],
+    "glossary": [
+      {
+        "canonical_name": "Shared understanding",
+        "aliases": [
+          "common alignment"
+        ],
+        "definition": "Common alignment between agent and designer about what the problem is, what constraints govern it, and what would resolve it. The cluster D purpose principle: the design system exists to produce shared understanding, and through that shared understanding delivers commonly understood requirements to the Specify system.",
+        "source": {
+          "explorer": "designer-direct",
+          "artifact": "cluster D charter / master-plan §4.5 organizing principle 2"
+        },
+        "sense_constraints": [
+          "NOT the same as agent agreement with designer; NOT one-sided summarization"
+        ],
+        "status": "PROPOSED-PENDING-DESIGNER",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "designer-direct",
+              "artifact": "cluster D charter / master-plan §4.5 organizing principle 2"
+            }
+          }
+        ]
+      },
+      {
+        "canonical_name": "Design is the code",
+        "aliases": [],
+        "definition": "First organizing principle for cluster D: the agent and designer operate within a formal language that IS the design medium. The agent's drive toward implementation lands at design altitude through the language itself rather than being prohibited.",
+        "source": {
+          "explorer": "designer-direct",
+          "artifact": "cluster D charter / master-plan §4.5 organizing principle 1"
+        },
+        "sense_constraints": [
+          "The proof IS the design, not a description of it. Distinct from 'design-as-code' patterns like Terraform — those describe end-state; this describes the conversation's structure."
+        ],
+        "status": "PROPOSED-PENDING-DESIGNER",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "designer-direct",
+              "artifact": "cluster D charter / master-plan §4.5 organizing principle 1"
+            }
+          }
+        ]
+      },
+      {
+        "canonical_name": "Design altitude",
+        "aliases": [
+          "problem altitude",
+          "PM altitude"
+        ],
+        "definition": "The problem-side framing register: what is broken, what is wanted, what constraints exist, what the system means. Contrasted with solve altitude (mechanism, type names, file paths, named patterns).",
+        "source": {
+          "explorer": "prior-art",
+          "artifact": "master CLAUDE.md Designer-Ratified Core Tenets"
+        },
+        "sense_constraints": [
+          "NOT the level of detail; the kind of question being answered."
+        ],
+        "status": "DEPRECATED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "prior-art",
+              "artifact": "master CLAUDE.md Designer-Ratified Core Tenets"
+            }
+          },
+          {
+            "event": "REMOVE",
+            "round": 0,
+            "designer_quote": "we already had two terms in use that described the separation of concerns; proof layer (which you renamed design altitude) and presentation layer",
+            "reason": "Agent introduced 'Design altitude' as a rename of existing in-use term 'Proof layer'. Designer rejects the rename — the master-plan §4.5 charter already names two layers (proof layer + presentation layer) describing the system's separation of concerns. Reinstating the original names; removing the substituted term."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Channel-don't-prohibit",
+        "aliases": [],
+        "definition": "Structural redirection of the agent's completion drive into productive artifact production at design altitude, rather than behavioral suppression. From plan-mode-design-guard rationale: prohibitions fight the drive; structural redirection harnesses it.",
+        "source": {
+          "explorer": "prior-art",
+          "artifact": "plan-mode-design-guard rationale + cluster D inherited principle"
+        },
+        "sense_constraints": [
+          "NOT an instruction to the agent. A structural property of the system."
+        ],
+        "status": "DEPRECATED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "prior-art",
+              "artifact": "plan-mode-design-guard rationale + cluster D inherited principle"
+            }
+          },
+          {
+            "event": "REMOVE",
+            "round": 0,
+            "designer_quote": "collapse to design is code and solve drive - channel overlaps",
+            "reason": "Designer collapsed the drive-redirection triangle. Solve-drive (phenomenon) and Design-is-the-code (mechanism) carry the load; Channel-don't-prohibit overlapped both. Removed."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Designer-codebase asymmetry",
+        "aliases": [],
+        "definition": "Designer holds problem intent and decision authority; the codebase carries pattern knowledge no single human can hold. In a 250k-LOC system the designer cannot be authority on patterns, so the agent must research and surface; the agent cannot be authority on intent, so the designer must ratify.",
+        "source": {
+          "explorer": "prior-art",
+          "artifact": "master-plan §11 + cluster D inherited evidence EV-E"
+        },
+        "sense_constraints": [
+          "About authority distribution, not about competence."
+        ],
+        "status": "PROPOSED-PENDING-DESIGNER",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "prior-art",
+              "artifact": "master-plan §11 + cluster D inherited evidence EV-E"
+            }
+          }
+        ]
+      },
+      {
+        "canonical_name": "Solve-drive",
+        "aliases": [
+          "completion drive"
+        ],
+        "definition": "The agent's built-in pull toward solving — a designed-for property of the agent's training. Cluster D channels this drive toward proof closure at design altitude rather than prohibiting drive expression.",
+        "source": {
+          "explorer": "prior-art",
+          "artifact": "master CLAUDE.md Designer-Ratified Core Tenets"
+        },
+        "sense_constraints": [
+          "A feature, not a failure mode."
+        ],
+        "status": "PROPOSED-PENDING-DESIGNER",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "prior-art",
+              "artifact": "master CLAUDE.md Designer-Ratified Core Tenets"
+            }
+          }
+        ]
+      },
+      {
+        "canonical_name": "Specify system",
+        "aliases": [
+          "design-specify",
+          "Specify"
+        ],
+        "definition": "The downstream system (design-specify) that consumes the cluster D output and generates architecture. Cluster D must hand off enough fidelity that Specify produces architecture matching designer intent.",
+        "source": {
+          "explorer": "codebase",
+          "artifact": "skills/design-specify/SKILL.md"
+        },
+        "sense_constraints": [],
+        "status": "PROPOSED-PENDING-DESIGNER",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "codebase",
+              "artifact": "skills/design-specify/SKILL.md"
+            }
+          }
+        ]
+      },
+      {
+        "canonical_name": "Concern",
+        "aliases": [],
+        "definition": "Designer-ratified named aspect of the problem statement. Each Resolve Condition anchors to exactly one Concern; coverage at closure requires every Concern carry at least one ratified Resolve Condition or a covering Rule.",
+        "source": {
+          "explorer": "prior-art",
+          "artifact": "cluster A define-solve deliverable"
+        },
+        "sense_constraints": [
+          "PM-readable label. Distinct from Risk."
+        ],
+        "status": "PROPOSED-PENDING-DESIGNER",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "prior-art",
+              "artifact": "cluster A define-solve deliverable"
+            }
+          }
+        ]
+      },
+      {
+        "canonical_name": "Resolve Condition",
+        "aliases": [
+          "RC",
+          "resolution claim"
+        ],
+        "definition": "Proof element type that names what completion of a Concern looks like. Cluster D shape: RC carries five attributes (Observable · Approval-tracked · Problem-statement-anchored · Forward-looking · Non-restrictive). Two state values: Draft RC (agent-added, designer-not-yet-confirmed; revisable; does not count toward coverage) and Ratified RC (designer-confirmed; counts toward closure coverage; closure-eligible).",
+        "source": {
+          "explorer": "prior-art",
+          "artifact": "cluster A define-solve deliverable"
+        },
+        "sense_constraints": [
+          "Distinct from Necessary Condition. RC = exit condition; NC = invariant the design must maintain."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "prior-art",
+              "artifact": "cluster A define-solve deliverable"
+            }
+          },
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Cluster D Stage 2 RC sharpening ratification 2026-05-05. Resolve Condition shape locked with five attributes plus two state values (Draft RC / Ratified RC). Approval-tracked replaces the original Designer-ratified attribute with an explicit two-state lifecycle named in the shape itself. — Resolve Condition shape now defined per cluster D Stage 2 ratification."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Closing argument",
+        "aliases": [],
+        "definition": "Single self-contained artifact derived as a pure read from current proof state. Walks every live Resolve Condition end-to-end with grounding back to NCs, Evidence, Rules. Designer reads in one pass.",
+        "source": {
+          "explorer": "prior-art",
+          "artifact": "cluster B.2 deliverable"
+        },
+        "sense_constraints": [
+          "Read-only and idempotent over current proof state."
+        ],
+        "status": "PROPOSED-PENDING-DESIGNER",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "prior-art",
+              "artifact": "cluster B.2 deliverable"
+            }
+          }
+        ]
+      },
+      {
+        "canonical_name": "Two-yes closure gate",
+        "aliases": [],
+        "definition": "Designer must consent to view the closing argument AND say 'go' against it in the same round. The 'go' is the ratification. Any state-mutating proof tool call clears both consents.",
+        "source": {
+          "explorer": "prior-art",
+          "artifact": "cluster B.2 deliverable"
+        },
+        "sense_constraints": [],
+        "status": "PROPOSED-PENDING-DESIGNER",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "prior-art",
+              "artifact": "cluster B.2 deliverable"
+            }
+          }
+        ]
+      },
+      {
+        "canonical_name": "One-system architecture",
+        "aliases": [],
+        "definition": "Cluster C 2026-05-04 pivot: eliminate the Phase 4a / Phase 4b separation; the proof MCP runs continuously from session start without a named two-stage boundary. Cluster D inherits this as locked structural context.",
+        "source": {
+          "explorer": "prior-art",
+          "artifact": "master-plan §11 pivot amendment + cluster C closing design doc"
+        },
+        "sense_constraints": [
+          "Locked. Phase 4a/4b vocabulary remains as historical paper trail only."
+        ],
+        "status": "PROPOSED-PENDING-DESIGNER",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "seeded",
+            "round": 0,
+            "source": {
+              "explorer": "prior-art",
+              "artifact": "master-plan §11 pivot amendment + cluster C closing design doc"
+            }
+          }
+        ]
+      },
+      {
+        "canonical_name": "Proof layer",
+        "aliases": [],
+        "definition": "How the agent faithfully manages information to build shared understanding. One of two layers in cluster D's separation of concerns (paired with Presentation layer).",
+        "source": null,
+        "sense_constraints": [
+          "Layer of the system, not a register of discourse. Distinct from the conceptual notion of design altitude."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "we already had two terms in use that described the separation of concerns; proof layer (which you renamed design altitude) and presentation layer. both definitions in the cluster d master plan paragraph.",
+            "reason": "Reinstating 'Proof layer' from master-plan §4.5 cluster D charter (concern #4). Designer-ratified name for one of two layers in cluster D's separation of concerns."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Presentation layer",
+        "aliases": [],
+        "definition": "How information is provided to the designer to build shared understanding. One of two layers in cluster D's separation of concerns (paired with Proof layer).",
+        "source": null,
+        "sense_constraints": [
+          "Layer of the system, not a register of discourse."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "we already had two terms in use that described the separation of concerns; proof layer (which you renamed design altitude) and presentation layer. both definitions in the cluster d master plan paragraph.",
+            "reason": "Adding 'Presentation layer' from master-plan §4.5 cluster D charter (concern #3). Designer-ratified name for the second of two layers in cluster D's separation of concerns. Pairs with Proof layer."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Topic",
+        "aliases": [],
+        "definition": "The focus of design conversation — initially derived from the designer's invocation prompt and explorer findings, refined as the proof advances. Per cluster D charter concern #1, 'how the initial topic and concerns are derived' is a load-bearing design question. The Topic frames what the proof is about; Concerns enumerate aspects of the Topic.",
+        "source": null,
+        "sense_constraints": [
+          "Distinct from Concern (Topic is the overall subject; Concerns are aspects of it).",
+          "Distinct from problem statement (problem statement is the polished sentence; Topic is the focus area)."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "we missed a definition for Topic",
+            "reason": "Designer flagged Topic missing from seed glossary. Per cluster D charter concern #1, 'how the initial topic and concerns are derived' is load-bearing. Adding with proposed definition for designer ratification."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Shared understanding",
+        "aliases": [
+          "common alignment"
+        ],
+        "definition": "Common alignment between agent and designer about what the problem is, what constraints govern it, and what would resolve it. The cluster D purpose principle: the design system exists to produce shared understanding, and through that shared understanding delivers commonly understood requirements to the Specify system.",
+        "source": null,
+        "sense_constraints": [
+          "NOT the same as agent agreement with designer; NOT one-sided summarization"
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "approved",
+            "reason": "En-bloc ratification of seeded term."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Design is the code",
+        "aliases": [],
+        "definition": "First organizing principle for cluster D: the agent and designer operate within a formal language that IS the design medium. The agent's drive toward implementation lands at design altitude through the language itself rather than being prohibited.",
+        "source": null,
+        "sense_constraints": [
+          "The proof IS the design, not a description of it. Distinct from 'design-as-code' patterns like Terraform — those describe end-state; this describes the conversation's structure."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "approved",
+            "reason": "En-bloc ratification of seeded term."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Designer-codebase asymmetry",
+        "aliases": [],
+        "definition": "Designer holds problem intent and decision authority; the codebase carries pattern knowledge no single human can hold. In a 250k-LOC system the designer cannot be authority on patterns, so the agent must research and surface; the agent cannot be authority on intent, so the designer must ratify.",
+        "source": null,
+        "sense_constraints": [
+          "About authority distribution, not about competence."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "approved",
+            "reason": "En-bloc ratification of seeded term."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Solve-drive",
+        "aliases": [
+          "completion drive"
+        ],
+        "definition": "The agent's built-in pull toward solving — a designed-for property of the agent's training. Cluster D channels this drive toward proof closure at design altitude rather than prohibiting drive expression.",
+        "source": null,
+        "sense_constraints": [
+          "A feature, not a failure mode."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "approved",
+            "reason": "En-bloc ratification of seeded term."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Specify system",
+        "aliases": [
+          "design-specify",
+          "Specify"
+        ],
+        "definition": "The downstream system (design-specify) that consumes the cluster D output and generates architecture. Cluster D must hand off enough fidelity that Specify produces architecture matching designer intent.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "approved",
+            "reason": "En-bloc ratification of seeded term."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Concern",
+        "aliases": [],
+        "definition": "Designer-ratified named aspect of the problem statement. Each Resolve Condition anchors to exactly one Concern; coverage at closure requires every Concern carry at least one ratified Resolve Condition or a covering Rule.",
+        "source": null,
+        "sense_constraints": [
+          "PM-readable label. Distinct from Risk."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "approved",
+            "reason": "En-bloc ratification of seeded term."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Closing argument",
+        "aliases": [],
+        "definition": "Single self-contained artifact derived as a pure read from current proof state. Walks every live Resolve Condition end-to-end with grounding back to NCs, Evidence, Rules. Designer reads in one pass.",
+        "source": null,
+        "sense_constraints": [
+          "Read-only and idempotent over current proof state."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "approved",
+            "reason": "En-bloc ratification of seeded term."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Two-yes closure gate",
+        "aliases": [],
+        "definition": "Designer must consent to view the closing argument AND say 'go' against it in the same round. The 'go' is the ratification. Any state-mutating proof tool call clears both consents.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "approved",
+            "reason": "En-bloc ratification of seeded term."
+          }
+        ]
+      },
+      {
+        "canonical_name": "One-system architecture",
+        "aliases": [],
+        "definition": "Cluster C 2026-05-04 pivot: eliminate the Phase 4a / Phase 4b separation; the proof MCP runs continuously from session start without a named two-stage boundary. Cluster D inherits this as locked structural context.",
+        "source": null,
+        "sense_constraints": [
+          "Locked. Phase 4a/4b vocabulary remains as historical paper trail only."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "approved",
+            "reason": "En-bloc ratification of seeded term."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Structured",
+        "aliases": [
+          "structure axis"
+        ],
+        "definition": "Property of a problem's internal formulation. A problem is structured to the degree that its components, relationships, and constraints are explicitly known, agreed upon, and decomposable into operable sub-problems. At maximum, every relevant entity has a name, every interaction is governed by a stateable rule, and the problem can be partitioned without loss of meaning. Diagnosed via the decomposition / rules / naming / transfer tests. One of two independent axes of the Two-axis problem space.",
+        "source": null,
+        "sense_constraints": [
+          "NOT a measure of difficulty (a structured problem can be intractable; chess endgame).",
+          "NOT a measure of familiarity (a familiar mess remains a mess).",
+          "Property of internal formulation, distinct from Bounded which describes closure."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "introduce two terms; structured and bounded. introduce the concept of the two axis problem space into our proposed model.",
+            "reason": "Designer-direct introduction of structured-bounded framework as a load-bearing vocabulary addition for cluster D's proof-layer language design. Definition derived from the reference paper §1.1; recorded at design/structured-bounded-problem-space-reference.md."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Bounded",
+        "aliases": [
+          "bounds axis"
+        ],
+        "definition": "Property of a problem's closure. A problem is bounded to the degree that it has a finite, definable solution space and explicit, recognizable success criteria. At maximum, the candidate-solution set is enumerable in principle and an external check confirms when a solution has been found. Diagnosed via the recognition / verification / enumeration / agreement tests. One of two independent axes of the Two-axis problem space.",
+        "source": null,
+        "sense_constraints": [
+          "NOT the same as a deadline (a deadline narrows time, not the problem — false-bounds error).",
+          "Property of closure, distinct from Structured which describes internal formulation.",
+          "Bounded problems can still be intractable to solve (NP-hard with verifiable answer)."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "introduce two terms; structured and bounded. introduce the concept of the two axis problem space into our proposed model.",
+            "reason": "Designer-direct introduction of structured-bounded framework as a load-bearing vocabulary addition for cluster D's proof-layer language design. Definition derived from the reference paper §1.2; recorded at design/structured-bounded-problem-space-reference.md."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Two-axis problem space",
+        "aliases": [
+          "structure-bounds framework",
+          "structured-bounded space",
+          "problem-space coordinates"
+        ],
+        "definition": "Coordinate system that classifies a problem along two independent axes — Structured and Bounded — generating four quadrants: structured-bounded (solve), structured-unbounded (optimize), unstructured-bounded (frame and ship), unstructured-unbounded (explore). Most problem-solving consists of moving a problem through this space (adding structure, adding bounds) rather than solving at fixed coordinates. The two cognitive operations — add structure (rightward), add bounds (upward) — are independent and may be performed in either order. Cluster D adopts this framework as the lens for placing problems and tracking their movement through the design conversation.",
+        "source": null,
+        "sense_constraints": [
+          "The two axes are independent — correlation between them is empirical, not definitional. Off-diagonal quadrants (structured-unbounded, unstructured-bounded) are exactly where the most interesting failures occur.",
+          "Distinct from Cynefin (which folds in causation) and from Simon's well/ill-defined (which conflates bounds into structure).",
+          "Movement through the space is itself first-class work for cluster D's design system, not a precondition to it."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "introduce the concept of the two axis problem space into our proposed model",
+            "reason": "Designer-direct introduction of the structured-bounded coordinate system into cluster D's design subject. Frames how problems are placed and how movement through the space is encoded in the proof-layer language. Reference paper at design/structured-bounded-problem-space-reference.md captures full framework (§1-§6)."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Coordinate",
+        "aliases": [
+          "coordinate placement",
+          "placement"
+        ],
+        "definition": "Position of a problem in the Two-axis problem space (Structured × Bounded). Used as meta-language to describe problem nature and proof state per R04.",
+        "source": null,
+        "sense_constraints": [
+          "Vocabulary about the proof, not a proof element."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Quadrant",
+        "aliases": [],
+        "definition": "One of four cells in the Two-axis problem space: structured-bounded (solve), structured-unbounded (optimize), unstructured-bounded (frame and ship), unstructured-unbounded (explore).",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Trajectory",
+        "aliases": [],
+        "definition": "Path a problem takes through the Two-axis problem space as agent and designer add structure or add bounds.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Movement",
+        "aliases": [],
+        "definition": "Change of a problem's coordinate in the Two-axis problem space, produced by either cognitive operation (add structure, add bounds).",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Add structure",
+        "aliases": [],
+        "definition": "First cognitive operation in the Two-axis problem space: framing, decomposing, naming components, articulating relationships. Rightward motion in R04's space.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Add bounds",
+        "aliases": [],
+        "definition": "Second cognitive operation in the Two-axis problem space: scoping, choosing target, defining done. Upward motion in R04's space.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Upper-right quadrant",
+        "aliases": [],
+        "definition": "The structured-and-bounded position in the Two-axis problem space — the readiness condition for closing argument per R19.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Off-diagonal",
+        "aliases": [],
+        "definition": "Either of the two off-diagonal quadrants of the Two-axis problem space (structured-unbounded; unstructured-bounded). Where the most interesting failures occur per R04's reference paper.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Source-class",
+        "aliases": [
+          "source classification"
+        ],
+        "definition": "Closed source set per R07. Six values: codebase, industry, prior-art, session-observation (observable channels for EVIDENCE), designer (RULE/PERMISSION only), agent-derived.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEPRECATED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          },
+          {
+            "event": "REMOVE",
+            "round": 0,
+            "designer_quote": "yes for a,b,c",
+            "reason": "Designer-instigated retire 2026-05-05: terms duplicate proof MCP mechanics already enforced in code (source field enum, ratification field, ratify_resolve_condition tool). Retired to avoid restating shipped behavior."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Designer-direct",
+        "aliases": [],
+        "definition": "Claim originating from the designer; routes to RULE or PERMISSION per R07 authority labeling.",
+        "source": null,
+        "sense_constraints": [
+          "Distinct from designer-ratified (which is the validation act, not the origination)."
+        ],
+        "status": "DEPRECATED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          },
+          {
+            "event": "REMOVE",
+            "round": 0,
+            "designer_quote": "yes for a,b,c",
+            "reason": "Designer-instigated retire 2026-05-05: terms duplicate proof MCP mechanics already enforced in code (source field enum, ratification field, ratify_resolve_condition tool). Retired to avoid restating shipped behavior."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Agent-derived",
+        "aliases": [],
+        "definition": "Claim originating from agent reasoning; labels its derivation chain visibly per R07.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Observable channel",
+        "aliases": [],
+        "definition": "One of the four observable EVIDENCE sources per R07: codebase, industry, prior-art, session-observation.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEPRECATED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          },
+          {
+            "event": "REMOVE",
+            "round": 0,
+            "designer_quote": "yes for a,b,c",
+            "reason": "Designer-instigated retire 2026-05-05: terms duplicate proof MCP mechanics already enforced in code (source field enum, ratification field, ratify_resolve_condition tool). Retired to avoid restating shipped behavior."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Ratify",
+        "aliases": [
+          "ratification"
+        ],
+        "definition": "Designer's confirmation act on a proposed element, rule, or vocabulary action.",
+        "source": null,
+        "sense_constraints": [
+          "Distinct from designer-direct (which is origination, not validation)."
+        ],
+        "status": "DEPRECATED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          },
+          {
+            "event": "REMOVE",
+            "round": 0,
+            "designer_quote": "yes for a,b,c",
+            "reason": "Designer-instigated retire 2026-05-05: terms duplicate proof MCP mechanics already enforced in code (source field enum, ratification field, ratify_resolve_condition tool). Retired to avoid restating shipped behavior."
+          }
+        ]
+      },
+      {
+        "canonical_name": "En-bloc",
+        "aliases": [],
+        "definition": "Group ratification at once — designer accepts a set of items in a single act rather than per-item review.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "In-band",
+        "aliases": [],
+        "definition": "Change made inside an open proof using the proof MCP's mutation operations (manage_concerns, submit_proof_update).",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Out-of-band",
+        "aliases": [],
+        "definition": "Change that cannot be applied inside the open proof — typically because it touches the problem statement or removes existing Concerns. Forces fresh proof opening per R21 lineage (now in shipped MCP).",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Reframe",
+        "aliases": [],
+        "definition": "Designer-introduced shift in framing. May be in-band or out-of-band depending on what the reframe touches.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Cluster transfer",
+        "aliases": [],
+        "definition": "Out-of-band reframe at charter altitude — different organizing principles or different problem altitude. Forces a new sub-sprint; cannot absorb in-band. Cluster C → cluster D demonstrated.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Pivot",
+        "aliases": [],
+        "definition": "Architecture-level reframe within a cluster's altitude. Same problem, different shape. Absorbed by master plan amendment, not cluster transfer. Cluster C pivot 1 (one-system architecture) demonstrated.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Charter-level",
+        "aliases": [],
+        "definition": "Affecting the cluster's organizing principles or problem altitude. Charter-level moves require master plan changes; sub-clusters cannot author in-band.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Provisional",
+        "aliases": [],
+        "definition": "Rule status flag for a rule that is ratified but expected to revise once a related concern resolves. Currently applied to R12 and R13 pending Resolve Condition rework.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Coverage",
+        "aliases": [
+          "coverage map"
+        ],
+        "definition": "Property of the proof state: every Concern carries at least one ratified Resolve Condition or covering Rule. Closure requires full coverage.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Closure",
+        "aliases": [
+          "closure gate"
+        ],
+        "definition": "Proof-complete state. Reached when coverage is met and the two-yes closure gate produces a 'go'.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Self-contained artifact",
+        "aliases": [],
+        "definition": "Property of a designed artifact: reads end-to-end without reference to external material. Closing argument carries this property per design self-containment (R05).",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Reasoning chain",
+        "aliases": [],
+        "definition": "Element field on Necessary Conditions: an IF…THEN derivation showing why the condition holds from its grounding.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Grounding",
+        "aliases": [],
+        "definition": "Element field on Necessary Conditions: pointers to the elements (Evidence, Rules) the condition derives from.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Collapse test",
+        "aliases": [],
+        "definition": "Element field on Necessary Conditions: what breaks if the condition is removed. Demonstrates load-bearingness.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Rejected alternatives",
+        "aliases": [],
+        "definition": "Element field on Necessary Conditions: alternative formulations considered and dismissed, with reasons.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Element",
+        "aliases": [
+          "element type"
+        ],
+        "definition": "Generic reference to a typed proof item. Element types are closed at the inherited 9 per R11.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Statement",
+        "aliases": [],
+        "definition": "An element's content text — what the element says.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Drift",
+        "aliases": [],
+        "definition": "Vocabulary or framing slippage that accumulates without being caught. Synonym drift, paraphrase drift, scope drift. Industry-recognized failure mode for shared-understanding languages.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Discipline",
+        "aliases": [],
+        "definition": "Structural enforcement of a rule by the system's shape, as opposed to behavioral enforcement by reminder. Cluster D bias is structural over aspirational per CN-D-8.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Atomic claim",
+        "aliases": [],
+        "definition": "Single-claim element: states one thing about one subject. Preferred granularity for proof elements per CN-D-14.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Aggregate claim",
+        "aliases": [],
+        "definition": "Element bundling multiple claims. Costs checkability; resisted unless the aggregate is the actual unit of meaning.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Round-trip readability",
+        "aliases": [],
+        "definition": "Property: proof state is readable directly by both agent and designer without an intermediate translation step. CN-D-12 territory.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Withdrawal",
+        "aliases": [],
+        "definition": "Element retirement that preserves the withdrawn element with reason rather than silent deletion. Cluster B.2 phantom mechanism.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Friction hint",
+        "aliases": [],
+        "definition": "Heuristic warning surfaced by the proof MCP when two or more existing elements show structural tension (e.g. shared-token overlap between two Concerns).",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Disposition",
+        "aliases": [],
+        "definition": "Closed-set tag attached to Phantoms (consolidated / superseded / found-redundant / found-incorrect / scope-removed) and Friction (lived-with / relieved-by-exception / dissolved-by-revision / dissolved-by-scope-cut / not-really-friction).",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Master plan",
+        "aliases": [],
+        "definition": "Umbrella plan governing a sequence of clusters under a single design effort. Currently 20260430-02-rebuild-design-derivation.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Sub-sprint",
+        "aliases": [
+          "cluster"
+        ],
+        "definition": "Sub-plan unit under a master plan. Cluster A, B.1, B.2, C, D are each sub-sprints.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Sprint",
+        "aliases": [],
+        "definition": "Generic plan unit — either a master plan or a sub-sprint.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Round",
+        "aliases": [
+          "turn"
+        ],
+        "definition": "Single agent-designer exchange unit in a design conversation.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Topic queue",
+        "aliases": [],
+        "definition": "List of pending design topics ordered by priority for the next several rounds.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Information package",
+        "aliases": [],
+        "definition": "Structured turn content delivered by the agent: observations + facts + analysis + commentary + closing prompt.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Status line",
+        "aliases": [],
+        "definition": "Single-line `→ Step Name` indicator at the bottom of each turn marking current phase or step.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Open",
+        "aliases": [
+          "proof opening"
+        ],
+        "definition": "The concrete `open_proof` MCP action — the mutation that creates the initial proof state from caller-submitted material, including problem statement, RULES, EVIDENCE, and the restructuring report. Distinct from Start (which initializes the proof MCP itself).",
+        "source": null,
+        "sense_constraints": [
+          "Per-instance, not per-system."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "delete all of these terms except the task of open/proof opening (i think that is tied to a proof mcp action)",
+            "reason": "Designer-direct ratification. Kept from B.1-vocabulary retire turn because it ties to the concrete `open_proof` MCP action."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Start",
+        "aliases": [],
+        "definition": "The initialization sequence for the proof MCP — the one-time action that initializes proof values on proof MCP startup. System-level. Distinct from Open: Start initializes the proof MCP itself; Open creates a specific proof instance with its problem statement and initial elements.",
+        "source": null,
+        "sense_constraints": [
+          "System-level, not per-instance."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "in proof advancement add in Start = the initialization sequence for the proof mcp (i think this is how we want to say it - implying the one time action that occurs that initalized the proof values on proof mcp startup)",
+            "reason": "Designer-direct introduction. Names the one-time proof MCP startup initialization action, distinct from Open (which creates a specific proof instance)."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Approval-tracked",
+        "aliases": [],
+        "definition": "RC attribute. Names the shape requirement that an RC carries an explicit approval state on itself with two values (draft / ratified). The state lives on the RC, not external to it. Agent adds as Draft RC; designer ratifies to advance to Ratified RC. Only Ratified RCs count toward closure coverage.",
+        "source": null,
+        "sense_constraints": [
+          "Names the shape requirement; the proof MCP's ratification field is the storage; Draft RC / Ratified RC are the values."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Cluster D Stage 2 RC sharpening ratification 2026-05-05. Resolve Condition shape locked with five attributes plus two state values (Draft RC / Ratified RC). Approval-tracked replaces the original Designer-ratified attribute with an explicit two-state lifecycle named in the shape itself."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Draft RC",
+        "aliases": [],
+        "definition": "An RC instance with approval state = draft. Agent-added; designer has not yet confirmed. Visible in proof state; revisable; does not count toward Concern coverage at closure.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Cluster D Stage 2 RC sharpening ratification 2026-05-05. Resolve Condition shape locked with five attributes plus two state values (Draft RC / Ratified RC). Approval-tracked replaces the original Designer-ratified attribute with an explicit two-state lifecycle named in the shape itself."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Ratified RC",
+        "aliases": [],
+        "definition": "An RC instance with approval state = ratified. Designer has confirmed via the proof MCP's ratify_resolve_condition action. Counts toward Concern coverage. Closure-eligible.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Cluster D Stage 2 RC sharpening ratification 2026-05-05. Resolve Condition shape locked with five attributes plus two state values (Draft RC / Ratified RC). Approval-tracked replaces the original Designer-ratified attribute with an explicit two-state lifecycle named in the shape itself."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Observable (RC attribute)",
+        "aliases": [],
+        "definition": "RC attribute (cluster D sharpened sense). The RC names a check a third party (not the proof's author) can perform to confirm the state holds or doesn't hold. Confirmation is independent of the agent's claim. Test, code reading, behavioral observation, artifact inspection — never agent reasoning alone.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Cluster D Stage 2 RC sharpening ratification 2026-05-05. Resolve Condition shape locked with five attributes plus two state values (Draft RC / Ratified RC). Approval-tracked replaces the original Designer-ratified attribute with an explicit two-state lifecycle named in the shape itself."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Problem-statement-anchored",
+        "aliases": [],
+        "definition": "RC attribute. The RC anchors to exactly one Concern via the problem_anchor field. One-to-one — an RC resolving multiple Concerns is two RCs.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Cluster D Stage 2 RC sharpening ratification 2026-05-05. Resolve Condition shape locked with five attributes plus two state values (Draft RC / Ratified RC). Approval-tracked replaces the original Designer-ratified attribute with an explicit two-state lifecycle named in the shape itself."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Forward-looking",
+        "aliases": [],
+        "definition": "RC attribute. The RC describes a state that will exist after the design is implemented and operating. Distinct from Evidence (states existing now) and from Rules (invariants always holding). RC is the post-condition; Evidence is the pre-condition; Rule is the invariant.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Cluster D Stage 2 RC sharpening ratification 2026-05-05. Resolve Condition shape locked with five attributes plus two state values (Draft RC / Ratified RC). Approval-tracked replaces the original Designer-ratified attribute with an explicit two-state lifecycle named in the shape itself."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Non-restrictive",
+        "aliases": [],
+        "definition": "RC attribute. The RC describes what completion looks like, not a path to completion. Rules say 'the design must avoid X'; Permissions say 'the design may admit Y despite a Rule'; RC says 'the design has reached state Z'. RC is the exit-condition check, not a constraint on how the design got there.",
+        "source": null,
+        "sense_constraints": [],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "a",
+            "reason": "Cluster D Stage 2 RC sharpening ratification 2026-05-05. Resolve Condition shape locked with five attributes plus two state values (Draft RC / Ratified RC). Approval-tracked replaces the original Designer-ratified attribute with an explicit two-state lifecycle named in the shape itself."
+          }
+        ]
+      },
+      {
+        "canonical_name": "Step",
+        "aliases": [],
+        "definition": "A specific action that occurs within a Phase. Phases describe the seven-unit skill architecture (Start, Bootstrap, Pre-Open, Open, Round cycle, Closing argument presentation, Closure); Steps describe what happens inside a Phase (for example, within Pre-Open the Steps include 'agent reads invocation,' 'designer confirms Topic,' 'agent provides initial information packet,' etc.). When listing Phases or Steps in any context, each shall be accompanied by a one-sentence description.",
+        "source": null,
+        "sense_constraints": [
+          "Distinct from Phase — Phase is the larger unit of skill architecture; Step is the specific action within."
+        ],
+        "status": "DEFINED",
+        "first_used_round": 0,
+        "history": [
+          {
+            "event": "ADD",
+            "round": 0,
+            "designer_quote": "introduce the term Step. Steps are the specific actions that occur within Phases. When listing Phases and Steps, always include a one sentence description of them. update the information packet",
+            "reason": "Designer-direct introduction of Step as a cluster D term. Distinguishes specific actions within a Phase (e.g., a Step inside Pre-Open) from Phases themselves (the 7 high-level skill architecture units)."
+          }
+        ]
+      }
+    ],
+    "vocabularyActionLog": [
+      {
+        "action": "REMOVE",
+        "target_terms": [
+          "Design altitude"
+        ],
+        "new_term": null,
+        "reason": "Agent introduced 'Design altitude' as a rename of existing in-use term 'Proof layer'. Designer rejects the rename — the master-plan §4.5 charter already names two layers (proof layer + presentation layer) describing the system's separation of concerns. Reinstating the original names; removing the substituted term.",
+        "designer_quote": "we already had two terms in use that described the separation of concerns; proof layer (which you renamed design altitude) and presentation layer",
+        "classification": "DEPRECATE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T12:10:25.328Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Proof layer"
+        ],
+        "new_term": {
+          "canonical_name": "Proof layer"
+        },
+        "reason": "Reinstating 'Proof layer' from master-plan §4.5 cluster D charter (concern #4). Designer-ratified name for one of two layers in cluster D's separation of concerns.",
+        "designer_quote": "we already had two terms in use that described the separation of concerns; proof layer (which you renamed design altitude) and presentation layer. both definitions in the cluster d master plan paragraph.",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T12:10:30.441Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Presentation layer"
+        ],
+        "new_term": {
+          "canonical_name": "Presentation layer"
+        },
+        "reason": "Adding 'Presentation layer' from master-plan §4.5 cluster D charter (concern #3). Designer-ratified name for the second of two layers in cluster D's separation of concerns. Pairs with Proof layer.",
+        "designer_quote": "we already had two terms in use that described the separation of concerns; proof layer (which you renamed design altitude) and presentation layer. both definitions in the cluster d master plan paragraph.",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T12:10:34.037Z"
+      },
+      {
+        "action": "DEFER",
+        "target_terms": [
+          "Resolve Condition"
+        ],
+        "new_term": null,
+        "reason": "Designer marks Resolve Condition as draft — its definition or fit will be worked during cluster D session. Held in pending state rather than locking.",
+        "designer_quote": "mark the Resolve Condition as draft (we will need to work on it during the session)",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T12:10:36.359Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Topic"
+        ],
+        "new_term": {
+          "canonical_name": "Topic"
+        },
+        "reason": "Designer flagged Topic missing from seed glossary. Per cluster D charter concern #1, 'how the initial topic and concerns are derived' is load-bearing. Adding with proposed definition for designer ratification.",
+        "designer_quote": "we missed a definition for Topic",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T12:13:07.727Z"
+      },
+      {
+        "action": "REMOVE",
+        "target_terms": [
+          "Channel-don't-prohibit"
+        ],
+        "new_term": null,
+        "reason": "Designer collapsed the drive-redirection triangle. Solve-drive (phenomenon) and Design-is-the-code (mechanism) carry the load; Channel-don't-prohibit overlapped both. Removed.",
+        "designer_quote": "collapse to design is code and solve drive - channel overlaps",
+        "classification": "DEPRECATE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T12:19:22.651Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Shared understanding"
+        ],
+        "new_term": {
+          "canonical_name": "Shared understanding"
+        },
+        "reason": "En-bloc ratification of seeded term.",
+        "designer_quote": "approved",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T12:20:38.582Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Design is the code"
+        ],
+        "new_term": {
+          "canonical_name": "Design is the code"
+        },
+        "reason": "En-bloc ratification of seeded term.",
+        "designer_quote": "approved",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T12:20:44.414Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Designer-codebase asymmetry"
+        ],
+        "new_term": {
+          "canonical_name": "Designer-codebase asymmetry"
+        },
+        "reason": "En-bloc ratification of seeded term.",
+        "designer_quote": "approved",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T12:20:48.964Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Solve-drive"
+        ],
+        "new_term": {
+          "canonical_name": "Solve-drive"
+        },
+        "reason": "En-bloc ratification of seeded term.",
+        "designer_quote": "approved",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T12:20:53.096Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Specify system"
+        ],
+        "new_term": {
+          "canonical_name": "Specify system"
+        },
+        "reason": "En-bloc ratification of seeded term.",
+        "designer_quote": "approved",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T12:20:56.594Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Concern"
+        ],
+        "new_term": {
+          "canonical_name": "Concern"
+        },
+        "reason": "En-bloc ratification of seeded term.",
+        "designer_quote": "approved",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T12:21:00.485Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Closing argument"
+        ],
+        "new_term": {
+          "canonical_name": "Closing argument"
+        },
+        "reason": "En-bloc ratification of seeded term.",
+        "designer_quote": "approved",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T12:21:04.677Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Two-yes closure gate"
+        ],
+        "new_term": {
+          "canonical_name": "Two-yes closure gate"
+        },
+        "reason": "En-bloc ratification of seeded term.",
+        "designer_quote": "approved",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T12:21:08.616Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "One-system architecture"
+        ],
+        "new_term": {
+          "canonical_name": "One-system architecture"
+        },
+        "reason": "En-bloc ratification of seeded term.",
+        "designer_quote": "approved",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T12:21:12.725Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Structured"
+        ],
+        "new_term": {
+          "canonical_name": "Structured"
+        },
+        "reason": "Designer-direct introduction of structured-bounded framework as a load-bearing vocabulary addition for cluster D's proof-layer language design. Definition derived from the reference paper §1.1; recorded at design/structured-bounded-problem-space-reference.md.",
+        "designer_quote": "introduce two terms; structured and bounded. introduce the concept of the two axis problem space into our proposed model.",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T13:15:49.463Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Bounded"
+        ],
+        "new_term": {
+          "canonical_name": "Bounded"
+        },
+        "reason": "Designer-direct introduction of structured-bounded framework as a load-bearing vocabulary addition for cluster D's proof-layer language design. Definition derived from the reference paper §1.2; recorded at design/structured-bounded-problem-space-reference.md.",
+        "designer_quote": "introduce two terms; structured and bounded. introduce the concept of the two axis problem space into our proposed model.",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T13:15:56.041Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Two-axis problem space"
+        ],
+        "new_term": {
+          "canonical_name": "Two-axis problem space"
+        },
+        "reason": "Designer-direct introduction of the structured-bounded coordinate system into cluster D's design subject. Frames how problems are placed and how movement through the space is encoded in the proof-layer language. Reference paper at design/structured-bounded-problem-space-reference.md captures full framework (§1-§6).",
+        "designer_quote": "introduce the concept of the two axis problem space into our proposed model",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T13:16:05.864Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Coordinate"
+        ],
+        "new_term": {
+          "canonical_name": "Coordinate"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Quadrant"
+        ],
+        "new_term": {
+          "canonical_name": "Quadrant"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Trajectory"
+        ],
+        "new_term": {
+          "canonical_name": "Trajectory"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Movement"
+        ],
+        "new_term": {
+          "canonical_name": "Movement"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Add structure"
+        ],
+        "new_term": {
+          "canonical_name": "Add structure"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Add bounds"
+        ],
+        "new_term": {
+          "canonical_name": "Add bounds"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Upper-right quadrant"
+        ],
+        "new_term": {
+          "canonical_name": "Upper-right quadrant"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Off-diagonal"
+        ],
+        "new_term": {
+          "canonical_name": "Off-diagonal"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Source-class"
+        ],
+        "new_term": {
+          "canonical_name": "Source-class"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Designer-direct"
+        ],
+        "new_term": {
+          "canonical_name": "Designer-direct"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Agent-derived"
+        ],
+        "new_term": {
+          "canonical_name": "Agent-derived"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Observable channel"
+        ],
+        "new_term": {
+          "canonical_name": "Observable channel"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Ratify"
+        ],
+        "new_term": {
+          "canonical_name": "Ratify"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "En-bloc"
+        ],
+        "new_term": {
+          "canonical_name": "En-bloc"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "In-band"
+        ],
+        "new_term": {
+          "canonical_name": "In-band"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Out-of-band"
+        ],
+        "new_term": {
+          "canonical_name": "Out-of-band"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Reframe"
+        ],
+        "new_term": {
+          "canonical_name": "Reframe"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Cluster transfer"
+        ],
+        "new_term": {
+          "canonical_name": "Cluster transfer"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Pivot"
+        ],
+        "new_term": {
+          "canonical_name": "Pivot"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Charter-level"
+        ],
+        "new_term": {
+          "canonical_name": "Charter-level"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Provisional"
+        ],
+        "new_term": {
+          "canonical_name": "Provisional"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Coverage"
+        ],
+        "new_term": {
+          "canonical_name": "Coverage"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Closure"
+        ],
+        "new_term": {
+          "canonical_name": "Closure"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Self-contained artifact"
+        ],
+        "new_term": {
+          "canonical_name": "Self-contained artifact"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Reasoning chain"
+        ],
+        "new_term": {
+          "canonical_name": "Reasoning chain"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Grounding"
+        ],
+        "new_term": {
+          "canonical_name": "Grounding"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Collapse test"
+        ],
+        "new_term": {
+          "canonical_name": "Collapse test"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Rejected alternatives"
+        ],
+        "new_term": {
+          "canonical_name": "Rejected alternatives"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Element"
+        ],
+        "new_term": {
+          "canonical_name": "Element"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Statement"
+        ],
+        "new_term": {
+          "canonical_name": "Statement"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Drift"
+        ],
+        "new_term": {
+          "canonical_name": "Drift"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Discipline"
+        ],
+        "new_term": {
+          "canonical_name": "Discipline"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Atomic claim"
+        ],
+        "new_term": {
+          "canonical_name": "Atomic claim"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Aggregate claim"
+        ],
+        "new_term": {
+          "canonical_name": "Aggregate claim"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Round-trip readability"
+        ],
+        "new_term": {
+          "canonical_name": "Round-trip readability"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Withdrawal"
+        ],
+        "new_term": {
+          "canonical_name": "Withdrawal"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Friction hint"
+        ],
+        "new_term": {
+          "canonical_name": "Friction hint"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Disposition"
+        ],
+        "new_term": {
+          "canonical_name": "Disposition"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Master plan"
+        ],
+        "new_term": {
+          "canonical_name": "Master plan"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Sub-sprint"
+        ],
+        "new_term": {
+          "canonical_name": "Sub-sprint"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Sprint"
+        ],
+        "new_term": {
+          "canonical_name": "Sprint"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Round"
+        ],
+        "new_term": {
+          "canonical_name": "Round"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Topic queue"
+        ],
+        "new_term": {
+          "canonical_name": "Topic queue"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Information package"
+        ],
+        "new_term": {
+          "canonical_name": "Information package"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Status line"
+        ],
+        "new_term": {
+          "canonical_name": "Status line"
+        },
+        "reason": "Shelf 6 en-bloc ratification 2026-05-05 — load-bearing vocabulary in active agent use; designer ratifies for formal capture.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Open"
+        ],
+        "new_term": {
+          "canonical_name": "Open"
+        },
+        "reason": "Designer-direct ratification. Kept from B.1-vocabulary retire turn because it ties to the concrete `open_proof` MCP action.",
+        "designer_quote": "delete all of these terms except the task of open/proof opening (i think that is tied to a proof mcp action)",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Start"
+        ],
+        "new_term": {
+          "canonical_name": "Start"
+        },
+        "reason": "Designer-direct introduction. Names the one-time proof MCP startup initialization action, distinct from Open (which creates a specific proof instance).",
+        "designer_quote": "in proof advancement add in Start = the initialization sequence for the proof mcp (i think this is how we want to say it - implying the one time action that occurs that initalized the proof values on proof mcp startup)",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T15:07:39.418273Z"
+      },
+      {
+        "action": "REMOVE",
+        "target_terms": [
+          "Designer-direct"
+        ],
+        "new_term": null,
+        "reason": "Designer-instigated retire 2026-05-05: terms duplicate proof MCP mechanics already enforced in code (source field enum, ratification field, ratify_resolve_condition tool). Retired to avoid restating shipped behavior.",
+        "designer_quote": "yes for a,b,c",
+        "classification": "DEPRECATE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T16:25:19.073699Z"
+      },
+      {
+        "action": "REMOVE",
+        "target_terms": [
+          "Ratify"
+        ],
+        "new_term": null,
+        "reason": "Designer-instigated retire 2026-05-05: terms duplicate proof MCP mechanics already enforced in code (source field enum, ratification field, ratify_resolve_condition tool). Retired to avoid restating shipped behavior.",
+        "designer_quote": "yes for a,b,c",
+        "classification": "DEPRECATE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T16:25:19.073699Z"
+      },
+      {
+        "action": "REMOVE",
+        "target_terms": [
+          "Source-class"
+        ],
+        "new_term": null,
+        "reason": "Designer-instigated retire 2026-05-05: terms duplicate proof MCP mechanics already enforced in code (source field enum, ratification field, ratify_resolve_condition tool). Retired to avoid restating shipped behavior.",
+        "designer_quote": "yes for a,b,c",
+        "classification": "DEPRECATE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T16:25:19.073699Z"
+      },
+      {
+        "action": "REMOVE",
+        "target_terms": [
+          "Observable channel"
+        ],
+        "new_term": null,
+        "reason": "Designer-instigated retire 2026-05-05: terms duplicate proof MCP mechanics already enforced in code (source field enum, ratification field, ratify_resolve_condition tool). Retired to avoid restating shipped behavior.",
+        "designer_quote": "yes for a,b,c",
+        "classification": "DEPRECATE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T16:25:19.073699Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Approval-tracked"
+        ],
+        "new_term": {
+          "canonical_name": "Approval-tracked"
+        },
+        "reason": "Cluster D Stage 2 RC sharpening ratification 2026-05-05. Resolve Condition shape locked with five attributes plus two state values (Draft RC / Ratified RC). Approval-tracked replaces the original Designer-ratified attribute with an explicit two-state lifecycle named in the shape itself.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T18:41:52.163323Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Draft RC"
+        ],
+        "new_term": {
+          "canonical_name": "Draft RC"
+        },
+        "reason": "Cluster D Stage 2 RC sharpening ratification 2026-05-05. Resolve Condition shape locked with five attributes plus two state values (Draft RC / Ratified RC). Approval-tracked replaces the original Designer-ratified attribute with an explicit two-state lifecycle named in the shape itself.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T18:41:52.163323Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Ratified RC"
+        ],
+        "new_term": {
+          "canonical_name": "Ratified RC"
+        },
+        "reason": "Cluster D Stage 2 RC sharpening ratification 2026-05-05. Resolve Condition shape locked with five attributes plus two state values (Draft RC / Ratified RC). Approval-tracked replaces the original Designer-ratified attribute with an explicit two-state lifecycle named in the shape itself.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T18:41:52.163323Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Observable (RC attribute)"
+        ],
+        "new_term": {
+          "canonical_name": "Observable (RC attribute)"
+        },
+        "reason": "Cluster D Stage 2 RC sharpening ratification 2026-05-05. Resolve Condition shape locked with five attributes plus two state values (Draft RC / Ratified RC). Approval-tracked replaces the original Designer-ratified attribute with an explicit two-state lifecycle named in the shape itself.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T18:41:52.163323Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Problem-statement-anchored"
+        ],
+        "new_term": {
+          "canonical_name": "Problem-statement-anchored"
+        },
+        "reason": "Cluster D Stage 2 RC sharpening ratification 2026-05-05. Resolve Condition shape locked with five attributes plus two state values (Draft RC / Ratified RC). Approval-tracked replaces the original Designer-ratified attribute with an explicit two-state lifecycle named in the shape itself.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T18:41:52.163323Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Forward-looking"
+        ],
+        "new_term": {
+          "canonical_name": "Forward-looking"
+        },
+        "reason": "Cluster D Stage 2 RC sharpening ratification 2026-05-05. Resolve Condition shape locked with five attributes plus two state values (Draft RC / Ratified RC). Approval-tracked replaces the original Designer-ratified attribute with an explicit two-state lifecycle named in the shape itself.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T18:41:52.163323Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Non-restrictive"
+        ],
+        "new_term": {
+          "canonical_name": "Non-restrictive"
+        },
+        "reason": "Cluster D Stage 2 RC sharpening ratification 2026-05-05. Resolve Condition shape locked with five attributes plus two state values (Draft RC / Ratified RC). Approval-tracked replaces the original Designer-ratified attribute with an explicit two-state lifecycle named in the shape itself.",
+        "designer_quote": "a",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-05T18:41:52.163323Z"
+      },
+      {
+        "action": "ADD",
+        "target_terms": [
+          "Step"
+        ],
+        "new_term": {
+          "canonical_name": "Step"
+        },
+        "reason": "Designer-direct introduction of Step as a cluster D term. Distinguishes specific actions within a Phase (e.g., a Step inside Pre-Open) from Phases themselves (the 7 high-level skill architecture units).",
+        "designer_quote": "introduce the term Step. Steps are the specific actions that occur within Phases. When listing Phases and Steps, always include a one sentence description of them. update the information packet",
+        "classification": "PROPOSE",
+        "executed_round": 0,
+        "executed_at": "2026-05-06T10:07:35.546732Z"
+      }
+    ],
+    "pendingVocabDispositions": [],
+    "termUsageHistory": {},
+    "pendingOverrides": [],
+    "solveLeakageLedger": [],
+    "repeatBackHistory": [],
+    "transition": {
+      "ready": false,
+      "reasons": [
+        "session just initialized"
+      ]
+    },
+    "transitionHistory": [],
+    "warningsHistory": []
+  },
+  "enforcement": null
+}

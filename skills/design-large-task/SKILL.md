@@ -1,7 +1,7 @@
 ---
 name: design-large-task
 description: "Default structural design skill for architectural or multi-decision work. Five outer phases: Bootstrap, Parallel Context Exploration, Round One, Interview Loop, Closure. Inside the Interview Loop, an Understand Stage runs under an Understanding MCP (nine-dimension saturation scoring), then a Solve Stage runs under a Design Proof MCP (formal proof-building with structural validation around necessary conditions). Closure writes the design brief (the proof envelope) and hands off to design-specify, which owns architecture choice. Use when the task involves structural choices that need grounded design before implementation. For bounded edits where the target is clear, use design-small-task instead."
-version: v0011
+version: v0012
 ---
 
 # Large-Task Design Discovery with Formal Proof Language
@@ -407,6 +407,8 @@ The boundary between Understand and Solve is marked by a **transition checkpoint
 
 ### Solve Stage Opening
 
+**Consent token construction.** Every mutating proof tool (`open_proof`, `submit_proof_update`, `manage_concerns`, `manage_friction`, `override_friction_disposition`, `manage_definitions`, `withdraw`, `ratify_resolve_condition`, `present_closing_argument`, `confirm_closure_go`, `reopen_proof`) requires a consent token argument shaped `{ source, rationale? }`. `source` must be either `'designer'` (when the designer's words directly authorize the mutation) or `'agent-proposed-designer-confirmed'` (when you proposed the change and the designer confirmed it in the same turn). `rationale` is an optional short string capturing why the mutation is being made — surfaced into the operationLog for forensic clarity. Construct the token at the call site; never reuse a stale token across turns. Missing or malformed consent returns `INVALID_CONSENT` and the proof state is unchanged.
+
 The Solve Stage opens with three steps before the proof-governed interview loop begins:
 
 1. **Problem statement: polish, readback, confirm** — take what the designer said about the problem (they often type quickly and roughly), polish the language lightly for clarity and grammar without changing the meaning or adding your own framing. Read it back to the designer in clean form: "Here's how I'd capture the problem — [polished version]. Does that sound right?" The designer must explicitly approve before you proceed. Do NOT expand it into an analysis, add requirements, or prescribe solution characteristics. The problem statement describes the pain, not the solution. Context (codebase observations, architectural constraints) belongs in separate proof elements, not embedded in the problem statement.
@@ -809,6 +811,8 @@ After at least 3 rounds of the Solve Stage, the designer may exit at any checkpo
 ## Phase 5: Closure
 
 The Solve Stage ended when the designer approved the closing argument. Closure writes the design brief and supporting artifacts, creates the worktree, updates the lessons table, and hands off to `design-specify`. There is no architect comparison, no F-A-C, no hybrid recommendation, and no ground-truth subagent at this stage — `design-specify` owns architecture choice and `design-specify` runs its own ground-truth review against the spec automatically (skipped only for greenfield specs).
+
+**Brief renderer step.** The closing argument envelope returned by `present_closing_argument` is the canonical structured input for the design brief. After designer approval, render the brief from that envelope rather than re-deriving content from conversation memory. The envelope carries `problemStatement`, `lockedConcerns`, `phantomConcerns`, `resolveConditions`, `phantomRCs`, `activeNCs` / `draftNCs` / `phantomNCs`, `activeRules` / `activePermissions` / `activeRisks`, `liveFriction` / `phantomFriction`, `ratifiedDefinitions` / `phantomDefinitions`, and `closureProvenance` (per-element entityId, type, source, derivationChain, ratification, restructuring action label). Use these fields to populate brief sections directly; the proof MCP has already audited completeness and provenance. The brief is then written to disk per `util-artifact-schema` naming (step 5 below).
 
 1. `get_thinking_summary()` to produce the consolidated decision history.
 2. Reformat the thinking summary into a clean document. Hold in memory — written to disk in step 5.

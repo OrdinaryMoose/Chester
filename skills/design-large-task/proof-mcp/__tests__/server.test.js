@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync, existsSync, unlinkSync, writeFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { handleOpenProof } from '../server.js';
+import { handleOpenProof, handleManageDefinitions, handleGetProofState, handlePresentClosingArgument } from '../server.js';
+import { initializeState, saveState, addConcern, lockConcerns, ratifyConcern } from '../state.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const serverSource = readFileSync(join(__dirname, '../server.js'), 'utf-8');
@@ -22,8 +23,12 @@ describe('server.js — manage_concerns tool', () => {
     expect(serverSource).toMatch(/name:\s*'manage_concerns'/);
   });
 
-  it('manage_concerns op enum lists add and lock', () => {
-    expect(serverSource).toMatch(/op:\s*\{[^}]*enum:\s*\[\s*'add',\s*'lock'\s*\]/s);
+  it('manage_concerns op enum lists add, lock, and ratify', () => {
+    expect(serverSource).toMatch(/op:\s*\{[^}]*enum:\s*\[\s*'add',\s*'lock',\s*'ratify'\s*\]/s);
+  });
+
+  it('dispatches ratify op in manage_concerns handler', () => {
+    expect(serverSource).toMatch(/op\s*===\s*'ratify'/);
   });
 });
 
@@ -131,6 +136,21 @@ describe('server.js — open_proof tool registration', () => {
   });
 });
 
+// Helper used across handleOpenProof tests below — every valid open submission
+// after Task 11 must carry consent, ≥1 Concern, ≥1 Evidence, and a restructuring
+// action label per element.
+const TEST_CONSENT = { source: 'designer', rationale: 'open' };
+const evidenceEl = (overrides = {}) => ({
+  category: 'EVIDENCE', statement: 'baseline evidence', source: 'codebase',
+  restructuring_action_label: 'verbatim-preserve',
+  ...overrides,
+});
+const ruleEl = (overrides = {}) => ({
+  category: 'RULE', statement: 'A rule.', source: 'designer',
+  restructuring_action_label: 'verbatim-preserve',
+  ...overrides,
+});
+
 describe('handleOpenProof — three-phase orchestration', () => {
   it('gate-pass writes state and sets proofStatus="open"', async () => {
     const tmp = `/tmp/open-proof-pass-${Date.now()}.json`;
@@ -138,8 +158,10 @@ describe('handleOpenProof — three-phase orchestration', () => {
       state_file: tmp,
       submission_material: {
         problem_statement: 'a one-sentence problem.',
+        concerns: [{ label: 'CERN-A', description: 'a concern' }],
         elements: [
-          { category: 'RULE', statement: 'A rule.', source: 'designer' },
+          evidenceEl(),
+          ruleEl(),
           {
             category: 'NECESSARY_CONDITION',
             statement: 'An NC.',
@@ -147,8 +169,10 @@ describe('handleOpenProof — three-phase orchestration', () => {
             reasoning_chain: 'because R',
             collapse_test: 'breaks if removed',
             rejected_alternatives: ['alt1'],
+            restructuring_action_label: 'verbatim-preserve',
           },
         ],
+        consent: TEST_CONSENT,
       },
     };
     const response = handleOpenProof(args);
@@ -162,13 +186,23 @@ describe('handleOpenProof — three-phase orchestration', () => {
     unlinkSync(tmp);
   });
 
-  it('gate-fail does NOT write state', () => {
+  it('gate-fail does NOT write a successful proof state', () => {
+    // Seed-packet shape passes (problem_statement set, ≥1 top-level concern, ≥1
+    // EVIDENCE in elements, restructuring labels present), but the lifted
+    // Concern has no label and the EVIDENCE is missing required `source` —
+    // both get rejected at restructure, leaving admitted empty so the gate
+    // fails on 'admitted_elements'.
     const tmp = `/tmp/open-proof-fail-${Date.now()}.json`;
     const args = {
       state_file: tmp,
       submission_material: {
         problem_statement: 'p',
-        elements: [{ category: 'RULE' }],  // missing statement → rejected → no admitted → gate fail
+        concerns: [{ description: 'no label' }],  // missing label → restructure rejects
+        elements: [
+          // EVIDENCE missing required `source` → restructure rejects
+          { category: 'EVIDENCE', statement: 'e', restructuring_action_label: 'verbatim-preserve' },
+        ],
+        consent: TEST_CONSENT,
       },
     };
     const response = handleOpenProof(args);
@@ -177,7 +211,9 @@ describe('handleOpenProof — three-phase orchestration', () => {
     expect(payload.proof_open).toBe(false);
     expect(payload.restructuring_report).toBeDefined();
     expect(payload.gate_failures).toBeDefined();
+    expect(payload.gate_failures.some(f => f.missing_artifact === 'admitted_elements')).toBe(true);
     expect(existsSync(tmp)).toBe(false);
+    if (existsSync(tmp)) unlinkSync(tmp);
   });
 
   it('three phases execute in declared order (accept → restructure → open) — verified by observable side effects', () => {
@@ -186,7 +222,9 @@ describe('handleOpenProof — three-phase orchestration', () => {
       state_file: tmp,
       submission_material: {
         problem_statement: 'order test',
-        elements: [{ category: 'RULE', statement: 'r', source: 'designer' }],
+        concerns: [{ label: 'C-1' }],
+        elements: [evidenceEl(), ruleEl({ statement: 'r' })],
+        consent: TEST_CONSENT,
       },
     });
     const written = JSON.parse(readFileSync(tmp, 'utf-8'));
@@ -202,10 +240,10 @@ describe('handleOpenProof — three-phase orchestration', () => {
       state_file: tmp,
       submission_material: {
         problem_statement: 'concern routing test',
-        elements: [
-          { category: 'Concern', label: 'A real concern label.', description: 'why it matters' },
-          { category: 'RULE', statement: 'A rule.', source: 'designer' },
-        ],
+        // Top-level concerns array gets lifted into restructure as category:'Concern'.
+        concerns: [{ label: 'A real concern label.', description: 'why it matters' }],
+        elements: [evidenceEl(), ruleEl()],
+        consent: TEST_CONSENT,
       },
     };
     const response = handleOpenProof(args);
@@ -217,6 +255,7 @@ describe('handleOpenProof — three-phase orchestration', () => {
     const elementValues = Object.values(written.elements);
     expect(elementValues.find(e => e.type === 'Concern')).toBeUndefined();
     expect(elementValues.find(e => e.type === 'RULE')).toBeDefined();
+    expect(elementValues.find(e => e.type === 'EVIDENCE')).toBeDefined();
     if (existsSync(tmp)) unlinkSync(tmp);
   });
 
@@ -226,7 +265,9 @@ describe('handleOpenProof — three-phase orchestration', () => {
       state_file: tmp,
       submission_material: {
         problem_statement: 'p',
+        concerns: [{ label: 'C-1' }],
         elements: [
+          evidenceEl(),
           {
             category: 'NECESSARY_CONDITION',
             statement: 'NC depending on missing element',
@@ -234,8 +275,10 @@ describe('handleOpenProof — three-phase orchestration', () => {
             reasoning_chain: 'because',
             collapse_test: 'breaks',
             rejected_alternatives: ['alt'],
+            restructuring_action_label: 'verbatim-preserve',
           },
         ],
+        consent: TEST_CONSENT,
       },
     };
     const response = handleOpenProof(args);
@@ -246,14 +289,16 @@ describe('handleOpenProof — three-phase orchestration', () => {
     if (existsSync(tmp)) unlinkSync(tmp);
   });
 
-  it('resubmission overwrites prior partial state file', () => {
+  it('resubmission overwrites prior partial (non-open) state file', () => {
     const tmp = `/tmp/open-proof-resub-${Date.now()}.json`;
     writeFileSync(tmp, JSON.stringify({ stale: 'data' }));
     const args = {
       state_file: tmp,
       submission_material: {
         problem_statement: 'fresh',
-        elements: [{ category: 'RULE', statement: 'fresh rule', source: 'designer' }],
+        concerns: [{ label: 'C-1' }],
+        elements: [evidenceEl(), ruleEl({ statement: 'fresh rule' })],
+        consent: TEST_CONSENT,
       },
     };
     handleOpenProof(args);
@@ -282,7 +327,9 @@ describe('handleOpenProof — already-open refusal', () => {
       state_file: tmp,
       submission_material: {
         problem_statement: 'new',
-        elements: [{ category: 'RULE', statement: 'new rule', source: 'designer' }],
+        concerns: [{ label: 'C-1' }],
+        elements: [evidenceEl(), ruleEl({ statement: 'new rule' })],
+        consent: TEST_CONSENT,
       },
     });
     const payload = JSON.parse(response.content[0].text);
@@ -302,7 +349,9 @@ describe('handleOpenProof — already-open refusal', () => {
       state_file: tmp,
       submission_material: {
         problem_statement: 'recovery from malformed state',
-        elements: [{ category: 'RULE', statement: 'r', source: 'designer' }],
+        concerns: [{ label: 'C-1' }],
+        elements: [evidenceEl(), ruleEl({ statement: 'r' })],
+        consent: TEST_CONSENT,
       },
     });
     const payload = JSON.parse(response.content[0].text);
@@ -311,6 +360,135 @@ describe('handleOpenProof — already-open refusal', () => {
     expect(written.problemStatement).toBe('recovery from malformed state');
     expect(written.proofStatus).toBe('open');
     unlinkSync(tmp);
+  });
+});
+
+describe('server.js — manage_definitions tool', () => {
+  it('declares manage_definitions tool', () => {
+    expect(serverSource).toMatch(/name:\s*'manage_definitions'/);
+  });
+
+  it('declares op enum [add, revise, deprecate, ratify, query-overlap]', () => {
+    const block = serverSource.split("name: 'manage_definitions'")[1] ?? '';
+    expect(block).toMatch(/enum:\s*\[\s*'add',\s*'revise',\s*'deprecate',\s*'ratify',\s*'query-overlap'\s*\]/);
+  });
+
+  it('dispatches manage_definitions in switch', () => {
+    expect(serverSource).toMatch(/case\s+'manage_definitions'/);
+  });
+
+  it('add op writes definition; get_proof_state response includes definitions and operationLog fields', () => {
+    const tmp = `/tmp/manage-defs-${Date.now()}.json`;
+    const seed = initializeState('a problem');
+    saveState(seed, tmp);
+
+    const addResp = handleManageDefinitions({
+      state_file: tmp,
+      op: 'add',
+      canonical_name: 'Concern',
+      definition: 'A concern is X',
+      consent: { source: 'designer', rationale: 't' },
+    });
+    const addPayload = JSON.parse(addResp.content[0].text);
+    expect(addPayload.status).toBe('accepted');
+    expect(addPayload.definition_id).toMatch(/^DEFN-/);
+
+    const getResp = handleGetProofState({ state_file: tmp });
+    const stateOut = JSON.parse(getResp.content[0].text);
+    expect(Array.isArray(stateOut.definitions)).toBe(true);
+    expect(stateOut.definitions.length).toBe(1);
+    expect(stateOut.definitions[0].canonical_name).toBe('Concern');
+    expect(Array.isArray(stateOut.operationLog)).toBe(true);
+    expect(stateOut.operationLog.some(e => e.type === 'DEFINITION' && e.op === 'add')).toBe(true);
+    expect(typeof stateOut.definitionCounter).toBe('number');
+    expect(Array.isArray(stateOut.definitionLog)).toBe(true);
+    expect(stateOut.schemaVersion).toBeDefined();
+    expect(stateOut.proofStatus).toBeDefined();
+
+    unlinkSync(tmp);
+  });
+
+  it('add op rejects without consent (INVALID_CONSENT)', () => {
+    const tmp = `/tmp/manage-defs-noconsent-${Date.now()}.json`;
+    saveState(initializeState('p'), tmp);
+    const resp = handleManageDefinitions({
+      state_file: tmp,
+      op: 'add',
+      canonical_name: 'X',
+      definition: 'd',
+    });
+    expect(resp.isError).toBe(true);
+    const payload = JSON.parse(resp.content[0].text);
+    expect(payload.code).toBe('INVALID_CONSENT');
+    unlinkSync(tmp);
+  });
+
+  it('deprecate op returns DOMAIN_ERROR routing to withdraw', () => {
+    const tmp = `/tmp/manage-defs-deprecate-${Date.now()}.json`;
+    saveState(initializeState('p'), tmp);
+    handleManageDefinitions({
+      state_file: tmp, op: 'add', canonical_name: 'X', definition: 'd',
+      consent: { source: 'designer', rationale: 't' },
+    });
+    const resp = handleManageDefinitions({
+      state_file: tmp, op: 'deprecate', id: 'DEFN-1',
+      consent: { source: 'designer', rationale: 't' },
+    });
+    expect(resp.isError).toBe(true);
+    const payload = JSON.parse(resp.content[0].text);
+    expect(payload.code).toBe('DOMAIN_ERROR');
+    expect(payload.message).toMatch(/withdraw/);
+    unlinkSync(tmp);
+  });
+});
+
+describe('handlePresentClosingArgument — concernsRatificationGate (NC-9)', () => {
+  const TEST_CONSENT = { source: 'designer', rationale: 'present' };
+
+  it('returns isError with CONCERNS_UNLOCKED when concerns are not locked', () => {
+    const tmp = `/tmp/present-unlocked-${Date.now()}.json`;
+    let s = initializeState('p');
+    [, s] = addConcern(s, { label: 'CERN-A', description: 'd' }, { source: 'designer', rationale: 't' });
+    // intentionally do NOT lock
+    saveState(s, tmp);
+    const resp = handlePresentClosingArgument({ state_file: tmp, consent: TEST_CONSENT });
+    expect(resp.isError).toBe(true);
+    const payload = JSON.parse(resp.content[0].text);
+    expect(payload.code).toBe('CONCERNS_UNLOCKED');
+    if (existsSync(tmp)) unlinkSync(tmp);
+  });
+
+  it('returns isError with CONCERNS_UNRATIFIED when at least one Concern is draft', () => {
+    const tmp = `/tmp/present-unratified-${Date.now()}.json`;
+    let s = initializeState('p');
+    [, s] = addConcern(s, { label: 'CERN-A', description: 'd' }, { source: 'designer', rationale: 't' });
+    [s] = lockConcerns(s, { source: 'designer', rationale: 't' });
+    // Concerns remain in 'draft' status (not ratified) → gate must refuse with CONCERNS_UNRATIFIED.
+    saveState(s, tmp);
+    const resp = handlePresentClosingArgument({ state_file: tmp, consent: TEST_CONSENT });
+    expect(resp.isError).toBe(true);
+    const payload = JSON.parse(resp.content[0].text);
+    expect(payload.code).toBe('CONCERNS_UNRATIFIED');
+    expect(payload.message).toMatch(/draft/);
+    if (existsSync(tmp)) unlinkSync(tmp);
+  });
+
+  it('returns isError with TRIGGER_NOT_MET when gate passes but trigger floors are unmet', () => {
+    const tmp = `/tmp/present-trigger-${Date.now()}.json`;
+    const consent = { source: 'designer', rationale: 't' };
+    let s = initializeState('p');
+    [, s] = addConcern(s, { label: 'CERN-A', description: 'd' }, consent);
+    [s] = lockConcerns(s, consent);
+    [s] = ratifyConcern(s, 'CERN-1', consent);
+    // Gate passes (locked + ratified) but state has no NCs / RCs / Evidence — trigger floors fail.
+    saveState(s, tmp);
+    const resp = handlePresentClosingArgument({ state_file: tmp, consent: TEST_CONSENT });
+    expect(resp.isError).toBe(true);
+    const payload = JSON.parse(resp.content[0].text);
+    expect(payload.code).toBe('TRIGGER_NOT_MET');
+    expect(Array.isArray(payload.reasons)).toBe(true);
+    expect(payload.reasons.length).toBeGreaterThan(0);
+    if (existsSync(tmp)) unlinkSync(tmp);
   });
 });
 

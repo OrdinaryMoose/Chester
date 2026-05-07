@@ -1,0 +1,892 @@
+{
+  "round": 19,
+  "problemStatement": "How do we create a unified design system that builds shared understanding of the problem that delivers commonly understood design requirements to the Specify system?",
+  "elements": {
+    "RULE-1": {
+      "id": "RULE-1",
+      "type": "RULE",
+      "statement": "Cluster D operates under the organizing principle 'Design is the code': agent and designer share a formal language that IS the design medium; the agent's drive toward implementation lands at design altitude through the language itself, not via behavioral prohibition.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {},
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[0]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      }
+    },
+    "RULE-2": {
+      "id": "RULE-2",
+      "type": "RULE",
+      "statement": "Cluster D operates under the organizing principle 'The purpose is to create Shared Understanding': the design system exists to produce shared alignment between agent and designer about the problem, its constraints, and its resolution; through that shared understanding the system delivers commonly understood requirements to the Specify system.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {},
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[1]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      }
+    },
+    "RULE-3": {
+      "id": "RULE-3",
+      "type": "RULE",
+      "statement": "One-system architecture: the design conversation runs continuously under the proof MCP from session start, with no Phase 4a / Phase 4b boundary. Pre-existing two-stage vocabulary (Phase 4a, Phase 4b, Understand stage, Solve stage as separate stages) is paper trail only.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {},
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[2]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      }
+    },
+    "RULE-4": {
+      "id": "RULE-4",
+      "type": "RULE",
+      "statement": "Authority labeling: every proof element carries a source-class. EVIDENCE source must name an observable channel (codebase, industry, prior-art, session-observation). Designer-direct claims route to RULE or PERMISSION; agent-derived claims label the derivation visibly. The string 'designer' is not admissible as an EVIDENCE source.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "withdrawn",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {},
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[3]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      },
+      "withdrawal_disposition": "found-redundant"
+    },
+    "RULE-5": {
+      "id": "RULE-5",
+      "type": "RULE",
+      "statement": "Cluster D adopts the two-axis problem space (Structured + Bounded) as the framework for problem-placement and trajectory. Reference paper at design/structured-bounded-problem-space-reference.md is normative for term semantics. Cluster D's design subject must encode where problems sit on these two independent axes and how movement through the space (adding structure, adding bounds) is performed.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {},
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[4]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      }
+    },
+    "EVID-1": {
+      "id": "EVID-1",
+      "type": "EVIDENCE",
+      "statement": "design-large-task skill currently exists with two-stage Phase 4a / Phase 4b structure",
+      "source": "codebase",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {},
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[5]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      }
+    },
+    "EVID-2": {
+      "id": "EVID-2",
+      "type": "EVIDENCE",
+      "statement": "Proof MCP exists with element types: NC, Rule, Permission, Evidence, Risk, Concern, Resolve Condition, Friction",
+      "source": "codebase",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {},
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[6]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      }
+    },
+    "EVID-3": {
+      "id": "EVID-3",
+      "type": "EVIDENCE",
+      "statement": "Subagent dispatch during conversation is infeasible at >5 min/round (observed during prior cluster-c session)",
+      "source": "session-observation",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {},
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[7]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      }
+    },
+    "EVID-4": {
+      "id": "EVID-4",
+      "type": "EVIDENCE",
+      "statement": "Designer-codebase asymmetry in large systems: in 250k-LOC codebases, no human can be authority on patterns; the codebase carries knowledge no individual holds",
+      "source": "industry",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {},
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[8]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      }
+    },
+    "EVID-5": {
+      "id": "EVID-5",
+      "type": "EVIDENCE",
+      "statement": "Five prior interview systems failed in Chester sprint history (chester small-task / generic LLM-as-interviewer; classic; architectural; problemfocused; team-interview; lens architecture rebuild)",
+      "source": "prior-art",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {},
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[9]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      }
+    },
+    "EVID-6": {
+      "id": "EVID-6",
+      "type": "EVIDENCE",
+      "statement": "Channel-don't-prohibit principle is foundational in plan-mode-design-guard rationale: agent's completion drive needs productive redirection via structured artifact production, not behavioral prohibition",
+      "source": "prior-art",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {},
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[10]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      }
+    },
+    "RULE-6": {
+      "id": "RULE-6",
+      "type": "RULE",
+      "statement": "Resolve Condition shape (cluster D ratified 2026-05-05). An RC carries five attributes: (1) Observable — names a check a third party can perform to confirm the state holds, independent of the agent's claim; (2) Approval-tracked — the RC carries an explicit approval state on itself with two values (draft / ratified); the state lives on the RC, not external to it; (3) Problem-statement-anchored — anchors to exactly one Concern via the problem_anchor field, one-to-one; (4) Forward-looking — describes a state that will exist after the design is implemented and operating, distinct from Evidence (states existing now) and Rules (invariants always holding); (5) Non-restrictive — describes what completion looks like, not a path to completion. RC instances exist in two states: Draft RC (agent-added, designer-not-yet-confirmed; revisable; does not count toward closure coverage) and Ratified RC (designer-confirmed via the proof MCP's ratification mechanism; counts toward Concern coverage; closure-eligible). Only Ratified RCs count toward closure.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 3,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-7": {
+      "id": "RULE-7",
+      "type": "RULE",
+      "statement": "Two-axis framework as shared conversational vocabulary (cluster D ratified 2026-05-05). The two-axis problem space (Structured + Bounded) per R04 is a common set of terms between agent and designer for discussing the state of the design. Bidirectional access: the designer may ask the agent for the current coordinate placement at any time; the agent may provide coordinate placement as part of an information package when relevant. Coordinate placement reporting is on-demand or info-package-embedded, not mandatory in every round.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 4,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-8": {
+      "id": "RULE-8",
+      "type": "RULE",
+      "statement": "Definitions home (cluster D ratified 2026-05-05). The Definitions list lives as an extension of proof MCP state, in a dedicated slot beside the typed-element array (G1 path). The proof MCP exposes a manage_definitions tool with operations add / revise / deprecate / ratify. Each Definition carries canonical_name (unique), aliases, definition, sense_constraints, status, and history. Definitions follow the same Approval-tracked lifecycle as RCs: Draft Definition (agent-added, designer-not-yet-confirmed) advances to Ratified Definition (designer-confirmed) via designer ratification. Only Ratified Definitions count toward vocabulary discipline. Mutations to Definitions clear closure consents per cluster B.2's living-document discipline. Closing argument derivation includes a Definitions section. The element-type closed set remains at 9 (RULE-9 unchanged); Definitions live in their own state slot, not as a typed element.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 5,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-9": {
+      "id": "RULE-9",
+      "type": "RULE",
+      "statement": "Concerns are Approval-tracked (cluster D ratified 2026-05-05). Each Concern carries individual approval state with two values: Draft Concern (agent-added or proposed; designer-not-yet-confirmed) and Ratified Concern (designer-confirmed via designer act). Only Ratified Concerns count toward closure coverage. Agent may propose Draft Concerns at any time; designer ratifies to advance state. Aligns with RULE-6 RC Approval-tracked discipline. The existing concernsLocked flag is preserved as a separate concept: it means 'all current Concerns are Ratified AND no further Concerns may be added' — a stronger condition than per-Concern ratification.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 6,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-10": {
+      "id": "RULE-10",
+      "type": "RULE",
+      "statement": "Evidence is reference material (cluster D ratified 2026-05-05). Evidence does not require designer approval. Agent may add or remove Evidence freely to support the proof's reasoning. Like theorems in formal proofs, Evidence is available in a pool; the design decision is which Evidence to cite as grounding for a Necessary Condition. Designer authority over Evidence enters via NC grounding choices (which Evidence is cited) and via withdrawal of incorrect Evidence. Approval-tracked does not apply to Evidence.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 7,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-11": {
+      "id": "RULE-11",
+      "type": "RULE",
+      "statement": "Necessary Conditions are Approval-tracked (cluster D ratified 2026-05-05). Each NC carries individual approval state with two values: Draft NC (agent-derived from grounding; designer-not-yet-confirmed) and Ratified NC (designer-confirmed). Only Ratified NCs count toward closure. The structural well-formedness fields (grounding, reasoning_chain, collapse_test, rejected_alternatives) are a separate gate from approval state — well-formedness is required for closure-permitted; ratification is required for the NC to be load-bearing in the proof. Aligns with RULE-6 RC and RULE-9 Concern Approval-tracked discipline.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 8,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-12": {
+      "id": "RULE-12",
+      "type": "RULE",
+      "statement": "Two-tier approval ratification mechanism (cluster D ratified 2026-05-05). Approval-tracked elements ratify on different timelines. Concerns ratify individually mid-round: designer ratifies each Concern via per-Concern designer act when designer is ready. The existing concernsLocked flag remains as a separate concept meaning 'all Concerns are Ratified AND no further Concerns may be added'. Resolve Conditions and Necessary Conditions bulk-ratify at closing argument time: the designer's 'go' against the closing argument is the bulk ratification act for all Draft RCs and Draft NCs present in the closing argument; closure follows. Bulk ratification is a state transition (Draft → Ratified), not a mutation, and does not clear two-yes consent flags. If designer does not want a particular Draft RC or NC ratified, they revise or withdraw it before 'go' (revision/withdrawal is a mutation and clears two-yes consents per cluster B.2 living-document discipline). Mid-round explicit ratification of an RC or NC remains available but is not required for the standard flow. Definitions ratify on their own lifecycle (per RULE-8); not coupled to closing argument. Evidence does not ratify (per RULE-10).",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 8,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-13": {
+      "id": "RULE-13",
+      "type": "RULE",
+      "statement": "Information packet structure (cluster D ratified 2026-05-05; revised 2026-05-06). Each agent turn presenting information to the PM uses this structure: (1) Insight block carrying useful conversational commentary; (2) introductory sentence stating what this turn is addressing; (3) Facts important to this turn — 3 to 5 single-sentence bullets drawn from earlier turns, other sessions, codebase, industry, or prior art; (4) Agent commentary in 1–2 sentences (the agent's read); (5) Pessimist commentary in 1–2 sentences naming how or where this could be going wrong (genuine counter, not sham balance); (6) If a decision is needed, present the decision, options, and a recommendation; if no decision is needed, stop after the pessimist commentary. Status line at the bottom of every turn. The PM holds decision authority but zero codebase knowledge — packet content stays in PM register, not internal system vocabulary. When listing Phases or Steps in any packet section, each Phase or Step must be accompanied by a one-sentence description of what it is.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 9,
+      "revisedInRound": 19,
+      "revision": 1
+    },
+    "RULE-14": {
+      "id": "RULE-14",
+      "type": "RULE",
+      "statement": "Pessimist commentary categories (cluster D ratified 2026-05-05). The pessimist commentary section in each information packet (per RULE-13) draws from one of five categories, selected randomly per turn: (1) Foreclosure — what this commits to and what alternatives it closes; (2) Fragility — the load-bearing assumption that, if it breaks, breaks the design; (3) Tension with prior decisions — where this strains an earlier commitment; (4) Real uncertainty — where the agent genuinely doesn't know, calibrated confidence; (5) Surprise / unintended interaction — a consequence the PM might not expect from how the agent described things. Random rotation enforces category variety and prevents the agent from defaulting to one angle. Each category gives the PM a specific thing to act on; vague pessimism ('this might fail') is not admissible.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 10,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-15": {
+      "id": "RULE-15",
+      "type": "RULE",
+      "statement": "Bulleted format (cluster D ratified 2026-05-05). The PM-facing information packet uses bulleted format for the Facts section and for any option list; prose paragraphs are not admissible in those sections. Tables and ASCII charts are not admissible — always bullets. Bullets are single sentences (per RULE-13 Facts section discipline). Other packet sections (intro, agent commentary, pessimist commentary) use short prose because they are 1–2 sentences each. Override via explicit Permission element naming the case.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 11,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-16": {
+      "id": "RULE-16",
+      "type": "RULE",
+      "statement": "Single topic per round (cluster D ratified 2026-05-05). Each PM-facing information packet addresses exactly one topic. Multi-topic rounds are prohibited. When the agent has multiple topics to surface, decompose into a topic queue and address each in its own round. The discipline keeps the PM's attention focused on one decision or one piece of context per turn, preventing the data-dump failure mode. Override via explicit Permission element naming the case.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 11,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-17": {
+      "id": "RULE-17",
+      "type": "RULE",
+      "statement": "Coordinate reporting in information packets (cluster D ratified 2026-05-05). Coordinate placement on the two-axis problem space appears in the packet on (1) the first round of a new topic — orienting context for where the work sits; (2) when an axis is crossed during the work — movement signal for the PM. Otherwise, coordinate placement does not appear in the packet; designer may ask anytime per RULE-7. When stated, the coordinate is brief: placement and movement direction. Extended commentary on why the proof is at the current point is not admissible — placement-only, no rationale.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 12,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-18": {
+      "id": "RULE-18",
+      "type": "RULE",
+      "statement": "Agent behavior during the interview (cluster D ratified 2026-05-05; revised 2026-05-06). 18.1: Designer questions do not advance the proof; the agent does not take a question as authorization to add, revise, withdraw, or ratify proof elements. 18.2: Only the designer may submit rules. The agent reviews information and synthesizes designer comments for the information packet. When the preponderance of evidence exists, the agent should propose rules for designer approval if they substantially advance the proof.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 13,
+      "revisedInRound": 18,
+      "revision": 1
+    },
+    "RULE-19": {
+      "id": "RULE-19",
+      "type": "RULE",
+      "statement": "Between-round research and topic selection (cluster D ratified 2026-05-05). The agent uses proof system gaps (uncovered Concerns, Drafts pending review, friction hints, missing grounding) to help choose the next round topic. Designer retains decision authority on what gets worked next. Additional research on a topic is designer-directed: when the designer wants supplemental research conducted, the designer directs it. The agent does not unilaterally launch supplemental research between rounds. Explorer agent dispatch and other supplemental research mechanisms are designer-directed only, not agent-initiated.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 14,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-20": {
+      "id": "RULE-20",
+      "type": "RULE",
+      "statement": "Conversation-shaped pre-Open phase (cluster D ratified 2026-05-05). Between the designer's invocation prompt and proof Open, a conversation-shaped pre-Open phase runs: (1) the agent reads the invocation and surfaces what it found — patterns, ambiguities, assumed scope; (2) the agent asks clarifying questions where needed; (3) the agent builds toward a proposed seed of initial Topic and initial Concerns; (4) the designer ratifies the seed; (5) the proof opens with the ratified seed material. The agent does not derive Topic and Concerns unilaterally and Open the proof without designer ratification of the seed. Pre-Open dialog is governed by the same packet structure (RULE-13) and discipline rules as post-Open dialog — same format, same voice, same approval tracking patterns where applicable.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 15,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-21": {
+      "id": "RULE-21",
+      "type": "RULE",
+      "statement": "Pre-Open phase bundles session-start planning (cluster D ratified 2026-05-06). The pre-Open phase per RULE-20 is the planning phase for the proof. Within this phase, the designer and agent jointly handle: Topic ratification, initial Concerns from the designer, designer-directed explorer dispatch if desired, and any other session-start planning. The bundle is one phase — not separate sub-stages or sequential gates. Outputs of the bundle: ratified initial Topic, ratified initial Concerns, any research material produced by designer-directed explorer dispatch, and any other seed material. All outputs feed proof Open as the seed.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 16,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-22": {
+      "id": "RULE-22",
+      "type": "RULE",
+      "statement": "Pre-Open canonical flow (cluster D ratified 2026-05-06). The pre-Open phase per RULE-20 + RULE-21 follows this canonical sequence: (1) Designer invokes design-large-task with a prompt — free-form, may include document paste, file references, or other material. (2) Agent reads the invocation, restates the apparent Topic in plain language, asks a closed confirmation question: 'Is this the topic of our session today?' (3) Designer confirms or corrects the Topic. (4) Agent provides an initial information packet — pre-research; restates context, surfaces what the agent sees in the invocation; no explorer findings yet. (5) Agent asks the designer to surface concerns: 'Please tell me about what you are concerned about in [topic].' (6) Designer provides zero or more initial Concerns. (7) Agent reviews the Topic and Concerns and dispatches the explorers automatically at session start. (8) Proof is seeded with explorer findings, Topic, and Concerns; the interview begins. Note: explorer dispatch at session start is part of the pre-Open canonical flow and fires automatically once Topic and Concerns are settled; mid-session supplemental research remains designer-directed per RULE-19.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 17,
+      "revisedInRound": null,
+      "revision": 0
+    }
+  },
+  "elementCounters": {
+    "EVIDENCE": 6,
+    "RULE": 22,
+    "PERMISSION": 0,
+    "NECESSARY_CONDITION": 0,
+    "RISK": 0,
+    "RESOLVE_CONDITION": 0,
+    "FRICTION": 0
+  },
+  "conditionCountHistory": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "elementCountHistory": [
+    11,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    18,
+    19,
+    20,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    28,
+    28
+  ],
+  "challengeModesUsed": [],
+  "challengeLog": [],
+  "revisionLog": [
+    {
+      "target": "RULE-18",
+      "round": 18,
+      "revision": 1
+    },
+    {
+      "target": "RULE-13",
+      "round": 19,
+      "revision": 1
+    }
+  ],
+  "phaseTransitionRound": 0,
+  "concerns": [
+    {
+      "id": "CERN-1",
+      "label": "Initial information and topic derivation",
+      "description": "Initial information available to the skill and how the initial topic and concerns are derived. Master-plan §4.5 seeded concern #1."
+    },
+    {
+      "id": "CERN-2",
+      "label": "Explore agent topical relevance",
+      "description": "Explore agents researching information relevant to our topic. Master-plan §4.5 seeded concern #2."
+    },
+    {
+      "id": "CERN-3",
+      "label": "Presentation layer to designer",
+      "description": "How information is provided to the designer to build shared understanding. Master-plan §4.5 seeded concern #3. Pairs with Proof layer in cluster D's separation of concerns."
+    },
+    {
+      "id": "CERN-4",
+      "label": "Proof layer information management",
+      "description": "How the agent faithfully manages information to build shared understanding. Master-plan §4.5 seeded concern #4. Pairs with Presentation layer."
+    },
+    {
+      "id": "CERN-5",
+      "label": "Cooperative proof advancement",
+      "description": "Agent and designer cooperatively advancing the proof. Master-plan §4.5 seeded concern #5."
+    },
+    {
+      "id": "CERN-6",
+      "label": "Proof system directing research",
+      "description": "Proof system directing agent research for the next round presentation. Master-plan §4.5 seeded concern #6."
+    },
+    {
+      "id": "CERN-7",
+      "label": "Specify handoff fidelity",
+      "description": "Proper information provided to specify so it creates architecture that correctly addresses designer's intent. Master-plan §4.5 seeded concern #7."
+    },
+    {
+      "id": "CERN-8",
+      "label": "Vocabulary discipline must be structural",
+      "description": "Proof-layer language must structurally enforce that two elements using the same word check whether the word means the same thing; that adding a new term requires explicit ratification (not silent introduction); that paraphrasing existing concept gets caught before becoming a parallel term. Industry root: domain-driven-design ubiquitous-language failure mode. Agent-derived 2026-05-05."
+    },
+    {
+      "id": "CERN-9",
+      "label": "Authority visible on every claim",
+      "description": "Every proof element carries who said it from a closed source set: designer ratification, observable codebase, observable industry, observable prior art, observable session-conversation, agent derivation. Agent-derived claims label derivation chain visibly. Industry root: knowledge-graph provenance discipline. Agent-derived 2026-05-05."
+    },
+    {
+      "id": "CERN-10",
+      "label": "Element-type set closed",
+      "description": "Proof-layer language category set is fixed by default. Adding a new element type requires explicit charter-level decision, not in-band addition. Industry root: closed sums in type systems; controlled-natural-language word lock. Agent-derived 2026-05-05."
+    },
+    {
+      "id": "CERN-11",
+      "label": "Provenance on every advancement",
+      "description": "Cluster B.1 shipped restructuring-with-provenance for open_proof; cluster D extends across every proof state change. Each modification labels who initiated, what changed, and why. Append-only history; edits become new records, not in-place mutation. Industry root: ADR append-only convention; compiler-IR transformation provenance. Agent-derived 2026-05-05."
+    },
+    {
+      "id": "CERN-12",
+      "label": "Round-trip readability",
+      "description": "Proof-layer language must produce designer-readable output without a separate translation step. One-system architecture locks proof and presentation as facets of one shape, not separate stages. Designer reads proof state directly; agent reads same proof state directly; both see same canonical truth. Industry root: controlled-natural-language design. Agent-derived 2026-05-05."
+    },
+    {
+      "id": "CERN-13",
+      "label": "Withdrawal and reframe grammar",
+      "description": "Proof-layer language must distinguish three change classes: in-band amendment (addition), in-band correction (relabeling without deletion), out-of-band reframe (forces cluster transfer). Withdrawal grammar preserves withdrawn element with reason — never silent deletion; history stays intact. Cluster C exposed manage_concerns API gap (no withdraw); cluster D resolves at language level. Industry root: append-only ADR; legal record retention. Agent-derived 2026-05-05."
+    },
+    {
+      "id": "CERN-14",
+      "label": "Granularity of claim",
+      "description": "Atomic single-claim elements check more cleanly than aggregate elements. Aggregation costs checkability; agent must resist bundling. Counter-pressure: too-fine granularity buries designer in element list. Cluster D's language must find granularity that lets designer scan headlines without losing audit-ability. Industry root: knowledge-graph triple decomposition; refinement-type single-invariant style. Agent-derived 2026-05-05."
+    },
+    {
+      "id": "CERN-15",
+      "label": "Problem-space definition in proof language",
+      "description": "How problem space is defined within the proof-layer language. Designer-introduced 2026-05-05 alongside Structured + Bounded + Two-axis problem space vocabulary. Open question: does coordinate placement become a first-class property of the problem statement, of each Concern, of Resolve Conditions, or of a separate first-class element? Does movement through the space (add structure, add bounds) become a first-class proof operation? If proof language has no slot for problem-space placement, the coordinate system stays informal and drifts. Designer-direct 2026-05-05."
+    }
+  ],
+  "concernsLocked": false,
+  "concernCounter": 15,
+  "ratificationLog": [],
+  "frictionLog": [],
+  "closingArgPresentedRound": null,
+  "closingArgGoRound": null,
+  "proofStatus": "open"
+}

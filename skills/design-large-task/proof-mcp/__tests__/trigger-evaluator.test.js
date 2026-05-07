@@ -1,24 +1,25 @@
 // proof-mcp/__tests__/trigger-evaluator.test.js
 import { describe, it, expect } from 'vitest';
 import { evaluateTrigger, CLOSING_ARG_FLOORS } from '../metrics.js';
-import { initializeState, applyOperations, addConcern, lockConcerns, ratifyResolveCondition } from '../state.js';
+import { initializeState, applyOperations, addConcern, lockConcerns, ratifyConcern, ratifyResolveCondition } from '../state.js';
 
 function buildClosureReadyState() {
   let s = initializeState('p');
-  let [, sa] = addConcern(s, { label: 'broad concern X', description: 'd' });
+  let [, sa] = addConcern(s, { label: 'broad concern X', description: 'd' }, { source: 'designer', rationale: 'test' });
   s = sa;
-  [s] = lockConcerns(s);
+  [s] = lockConcerns(s, { source: 'designer', rationale: 'test' });
+  [s] = ratifyConcern(s, 'CERN-1', { source: 'designer', rationale: 'test' });
   let r = applyOperations(s, [
     { op: 'add', type: 'EVIDENCE', statement: 'fact-1', source: 'codebase' },
     { op: 'add', type: 'NECESSARY_CONDITION', statement: 'must Q', collapse_test: 'breaks if no Q', grounding: ['EVID-1'], reasoning_chain: 'IF fact-1 THEN must Q', rejected_alternatives: ['alt'] },
     { op: 'add', type: 'RESOLVE_CONDITION', statement: 'system Qs', problem_anchor: 'CERN-1', grounding: ['NCON-1'] },
-  ]);
+  ], { source: 'designer', rationale: 'test' });
   s = r.state;
-  r = applyOperations(s, [{ op: 'revise', target: 'NCON-1', collapse_test: 'breaks if no Q at all' }]);
+  r = applyOperations(s, [{ op: 'revise', target: 'NCON-1', collapse_test: 'breaks if no Q at all' }], { source: 'designer', rationale: 'test' });
   s = r.state;
-  [s] = ratifyResolveCondition(s, { elementId: 'RCON-1', ratificationText: 'designer ratified' });
+  [s] = ratifyResolveCondition(s, { elementId: 'RCON-1', ratificationText: 'designer ratified' }, { source: 'designer', rationale: 'test' });
   while (s.round < 3) {
-    r = applyOperations(s, []);
+    r = applyOperations(s, [], { source: 'designer', rationale: 'test' });
     s = r.state;
   }
   return s;

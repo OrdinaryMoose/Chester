@@ -1,24 +1,25 @@
 import { describe, it, expect } from 'vitest';
-import { initializeState, applyOperations, addConcern, lockConcerns, ratifyResolveCondition, recordClosingArgPresented, recordDesignerGo } from '../state.js';
+import { initializeState, applyOperations, addConcern, lockConcerns, ratifyConcern, ratifyResolveCondition, recordClosingArgPresented, recordDesignerGo } from '../state.js';
 import { evaluateTrigger, checkClosure } from '../metrics.js';
 import { deriveClosingArgument } from '../closing-argument.js';
 
 describe('closing-argument end-to-end', () => {
   it('happy path: build proof, present argument, confirm go, closure permitted', () => {
     let s = initializeState('p');
-    let [, sa] = addConcern(s, { label: 'concern X', description: 'd' });
+    let [, sa] = addConcern(s, { label: 'concern X', description: 'd' }, { source: 'designer', rationale: 'test' });
     s = sa;
-    [s] = lockConcerns(s);
+    [s] = lockConcerns(s, { source: 'designer', rationale: 'test' });
+    [s] = ratifyConcern(s, 'CERN-1', { source: 'designer', rationale: 'test' });
     let r = applyOperations(s, [
       { op: 'add', type: 'EVIDENCE', statement: 'fact', source: 'codebase' },
       { op: 'add', type: 'NECESSARY_CONDITION', statement: 'must Q', collapse_test: 'breaks if no Q', grounding: ['EVID-1'], reasoning_chain: 'IF fact THEN must Q', rejected_alternatives: ['alt1'] },
       { op: 'add', type: 'RESOLVE_CONDITION', statement: 'system Qs', problem_anchor: 'CERN-1', grounding: ['NCON-1'] },
-    ]);
+    ], { source: 'designer', rationale: 'test' });
     s = r.state;
-    r = applyOperations(s, [{ op: 'revise', target: 'NCON-1', collapse_test: 'breaks if no Q at all' }]);
+    r = applyOperations(s, [{ op: 'revise', target: 'NCON-1', collapse_test: 'breaks if no Q at all' }], { source: 'designer', rationale: 'test' });
     s = r.state;
-    [s] = ratifyResolveCondition(s, { elementId: 'RCON-1', ratificationText: 'ratified' });
-    while (s.round < 3) { r = applyOperations(s, []); s = r.state; }
+    [s] = ratifyResolveCondition(s, { elementId: 'RCON-1', ratificationText: 'ratified' }, { source: 'designer', rationale: 'test' });
+    while (s.round < 3) { r = applyOperations(s, [], { source: 'designer', rationale: 'test' }); s = r.state; }
 
     const trigger = evaluateTrigger(s);
     expect(trigger.permitted).toBe(true);
@@ -26,11 +27,15 @@ describe('closing-argument end-to-end', () => {
     const argument = deriveClosingArgument(s);
     expect(argument.resolveConditions.length).toBeGreaterThan(0);
 
-    s = recordClosingArgPresented(s);
+    [s] = recordClosingArgPresented(s, { source: 'designer', rationale: 'test' });
     expect(s.closingArgPresentedRound).toBe(s.round);
 
-    [s] = recordDesignerGo(s);
+    [s] = recordDesignerGo(s, { source: 'designer', rationale: 'test' });
     expect(s.closingArgGoRound).toBe(s.round);
+    // Task 14: confirm_closure_go transitions proofStatus to 'closed' and
+    // preserves both two-yes flags so closure remains observable.
+    expect(s.proofStatus).toBe('closed');
+    expect(s.closingArgPresentedRound).toBe(s.round);
 
     const closure = checkClosure(s);
     expect(closure.permitted).toBe(true);
@@ -43,7 +48,7 @@ describe('closing-argument end-to-end', () => {
     s.closingArgGoRound = 5;
     s.concerns = [{ id: 'CERN-1', label: 'C' }];
     s.concernsLocked = true;
-    const r = applyOperations(s, [{ op: 'add', type: 'EVIDENCE', statement: 'mid-ratification mutation', source: 'codebase' }]);
+    const r = applyOperations(s, [{ op: 'add', type: 'EVIDENCE', statement: 'mid-ratification mutation', source: 'codebase' }], { source: 'designer', rationale: 'test' });
     expect(r.state.closingArgPresentedRound).toBeNull();
     expect(r.state.closingArgGoRound).toBeNull();
     const closure = checkClosure(r.state);

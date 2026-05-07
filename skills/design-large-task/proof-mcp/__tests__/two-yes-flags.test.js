@@ -11,7 +11,7 @@ describe('two-yes flags', () => {
   it('recordClosingArgPresented sets presented round to current round', () => {
     let s = initializeState('p');
     s.round = 5;
-    s = recordClosingArgPresented(s);
+    [s] = recordClosingArgPresented(s, { source: 'designer', rationale: 'test' });
     expect(s.closingArgPresentedRound).toBe(5);
     expect(s.closingArgGoRound).toBeNull();
   });
@@ -20,7 +20,7 @@ describe('two-yes flags', () => {
     let s = initializeState('p');
     s.round = 5;
     s.closingArgPresentedRound = 4;
-    const [, err] = recordDesignerGo(s);
+    const [, err] = recordDesignerGo(s, { source: 'designer', rationale: 'test' });
     expect(err).toMatch(/presented in round 4/);
   });
 
@@ -28,7 +28,7 @@ describe('two-yes flags', () => {
     let s = initializeState('p');
     s.round = 5;
     s.closingArgPresentedRound = 5;
-    const [newS, err] = recordDesignerGo(s);
+    const [newS, err] = recordDesignerGo(s, { source: 'designer', rationale: 'test' });
     expect(err).toBeNull();
     expect(newS.closingArgGoRound).toBe(5);
   });
@@ -36,7 +36,7 @@ describe('two-yes flags', () => {
   it('recordDesignerGo refuses with grammatical "never" message when presented round is null', () => {
     let s = initializeState('p');
     s.round = 5;
-    const [, err] = recordDesignerGo(s);
+    const [, err] = recordDesignerGo(s, { source: 'designer', rationale: 'test' });
     expect(err).toMatch(/presented in round never/);
     expect(err).not.toMatch(/round null/);
   });

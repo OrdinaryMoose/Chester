@@ -303,31 +303,36 @@ Items surfaced during master-plan execution that are explicitly out of scope for
 
 - **Type:** Design + implementation cluster
 - **Subdir:** `cluster-d-build-shared-understanding/`
-- **Endstate Points:** 1, 2, 3, 4 (replaces cluster C's coverage under further reframe; point 5 still cluster A's)
-- **Objective:** Build a unified design system organized around two designer-ratified organizing principles, delivering commonly understood design requirements to `design-specify`. Reframes cluster C's one-system architecture pivot at higher altitude — cluster C asked "how do we eliminate the Phase 4a / Phase 4b split"; cluster D asks "how do we create a unified design system that builds shared understanding and hands commonly understood requirements to specify."
+- **Endstate Points:** Reframes points 1–4 under the cluster C one-system pivot. Points 3 and 4 (Phase 4a → 4b transition; Phase 4b solve process confirmed) are retired by the pivot. Points 1 and 2 (design-altitude planning; formalized language for design) collapse into "the design system speaks design at design altitude and produces a single captured artifact for specify." Point 5 (end criteria formalized) remains cluster A's ownership and is consumed read-only.
+- **Objective:** Build a unified design system organized around three designer-ratified commitments — solve-drive redirection, agent-supplied venue construction, and PM-as-decider — that delivers commonly understood design requirements to `design-specify`. Reframes cluster C's one-system architecture pivot at higher altitude. Cluster C asked "how do we eliminate the Phase 4a / Phase 4b split"; cluster D asks "how do we create a unified design system in which the agent's implementation drive is structurally channeled into proof closure at design altitude, the agent constructs decision venues for the PM, and the captured artifact reads back as the PM's intent."
 - **Organizing principles (designer-ratified 2026-05-05):**
-  1. **"Design is the code."** Give the agent and designer a formal language to operate with — harness the drive toward implementation back into design altitude. Rule-class: the design system speaks design, not solve.
-  2. **"The purpose is to create Shared Understanding."** Through shared understanding the design system delivers a commonly understood set of design requirements to the Specify system. Rule-class: every mechanism in the design system serves shared-understanding production.
-- **Problem statement (designer-ratified 2026-05-05):** *How do we create a unified design system that builds shared understanding of the problem that delivers commonly understood design requirements to the Specify system.*
-- **Concerns (designer-drafted 2026-05-05, sub-sprint will ratify and lock):**
-  1. Initial information available to the skill and how the initial topic and concerns are derived
-  2. Explore agents researching information relevant to our topic
-  3. Presentation layer — how information is provided to the designer to build shared understanding
-  4. Proof layer — how the agent faithfully manages information to build shared understanding
-  5. Agent and designer cooperatively advancing the proof
-  6. Proof system directing agent research for the next round presentation
-  7. Proper information provided to specify so it creates architecture that correctly addresses designer's intent
+  1. **"Design is the code."** The design system constructs a proof substantial enough to absorb the model's implementation drive at design altitude. The proof is a real solve target — necessary conditions, friction, closure conditions, dispositions, gates — weighted heavily enough that the agent's drive to "complete the task" points at proof closure rather than at implementation. This is structural redirection, not prompt-level gating; the corpus revision history (many revisions of design, few of specify or write) is direct evidence that prompt gating cannot redirect the drive and structural channeling can. Rule-class: every mechanism in the design system either contributes to the proof's structural weight at design altitude or is a candidate for removal.
+  2. **"The purpose is to create Shared Understanding."** Through shared understanding the design system delivers a commonly understood set of design requirements to the Specify system. The shared understanding is between PM intent and the captured artifact, with the agent as the instrument that produces the artifact. Rule-class: every mechanism in the design system serves shared-understanding production; nothing in the design system is justified by being clever, complete, or efficient if it does not contribute to PM-intent capture.
+  3. **"PM is the decider; the agent is the researcher and venue-builder."** The PM has architectural intent and decision authority but does not have codebase knowledge sufficient to drive the proof forward. The PM's role is judgment on presented venues. The agent's role is to research the codebase, prior art, and project context, and to use that research to construct well-framed decision venues for the architectural choices the PM is in a position to make. The conversation does not advance because the PM volunteers content; it advances because the agent prepares the next decision venue, presents it, and waits. Rule-class: agent generates content (input, framing, drafts, structural placement); PM generates decisions (ratifications, choices, redirects, locks). Agent-generated decisions and PM-supplied technical content are both failure modes.
+- **Problem statement (designer-ratified 2026-05-05):** *How do we create a unified design system in which the agent's implementation drive is structurally channeled into proof closure at design altitude, the agent researches and frames architectural decision venues for a PM-shaped designer, and the captured artifact reads back as the PM's intent so that Specify produces architecture matching that intent.*
+- **Concerns (designer-drafted 2026-05-05; cluster D internal session ratifies and locks):**
+  1. **Initial information available to the skill and how the initial topic and concerns are derived.** What does the agent know at session start? What does it research first? How does the proof's first few necessary conditions get seeded?
+  2. **Explorer subagents researching codebase, prior art, and project context to populate decision venues.** The PM cannot supply codebase knowledge, so explorers are the agent's primary mechanism for bringing technical context into the conversation. The design question is *how explorer output is curated to strengthen venue construction without overwriting designer-locked vocabulary or substituting explorer judgment for PM judgment.* This concern is essential, not optional; uncurated explorer dominance is the named root cause of the StoryDesigner corpus's harshest failure moment.
+  3. **Presentation layer — how information is provided to the PM to build shared understanding.** Decision venues, not topic surveys. The presentation layer must adapt to whether the PM is supplying high-density novel content (vision-dump turns) or ratifying small decisions in sequence (wizard-form turns); these two modes need different surfaces, and conflating them is documented as a corpus failure pattern.
+  4. **Proof layer — how the agent faithfully manages information to build shared understanding, and how the proof's structural weight absorbs the agent's solve-drive at design altitude.** The proof is both the capture mechanism and the solve target; capture and drive collapse into the same machinery. The proof's altitude lock (necessary conditions describe observable problem-altitude states, not implementation properties) is critical and is preserved from cluster A's five-attribute resolution-claim lock.
+  5. **Asymmetric advancement — agent does the active labor (research, framing, drafting, structural placement), PM does the decision labor (ratify, choose, redirect, lock).** The labor split must be made explicit so the system does not expect PM-supplied technical content where agent-supplied research is the correct input, and does not let the agent make decisions that should belong to the PM.
+  6. **Proof system reporting gaps to direct the next round of agent research.** The agent's drive points at proof closure, so proof-detected gaps direct research because the agent is solving the proof. This concern is the solve-drive in operation and is essential to the principle.
+  7. **Decision-substitution detection — what stops the agent from making decisions that should belong to the PM, particularly when the PM cannot detect the substitution because they lack the technical context to recognize implementation-altitude options dressed as architectural choices.** This is the principle's hardest test in practice; without explicit machinery, agent research-and-framing can substitute for PM judgment in ways the PM ratifies without realizing.
+  8. **Proper information provided to specify so it creates architecture that correctly addresses PM intent.** Read-back fidelity: the PM reads the captured artifact and ratifies "this is my position" without further correction. CN-7 closure.
 - **Inheritance:**
-  - Cluster A + B.1 + B.2 shipped capabilities (proof MCP element types, RC, Concern, submission_material contract, restructuring + provenance, closing argument, two-yes closure gate, friction, phantoms, dispositions) — read-only inheritance
-  - Cluster C session learnings (the organizing principles, the reframed problem statement, the 7 concerns, the 6 evidence pieces with reclassified sources) — carried forward as the cluster D opening seed
-  - Master plan R1–R10 still set aside for cluster D internal session per cluster C pivot amendment; cluster D reauthors any rule it needs
-  - Vocabulary corpus at `cluster-a-define-solve/summary/vocabulary-corpus-2026-05-05.md` — read-only inheritance
+  - **Cluster A + B.1 + B.2 shipped capabilities** — read-only inheritance. Includes proof MCP element types (NC, Rule, Permission, Evidence, Risk), Resolution Claim, Concern, submission_material contract, restructuring + provenance, closing argument, two-yes closure gate, friction, phantoms, dispositions. Cluster D session audits each capability through the refined principle's lens before locking; capabilities found to serve generation-of-content rather than capture-of-PM-intent are candidates for reshaping.
+  - **Cluster C session learnings** — carried forward as opening seed. Reframed problem statement, seven concerns, six evidence pieces with reclassified sources, organizing principles. Cluster D session ratifies each through the refined principle before locking.
+  - **Master plan R1–R10** — set aside for cluster D internal session per cluster C pivot amendment. Cluster D reauthors the rules it needs. New rules likely required: *the captured artifact is in the designer's locked vocabulary*; *the agent generates content and the PM generates decisions*; *the proof's structural weight is itself the channel for the implementation drive*; *the system measures itself on read-back fidelity, not on coverage scores*.
+  - **Vocabulary corpus** at `cluster-a-define-solve/summary/vocabulary-corpus-2026-05-05.md` — read-only inheritance, with cluster D extending the maintenance protocol (designer ratifies, system locks, all later mentions check against locked form) as a model for design-altitude language generally.
+  - **Organizing principle research** at `design/rebuild-design-derivation-organizing-principle-research-2026-05-05.md` — opening context for the cluster D internal session. The two corrections (implementation drive is structural; PM is not the input source) are ratified at session start as locked working tenets. The counterfactuals seed the cluster D Risk register.
 - **Exit criteria:**
-  - Cluster D design brief committed
-  - design-specify run; plan-build run; execute-write delivered
-  - The two organizing principles operationalized in the resulting `design-large-task` skill (formal-language-for-design-altitude + shared-understanding-as-purpose)
-  - Handoff from `design-large-task` to `design-specify` carries enough fidelity that specify produces architecture matching designer intent (CN-7 closure)
-- **Depends on:** Cluster A + B.1 + B.2 (all done). Inherits cluster C session as opening seed.
+  - Cluster D design brief committed.
+  - `design-specify` run; `plan-build` run; `execute-write` delivered.
+  - The three organizing principles operationalized in the resulting `design-large-task` skill: structural channel for implementation drive (proof weighted heavily enough at design altitude); agent-supplied venue construction (explorers curated, framing produced, decisions framed for PM judgment); PM-as-decider asymmetry (agent does active labor, PM does decision labor).
+  - **Read-back fidelity test:** in a sample design conversation, the PM reads the captured artifact at session end and ratifies "this is my position" without further correction. This is the concrete measurable form of CN-7 closure.
+  - **Substitution-prevention test:** in the sample design conversation, decisions captured in the proof trace to PM ratification turns, not to agent commentary turns. The proof's content is mostly agent-supplied; the proof's *decisions* are PM-supplied.
+  - **Drive-channel test:** in the sample design conversation, the agent does not produce implementation-altitude content in its commentary blocks beyond a measurable rate; the proof's structural weight visibly absorbs the drive.
+- **Depends on:** Cluster A + B.1 + B.2 (all done). Inherits cluster C session as opening seed. Inherits the 2026-05-05 organizing principle research as locked tenets at session start.
 - **Status:** pending
 
 ## 11. Pivot Amendment — Cluster C (2026-05-04)
@@ -404,3 +409,46 @@ Cluster B.1 R6's "in-band amendment forbidden after restructuring" applies twice
 - Cluster C status: **closed without delivery, scope transferred to cluster D**
 - Cluster D status: **pending** (active sub-sprint per §9)
 - Master plan endstate points 1–4 ownership transfers from cluster C to cluster D; point 5 (cluster A) unchanged
+
+## 13. Refinement Amendment — Cluster D Principle Refinement (2026-05-05, afternoon)
+
+**Trigger:** A research session 2026-05-05 (afternoon) analyzed interview-round prompts across two corpora — the Chester-recursive corpus (10 sessions, three skill generations) and the StoryDesigner corpus (12 sessions across ~16 sprints). The session produced an alternative narrative (the design system's value is organizing-surface for content the designer brings) which the designer accepted as the more accurate read of the corpus evidence. Two corrections to the alternative narrative followed in the same session, each load-bearing enough to revise the cluster D charter.
+
+### What Changed
+
+**Two corrections ratified as locked working tenets for cluster D:**
+
+1. **The implementation drive is structural, not addressable by prompts.** The model's drive to implement is baked into training and cannot be redirected by prompt-level gating. The corpus revision history is direct evidence: many revisions of design (`design-figure-out` → `design-experimental` → `design-large-task`), few of specify or write. Design fights the model's nature; specify and write align with it. The "design is the code" principle is the only known move that addresses this at the right altitude — not by fighting the drive but by giving it a real solve target (the proof) at design altitude.
+
+2. **The PM is not the input source.** The product manager has architectural intent and decision authority but does not have codebase knowledge sufficient to drive the proof forward. Treating the PM as the primary input source produces sessions that stall on input drought. The PM's role is judgment on presented venues. The agent must research the codebase, prior art, and project context, and use that research to construct well-framed decision venues for the architectural choices the PM is in a position to make.
+
+**Cluster D §4.5 reshaped:**
+
+- **Three organizing principles instead of two.** PM-as-decider split out as an explicit third principle so the labor asymmetry (agent generates content, PM generates decisions) cannot be silently absorbed into "shared understanding" cooperative production.
+- **Principle #1 rationale rewritten** to name the structural-channel-for-implementation-drive function explicitly. The "give the agent and designer a formal language to operate with" framing is replaced. The vocabulary-corpus mechanism is retained as one expression of the principle, not the principle itself.
+- **Problem statement expanded** to name all three commitments (drive channel, venue construction, read-back) in a single sentence.
+- **Concerns reorganized** into eight items. Concern #2 (explorer subagents) reframed from "research the topic" to "populate decision venues" with curation as the load-bearing constraint. Concern #5 (advancement) made asymmetric in language. Concern #6 (proof system directing research) framed as solve-drive in operation. **Concern #7 (decision-substitution detection) is new** — what stops the agent from making decisions that should belong to the PM, particularly when the PM cannot detect the substitution because they lack the technical context. Concern #8 (specify handoff) preserved as end criterion.
+- **Inheritance audit posture made explicit.** Cluster A and B shipped capabilities are read-only but cluster D ratifies each through the refined principle before locking; capabilities found to serve generation-of-content rather than capture-of-PM-intent are candidates for reshaping.
+- **Three exit-criteria tests added.** Read-back fidelity (PM ratifies the captured artifact without correction); substitution prevention (decisions trace to PM ratification turns); drive-channel (implementation-altitude content stays out of agent commentary). Each is concrete enough to fail measurably.
+
+### What Stays
+
+- The 2026-05-05 reframe (§12) stands as paper trail. The transfer from cluster C to cluster D happened under the two-principle / seven-concern framing recorded there. Cluster D's current charter is the refinement of that framing, not a replacement for the transfer record.
+- §11 pivot stands.
+- Endstate-point treatment remains as in §12: points 3 and 4 retired by the pivot; points 1 and 2 collapse under cluster D's design-altitude commitment; point 5 unchanged.
+- Cluster A + B.1 + B.2 deliverables stand.
+
+### Artifacts Produced
+
+- `design/rebuild-design-derivation-organizing-principle-research-2026-05-05.md` — research, two corrections, refined principle, cluster D review through the principle, counterfactual. Designer-accepted as cluster D opening context.
+- `design/master-plan-cluster-d-section-proposal-2026-05-05.md` — designer-approved §4.5 replacement text (Part 1) plus revision notes (Part 2) and open items (Part 3, all six ratified). Now superseded by §4.5 in this document.
+
+### Why This Is a Refinement, Not a Cluster Transfer
+
+The 2026-05-04 pivot was architecture-level (same problem, different shape). The 2026-05-05 morning reframe was charter-level (different problem altitude — required a cluster transfer). The 2026-05-05 afternoon refinement is principle-level (same problem, same altitude, sharpened commitments). The cluster D charter sharpens; the cluster identity does not change. No cluster transfer is required; cluster D opens with the refined charter.
+
+### Status Update
+
+- Cluster D status: **pending** (active, charter refined)
+- Cluster D opening seed: cluster C session learnings (per §12) as ratified through the refined principle (per §13)
+- Cluster D opening tenets: the two corrections (drive structural, PM not input source) locked at session start

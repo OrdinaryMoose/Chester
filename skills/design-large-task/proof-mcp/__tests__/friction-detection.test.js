@@ -58,12 +58,12 @@ describe('friction detection wired into applyOperations', () => {
     let state = initializeState('test');
     let r = applyOperations(state, [
       { op: 'add', type: 'RULE', statement: 'must not Z', source: 'designer' },
-    ]);
+    ], { source: 'designer', rationale: 'test' });
     state = r.state;
     r = applyOperations(state, [
       { op: 'add', type: 'PERMISSION', statement: 'allow Z', source: 'designer', relieves: 'RULE-1' },
       { op: 'add', type: 'RISK', statement: 'Z is dangerous', basis: ['RULE-1'] },
-    ]);
+    ], { source: 'designer', rationale: 'test' });
     state = r.state;
     const fric = [...state.elements.values()].find(el => el.type === 'FRICTION');
     expect(fric).toBeDefined();
@@ -74,12 +74,12 @@ describe('friction detection wired into applyOperations', () => {
     let state = initializeState('test');
     let r = applyOperations(state, [
       { op: 'add', type: 'EVIDENCE', statement: 'fact', source: 'codebase' },
-    ]);
+    ], { source: 'designer', rationale: 'test' });
     state = r.state;
     r = applyOperations(state, [
       { op: 'add', type: 'NECESSARY_CONDITION', statement: 'must X', collapse_test: 'a', grounding: ['EVID-1'], reasoning_chain: 'IF X' },
       { op: 'add', type: 'NECESSARY_CONDITION', statement: 'must not X', collapse_test: 'b', grounding: ['EVID-1'], reasoning_chain: 'IF not X' },
-    ]);
+    ], { source: 'designer', rationale: 'test' });
     expect(r.friction_hints).toBeDefined();
     expect(r.friction_hints.some(h => h.friction_shape === 'nc-nc-opposing-pull')).toBe(true);
   });
@@ -89,25 +89,25 @@ describe('friction detection wired into applyOperations', () => {
     let state = initializeState('test');
     let r = applyOperations(state, [
       { op: 'add', type: 'RULE', statement: 'must not Z', source: 'designer' },
-    ]);
+    ], { source: 'designer', rationale: 'test' });
     state = r.state;
     r = applyOperations(state, [
       { op: 'add', type: 'PERMISSION', statement: 'allow Z', source: 'designer', relieves: 'RULE-1' },
       { op: 'add', type: 'RISK', statement: 'Z is dangerous', basis: ['RULE-1'] },
-    ]);
+    ], { source: 'designer', rationale: 'test' });
     state = r.state;
     const fric = [...state.elements.values()].find(el => el.type === 'FRICTION');
     expect(fric).toBeDefined();
     const fricId = fric.id;
 
     // Designer dismisses the auto-created friction.
-    const [s2] = overrideFrictionDisposition(state, { elementId: fricId, disposition: 'not-really-friction' });
+    const [s2] = overrideFrictionDisposition(state, { elementId: fricId, disposition: 'not-really-friction' }, { source: 'designer', rationale: 'test' });
     expect(s2.elements.get(fricId).status).toBe('withdrawn');
 
     // Next mutation must NOT re-create the same anchor pair as a new FRIC element.
     r = applyOperations(s2, [
       { op: 'add', type: 'EVIDENCE', statement: 'unrelated fact', source: 'codebase' },
-    ]);
+    ], { source: 'designer', rationale: 'test' });
     const frictions = [...r.state.elements.values()].filter(el => el.type === 'FRICTION');
     expect(frictions.length).toBe(1);
     expect(frictions[0].id).toBe(fricId);

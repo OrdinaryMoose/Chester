@@ -10,8 +10,21 @@
  *   RISK       — identified hazards attached to specific conditions
  */
 
+// Schema version for persisted state files. Bump on any breaking change to the
+// on-disk shape; loadState refuses files whose schemaVersion exceeds this value
+// and backfills the field on older files that predate versioning.
+export const SCHEMA_VERSION = 1;
+
 export const ELEMENT_TYPES = [
   'EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK', 'RESOLVE_CONDITION', 'FRICTION',
+];
+
+// CATEGORIES (NC-2): the full set of dispositionable entity categories, including
+// CONCERN and DEFINITION (which are not in ELEMENT_TYPES but participate in the
+// universal withdraw flow). Order is canonical for iteration consumers.
+export const CATEGORIES = [
+  'EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK',
+  'RESOLVE_CONDITION', 'FRICTION', 'CONCERN', 'DEFINITION',
 ];
 
 export const FRICTION_SHAPES = [
@@ -35,6 +48,79 @@ export const WITHDRAWAL_DISPOSITIONS = [
 // Not a member of WITHDRAWAL_DISPOSITIONS — applied by loadState backfill and the withdraw
 // branch when the field is omitted; consumed by closing-argument render as the fallback tag.
 export const UNCLASSIFIED_DISPOSITION = 'unclassified';
+
+// DISPOSITIONS_BY_CATEGORY (NC-2): which disposition vocabulary applies to each
+// category. FRICTION uses its own disposition set; everything else uses the
+// withdrawal disposition vocabulary. Consumed by the universal withdraw tool.
+export const DISPOSITIONS_BY_CATEGORY = {
+  EVIDENCE: WITHDRAWAL_DISPOSITIONS,
+  RULE: WITHDRAWAL_DISPOSITIONS,
+  PERMISSION: WITHDRAWAL_DISPOSITIONS,
+  NECESSARY_CONDITION: WITHDRAWAL_DISPOSITIONS,
+  RISK: WITHDRAWAL_DISPOSITIONS,
+  RESOLVE_CONDITION: WITHDRAWAL_DISPOSITIONS,
+  CONCERN: WITHDRAWAL_DISPOSITIONS,
+  DEFINITION: WITHDRAWAL_DISPOSITIONS,
+  FRICTION: FRICTION_DISPOSITIONS,
+};
+
+// Maps the leading ID prefix (before the first '-') to its category. Kept module-private;
+// consumers should call entityType() rather than reach into this map directly.
+// Inverse of ID_PREFIX in state.js — adding a new element type requires updates in both.
+const ID_PREFIX_TO_CATEGORY = {
+  EVID: 'EVIDENCE',
+  RULE: 'RULE',
+  PERM: 'PERMISSION',
+  NCON: 'NECESSARY_CONDITION',
+  RISK: 'RISK',
+  RCON: 'RESOLVE_CONDITION',
+  FRIC: 'FRICTION',
+  CERN: 'CONCERN',
+  DEFN: 'DEFINITION',
+};
+
+/**
+ * Derive the category of an entity from its ID prefix. The universal withdraw
+ * tool uses this to dispatch to the correct disposition vocabulary without
+ * loading the element first.
+ * @param {string} id - Entity ID (e.g. "NCON-3", "CERN-1").
+ * @returns {string} Category name (one of CATEGORIES).
+ * @throws {Error} If the ID is malformed or its prefix is unknown.
+ */
+export function entityType(id) {
+  if (typeof id !== 'string' || !id.includes('-')) {
+    throw new Error(`malformed id: ${id}`);
+  }
+  const prefix = id.split('-')[0];
+  const cat = ID_PREFIX_TO_CATEGORY[prefix];
+  if (!cat) {
+    throw new Error(`unknown id prefix: ${prefix}`);
+  }
+  return cat;
+}
+
+// Consent token sources accepted by mutating tools. Every state-mutating tool requires
+// a consent token from the caller; presence + correct shape gates mutation entirely.
+export const CONSENT_SOURCES = ['designer', 'agent-proposed-designer-confirmed'];
+
+/**
+ * Validate a consent token's shape. Mutating tools must reject ({ valid: false, ... })
+ * before any state mutation, flag clear, or round increment.
+ * @param {object|undefined|null} token
+ * @returns {{valid: boolean, reason?: string}}
+ */
+export function validateConsentToken(token) {
+  if (!token || typeof token !== 'object') {
+    return { valid: false, reason: 'consent token missing or not an object' };
+  }
+  if (!CONSENT_SOURCES.includes(token.source)) {
+    return { valid: false, reason: `consent.source must be one of ${CONSENT_SOURCES.join(', ')}; got ${token.source}` };
+  }
+  if (token.rationale !== undefined && typeof token.rationale !== 'string') {
+    return { valid: false, reason: 'consent.rationale must be a string when present' };
+  }
+  return { valid: true };
+}
 
 /**
  * Create an element object from input, validating required fields by type.
@@ -77,6 +163,7 @@ export function createElement(input, id, round) {
       anchor_b: input.anchor_b,
       disposition: input.disposition,
       statement: input.statement ?? '',
+      source: input.source ?? 'agent-derivation',
       addedInRound: round,
       revisedInRound: null,
       revision: 0,
@@ -155,6 +242,11 @@ export function createElement(input, id, round) {
     revisedInRound: null,
     revision: 0,
   };
+  // NC-only ratificationStatus (NC-18, RULE-8): bulk-ratified at confirm_closure_go;
+  // any revise of statement or grounding resets to 'draft'. Orthogonal to .status.
+  if (type === 'NECESSARY_CONDITION') {
+    element.ratificationStatus = 'draft';
+  }
   if (restructuring) {
     element.restructuring = restructuring;
   }

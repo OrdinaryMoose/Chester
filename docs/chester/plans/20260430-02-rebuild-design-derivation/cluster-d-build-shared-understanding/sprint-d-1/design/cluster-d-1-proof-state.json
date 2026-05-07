@@ -1,0 +1,1266 @@
+{
+  "round": 1,
+  "problemStatement": "How do we design the proof layer that delivers commonly understood design requirements to the Specify system — formal language, faithful state management, designer-consent gating, and closure handoff — so that the presentation layer can build shared understanding against it?",
+  "elements": {
+    "RULE-1": {
+      "id": "RULE-1",
+      "type": "RULE",
+      "statement": "Cluster D operates under the organizing principle 'Design is the code': agent and designer share a formal language that IS the design medium; the agent's drive toward implementation lands at design altitude through the language itself, not via behavioral prohibition.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-2": {
+      "id": "RULE-2",
+      "type": "RULE",
+      "statement": "Cluster D operates under the organizing principle 'The purpose is to create Shared Understanding': the design system exists to produce shared alignment between agent and designer about the problem, its constraints, and its resolution; through that shared understanding the system delivers commonly understood requirements to the Specify system.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-3": {
+      "id": "RULE-3",
+      "type": "RULE",
+      "statement": "One-system architecture: the design conversation runs continuously under the proof MCP from session start, with no Phase 4a / Phase 4b boundary. Pre-existing two-stage vocabulary (Phase 4a, Phase 4b, Understand stage, Solve stage as separate stages) is paper trail only.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-4": {
+      "id": "RULE-4",
+      "type": "RULE",
+      "statement": "Resolve Condition shape (cluster D ratified 2026-05-05). An RC carries five attributes: (1) Observable — names a check a third party can perform to confirm the state holds, independent of the agent's claim; (2) Approval-tracked — the RC carries an explicit approval state on itself with two values (draft / ratified); the state lives on the RC, not external to it; (3) Problem-statement-anchored — anchors to exactly one Concern via the problem_anchor field, one-to-one; (4) Forward-looking — describes a state that will exist after the design is implemented and operating, distinct from Evidence (states existing now) and Rules (invariants always holding); (5) Non-restrictive — describes what completion looks like, not a path to completion. RC instances exist in two states: Draft RC (agent-added, designer-not-yet-confirmed; revisable; does not count toward closure coverage) and Ratified RC (designer-confirmed via the proof MCP's ratification mechanism; counts toward Concern coverage; closure-eligible). Only Ratified RCs count toward closure.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-5": {
+      "id": "RULE-5",
+      "type": "RULE",
+      "statement": "Definitions home (cluster D ratified 2026-05-05). The Definitions list lives as an extension of proof MCP state, in a dedicated slot beside the typed-element array (G1 path). The proof MCP exposes a manage_definitions tool with operations add / revise / deprecate / ratify. Each Definition carries canonical_name (unique), aliases, definition, sense_constraints, status, and history. Definitions follow the same Approval-tracked lifecycle as RCs: Draft Definition (agent-added, designer-not-yet-confirmed) advances to Ratified Definition (designer-confirmed) via designer ratification. Only Ratified Definitions count toward vocabulary discipline. Mutations to Definitions clear closure consents per cluster B.2's living-document discipline. Closing argument derivation includes a Definitions section. The element-type closed set remains at 9; Definitions live in their own state slot, not as a typed element.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-6": {
+      "id": "RULE-6",
+      "type": "RULE",
+      "statement": "Concerns are Approval-tracked (cluster D ratified 2026-05-05). Each Concern carries individual approval state with two values: Draft Concern (agent-added or proposed; designer-not-yet-confirmed) and Ratified Concern (designer-confirmed via designer act). Only Ratified Concerns count toward closure coverage. Agent may propose Draft Concerns at any time; designer ratifies to advance state. Aligns with RULE-4 RC Approval-tracked discipline. The existing concernsLocked flag is preserved as a separate concept: it means 'all current Concerns are Ratified AND no further Concerns may be added' — a stronger condition than per-Concern ratification.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-7": {
+      "id": "RULE-7",
+      "type": "RULE",
+      "statement": "Evidence is reference material (cluster D ratified 2026-05-05). Evidence does not require designer approval. Agent may add or remove Evidence freely to support the proof's reasoning. Like theorems in formal proofs, Evidence is available in a pool; the design decision is which Evidence to cite as grounding for a Necessary Condition. Designer authority over Evidence enters via NC grounding choices (which Evidence is cited) and via withdrawal of incorrect Evidence. Approval-tracked does not apply to Evidence.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-8": {
+      "id": "RULE-8",
+      "type": "RULE",
+      "statement": "Necessary Conditions are Approval-tracked (cluster D ratified 2026-05-05). Each NC carries individual approval state with two values: Draft NC (agent-derived from grounding; designer-not-yet-confirmed) and Ratified NC (designer-confirmed). Only Ratified NCs count toward closure. The structural well-formedness fields (grounding, reasoning_chain, collapse_test, rejected_alternatives) are a separate gate from approval state — well-formedness is required for closure-permitted; ratification is required for the NC to be load-bearing in the proof. Aligns with RULE-4 RC and RULE-6 Concern Approval-tracked discipline.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-9": {
+      "id": "RULE-9",
+      "type": "RULE",
+      "statement": "Two-tier approval ratification mechanism (cluster D ratified 2026-05-05). Approval-tracked elements ratify on different timelines. Concerns ratify individually mid-round: designer ratifies each Concern via per-Concern designer act when designer is ready. The existing concernsLocked flag remains as a separate concept meaning 'all Concerns are Ratified AND no further Concerns may be added'. Resolve Conditions and Necessary Conditions bulk-ratify at closing argument time: the designer's 'go' against the closing argument is the bulk ratification act for all Draft RCs and Draft NCs present in the closing argument; closure follows. Bulk ratification is a state transition (Draft → Ratified), not a mutation, and does not clear two-yes consent flags. If designer does not want a particular Draft RC or NC ratified, they revise or withdraw it before 'go' (revision/withdrawal is a mutation and clears two-yes consents per cluster B.2 living-document discipline). Mid-round explicit ratification of an RC or NC remains available but is not required for the standard flow. Definitions ratify on their own lifecycle (per RULE-5); not coupled to closing argument. Evidence does not ratify (per RULE-7).",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "EVID-1": {
+      "id": "EVID-1",
+      "type": "EVIDENCE",
+      "statement": "Proof MCP element types are closed at 7 enum entries (NC, EVIDENCE, RULE, PERMISSION, RISK, RESOLVE_CONDITION, FRICTION) declared in proof.js; FRICTION uses a distinct schema from the other six. Adding types requires kernel-level change.",
+      "source": "codebase",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "EVID-2": {
+      "id": "EVID-2",
+      "type": "EVIDENCE",
+      "statement": "Restructuring provenance attaches at open_proof only; revise / withdraw operations via submit_proof_update produce no provenance object. Post-open mutations carry no equivalent provenance shape.",
+      "source": "codebase",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "EVID-3": {
+      "id": "EVID-3",
+      "type": "EVIDENCE",
+      "statement": "manage_concerns tool exposes add and lock operations only — no withdraw. Concerns can be added, never removed. Carryforward gap from cluster C.",
+      "source": "codebase",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "EVID-4": {
+      "id": "EVID-4",
+      "type": "EVIDENCE",
+      "statement": "Per-element approval state exists only on RESOLVE_CONDITION (ratification field); Concerns lock as a single boolean (concernsLocked); NCs have no per-element approval state. The two-tier ratification discipline adopted in cluster D session has no schema slot today.",
+      "source": "codebase",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "EVID-5": {
+      "id": "EVID-5",
+      "type": "EVIDENCE",
+      "statement": "Phantom mechanism stores withdrawn elements with status='withdrawn' plus withdrawal_disposition from a closed set (consolidated, superseded, found-redundant, found-incorrect, scope-removed, unclassified). Supports RC + NC + Friction; Concern + Definition + Rule + Permission + Risk paths absent or informal.",
+      "source": "codebase",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "EVID-6": {
+      "id": "EVID-6",
+      "type": "EVIDENCE",
+      "statement": "Two-yes closure gate: closingArgPresentedRound and closingArgGoRound stamps both required and round-equal; any mutating operation clears both. Designer must re-present and re-confirm after any state change.",
+      "source": "codebase",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "EVID-7": {
+      "id": "EVID-7",
+      "type": "EVIDENCE",
+      "statement": "Closing argument derives as a pure idempotent function from proof state: problem statement, locked Concerns, active RCs, phantom NCs/RCs/Friction with dispositions, composite score, closure_permitted flag. No separate brief render at MCP level.",
+      "source": "codebase",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "EVID-8": {
+      "id": "EVID-8",
+      "type": "EVIDENCE",
+      "statement": "Definition extension proposed (G1 path) but no manage_definitions tool exists today. Definition has no API surface. Schema slot anticipated; tool implementation pending.",
+      "source": "codebase",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "EVID-9": {
+      "id": "EVID-9",
+      "type": "EVIDENCE",
+      "statement": "Cluster A shipped Resolve Condition with five designer-locked attributes (observable / designer-ratified / problem-statement-anchored / forward-looking / non-restrictive). Sequential ratification — single-element path. Revising statement or problem_anchor nulls ratification.",
+      "source": "prior-art",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "EVID-10": {
+      "id": "EVID-10",
+      "type": "EVIDENCE",
+      "statement": "Cluster B.1 shipped restructuring action labels (closed set: verbatim-preserve, reshape, gap-fill, infer, derive) with per-field provenance. Open gate enforces every admitted element carries action label, source citation, and reasoning chain. Single boundary crossing per proof opening.",
+      "source": "prior-art",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "EVID-11": {
+      "id": "EVID-11",
+      "type": "EVIDENCE",
+      "statement": "Cluster B.2 shipped Friction (4 detection shapes: NC-NC-opposing-pull, RC-Rule-conflict, Permission-Risk-linkage, Concern-Concern-competition; 5-disposition closed set: lived-with, relieved-by-exception, dissolved-by-revision, dissolved-by-scope-cut, not-really-friction). Phantom mechanism (RC/NC/Friction withdrawal-with-disposition). Closing argument as structured object derived from proof state.",
+      "source": "prior-art",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "EVID-12": {
+      "id": "EVID-12",
+      "type": "EVIDENCE",
+      "statement": "Cluster C 2026-05-05 closed without delivery because charter-level reframe could not be absorbed in-band. Cluster B.1 R6 forbids problem-statement amendment after open_proof; manage_concerns lacks withdraw. Out-of-band reframes force cluster transfer.",
+      "source": "prior-art",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "EVID-13": {
+      "id": "EVID-13",
+      "type": "EVIDENCE",
+      "statement": "W3C PROV-O models provenance as Entity / Activity / Agent triples with qualified-pattern reification. Bundles enable provenance-of-provenance. wasInvalidatedBy provides bounded entity lifetime without deletion. Common pitfall: over-qualification produces verbose graphs hard to query.",
+      "source": "industry",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "EVID-14": {
+      "id": "EVID-14",
+      "type": "EVIDENCE",
+      "statement": "Architectural Decision Records (Nygard pattern): immutable records with status transitions (proposed / accepted / deprecated / superseded) and supersedes-chains. Status field is the withdrawal grammar. Common pitfall: status-field rot when update burden falls on the next decision-maker.",
+      "source": "industry",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "EVID-15": {
+      "id": "EVID-15",
+      "type": "EVIDENCE",
+      "statement": "Event sourcing pattern: append-only log of immutable typed events with compensating events for retraction. Intent-focused events outperform state-focused for projection flexibility. Schema evolution is the primary production hazard; once events are stored, shape changes require upcasters or migration.",
+      "source": "industry",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "EVID-16": {
+      "id": "EVID-16",
+      "type": "EVIDENCE",
+      "statement": "Refinement types (Liquid Haskell): single invariant per type for atomic claim discipline. Composition relies on each predicate being independently verifiable. Common pitfalls: SMT solver opacity in error messages, annotation burden growing with schema.",
+      "source": "industry",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "EVID-17": {
+      "id": "EVID-17",
+      "type": "EVIDENCE",
+      "statement": "Macaroons (Google Research, 2014): caveat-chain bearer tokens. Attenuation-without-delegation lets tokens narrow without re-issue. Third-party caveats with discharge tokens enable multi-party consent. Bearer semantics make revocation inherently eventual.",
+      "source": "industry",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "EVID-18": {
+      "id": "EVID-18",
+      "type": "EVIDENCE",
+      "statement": "Camunda BPMN parallel-gateway n-of-n approval with pivot transactions for irreversible commits. Inclusive-gateway deadlock possible if upstream selection skips paths the downstream join expects. Saga pattern needs explicit compensation handlers per step.",
+      "source": "industry",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "EVID-19": {
+      "id": "EVID-19",
+      "type": "EVIDENCE",
+      "statement": "LLVM IR provenance discipline: each transformation pass must explicitly preserve / merge / drop / remap location metadata. debugify utility verifies preservation. Common pitfall: silent provenance loss when passes delete instructions without salvageDebugInfo, producing undef debug values invisible at IR level.",
+      "source": "industry",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "NC-1": {
+      "id": "NC-1",
+      "type": "NECESSARY_CONDITION",
+      "statement": "Open submission must include problem_statement, initial Concerns, initial Evidence, and restructuring action labels per cluster B.1 closed set on every submitted element. Missing fields reject.",
+      "source": "agent-derivation",
+      "grounding": [
+        "EVID-10",
+        "EVID-1"
+      ],
+      "collapse_test": "Without enforced seed shape, presentation submits unvalidatable material; downstream NCs grounded on initial Evidence break.",
+      "reasoning_chain": "Cluster B.1's restructuring action label set (EVID-10) plus the closed element set (EVID-1) require enforced shape at the open boundary; without enforcement, presentation can submit material the proof cannot validate.",
+      "rejected_alternatives": [
+        "free-form unstructured seed",
+        "designer-only seed (no agent contribution)",
+        "incremental seeding via multiple boundary crossings"
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": "C-1",
+      "ratification": {
+        "ratifiedAtRound": 1,
+        "text": "Bulk-ratified at closing argument round 1 via designer go directive."
+      },
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "NC-2": {
+      "id": "NC-2",
+      "type": "NECESSARY_CONDITION",
+      "statement": "Proof carries closed set of 9 conceptual categories: 7 typed elements (NC, Evidence, Rule, Permission, Risk, RC, Friction) plus Concerns and Definitions. Phantom is a withdrawal-derived status, not a separate category. Adding new categories requires charter-level decision.",
+      "source": "agent-derivation",
+      "grounding": [
+        "EVID-1",
+        "EVID-13"
+      ],
+      "collapse_test": "Open category set produces vocabulary explosion; ad-hoc additions undermine closure.",
+      "reasoning_chain": "EVID-1 documents 7 typed enum entries plus Concerns and Definitions as separate state slots, totaling 9 conceptual categories. EVID-13 (PROV-O) shows extension via reification within existing types is preferred industry pattern over adding new types.",
+      "rejected_alternatives": [
+        "open category set",
+        "designer-extensible per session",
+        "designer-extensible with subsequent retraction"
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": "C-3",
+      "ratification": {
+        "ratifiedAtRound": 1,
+        "text": "Bulk-ratified at closing argument round 1 via designer go directive."
+      },
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "NC-3": {
+      "id": "NC-3",
+      "type": "NECESSARY_CONDITION",
+      "statement": "Source enum closed: codebase, industry, prior-art, session-observation, designer (Rules / Permissions only), agent-derivation (NCs, RCs, auto-created Friction, Draft Concerns, Draft Definitions). Concerns: designer-added carry designer source; agent-proposed Drafts carry agent-derivation. Definitions follow Approval-tracked lifecycle per RULE-5: Draft = agent-derivation, Ratified = designer-confirmed transition. Friction schema requires explicit source-field extension during specify. Source field is preserved on withdrawal (Phantom inherits source from pre-withdrawal element).",
+      "source": "agent-derivation",
+      "grounding": [
+        "EVID-13",
+        "EVID-12"
+      ],
+      "collapse_test": "Claims without authority can't be audited; observable vs derived can't be distinguished; vocabulary discipline rots.",
+      "reasoning_chain": "EVID-13 (PROV Agent class) and EVID-12 (cluster C source-class reclassification surfaced gaps) together require closed source enum on every element to support audit, disambiguation between agent-derived and observable, and downstream specify consumption.",
+      "rejected_alternatives": [
+        "free-text source field",
+        "per-element ad-hoc labels",
+        "no source enforcement"
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": "C-3",
+      "ratification": {
+        "ratifiedAtRound": 1,
+        "text": "Bulk-ratified at closing argument round 1 via designer go directive."
+      },
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "NC-4": {
+      "id": "NC-4",
+      "type": "NECESSARY_CONDITION",
+      "statement": "Beyond open_proof, every state-mutating operation carries provenance recording who initiated, what changed, why. Provenance shape per operation class (mutation, ratification, withdrawal, lock) decomposed during design-specify.",
+      "source": "agent-derivation",
+      "grounding": [
+        "EVID-2",
+        "EVID-13",
+        "EVID-19"
+      ],
+      "collapse_test": "Post-open mutations leave no audit trail; revisions and ratifications carry no provenance; audit chain breaks.",
+      "reasoning_chain": "EVID-2 documents the provenance gap post-open. EVID-13 (PROV-O qualified-pattern) and EVID-19 (LLVM debugify) demonstrate per-operation provenance discipline as the industry standard for audit-bearing systems.",
+      "rejected_alternatives": [
+        "provenance at create-time only (status quo)",
+        "separate audit log only",
+        "no provenance"
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": "C-3",
+      "ratification": {
+        "ratifiedAtRound": 1,
+        "text": "Bulk-ratified at closing argument round 1 via designer go directive."
+      },
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "NC-5": {
+      "id": "NC-5",
+      "type": "NECESSARY_CONDITION",
+      "statement": "Every category supporting deletion uses withdrawal preserving the element with closed-set disposition; status transitions to withdrawn (Phantom-rendered). Per-type disposition sets ratified during design-specify. Architectural commitment: every type has a closed set; never silent deletion.",
+      "source": "agent-derivation",
+      "grounding": [
+        "EVID-3",
+        "EVID-5",
+        "EVID-14",
+        "EVID-15"
+      ],
+      "collapse_test": "Incomplete withdrawal grammar produces silent voids in closed element set; cluster-C-style reframes have no in-band path.",
+      "reasoning_chain": "EVID-3 and EVID-5 surface specific CRUD gaps. EVID-14 (ADR supersedes-chain) and EVID-15 (event sourcing compensating events) demonstrate that withdrawal preservation with disposition is the industry-standard pattern for audit-bearing systems.",
+      "rejected_alternatives": [
+        "phantom-only path (forces silent delete elsewhere)",
+        "single universal disposition set (loses element-type semantics)",
+        "designer-only withdraw"
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": "C-3",
+      "ratification": {
+        "ratifiedAtRound": 1,
+        "text": "Bulk-ratified at closing argument round 1 via designer go directive."
+      },
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "NC-6": {
+      "id": "NC-6",
+      "type": "NECESSARY_CONDITION",
+      "statement": "Each of the 9 categories supports full Create/Read/Update/Delete via documented MCP tool surface. Phantom is a status transition on existing categories, not a separate CRUD target. Pre-existing partial coverage (Concerns no withdraw, Definitions no API) closed.",
+      "source": "agent-derivation",
+      "grounding": [
+        "EVID-3",
+        "EVID-5",
+        "EVID-8",
+        "EVID-15"
+      ],
+      "collapse_test": "Partial CRUD inconsistencies make designer reasoning unreliable; gaps surface as in-session friction.",
+      "reasoning_chain": "EVID-3, EVID-5, and EVID-8 enumerate specific CRUD gaps in the current proof MCP. EVID-15 (event sourcing) supports universal CRUD as a discipline for closed-set state systems.",
+      "rejected_alternatives": [
+        "keep partial CRUD (status quo)",
+        "CRUD only on subset of types",
+        "per-type tool families"
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": "C-3",
+      "ratification": {
+        "ratifiedAtRound": 1,
+        "text": "Bulk-ratified at closing argument round 1 via designer go directive."
+      },
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "NC-7": {
+      "id": "NC-7",
+      "type": "NECESSARY_CONDITION",
+      "statement": "Definitions API exists with manage_definitions tool supporting add / revise / deprecate / ratify operations per RULE-5. API also supports an overlap-candidate query that surfaces likely-related entries given a candidate term, for designer disambiguation. Specific overlap algorithm is design-specify territory. Discipline of using ratified Definitions for term resolution is a Presentation-layer commitment (D.2).",
+      "source": "agent-derivation",
+      "grounding": [
+        "EVID-8",
+        "EVID-13"
+      ],
+      "collapse_test": "Without API, vocabulary discipline can only be aspirational; presentation drifts from proof.",
+      "reasoning_chain": "EVID-8 documents the Definitions API gap. EVID-13 (PROV-O qualified-pattern) supports overlap-candidate query as a structural mechanism for vocabulary disambiguation.",
+      "rejected_alternatives": [
+        "glossary as side document",
+        "no overlap query (manual designer discipline only)",
+        "auto-extracted vocabulary from element text"
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": "C-3",
+      "ratification": {
+        "ratifiedAtRound": 1,
+        "text": "Bulk-ratified at closing argument round 1 via designer go directive."
+      },
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "NC-8": {
+      "id": "NC-8",
+      "type": "NECESSARY_CONDITION",
+      "statement": "Every state-mutating operation requires a consent token: { source: 'designer' | 'agent-proposed-designer-confirmed', rationale?: string }. Read operations require no token. Presentation captures designer confirmation and attaches the token; D.1 publishes the token shape, D.2 implements capture. Proof trusts the calling agent to attach a token reflecting actual designer-source state — agent-side falsification is outside proof's threat model (presentation-layer integrity is D.2 territory). Auto-created Friction (per NC-13) inherits the parent operation's token; no separate token required.",
+      "source": "agent-derivation",
+      "grounding": [
+        "EVID-17",
+        "EVID-4",
+        "EVID-6"
+      ],
+      "collapse_test": "Agent advances proof without consent; designer's intent bypassed; proof drifts from designer.",
+      "reasoning_chain": "EVID-17 (Macaroons capability tokens) provides the bearer-token pattern for designer-consent. EVID-4 and EVID-6 surface that current per-element approval is partial and the gate clears only on aggregate mutation, leaving non-mutating-but-still-state-changing advancement unguarded.",
+      "rejected_alternatives": [
+        "free-form mutation (status quo)",
+        "presentation-layer-only enforcement (proof has no contract)",
+        "per-tool ad-hoc consent semantics (inconsistent across tools)"
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": "C-4",
+      "ratification": {
+        "ratifiedAtRound": 1,
+        "text": "Bulk-ratified at closing argument round 1 via designer go directive."
+      },
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "NC-9": {
+      "id": "NC-9",
+      "type": "NECESSARY_CONDITION",
+      "statement": "Closing argument carries: problem statement; ratified Concerns with descriptions; ratified RCs with five attributes; ratified NCs with grounding/collapse_test/rejected_alternatives; active Rules; active Permissions; active Risks; active Friction with disposition; phantom NCs/RCs/Friction with disposition; ratified Definitions; composite score; closure_permitted flag. Hard gate: present_closing_argument refuses to produce a closing argument if any Concern is not Ratified or if concernsLocked is false.",
+      "source": "agent-derivation",
+      "grounding": [
+        "EVID-7",
+        "EVID-11"
+      ],
+      "collapse_test": "Specify receives partial envelope; produces architecture missing a Concern or violating a Rule; designer's intent fails to reach implementation.",
+      "reasoning_chain": "EVID-7 and EVID-11 establish that closing argument is a derived structured object from proof state. Specify needs the complete envelope to produce architecture; partial envelope produces partial architecture.",
+      "rejected_alternatives": [
+        "soft warning instead of hard gate",
+        "minimal handoff (problem statement only)",
+        "presentation renders separate handoff",
+        "specify queries proof MCP post-closure"
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": "C-5",
+      "ratification": {
+        "ratifiedAtRound": 1,
+        "text": "Bulk-ratified at closing argument round 1 via designer go directive."
+      },
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "NC-10": {
+      "id": "NC-10",
+      "type": "NECESSARY_CONDITION",
+      "statement": "present_closing_argument is a pure function of proof state; no side effects. Multiple calls in same round produce identical output. Mutations between calls invalidate the closing argument flags.",
+      "source": "agent-derivation",
+      "grounding": [
+        "EVID-7",
+        "EVID-15"
+      ],
+      "collapse_test": "Closing argument depends on hidden state; designer cannot trust artifact stability; specify receives non-canonical input.",
+      "reasoning_chain": "EVID-7 documents existing pure-function derivation pattern. EVID-15 (event sourcing projection) confirms idempotency as required property for state-derived artifacts.",
+      "rejected_alternatives": [
+        "stateful derivation",
+        "mutation-permitting derivation",
+        "lazy derivation"
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": "C-5",
+      "ratification": {
+        "ratifiedAtRound": 1,
+        "text": "Bulk-ratified at closing argument round 1 via designer go directive."
+      },
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "NC-11": {
+      "id": "NC-11",
+      "type": "NECESSARY_CONDITION",
+      "statement": "Closure gate carries three states: (1) Pending — closing argument not yet presented; (2) Presented — view stamp recorded for round N, awaiting go; (3) Confirmed — both stamps recorded for same round N, closure achieved. Transitions: go advances Presented → Confirmed; mutation clears Presented → Pending; absence of either keeps gate in Presented (designer stall is a valid pause state, neither agreement nor disagreement). Round-equality between view and go enforced. Designer disagreement is expressed via mutation (revise / withdraw).",
+      "source": "agent-derivation",
+      "grounding": [
+        "EVID-6",
+        "EVID-11",
+        "EVID-18",
+        "EVID-17"
+      ],
+      "collapse_test": "Two-state gate conflates stall with disagreement; designer cannot pause cleanly without committing to either agree or revise.",
+      "reasoning_chain": "EVID-6 and EVID-11 establish two-yes gate. EVID-18 (BPMN n-of-n approval) and EVID-17 (Macaroons multi-party discharge) inform multi-party agreement protocols. The two-state gate from cluster B.2 missed the stall case; three-state expansion preserves designer's right to pause.",
+      "rejected_alternatives": [
+        "single-yes (designer says go without prior view)",
+        "n-of-m approval with multiple designers",
+        "closure on view alone",
+        "two-state model collapsing stall and disagreement"
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": "C-6",
+      "ratification": {
+        "ratifiedAtRound": 1,
+        "text": "Bulk-ratified at closing argument round 1 via designer go directive."
+      },
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "NC-12": {
+      "id": "NC-12",
+      "type": "NECESSARY_CONDITION",
+      "statement": "Once confirm_closure_go fires, closure artifact for that round is frozen. Subsequent mutations require explicit re-open operation that transitions proofStatus back to open. Re-open mechanism is part of D.1 scope: tool surface, semantics for closure-artifact retention, and closure-flag reset all designed in D.1.",
+      "source": "agent-derivation",
+      "grounding": [
+        "EVID-14",
+        "EVID-15",
+        "EVID-6"
+      ],
+      "collapse_test": "Without re-open, post-closure-but-pre-merge changes are impossible or worse, mutations contaminate the handoff silently.",
+      "reasoning_chain": "EVID-14 and EVID-15 establish immutability + append-only as audit-bearing patterns. EVID-6 documents the gate-clearing on mutation. Re-open is required for legitimate post-closure changes; cluster B.2 inheritance does not address this directly.",
+      "rejected_alternatives": [
+        "mutable post-closure with revision log",
+        "closure as soft state",
+        "per-element immutability instead of artifact-level",
+        "no re-open path (post-go is terminal)"
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": "C-6",
+      "ratification": {
+        "ratifiedAtRound": 1,
+        "text": "Bulk-ratified at closing argument round 1 via designer go directive."
+      },
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "NC-13": {
+      "id": "NC-13",
+      "type": "NECESSARY_CONDITION",
+      "statement": "Cluster B.2 friction-detection inheritance: on every state-mutating operation, proof runs friction detection. Permission-risk-linkage shape auto-creates a Friction element with source = agent-derivation; auto-created Friction inherits the designer-consent of the parent operation that triggered detection (no separate consent token required). The other three detection shapes (NC-NC opposing-pull, RC-Rule conflict, Concern-Concern competition) emit hints for agent confirmation. Already-dismissed friction is not re-detected.",
+      "source": "agent-derivation",
+      "grounding": [
+        "EVID-11",
+        "EVID-5"
+      ],
+      "collapse_test": "Without continuous friction detection, contradictions accumulate silently; faithfulness erodes.",
+      "reasoning_chain": "EVID-11 documents cluster B.2's friction detection mechanism. EVID-5 confirms phantom suppression discipline for already-dismissed friction. Detection on every mutation maintains continuous faithfulness check.",
+      "rejected_alternatives": [
+        "detection at closing argument only",
+        "agent-initiated detection only",
+        "no automated detection"
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": "C-3",
+      "ratification": {
+        "ratifiedAtRound": 1,
+        "text": "Bulk-ratified at closing argument round 1 via designer go directive."
+      },
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "NC-14": {
+      "id": "NC-14",
+      "type": "NECESSARY_CONDITION",
+      "statement": "state.round increments once per state-mutating call (not per individual operation within a call). submit_proof_update advances once regardless of operations batched. manage_concerns / manage_friction / ratify_resolve_condition / override_friction_disposition each advance once per call. Read-only operations (get_proof_state, present_closing_argument) do not increment. The round-equality requirement of NC-11 depends on this discipline.",
+      "source": "agent-derivation",
+      "grounding": [
+        "EVID-2",
+        "EVID-6"
+      ],
+      "collapse_test": "Inconsistent round increment makes gate behavior unpredictable; same-round semantics break.",
+      "reasoning_chain": "EVID-2 documents existing per-call round semantics on submit_proof_update. EVID-6 documents two-yes gate dependency on round-equality. Per-call discipline aligns with current implementation; per-op would break batch semantics.",
+      "rejected_alternatives": [
+        "round increments per individual op within batch",
+        "round increments per tool individually with different semantics",
+        "no round semantics (replace with timestamp)"
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": "C-3",
+      "ratification": {
+        "ratifiedAtRound": 1,
+        "text": "Bulk-ratified at closing argument round 1 via designer go directive."
+      },
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "NC-15": {
+      "id": "NC-15",
+      "type": "NECESSARY_CONDITION",
+      "statement": "Proof state document carries a schemaVersion field. Proof MCP refuses to load a state whose version exceeds runtime version. Backwards-compatible schema additions use backfill on load (preserves existing loadState pattern). Breaking changes require explicit migration path. Schema evolution categories (additive, breaking, migration-required) defined during design-specify.",
+      "source": "agent-derivation",
+      "grounding": [
+        "EVID-15",
+        "EVID-2"
+      ],
+      "collapse_test": "Undisciplined schema change breaks old proof states or silently corrupts them; future sprints break the chain.",
+      "reasoning_chain": "EVID-15 (event sourcing schema evolution hazard) is the canonical risk for append-only state systems. EVID-2 documents existing loadState backfill pattern as the seed for versioning discipline.",
+      "rejected_alternatives": [
+        "no versioning (status quo)",
+        "strict version match (all old states unloadable)",
+        "semantic-only versioning without enforcement"
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": "C-3",
+      "ratification": {
+        "ratifiedAtRound": 1,
+        "text": "Bulk-ratified at closing argument round 1 via designer go directive."
+      },
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "NC-16": {
+      "id": "NC-16",
+      "type": "NECESSARY_CONDITION",
+      "statement": "Each element appearing in the closure artifact carries its full provenance: source field, derivation chain (for agent-derived NCs and RCs), ratification record (when ratified, who confirmed), restructuring action label and source citation (where applicable from open_proof seeding). Specify consumes the proof envelope with full audit trail; can trace any element back to its origin.",
+      "source": "agent-derivation",
+      "grounding": [
+        "EVID-7",
+        "EVID-13",
+        "EVID-19"
+      ],
+      "collapse_test": "Specify receives elements without authority chain; cannot distinguish observable evidence from agent inference; downstream architecture choices made without grounding.",
+      "reasoning_chain": "EVID-7 establishes closure as derived envelope. EVID-13 (PROV-O) and EVID-19 (LLVM IR) require provenance to travel with cited material for downstream consumers (specify) to make grounded decisions.",
+      "rejected_alternatives": [
+        "envelope contains only element text",
+        "provenance available via separate API call",
+        "provenance only for designer-direct elements"
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": "C-5",
+      "ratification": {
+        "ratifiedAtRound": 1,
+        "text": "Bulk-ratified at closing argument round 1 via designer go directive."
+      },
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "NC-17": {
+      "id": "NC-17",
+      "type": "NECESSARY_CONDITION",
+      "statement": "State persistence is atomic per state-mutating call. Failure during save returns error and leaves state file unchanged. Read after write reflects committed state. No partial-state corruption permitted.",
+      "source": "agent-derivation",
+      "grounding": [
+        "EVID-15"
+      ],
+      "collapse_test": "Partial writes corrupt proof state mid-flight; faithfulness commitment breaks under failure conditions.",
+      "reasoning_chain": "EVID-15 (event sourcing) establishes that append-only state systems require atomic persistence; partial writes corrupt audit chain. Faithfulness (C-3) requires durability under failure.",
+      "rejected_alternatives": [
+        "non-atomic writes",
+        "best-effort persistence",
+        "designer-recovery-required after failure"
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": "C-3",
+      "ratification": {
+        "ratifiedAtRound": 1,
+        "text": "Bulk-ratified at closing argument round 1 via designer go directive."
+      },
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "NC-18": {
+      "id": "NC-18",
+      "type": "NECESSARY_CONDITION",
+      "statement": "Concerns and Definitions carry per-element status field with values {Draft, Ratified}, mirroring the existing RC ratification field. NCs gain a per-element approval state field with same values. Existing concernsLocked boolean preserved as the stronger gate (all Concerns Ratified AND no further Concerns may be added). Schema additions are part of D.1 implementation work; loading old proof states applies backfill defaults per NC-15.",
+      "source": "agent-derivation",
+      "grounding": [
+        "EVID-4"
+      ],
+      "collapse_test": "Without per-element status, two-tier ratification (RULE-9) has no schema slot; Approval-tracked discipline is aspirational.",
+      "reasoning_chain": "EVID-4 documents per-element approval state gap. RULE-5/6/8 establish Approval-tracked discipline; the schema must support it structurally for the discipline to be load-bearing.",
+      "rejected_alternatives": [
+        "keep boolean-only ratification",
+        "ratification via separate side-table",
+        "status as derived/computed property"
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": "C-3",
+      "ratification": {
+        "ratifiedAtRound": 1,
+        "text": "Bulk-ratified at closing argument round 1 via designer go directive."
+      },
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "NC-19": {
+      "id": "NC-19",
+      "type": "NECESSARY_CONDITION",
+      "statement": "Proof MCP serves a single-writer concurrency model. Multi-writer access against the same state file is not supported and produces undefined behavior. State-file locking is out of scope for D.1; the calling environment ensures single-writer discipline. Future multi-writer support is an out-of-scope evolution.",
+      "source": "agent-derivation",
+      "grounding": [
+        "EVID-15"
+      ],
+      "collapse_test": "Concurrent writers race; state corruption silent; faithfulness commitment breaks under multi-writer access.",
+      "reasoning_chain": "EVID-15 (event sourcing) establishes single-writer as common concurrency model for append-only stores. D.1 scope intentionally excludes multi-writer to avoid expansion; the constraint must be explicit for downstream consumers.",
+      "rejected_alternatives": [
+        "multi-writer with optimistic locking",
+        "multi-writer with pessimistic locking",
+        "in-process single-process-only with no documented constraint"
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": "C-3",
+      "ratification": {
+        "ratifiedAtRound": 1,
+        "text": "Bulk-ratified at closing argument round 1 via designer go directive."
+      },
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RC-1": {
+      "id": "RC-1",
+      "type": "RESOLVE_CONDITION",
+      "statement": "When the skill is invoked, agent assembles a seed packet (candidate problem statement, initial Concerns, Evidence drawn from parallel exploration, restructuring labels per cluster B.1). After reviewing the packet, designer issues an open directive; open_proof receives a designer-source consent token capturing this directive. The operation log shows the directive preceded the open.",
+      "source": "agent-derivation",
+      "grounding": [
+        "NC-1"
+      ],
+      "collapse_test": null,
+      "reasoning_chain": "RC-1 observes the C-1 commitment by checking that the seed-review-then-open pattern is recorded in the operation log with a designer-source consent token at open_proof. Verification path: read operation log entries before open_proof and confirm designer directive presence.",
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": "C-1",
+      "ratification": {
+        "ratifiedAtRound": 1,
+        "text": "Bulk-ratified at closing argument round 1 via designer go directive."
+      },
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RC-2": {
+      "id": "RC-2",
+      "type": "RESOLVE_CONDITION",
+      "statement": "At any session round, designer can call get_proof_state and receive every active element with source + ratification + revision history, every retired element rendered as Phantom with disposition, and every entry's audit chain reconstructable from log fields. Element-level auditability is verifiable on inspection.",
+      "source": "agent-derivation",
+      "grounding": [
+        "NC-2",
+        "NC-3",
+        "NC-4",
+        "NC-5",
+        "NC-6",
+        "NC-7",
+        "NC-13",
+        "NC-14",
+        "NC-15",
+        "NC-17",
+        "NC-18",
+        "NC-19"
+      ],
+      "collapse_test": null,
+      "reasoning_chain": "RC-2 observes the C-3 commitment by checking that proof state remains element-level-auditable across all 12 anchored NCs (closed category set, source authority, provenance, withdrawal, CRUD, vocabulary, friction detection, round semantics, schema versioning, durability, per-element status, concurrency). Verification path: designer calls get_proof_state at any round and reads the structured response for completeness.",
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": "C-3",
+      "ratification": {
+        "ratifiedAtRound": 1,
+        "text": "Bulk-ratified at closing argument round 1 via designer go directive."
+      },
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RC-3": {
+      "id": "RC-3",
+      "type": "RESOLVE_CONDITION",
+      "statement": "When an operation arrives without a structurally well-formed consent token (matching the NC-8 schema), proof rejects with error. Every committed mutation in the audit log carries a structurally valid consent token. Token shape validation is structural; designer-state authenticity is outside proof's threat model per NC-8.",
+      "source": "agent-derivation",
+      "grounding": [
+        "NC-8"
+      ],
+      "collapse_test": null,
+      "reasoning_chain": "RC-3 observes the C-4 commitment by checking that the proof MCP enforces token-shape validation at the boundary. Verification path: send a tokenless mutation, confirm error response; send a valid mutation, confirm token recorded in audit log.",
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": "C-4",
+      "ratification": {
+        "ratifiedAtRound": 1,
+        "text": "Bulk-ratified at closing argument round 1 via designer go directive."
+      },
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RC-4": {
+      "id": "RC-4",
+      "type": "RESOLVE_CONDITION",
+      "statement": "When the design brief rendered from D.1's closure artifact is consumed by design-specify, specify produces a complete spec without referring back to the proof MCP for missing material. Every Concern, RC, NC, Rule, Permission, Risk, Friction, Definition, and provenance chain referenced by specify is present in the brief (and traceable through to the closure artifact).",
+      "source": "agent-derivation",
+      "grounding": [
+        "NC-9",
+        "NC-10",
+        "NC-16"
+      ],
+      "collapse_test": null,
+      "reasoning_chain": "RC-4 observes the C-5 commitment by checking that the closure artifact (rendered into design brief) carries everything specify needs. Verification path: run design-specify on D.1's brief; if specify completes without missing-material errors, RC-4 holds.",
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": "C-5",
+      "ratification": {
+        "ratifiedAtRound": 1,
+        "text": "Bulk-ratified at closing argument round 1 via designer go directive."
+      },
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RC-5": {
+      "id": "RC-5",
+      "type": "RESOLVE_CONDITION",
+      "statement": "Closure event records only when designer issues view (calls present_closing_argument) and go (calls confirm_closure_go) in the same round. Closure artifact frozen at that moment matches what designer reviewed. Any mutation between view and go forces re-presentation; designer's go applies only to the artifact actually viewed. Architecture-correctness validation of the closure artifact is downstream — spec review during design-specify, plan hardening during plan-build, test pass during execute-write. RC-5 captures the procedural mutual-agreement gate at D.1 closure.",
+      "source": "agent-derivation",
+      "grounding": [
+        "NC-11",
+        "NC-12"
+      ],
+      "collapse_test": null,
+      "reasoning_chain": "RC-5 observes the procedural half of C-6 (mutual agreement at D.1 closure boundary) via the three-state gate. Verification path: at closing argument, confirm both view and go stamps recorded for same round. Architecture-correctness half of C-6 is observed downstream by spec review, plan hardening, and test pass.",
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": "C-6",
+      "ratification": {
+        "ratifiedAtRound": 1,
+        "text": "Bulk-ratified at closing argument round 1 via designer go directive."
+      },
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0
+    }
+  },
+  "elementCounters": {
+    "EVIDENCE": 19,
+    "RULE": 9,
+    "PERMISSION": 0,
+    "NECESSARY_CONDITION": 19,
+    "RISK": 0,
+    "RESOLVE_CONDITION": 5,
+    "FRICTION": 0
+  },
+  "conditionCountHistory": [
+    0
+  ],
+  "elementCountHistory": [
+    52
+  ],
+  "challengeModesUsed": [],
+  "challengeLog": [],
+  "revisionLog": [],
+  "phaseTransitionRound": 0,
+  "concerns": [
+    {
+      "id": "C-1",
+      "label": "Sufficient seed information",
+      "description": "Skill must start with sufficient seed information to build shared understanding. Atomic worry: skill could begin with insufficient context to produce useful proof. Boundary concern — D.1 authors the seed-submission contract. Ratified 2026-05-06."
+    },
+    {
+      "id": "C-3",
+      "label": "Proof state faithfulness",
+      "description": "Proof state must remain faithful to designer's intent over time. Atomic worry: proof state drifts from intent; shared understanding rots. Proof-primary concern. Ratified 2026-05-06."
+    },
+    {
+      "id": "C-4",
+      "label": "Designer-consent gate on advancement",
+      "description": "Proof advancement without designer consent breaks shared understanding. Atomic worry: agent advances unilaterally; designer's intent is bypassed. Boundary concern — D.1 authors the ratification-token contract. Ratified 2026-05-06."
+    },
+    {
+      "id": "C-5",
+      "label": "Specify handoff fidelity",
+      "description": "Specify handoff must carry designer's intent with sufficient fidelity to produce correct architecture. Atomic worry: design-specify produces wrong architecture due to incomplete or incorrect handoff. Proof-primary concern. Ratified 2026-05-06."
+    },
+    {
+      "id": "C-6",
+      "label": "Mutual agreement on specify-input adequacy",
+      "description": "Agent and designer must mutually agree that the information provided to design-specify produces the correct architecture. Atomic worry: closure happens without mutual confidence in handoff sufficiency. Boundary concern — D.1 authors the agreement-protocol contract. Ratified 2026-05-06."
+    }
+  ],
+  "concernsLocked": true,
+  "concernCounter": 6,
+  "ratificationLog": [
+    {
+      "round": 1,
+      "type": "bulk-closure-ratification",
+      "elementsRatified": [
+        "NC-1",
+        "NC-2",
+        "NC-3",
+        "NC-4",
+        "NC-5",
+        "NC-6",
+        "NC-7",
+        "NC-8",
+        "NC-9",
+        "NC-10",
+        "NC-11",
+        "NC-12",
+        "NC-13",
+        "NC-14",
+        "NC-15",
+        "NC-16",
+        "NC-17",
+        "NC-18",
+        "NC-19",
+        "RC-1",
+        "RC-2",
+        "RC-3",
+        "RC-4",
+        "RC-5"
+      ],
+      "rationale": "Designer go at round 1 closes the D.1 proof; all 19 NCs and 5 RCs transition Draft -> Ratified per cluster B.2 inheritance + RULE-9 two-tier ratification."
+    }
+  ],
+  "frictionLog": [],
+  "closingArgPresentedRound": 1,
+  "closingArgGoRound": 1,
+  "proofStatus": "closed"
+}

@@ -71,11 +71,11 @@ describe('AC-2.1 addConcern appends sequential CERN IDs', () => {
   it('ac-2-1-add-concern-appends-sequential', () => {
     let state = initializeState('test');
     let id1, id2;
-    [id1, state] = addConcern(state, { label: 'A' });
+    [id1, state] = addConcern(state, { label: 'A' }, { source: 'designer', rationale: 'test' });
     expect(id1).toBe('CERN-1');
     expect(state.concerns).toHaveLength(1);
     expect(state.concernCounter).toBe(1);
-    [id2, state] = addConcern(state, { label: 'B' });
+    [id2, state] = addConcern(state, { label: 'B' }, { source: 'designer', rationale: 'test' });
     expect(id2).toBe('CERN-2');
     expect(state.concerns).toHaveLength(2);
   });
@@ -84,12 +84,12 @@ describe('AC-2.1 addConcern appends sequential CERN IDs', () => {
 describe('AC-2.2 lockConcerns is irreversible', () => {
   it('ac-2-2-lock-concerns-irreversible', () => {
     let state = initializeState('test');
-    [, state] = addConcern(state, { label: 'A' });
+    [, state] = addConcern(state, { label: 'A' }, { source: 'designer', rationale: 'test' });
     let err;
-    [state, , err] = lockConcerns(state);
+    [state, , err] = lockConcerns(state, { source: 'designer', rationale: 'test' });
     expect(err).toBeNull();
     expect(state.concernsLocked).toBe(true);
-    [, , err] = lockConcerns(state);
+    [, , err] = lockConcerns(state, { source: 'designer', rationale: 'test' });
     expect(err).toMatch(/already locked/i);
   });
 });
@@ -97,9 +97,9 @@ describe('AC-2.2 lockConcerns is irreversible', () => {
 describe('AC-2.3 addConcern refused after lock', () => {
   it('ac-2-3-add-concern-refused-after-lock', () => {
     let state = initializeState('test');
-    [, state] = addConcern(state, { label: 'A' });
-    [state] = lockConcerns(state);
-    const [id, sameState, , err] = addConcern(state, { label: 'B' });
+    [, state] = addConcern(state, { label: 'A' }, { source: 'designer', rationale: 'test' });
+    [state] = lockConcerns(state, { source: 'designer', rationale: 'test' });
+    const [id, sameState, , err] = addConcern(state, { label: 'B' }, { source: 'designer', rationale: 'test' });
     expect(id).toBeNull();
     expect(sameState).toBe(state);
     expect(err).toMatch(/locked/i);
@@ -109,7 +109,7 @@ describe('AC-2.3 addConcern refused after lock', () => {
 describe('AC-2.4 lockConcerns refuses empty Concerns set', () => {
   it('ac-2-4-lock-concerns-refuses-empty', () => {
     const state = initializeState('test');
-    const [sameState, , err] = lockConcerns(state);
+    const [sameState, , err] = lockConcerns(state, { source: 'designer', rationale: 'test' });
     expect(sameState).toBe(state);
     expect(err).toMatch(/empty/i);
   });
@@ -122,7 +122,7 @@ describe('AC-2.4 lockConcerns refuses empty Concerns set', () => {
 describe('AC-3.1 closure refuses unlocked Concerns', () => {
   it('ac-3-1-closure-refuses-unlocked-concerns', () => {
     let state = initializeState('test');
-    [, state] = addConcern(state, { label: 'A' });
+    [, state] = addConcern(state, { label: 'A' }, { source: 'designer', rationale: 'test' });
     const closure = checkClosure(state);
     expect(closure.reasons).toContain('Concerns must be locked before closure');
   });
@@ -139,9 +139,9 @@ describe('AC-3.2 closure refuses empty Concerns', () => {
 describe('AC-3.3 closure per-Concern uncovered detection', () => {
   it('ac-3-3-closure-per-concern-uncovered', () => {
     let state = initializeState('test');
-    [, state] = addConcern(state, { label: 'A' });
-    [, state] = addConcern(state, { label: 'B' });
-    [state] = lockConcerns(state);
+    [, state] = addConcern(state, { label: 'A' }, { source: 'designer', rationale: 'test' });
+    [, state] = addConcern(state, { label: 'B' }, { source: 'designer', rationale: 'test' });
+    [state] = lockConcerns(state, { source: 'designer', rationale: 'test' });
     const closure = checkClosure(state);
     expect(closure.reasons.some(r => /CERN-2/.test(r))).toBe(true);
   });
@@ -150,13 +150,13 @@ describe('AC-3.3 closure per-Concern uncovered detection', () => {
 describe('AC-3.4 closure permits Rule-union coverage', () => {
   it('ac-3-4-closure-permits-rule-union-coverage', () => {
     let state = initializeState('test');
-    [, state] = addConcern(state, { label: 'Performance' });
-    [, state] = addConcern(state, { label: 'Correctness' });
-    [state] = lockConcerns(state);
+    [, state] = addConcern(state, { label: 'Performance' }, { source: 'designer', rationale: 'test' });
+    [, state] = addConcern(state, { label: 'Correctness' }, { source: 'designer', rationale: 'test' });
+    [state] = lockConcerns(state, { source: 'designer', rationale: 'test' });
     const result = applyOperations(state, [
       { op: 'add', type: 'RULE', statement: 'preserve Performance baseline', source: 'designer' },
       { op: 'add', type: 'RULE', statement: 'require CERN-2 enforcement', source: 'designer' },
-    ]);
+    ], { source: 'designer', rationale: 'test' });
     state = result.state;
     const { uncovered } = checkConcernCoverage(state);
     expect(uncovered).toEqual([]);
@@ -166,11 +166,11 @@ describe('AC-3.4 closure permits Rule-union coverage', () => {
 describe('AC-3.5 closure refuses unratified RC', () => {
   it('ac-3-5-closure-refuses-unratified-rc', () => {
     let state = initializeState('test');
-    [, state] = addConcern(state, { label: 'A' });
-    [state] = lockConcerns(state);
+    [, state] = addConcern(state, { label: 'A' }, { source: 'designer', rationale: 'test' });
+    [state] = lockConcerns(state, { source: 'designer', rationale: 'test' });
     const result = applyOperations(state, [
       { op: 'add', type: 'RESOLVE_CONDITION', statement: 's', problem_anchor: 'CERN-1' },
-    ]);
+    ], { source: 'designer', rationale: 'test' });
     state = result.state;
     const closure = checkClosure(state);
     expect(closure.reasons).toContain('Unratified Resolve Conditions exist — ratify each before closure');
@@ -184,14 +184,14 @@ describe('AC-3.5 closure refuses unratified RC', () => {
 describe('AC-4.1 ratify single RC succeeds', () => {
   it('ac-4-1-ratify-single-rc-success', () => {
     let state = initializeState('test');
-    [, state] = addConcern(state, { label: 'A' });
-    [state] = lockConcerns(state);
+    [, state] = addConcern(state, { label: 'A' }, { source: 'designer', rationale: 'test' });
+    [state] = lockConcerns(state, { source: 'designer', rationale: 'test' });
     const result = applyOperations(state, [
       { op: 'add', type: 'RESOLVE_CONDITION', statement: 's', problem_anchor: 'CERN-1' },
-    ]);
+    ], { source: 'designer', rationale: 'test' });
     state = result.state;
     let err;
-    [state, , err] = ratifyResolveCondition(state, { elementId: 'RCON-1', ratificationText: 'PM approves' });
+    [state, , err] = ratifyResolveCondition(state, { elementId: 'RCON-1', ratificationText: 'PM approves' }, { source: 'designer', rationale: 'test' });
     expect(err).toBeNull();
     expect(state.elements.get('RCON-1').ratification).toMatchObject({ text: 'PM approves' });
     expect(state.ratificationLog).toHaveLength(1);
@@ -214,9 +214,9 @@ describe('AC-4.3 ratify rejects non-RC element', () => {
     let state = initializeState('test');
     const result = applyOperations(state, [
       { op: 'add', type: 'EVIDENCE', statement: 'fact', source: 'codebase' },
-    ]);
+    ], { source: 'designer', rationale: 'test' });
     state = result.state;
-    const [, , err] = ratifyResolveCondition(state, { elementId: 'EVID-1', ratificationText: 'x' });
+    const [, , err] = ratifyResolveCondition(state, { elementId: 'EVID-1', ratificationText: 'x' }, { source: 'designer', rationale: 'test' });
     expect(err).toMatch(/RESOLVE_CONDITION/);
   });
 });
@@ -228,16 +228,16 @@ describe('AC-4.3 ratify rejects non-RC element', () => {
 describe('AC-5.1 revise statement clears ratification', () => {
   it('ac-5-1-revise-statement-clears-ratification', () => {
     let state = initializeState('test');
-    [, state] = addConcern(state, { label: 'A' });
-    [state] = lockConcerns(state);
+    [, state] = addConcern(state, { label: 'A' }, { source: 'designer', rationale: 'test' });
+    [state] = lockConcerns(state, { source: 'designer', rationale: 'test' });
     let result = applyOperations(state, [
       { op: 'add', type: 'RESOLVE_CONDITION', statement: 'orig', problem_anchor: 'CERN-1' },
-    ]);
+    ], { source: 'designer', rationale: 'test' });
     state = result.state;
-    [state] = ratifyResolveCondition(state, { elementId: 'RCON-1', ratificationText: 'ok' });
+    [state] = ratifyResolveCondition(state, { elementId: 'RCON-1', ratificationText: 'ok' }, { source: 'designer', rationale: 'test' });
     result = applyOperations(state, [
       { op: 'revise', target: 'RCON-1', statement: 'updated' },
-    ]);
+    ], { source: 'designer', rationale: 'test' });
     state = result.state;
     expect(state.elements.get('RCON-1').ratification).toBeNull();
     const cleared = state.ratificationLog.find(l => l.event === 'cleared-on-revise');
@@ -249,17 +249,17 @@ describe('AC-5.1 revise statement clears ratification', () => {
 describe('AC-5.2 revise problem_anchor clears ratification', () => {
   it('ac-5-2-revise-anchor-clears-ratification', () => {
     let state = initializeState('test');
-    [, state] = addConcern(state, { label: 'A' });
-    [, state] = addConcern(state, { label: 'B' });
-    [state] = lockConcerns(state);
+    [, state] = addConcern(state, { label: 'A' }, { source: 'designer', rationale: 'test' });
+    [, state] = addConcern(state, { label: 'B' }, { source: 'designer', rationale: 'test' });
+    [state] = lockConcerns(state, { source: 'designer', rationale: 'test' });
     let result = applyOperations(state, [
       { op: 'add', type: 'RESOLVE_CONDITION', statement: 's', problem_anchor: 'CERN-1' },
-    ]);
+    ], { source: 'designer', rationale: 'test' });
     state = result.state;
-    [state] = ratifyResolveCondition(state, { elementId: 'RCON-1', ratificationText: 'ok' });
+    [state] = ratifyResolveCondition(state, { elementId: 'RCON-1', ratificationText: 'ok' }, { source: 'designer', rationale: 'test' });
     result = applyOperations(state, [
       { op: 'revise', target: 'RCON-1', problem_anchor: 'CERN-2' },
-    ]);
+    ], { source: 'designer', rationale: 'test' });
     state = result.state;
     expect(state.elements.get('RCON-1').ratification).toBeNull();
     const cleared = state.ratificationLog.find(l => l.event === 'cleared-on-revise');
@@ -271,17 +271,17 @@ describe('AC-5.2 revise problem_anchor clears ratification', () => {
 describe('AC-5.3 revise other field preserves ratification', () => {
   it('ac-5-3-revise-other-preserves-ratification', () => {
     let state = initializeState('test');
-    [, state] = addConcern(state, { label: 'A' });
-    [state] = lockConcerns(state);
+    [, state] = addConcern(state, { label: 'A' }, { source: 'designer', rationale: 'test' });
+    [state] = lockConcerns(state, { source: 'designer', rationale: 'test' });
     let result = applyOperations(state, [
       { op: 'add', type: 'RESOLVE_CONDITION', statement: 's', problem_anchor: 'CERN-1' },
-    ]);
+    ], { source: 'designer', rationale: 'test' });
     state = result.state;
-    [state] = ratifyResolveCondition(state, { elementId: 'RCON-1', ratificationText: 'ok' });
+    [state] = ratifyResolveCondition(state, { elementId: 'RCON-1', ratificationText: 'ok' }, { source: 'designer', rationale: 'test' });
     const logLenBefore = state.ratificationLog.length;
     result = applyOperations(state, [
       { op: 'revise', target: 'RCON-1', rejected_alternatives: ['x'] },
-    ]);
+    ], { source: 'designer', rationale: 'test' });
     state = result.state;
     expect(state.elements.get('RCON-1').ratification).not.toBeNull();
     expect(state.ratificationLog).toHaveLength(logLenBefore);
