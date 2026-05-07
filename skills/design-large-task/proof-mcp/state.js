@@ -121,6 +121,16 @@ export function recordClosingArgPresented(state, consent) {
  * Record designer's "go" decision. Refuses if the closing argument was not
  * presented in the current round (mismatch indicates state has shifted since
  * presentation; designer must re-present).
+ *
+ * On success, this is the proof's closure transition (RULE-9):
+ *   - Sets proofStatus = 'closed'
+ *   - Bulk-ratifies every active draft NECESSARY_CONDITION
+ *   - Bulk-ratifies every active RESOLVE_CONDITION lacking ratification
+ *   - Preserves both closingArgPresentedRound and closingArgGoRound (does NOT
+ *     clear them — closure must remain observable). All other mutating
+ *     functions clear these flags; recordDesignerGo is the documented exception.
+ *
+ * Withdrawn elements are never touched.
  * @param {object} state
  * @param {object} consent - Consent token; validated pre-flight.
  * @returns {[object, string|null]} [newState, error]
@@ -132,11 +142,56 @@ export function recordDesignerGo(state, consent) {
   }
   if (state.closingArgPresentedRound !== state.round) {
     const presentedDesc = state.closingArgPresentedRound ?? 'never';
-    return [state, `closing argument presented in round ${presentedDesc}, current round ${state.round}; call present_closing_argument first`];
+    return [state, `GO_REQUIRES_VIEW_THIS_ROUND: closing argument presented in round ${presentedDesc}, current round ${state.round}; call present_closing_argument first`];
   }
   const newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
   newState.closingArgGoRound = newState.round;
+  // closure transition (RULE-9): proofStatus -> 'closed'.
+  // initializeState seeds 'unopen'; open_proof flips to 'open' before this is reachable.
+  // Task 15 reopen will introduce 'reopened' as another legitimate prior state.
+  const fromStatus = newState.proofStatus ?? 'unopen';
+  newState.proofStatus = 'closed';
+  // bulk-ratify draft NCs (active only)
+  const ratifiedNCs = [];
+  // bulk-ratify unratified active RCs
+  const ratifiedRCs = [];
+  for (const [id, el] of newState.elements) {
+    if (el.type === 'NECESSARY_CONDITION' && el.status === 'active' && el.ratificationStatus === 'draft') {
+      el.ratificationStatus = 'ratified';
+      ratifiedNCs.push(id);
+    } else if (el.type === 'RESOLVE_CONDITION' && el.status === 'active' && !el.ratification) {
+      el.ratification = { ratifiedAtRound: newState.round, text: 'bulk-ratified at confirm_closure_go (RULE-9)' };
+      ratifiedRCs.push(id);
+    }
+  }
+  appendOperationLog(newState, {
+    round: newState.round,
+    op: 'close',
+    entityId: null,
+    type: null,
+    consent,
+    changedFields: ['proofStatus'],
+    provenance: { from: fromStatus, to: 'closed' },
+  });
+  appendOperationLog(newState, {
+    round: newState.round,
+    op: 'bulk-ratify',
+    entityId: null,
+    type: 'NECESSARY_CONDITION',
+    consent,
+    changedFields: ['ratificationStatus'],
+    provenance: { count: ratifiedNCs.length, elementIds: ratifiedNCs },
+  });
+  appendOperationLog(newState, {
+    round: newState.round,
+    op: 'bulk-ratify',
+    entityId: null,
+    type: 'RESOLVE_CONDITION',
+    consent,
+    changedFields: ['ratification'],
+    provenance: { count: ratifiedRCs.length, elementIds: ratifiedRCs },
+  });
   return [newState, null];
 }
 
