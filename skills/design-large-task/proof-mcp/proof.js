@@ -19,6 +19,14 @@ export const ELEMENT_TYPES = [
   'EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK', 'RESOLVE_CONDITION', 'FRICTION',
 ];
 
+// CATEGORIES (NC-2): the full set of dispositionable entity categories, including
+// CONCERN and DEFINITION (which are not in ELEMENT_TYPES but participate in the
+// universal withdraw flow). Order is canonical for iteration consumers.
+export const CATEGORIES = [
+  'EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK',
+  'RESOLVE_CONDITION', 'FRICTION', 'CONCERN', 'DEFINITION',
+];
+
 export const FRICTION_SHAPES = [
   'nc-nc-opposing-pull', 'rc-rule-conflict', 'permission-risk-linkage', 'concern-concern-competition',
 ];
@@ -40,6 +48,56 @@ export const WITHDRAWAL_DISPOSITIONS = [
 // Not a member of WITHDRAWAL_DISPOSITIONS — applied by loadState backfill and the withdraw
 // branch when the field is omitted; consumed by closing-argument render as the fallback tag.
 export const UNCLASSIFIED_DISPOSITION = 'unclassified';
+
+// DISPOSITIONS_BY_CATEGORY (NC-2): which disposition vocabulary applies to each
+// category. FRICTION uses its own disposition set; everything else uses the
+// withdrawal disposition vocabulary. Consumed by the universal withdraw tool.
+export const DISPOSITIONS_BY_CATEGORY = {
+  EVIDENCE: WITHDRAWAL_DISPOSITIONS,
+  RULE: WITHDRAWAL_DISPOSITIONS,
+  PERMISSION: WITHDRAWAL_DISPOSITIONS,
+  NECESSARY_CONDITION: WITHDRAWAL_DISPOSITIONS,
+  RISK: WITHDRAWAL_DISPOSITIONS,
+  RESOLVE_CONDITION: WITHDRAWAL_DISPOSITIONS,
+  CONCERN: WITHDRAWAL_DISPOSITIONS,
+  DEFINITION: WITHDRAWAL_DISPOSITIONS,
+  FRICTION: FRICTION_DISPOSITIONS,
+};
+
+// Maps the leading ID prefix (before the first '-') to its category. Kept module-private;
+// consumers should call entityType() rather than reach into this map directly.
+// Inverse of ID_PREFIX in state.js — adding a new element type requires updates in both.
+const ID_PREFIX_TO_CATEGORY = {
+  EVID: 'EVIDENCE',
+  RULE: 'RULE',
+  PERM: 'PERMISSION',
+  NCON: 'NECESSARY_CONDITION',
+  RISK: 'RISK',
+  RCON: 'RESOLVE_CONDITION',
+  FRIC: 'FRICTION',
+  CERN: 'CONCERN',
+  DEFN: 'DEFINITION',
+};
+
+/**
+ * Derive the category of an entity from its ID prefix. The universal withdraw
+ * tool uses this to dispatch to the correct disposition vocabulary without
+ * loading the element first.
+ * @param {string} id - Entity ID (e.g. "NCON-3", "CERN-1").
+ * @returns {string} Category name (one of CATEGORIES).
+ * @throws {Error} If the ID is malformed or its prefix is unknown.
+ */
+export function entityType(id) {
+  if (typeof id !== 'string' || !id.includes('-')) {
+    throw new Error(`malformed id: ${id}`);
+  }
+  const prefix = id.split('-')[0];
+  const cat = ID_PREFIX_TO_CATEGORY[prefix];
+  if (!cat) {
+    throw new Error(`unknown id prefix: ${prefix}`);
+  }
+  return cat;
+}
 
 // Consent token sources accepted by mutating tools. Every state-mutating tool requires
 // a consent token from the caller; presence + correct shape gates mutation entirely.
