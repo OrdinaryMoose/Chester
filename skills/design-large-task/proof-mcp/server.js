@@ -10,8 +10,9 @@ import {
   manageFriction, overrideFrictionDisposition,
   recordClosingArgPresented, recordDesignerGo,
   manageDefinitions,
+  withdrawElement, withdrawConcern, withdrawDefinition,
 } from './state.js';
-import { checkAllIntegrity, FRICTION_SHAPES, FRICTION_DISPOSITIONS, WITHDRAWAL_DISPOSITIONS, CONSENT_SOURCES } from './proof.js';
+import { checkAllIntegrity, FRICTION_SHAPES, FRICTION_DISPOSITIONS, WITHDRAWAL_DISPOSITIONS, CONSENT_SOURCES, entityType } from './proof.js';
 import {
   computeCompleteness, computeGroundingCoverage, detectChallenge, checkClosure,
   checkConcernCoverage, evaluateTrigger,
@@ -225,6 +226,25 @@ const TOOLS = [
     },
   },
   {
+    name: 'withdraw',
+    description: 'Universal withdrawal verb. Transitions an element to status:withdrawn with closed-set disposition. NOTE: FRICTION uses override_friction_disposition instead (see PERM-1).',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        state_file: { type: 'string', description: 'Absolute path to state JSON' },
+        category: {
+          type: 'string',
+          enum: ['EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK', 'RESOLVE_CONDITION', 'CONCERN', 'DEFINITION'],
+          description: 'Category of the entity being withdrawn (FRICTION excluded — see PERM-1).',
+        },
+        element_id: { type: 'string', description: 'ID of the entity to withdraw.' },
+        disposition: { type: 'string', description: 'Disposition for the withdrawal; must be valid for the category.' },
+        consent: CONSENT_SCHEMA,
+      },
+      required: ['state_file', 'category', 'element_id', 'disposition', 'consent'],
+    },
+  },
+  {
     name: 'confirm_closure_go',
     description: "Designer go-choice against the presented closing argument. Refuses if the closing argument was not presented in the current round (state has shifted; re-present first).",
     inputSchema: {
@@ -269,6 +289,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         return handlePresentClosingArgument(args);
       case 'confirm_closure_go':
         return handleConfirmClosureGo(args);
+      case 'withdraw':
+        return handleWithdraw(args);
       default:
         return { content: [{ type: 'text', text: `Unknown tool: ${name}` }], isError: true };
     }
@@ -669,6 +691,74 @@ function admittedToAddOp(admitted) {
     type: category,
     ...typedFields,
     restructuring: { metadata, restructuring_action_label, provenance },
+  };
+}
+
+export function handleWithdraw({ state_file, category, element_id, disposition, consent }) {
+  // FRICTION uses override_friction_disposition (PERM-1). Reject explicitly even
+  // though the schema enum already excludes FRICTION — bypass-via-direct-call
+  // and looser callers must hit the same guard.
+  if (category === 'FRICTION') {
+    return {
+      content: [{ type: 'text', text: JSON.stringify({
+        code: 'INVALID_CATEGORY',
+        message: 'FRICTION uses override_friction_disposition (PERM-1)',
+      })}],
+      isError: true,
+    };
+  }
+
+  let state = loadState(state_file);
+
+  let derivedCategory;
+  try {
+    derivedCategory = entityType(element_id);
+  } catch (err) {
+    return {
+      content: [{ type: 'text', text: JSON.stringify({
+        code: 'CATEGORY_MISMATCH',
+        message: err.message,
+      })}],
+      isError: true,
+    };
+  }
+  if (derivedCategory !== category) {
+    return {
+      content: [{ type: 'text', text: JSON.stringify({
+        code: 'CATEGORY_MISMATCH',
+        message: `id ${element_id} resolves to category ${derivedCategory}; caller passed ${category}`,
+      })}],
+      isError: true,
+    };
+  }
+
+  let result;
+  if (category === 'CONCERN') {
+    result = withdrawConcern(state, element_id, disposition, consent);
+  } else if (category === 'DEFINITION') {
+    result = withdrawDefinition(state, element_id, disposition, consent);
+  } else {
+    result = withdrawElement(state, element_id, disposition, consent);
+  }
+  const [newState, err] = result;
+  if (err) {
+    // Map state-layer error string to coded MCP error. classifyStateError covers
+    // INVALID_CONSENT and DOMAIN_ERROR; surface our richer codes (NOT_FOUND,
+    // INVALID_CATEGORY, INVALID_DISPOSITION) directly.
+    let code;
+    if (err.startsWith('INVALID_CONSENT')) code = 'INVALID_CONSENT';
+    else if (err.startsWith('NOT_FOUND')) code = 'NOT_FOUND';
+    else if (err.startsWith('INVALID_CATEGORY')) code = 'INVALID_CATEGORY';
+    else if (err.startsWith('INVALID_DISPOSITION')) code = 'INVALID_DISPOSITION';
+    else code = classifyStateError(err).code;
+    return {
+      content: [{ type: 'text', text: JSON.stringify({ code, message: err }) }],
+      isError: true,
+    };
+  }
+  saveState(newState, state_file);
+  return {
+    content: [{ type: 'text', text: JSON.stringify({ withdrawn: element_id }) }],
   };
 }
 

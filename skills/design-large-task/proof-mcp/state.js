@@ -10,7 +10,7 @@
  */
 
 import { readFileSync, writeFileSync, renameSync } from 'fs';
-import { createElement, validateRefs, checkAllIntegrity, FRICTION_DISPOSITIONS, TERMINAL_FRICTION_DISPOSITIONS, WITHDRAWAL_DISPOSITIONS, UNCLASSIFIED_DISPOSITION, SCHEMA_VERSION, validateConsentToken } from './proof.js';
+import { createElement, validateRefs, checkAllIntegrity, FRICTION_DISPOSITIONS, TERMINAL_FRICTION_DISPOSITIONS, WITHDRAWAL_DISPOSITIONS, UNCLASSIFIED_DISPOSITION, SCHEMA_VERSION, DISPOSITIONS_BY_CATEGORY, validateConsentToken } from './proof.js';
 import { computeCompleteness, computeGroundingCoverage, detectChallenge, detectStall, checkClosure } from './metrics.js';
 import { runFrictionDetection } from './friction-detection.js';
 import { validateDefinitionInput, createDefinition, queryOverlapCandidates } from './definitions.js';
@@ -997,6 +997,165 @@ export function manageDefinitions(state, op, payload, consent) {
   }
 
   return [null, state, `DOMAIN_ERROR: unknown manage_definitions op: ${op}`];
+}
+
+/**
+ * Universal withdraw — typed-element variant.
+ * Transitions an active typed element (EVIDENCE/RULE/PERMISSION/NC/RISK/RC) to
+ * status: 'withdrawn' with a closed-set disposition. FRICTION is rejected here
+ * (PERM-1) — callers must use override_friction_disposition with a terminal
+ * disposition instead.
+ * @param {object} state
+ * @param {string} elementId
+ * @param {string} disposition - One of WITHDRAWAL_DISPOSITIONS.
+ * @param {object} consent
+ * @returns {[object, string|null]} [newState, error]
+ */
+export function withdrawElement(state, elementId, disposition, consent) {
+  const consentCheck = validateConsentToken(consent);
+  if (!consentCheck.valid) {
+    return [state, `INVALID_CONSENT: ${consentCheck.reason}`];
+  }
+  const target = state.elements.get(elementId);
+  if (!target) {
+    return [state, `NOT_FOUND: element ${elementId} not found`];
+  }
+  if (target.type === 'FRICTION') {
+    return [state, 'INVALID_CATEGORY: FRICTION uses override_friction_disposition (PERM-1)'];
+  }
+  if (target.status !== 'active') {
+    return [state, `DOMAIN_ERROR: element ${elementId} is already ${target.status}`];
+  }
+  const allowed = DISPOSITIONS_BY_CATEGORY[target.type];
+  if (!allowed || !allowed.includes(disposition)) {
+    return [state, `INVALID_DISPOSITION: disposition must be one of ${(allowed ?? []).join(', ')}; got ${disposition}`];
+  }
+  let newState = structuredClone(state);
+  newState.elements = cloneElements(state.elements);
+  newState.closingArgPresentedRound = null;
+  newState.closingArgGoRound = null;
+  const t = newState.elements.get(elementId);
+  t.status = 'withdrawn';
+  t.withdrawal_disposition = disposition;
+  newState.revisionLog.push({
+    event: 'withdrawn',
+    elementId,
+    round: newState.round,
+    disposition,
+  });
+  appendOperationLog(newState, {
+    round: newState.round,
+    op: 'withdraw',
+    entityId: elementId,
+    type: target.type,
+    consent,
+    changedFields: ['status', 'withdrawal_disposition'],
+    provenance: { disposition },
+  });
+  const friction = processFriction(newState, consent, 'withdraw');
+  return [friction.state, null];
+}
+
+/**
+ * Universal withdraw — Concern variant. Locates by state.concerns[].id and sets
+ * status: 'withdrawn' with a closed-set disposition.
+ * @param {object} state
+ * @param {string} concernId
+ * @param {string} disposition - One of WITHDRAWAL_DISPOSITIONS.
+ * @param {object} consent
+ * @returns {[object, string|null]} [newState, error]
+ */
+export function withdrawConcern(state, concernId, disposition, consent) {
+  const consentCheck = validateConsentToken(consent);
+  if (!consentCheck.valid) {
+    return [state, `INVALID_CONSENT: ${consentCheck.reason}`];
+  }
+  const target = state.concerns.find(c => c.id === concernId);
+  if (!target) {
+    return [state, `NOT_FOUND: concern ${concernId} not found`];
+  }
+  if (target.status === 'withdrawn') {
+    return [state, `DOMAIN_ERROR: concern ${concernId} is already withdrawn`];
+  }
+  const allowed = DISPOSITIONS_BY_CATEGORY.CONCERN;
+  if (!allowed.includes(disposition)) {
+    return [state, `INVALID_DISPOSITION: disposition must be one of ${allowed.join(', ')}; got ${disposition}`];
+  }
+  let newState = structuredClone(state);
+  newState.elements = cloneElements(state.elements);
+  newState.closingArgPresentedRound = null;
+  newState.closingArgGoRound = null;
+  const t = newState.concerns.find(c => c.id === concernId);
+  t.status = 'withdrawn';
+  t.withdrawal_disposition = disposition;
+  newState.revisionLog.push({
+    event: 'withdrawn',
+    elementId: concernId,
+    round: newState.round,
+    disposition,
+  });
+  appendOperationLog(newState, {
+    round: newState.round,
+    op: 'withdraw',
+    entityId: concernId,
+    type: 'CONCERN',
+    consent,
+    changedFields: ['status', 'withdrawal_disposition'],
+    provenance: { disposition },
+  });
+  const friction = processFriction(newState, consent, 'withdraw');
+  return [friction.state, null];
+}
+
+/**
+ * Universal withdraw — Definition variant. Locates by state.definitions[].id and
+ * sets status: 'withdrawn' with a closed-set disposition.
+ * @param {object} state
+ * @param {string} definitionId
+ * @param {string} disposition - One of WITHDRAWAL_DISPOSITIONS.
+ * @param {object} consent
+ * @returns {[object, string|null]} [newState, error]
+ */
+export function withdrawDefinition(state, definitionId, disposition, consent) {
+  const consentCheck = validateConsentToken(consent);
+  if (!consentCheck.valid) {
+    return [state, `INVALID_CONSENT: ${consentCheck.reason}`];
+  }
+  const target = (state.definitions ?? []).find(d => d.id === definitionId);
+  if (!target) {
+    return [state, `NOT_FOUND: definition ${definitionId} not found`];
+  }
+  if (target.status === 'withdrawn' || target.status === 'deprecated') {
+    return [state, `DOMAIN_ERROR: definition ${definitionId} is already ${target.status}`];
+  }
+  const allowed = DISPOSITIONS_BY_CATEGORY.DEFINITION;
+  if (!allowed.includes(disposition)) {
+    return [state, `INVALID_DISPOSITION: disposition must be one of ${allowed.join(', ')}; got ${disposition}`];
+  }
+  let newState = structuredClone(state);
+  newState.elements = cloneElements(state.elements);
+  newState.closingArgPresentedRound = null;
+  newState.closingArgGoRound = null;
+  const t = newState.definitions.find(d => d.id === definitionId);
+  t.status = 'withdrawn';
+  t.withdrawal_disposition = disposition;
+  newState.definitionLog.push({
+    event: 'withdrawn',
+    definitionId,
+    round: newState.round,
+    disposition,
+  });
+  appendOperationLog(newState, {
+    round: newState.round,
+    op: 'withdraw',
+    entityId: definitionId,
+    type: 'DEFINITION',
+    consent,
+    changedFields: ['status', 'withdrawal_disposition'],
+    provenance: { disposition },
+  });
+  const friction = processFriction(newState, consent, 'withdraw');
+  return [friction.state, null];
 }
 
 /**
