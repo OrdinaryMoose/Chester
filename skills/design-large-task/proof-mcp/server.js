@@ -11,8 +11,9 @@ import {
   recordClosingArgPresented, recordDesignerGo,
   manageDefinitions,
   withdrawElement, withdrawConcern, withdrawDefinition,
+  appendOperationLog,
 } from './state.js';
-import { checkAllIntegrity, FRICTION_SHAPES, FRICTION_DISPOSITIONS, WITHDRAWAL_DISPOSITIONS, CONSENT_SOURCES, entityType } from './proof.js';
+import { checkAllIntegrity, FRICTION_SHAPES, FRICTION_DISPOSITIONS, WITHDRAWAL_DISPOSITIONS, CONSENT_SOURCES, SCHEMA_VERSION, validateConsentToken, entityType } from './proof.js';
 import {
   computeCompleteness, computeGroundingCoverage, detectChallenge, checkClosure,
   checkConcernCoverage, evaluateTrigger,
@@ -171,12 +172,15 @@ const TOOLS = [
   },
   {
     name: 'open_proof',
-    description: 'Open a proof from an untrusted caller submission. Restructures submission material into typed proof elements per a 4b-owned schema and writes initial state. Permissive at the boundary; rigor enforced internally.',
+    description: 'Open a proof from an untrusted caller submission. Restructures submission material into typed proof elements per a 4b-owned schema and writes initial state. Permissive at the boundary; rigor enforced internally. submission_material MUST include problem_statement, ≥1 Concern (top-level concerns array or category:"Concern" elements), ≥1 Evidence element, restructuring action label per element, and a consent token; otherwise INVALID_SEED_PACKET / INVALID_CONSENT.',
     inputSchema: {
       type: 'object',
       properties: {
         state_file: { type: 'string', description: 'Absolute path to write proof state JSON.' },
-        submission_material: { type: 'object', description: 'Free-form caller submission. Must include problem_statement (string).' },
+        submission_material: {
+          type: 'object',
+          description: 'Caller submission seed packet. Must include problem_statement (string), concerns (array, ≥1), elements (array with ≥1 EVIDENCE entry, every element carrying restructuring.action), and consent (token).',
+        },
       },
       required: ['state_file', 'submission_material'],
     },
@@ -565,8 +569,139 @@ function handleConfirmClosureGo({ state_file, consent }) {
   return { content: [{ type: 'text', text: JSON.stringify(closure, null, 2) }] };
 }
 
+/**
+ * Best-effort persistence of a rejected open attempt so the designer can audit
+ * INVALID_SEED_PACKET rejections. Never overwrites a successful prior open:
+ * if loadState succeeds it preserves the existing proofStatus and just appends
+ * a rejection entry to the operationLog. If load fails (file missing/corrupt),
+ * synthesizes a minimal stub state with proofStatus='unopen'.
+ *
+ * Swallows secondary failures — the primary error response is what matters.
+ */
+function persistRejectedOpen(state_file, consent, reason) {
+  try {
+    let state;
+    let priorOpen = false;
+    try {
+      state = loadState(state_file);
+      priorOpen = state.proofStatus === 'open' || state.proofStatus === 'closed';
+    } catch (_loadErr) {
+      state = initializeState(null);
+    }
+    appendOperationLog(state, {
+      round: state.round,
+      op: 'open',
+      entityId: null,
+      type: null,
+      consent,
+      changedFields: null,
+      provenance: { rejected: true, reason, priorOpen },
+    });
+    saveState(state, state_file);
+  } catch (_saveErr) {
+    // Swallow — the primary error response is the point.
+  }
+}
+
+/**
+ * Translate a new-shape submission element (with `type` and `restructuring`
+ * fields) into the legacy restructure-pipeline shape (`category` + raw fields).
+ * Idempotent for old-shape elements (which already have `category`).
+ */
+function normalizeElementShape(el) {
+  if (!el || typeof el !== 'object') return el;
+  if (el.category) return el;
+  if (el.type) {
+    const { type, restructuring: _r, ...rest } = el;
+    return { category: type, ...rest };
+  }
+  return el;
+}
+
 export function handleOpenProof({ state_file, submission_material }) {
-  // Pre-check: refuse if proof at this state file is already open.
+  const submission = submission_material || {};
+  const consent = submission.consent;
+
+  // 1. Consent gate — if invalid we cannot trust the seed, so we do NOT persist
+  //    a rejected-open entry (no consent to attribute it to).
+  const consentCheck = validateConsentToken(consent);
+  if (!consentCheck.valid) {
+    return {
+      content: [{ type: 'text', text: JSON.stringify({
+        code: 'INVALID_CONSENT',
+        message: consentCheck.reason,
+      })}],
+      isError: true,
+    };
+  }
+
+  // 2. Seed packet shape checks (NC-1). Each writes a rejection entry before returning.
+  //    Order: shape check first, then already-open gate. A bad seed packet still
+  //    deserves an audit trail entry even if the proof was previously opened
+  //    (persistRejectedOpen preserves any existing proofStatus).
+  if (typeof submission.problem_statement !== 'string' || submission.problem_statement.trim().length === 0) {
+    persistRejectedOpen(state_file, consent, 'missing problem_statement');
+    return {
+      content: [{ type: 'text', text: JSON.stringify({
+        code: 'INVALID_SEED_PACKET',
+        message: 'problem_statement required (non-empty string)',
+      })}],
+      isError: true,
+    };
+  }
+
+  // Concerns: accept either top-level `concerns` array (new shape) or
+  // category:'Concern' entries inside `elements` (legacy shape).
+  const topLevelConcerns = Array.isArray(submission.concerns) ? submission.concerns : [];
+  const elementsArr = Array.isArray(submission.elements) ? submission.elements : [];
+  const inlineConcerns = elementsArr.filter(e => e && (e.category === 'Concern' || e.type === 'Concern'));
+  const totalConcerns = topLevelConcerns.length + inlineConcerns.length;
+  if (totalConcerns < 1) {
+    persistRejectedOpen(state_file, consent, 'missing Concern (at least one required)');
+    return {
+      content: [{ type: 'text', text: JSON.stringify({
+        code: 'INVALID_SEED_PACKET',
+        message: 'at least one Concern required',
+      })}],
+      isError: true,
+    };
+  }
+
+  // Elements: at least one EVIDENCE entry (matched by either `type` or `category`).
+  const hasEvidence = elementsArr.some(e => e && (e.type === 'EVIDENCE' || e.category === 'EVIDENCE'));
+  if (!hasEvidence) {
+    persistRejectedOpen(state_file, consent, 'missing Evidence (at least one required)');
+    return {
+      content: [{ type: 'text', text: JSON.stringify({
+        code: 'INVALID_SEED_PACKET',
+        message: 'at least one Evidence element required',
+      })}],
+      isError: true,
+    };
+  }
+
+  // Restructuring action label: every element must carry one. Accept either
+  // new-shape `restructuring.action` or legacy `restructuring_action_label`
+  // (already-restructured submissions also satisfy via `restructuring.metadata`-bearing shapes).
+  const missingLabel = elementsArr.find(e => {
+    if (!e || typeof e !== 'object') return true;
+    if (e.category === 'Concern' || e.type === 'Concern') return false;
+    const newShape = typeof e.restructuring?.action === 'string' && e.restructuring.action.length > 0;
+    const legacyShape = typeof e.restructuring_action_label === 'string' && e.restructuring_action_label.length > 0;
+    return !(newShape || legacyShape);
+  });
+  if (missingLabel) {
+    persistRejectedOpen(state_file, consent, 'missing restructuring action label on at least one element');
+    return {
+      content: [{ type: 'text', text: JSON.stringify({
+        code: 'INVALID_SEED_PACKET',
+        message: 'every element must carry restructuring action label',
+      })}],
+      isError: true,
+    };
+  }
+
+  // 3. Already-open pre-check: refuse re-open of a still-open proof.
   if (existsSync(state_file)) {
     try {
       const existingState = loadState(state_file);
@@ -580,17 +715,27 @@ export function handleOpenProof({ state_file, submission_material }) {
         };
       }
     } catch (_e) {
-      // Malformed file: fall through to normal flow (will be overwritten on gate pass).
+      // Malformed file: fall through; saveState below will overwrite on success.
     }
   }
 
-  // Phase 1 — accept submission as-is. No structural validation.
-  const submission = submission_material || {};
+  // 4. Translate submission into restructure-pipeline shape.
+  //    - elements: { type, ... } → { category: type, ... }
+  //    - top-level concerns lift into elements as { category: 'Concern' }.
+  const normalizedElements = elementsArr.map(normalizeElementShape);
+  const liftedConcerns = topLevelConcerns.map(c => ({
+    category: 'Concern',
+    label: c?.label,
+    description: c?.description,
+  }));
+  const normalizedSubmission = {
+    ...submission,
+    elements: [...normalizedElements, ...liftedConcerns],
+  };
 
-  // Phase 2 — restructure into typed proof elements.
-  const restructured = restructure(submission);
+  // 5. Restructure into typed proof elements.
+  const restructured = restructure(normalizedSubmission);
 
-  // Special case: problem_statement extraction failed.
   if (restructured.rejection_diagnostic) {
     return {
       content: [{ type: 'text', text: JSON.stringify({
@@ -603,7 +748,7 @@ export function handleOpenProof({ state_file, submission_material }) {
     };
   }
 
-  // Phase 3 — check open gate, then initialize and persist state on pass.
+  // 6. Open gate — NC-1 / NCON-3 enforcement on restructured artifacts.
   const gate = checkOpenGate(restructured.admitted, restructured.report);
   if (!gate.permitted) {
     return {
@@ -617,22 +762,27 @@ export function handleOpenProof({ state_file, submission_material }) {
     };
   }
 
-  // Gate pass: build state, apply elements, save.
+  // 7. Initialize state. Append the op:'open' entry FIRST so it sits at
+  //    operationLog[0] regardless of subsequent admit operations.
   let state = initializeState(restructured.problem_statement);
+  appendOperationLog(state, {
+    round: state.round,
+    op: 'open',
+    entityId: null,
+    type: null,
+    consent,
+    changedFields: null,
+    provenance: { source_directive: consent?.rationale ?? null },
+  });
+  state.proofStatus = 'open';
 
-  // Partition admitted into typed elements (go through applyOperations) and Concerns
-  // (go through addConcern; no entry in ELEMENT_TYPES, lives in state.concerns[]).
+  // 8. Apply admitted typed elements + provision Concerns.
   const admittedTypedElements = restructured.admitted.filter(a => a.category !== 'Concern');
   const admittedConcerns = restructured.admitted.filter(a => a.category === 'Concern');
 
   const ops = admittedTypedElements.map(adm => admittedToAddOp(adm));
-  // open_proof bridges untrusted submission to typed elements; consent is the
-  // open_proof submission itself. Synthesize an internal token here; Task 11
-  // will lift consent to the open_proof boundary.
-  const openProofConsent = { source: 'agent-proposed-designer-confirmed', rationale: 'open_proof submission gate' };
-  const applyResult = applyOperations(state, ops, openProofConsent);
+  const applyResult = applyOperations(state, ops, consent);
 
-  // Surface applyOperations errors per Plan-Wide Implementation Discipline.
   if (applyResult.errors && applyResult.errors.length > 0) {
     const attemptedCount = admittedTypedElements.length + admittedConcerns.length;
     const actuallyAdmittedCount = (applyResult.added ? applyResult.added.length : 0);
@@ -650,15 +800,16 @@ export function handleOpenProof({ state_file, submission_material }) {
 
   state = applyResult.state;
 
-  // Provision admitted Concerns via addConcern (separate path).
   for (const concernCandidate of admittedConcerns) {
     const [, concernState] = addConcern(state, {
       label: concernCandidate.label,
       description: concernCandidate.description,
-    }, openProofConsent);
+    }, consent);
     state = concernState;
   }
 
+  // applyOperations and addConcern create their own clones; reassert proofStatus
+  // on the final reference before persistence.
   state.proofStatus = 'open';
   try {
     saveState(state, state_file);

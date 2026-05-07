@@ -68,7 +68,7 @@ export function initializeState(problemStatement) {
  * @param {object} state - cloned state to append to
  * @param {object} entry - { round, op, entityId?, type?, consent?, changedFields?, provenance? }
  */
-function appendOperationLog(state, entry) {
+export function appendOperationLog(state, entry) {
   state.operationLog = state.operationLog || [];
   state.operationLog.push({
     round: entry.round,
