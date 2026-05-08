@@ -95,7 +95,7 @@ export function appendOperationLog(state, entry) {
  * @param {object} state
  * @returns {object} same reference passed in
  */
-export function clearClosingFlags(state) {
+export function resetFirstYesIfFired(state) {
   state.closingArgPresentedRound = null;
   state.closingArgGoRound = null;
   return state;
@@ -317,8 +317,7 @@ export function addConcern(state, { label, description }, consent) {
   }
   let newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
-  newState.closingArgPresentedRound = null;
-  newState.closingArgGoRound = null;
+  resetFirstYesIfFired(newState);
   newState.concernCounter++;
   const id = `CERN-${newState.concernCounter}`;
   newState.concerns.push({ id, label, description: description ?? null, status: 'draft' });
@@ -391,8 +390,7 @@ export function ratifyConcern(state, concernId, consent) {
   }
   const newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
-  newState.closingArgPresentedRound = null;
-  newState.closingArgGoRound = null;
+  resetFirstYesIfFired(newState);
   const concern = newState.concerns.find(c => c.id === concernId);
   const before = concern.status ?? 'draft';
   concern.status = 'ratified';
@@ -440,8 +438,7 @@ export function ratifyResolveCondition(state, { elementId, ratificationText }, c
   }
   let newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
-  newState.closingArgPresentedRound = null;
-  newState.closingArgGoRound = null;
+  resetFirstYesIfFired(newState);
   const updatedTarget = newState.elements.get(elementId);
   updatedTarget.ratification = { ratifiedAtRound: state.round, text: ratificationText };
   newState.ratificationLog.push({
@@ -508,8 +505,7 @@ export function applyOperations(state, operations, consent) {
   }
   let current = structuredClone(state);
   current.elements = cloneElements(state.elements);
-  current.closingArgPresentedRound = null;
-  current.closingArgGoRound = null;
+  resetFirstYesIfFired(current);
 
   current.round++;
 
@@ -839,8 +835,7 @@ export function manageFriction(state, input, consent) {
     return [null, state, [], `unknown element id: ${input.anchor_b}`];
   }
   const [id, withId] = generateId(state, 'FRICTION');
-  withId.closingArgPresentedRound = null;
-  withId.closingArgGoRound = null;
+  resetFirstYesIfFired(withId);
   let element;
   try {
     element = createElement({ ...input, type: 'FRICTION' }, id, withId.round);
@@ -901,8 +896,7 @@ export function overrideFrictionDisposition(state, { elementId, disposition }, c
   }
   let newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
-  newState.closingArgPresentedRound = null;
-  newState.closingArgGoRound = null;
+  resetFirstYesIfFired(newState);
   const t = newState.elements.get(elementId);
   const oldDisposition = t.disposition;
   t.disposition = disposition;
@@ -980,8 +974,7 @@ export function manageDefinitions(state, op, payload, consent) {
     }
     let newState = structuredClone(state);
     newState.elements = cloneElements(state.elements);
-    newState.closingArgPresentedRound = null;
-    newState.closingArgGoRound = null;
+    resetFirstYesIfFired(newState);
     newState.definitionCounter++;
     const id = `DEFN-${newState.definitionCounter}`;
     const source = consent.source === 'designer' ? 'designer' : 'agent-derivation';
@@ -1025,8 +1018,7 @@ export function manageDefinitions(state, op, payload, consent) {
     }
     let newState = structuredClone(state);
     newState.elements = cloneElements(state.elements);
-    newState.closingArgPresentedRound = null;
-    newState.closingArgGoRound = null;
+    resetFirstYesIfFired(newState);
     const t = newState.definitions.find(d => d.id === id);
     const before = {
       definition: t.definition,
@@ -1091,8 +1083,7 @@ export function manageDefinitions(state, op, payload, consent) {
     }
     let newState = structuredClone(state);
     newState.elements = cloneElements(state.elements);
-    newState.closingArgPresentedRound = null;
-    newState.closingArgGoRound = null;
+    resetFirstYesIfFired(newState);
     const t = newState.definitions.find(d => d.id === id);
     const before = t.status;
     t.status = 'ratified';
@@ -1149,8 +1140,7 @@ export function withdrawElement(state, elementId, disposition, consent) {
   }
   let newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
-  newState.closingArgPresentedRound = null;
-  newState.closingArgGoRound = null;
+  resetFirstYesIfFired(newState);
   const t = newState.elements.get(elementId);
   t.status = 'withdrawn';
   t.withdrawal_disposition = disposition;
@@ -1200,8 +1190,7 @@ export function withdrawConcern(state, concernId, disposition, consent) {
   }
   let newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
-  newState.closingArgPresentedRound = null;
-  newState.closingArgGoRound = null;
+  resetFirstYesIfFired(newState);
   const t = newState.concerns.find(c => c.id === concernId);
   t.status = 'withdrawn';
   t.withdrawal_disposition = disposition;
@@ -1251,8 +1240,7 @@ export function withdrawDefinition(state, definitionId, disposition, consent) {
   }
   let newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
-  newState.closingArgPresentedRound = null;
-  newState.closingArgGoRound = null;
+  resetFirstYesIfFired(newState);
   const t = newState.definitions.find(d => d.id === definitionId);
   t.status = 'withdrawn';
   t.withdrawal_disposition = disposition;

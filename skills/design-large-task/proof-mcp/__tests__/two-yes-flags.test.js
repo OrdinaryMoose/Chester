@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { initializeState, recordClosingArgPresented, recordDesignerGo, clearClosingFlags } from '../state.js';
+import { initializeState, recordClosingArgPresented, recordDesignerGo, resetFirstYesIfFired } from '../state.js';
 
 describe('two-yes flags', () => {
   it('initializeState sets both flags to null', () => {
@@ -41,11 +41,11 @@ describe('two-yes flags', () => {
     expect(err).not.toMatch(/round null/);
   });
 
-  it('clearClosingFlags resets both flags to null (in-place mutation; intended for already-cloned state)', () => {
+  it('resetFirstYesIfFired resets both flags to null (in-place mutation; intended for already-cloned state)', () => {
     let s = initializeState('p');
     s.closingArgPresentedRound = 5;
     s.closingArgGoRound = 5;
-    const returned = clearClosingFlags(s);
+    const returned = resetFirstYesIfFired(s);
     expect(returned).toBe(s); // in-place: returns same reference
     expect(s.closingArgPresentedRound).toBeNull();
     expect(s.closingArgGoRound).toBeNull();

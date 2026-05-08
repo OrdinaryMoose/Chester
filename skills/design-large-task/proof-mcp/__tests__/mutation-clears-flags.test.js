@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdtempSync, rmSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
-import { initializeState, applyOperations, addConcern, lockConcerns, ratifyConcern, ratifyResolveCondition, markChallengeUsed, manageFriction, overrideFrictionDisposition, manageDefinitions, withdrawElement, withdrawConcern, withdrawDefinition, recordClosingArgPresented, recordDesignerGo, reopenProof, loadState } from '../state.js';
+import { initializeState, applyOperations, addConcern, lockConcerns, ratifyConcern, ratifyResolveCondition, markChallengeUsed, manageFriction, overrideFrictionDisposition, manageDefinitions, withdrawElement, withdrawConcern, withdrawDefinition, recordClosingArgPresented, recordDesignerGo, reopenProof, loadState, resetFirstYesIfFired } from '../state.js';
 
 function withFlagsSet(state) {
   state.closingArgPresentedRound = 3;
@@ -228,6 +228,15 @@ describe('mutation-clears-flags', () => {
     expect(newS.closingArgGoRound).toBe(newS.round);
     expect(newS.closingArgPresentedRound).not.toBeNull();
     expect(newS.closingArgGoRound).not.toBeNull();
+  });
+
+  describe('resetFirstYesIfFired', () => {
+    it('clears both two-yes flags on a passed state', () => {
+      const s = { closingArgPresentedRound: 5, closingArgGoRound: 5 };
+      resetFirstYesIfFired(s);
+      expect(s.closingArgPresentedRound).toBeNull();
+      expect(s.closingArgGoRound).toBeNull();
+    });
   });
 
   // Read-only invariant of AC-5.5: get_proof_state / loadState do not mutate flags
