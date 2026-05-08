@@ -11,7 +11,16 @@ import {
   addConcern,
   ratifyConcern,
   ratifyResolveCondition,
+  recordDesignerGo,
+  recordClosingArgPresented,
+  manageFriction,
+  overrideFrictionDisposition,
+  manageDefinitions,
+  withdrawElement,
+  withdrawConcern,
+  withdrawDefinition,
 } from '../state.js';
+import { createElement } from '../proof.js';
 
 describe('initializeState', () => {
   it('creates clean state with all required fields', () => {
@@ -526,5 +535,190 @@ describe('applyOperations — revise on RESOLVE_CONDITION clears ratification', 
     const rc = result.state.elements.get('RCON-1');
     expect(rc.ratification).toEqual({ ratifiedAtRound: 1, text: 'PM approves' });
     expect(result.state.ratificationLog).toHaveLength(ratificationLogLength);
+  });
+});
+
+// Build a state ready for confirm_closure_go where every NC and RC is already
+// ratified, no draft Concerns/Definitions remain, presentation/go round
+// aligned with current round.
+function buildClosableState() {
+  const s = initializeState('p');
+  s.round = 5;
+  s.concerns = [{ id: 'CERN-1', label: 'C', description: null, status: 'ratified' }];
+  s.concernCounter = 1;
+  s.proofStatus = 'planning';
+  s.closingArgPresentedRound = 5;
+
+  const evid = createElement(
+    { type: 'EVIDENCE', statement: 'fact', source: 'codebase' },
+    'EVID-1', 5,
+  );
+  s.elements.set('EVID-1', evid);
+  s.elementCounters.EVIDENCE = 1;
+
+  const nc = createElement(
+    {
+      type: 'NECESSARY_CONDITION',
+      statement: 'NC1',
+      collapse_test: 'a',
+      grounding: ['EVID-1'],
+      reasoning_chain: 'IF fact THEN NC1',
+    },
+    'NCON-1', 5,
+  );
+  nc.ratificationStatus = 'ratified';
+  s.elements.set('NCON-1', nc);
+  s.elementCounters.NECESSARY_CONDITION = 1;
+
+  const rc = createElement(
+    {
+      type: 'RESOLVE_CONDITION',
+      statement: 'RC1',
+      problem_anchor: 'CERN-1',
+      grounding: ['NCON-1'],
+    },
+    'RCON-1', 5,
+  );
+  rc.ratification = { ratifiedAtRound: 5, text: 'pre-ratified' };
+  s.elements.set('RCON-1', rc);
+  s.elementCounters.RESOLVE_CONDITION = 1;
+  return s;
+}
+
+const goConsent = { source: 'designer', rationale: 'test' };
+
+describe('AC-2.4: recordDesignerGo closure does not bulk-ratify', () => {
+  it('appends exactly one close log entry, no bulk-ratify entries', () => {
+    const s = buildClosableState();
+    const beforeLogLen = s.operationLog.length;
+    const [after, err] = recordDesignerGo(s, goConsent);
+    expect(err).toBeNull();
+    expect(after.proofStatus).toBe('finish');
+    const newEntries = after.operationLog.slice(beforeLogLen);
+    expect(newEntries.length).toBe(1);
+    expect(newEntries[0].op).toBe('close');
+    expect(newEntries[0].provenance).toEqual({ from: 'planning', to: 'finish' });
+    // No bulk-ratify entry written
+    expect(newEntries.find(e => e.op === 'bulk-ratify')).toBeUndefined();
+  });
+
+  it('preserves closingArgPresentedRound and sets closingArgGoRound', () => {
+    const s = buildClosableState();
+    const [after, err] = recordDesignerGo(s, goConsent);
+    expect(err).toBeNull();
+    expect(after.closingArgPresentedRound).toBe(5);
+    expect(after.closingArgGoRound).toBe(5);
+  });
+});
+
+describe('AC-7.1: post-finish mutations refused', () => {
+  function finishedState() {
+    const s = buildClosableState();
+    const [after, err] = recordDesignerGo(s, goConsent);
+    expect(err).toBeNull();
+    expect(after.proofStatus).toBe('finish');
+    return after;
+  }
+
+  const PROOF_FINISHED = /^PROOF_FINISHED:/;
+
+  it('recordDesignerGo refuses', () => {
+    const s = finishedState();
+    const [, err] = recordDesignerGo(s, goConsent);
+    expect(err).toMatch(PROOF_FINISHED);
+  });
+
+  it('addConcern refuses', () => {
+    const s = finishedState();
+    const [id, , , err] = addConcern(s, { label: 'X' }, goConsent);
+    expect(id).toBeNull();
+    expect(err).toMatch(PROOF_FINISHED);
+  });
+
+  it('ratifyConcern refuses', () => {
+    const s = finishedState();
+    const [, err] = ratifyConcern(s, 'CERN-1', goConsent);
+    expect(err).toMatch(PROOF_FINISHED);
+  });
+
+  it('ratifyResolveCondition refuses', () => {
+    const s = finishedState();
+    const [, hints, err] = ratifyResolveCondition(s, { elementId: 'RCON-1', ratificationText: 'x' }, goConsent);
+    expect(hints).toEqual([]);
+    expect(err).toMatch(PROOF_FINISHED);
+  });
+
+  it('applyOperations refuses', () => {
+    const s = finishedState();
+    const result = applyOperations(s, [
+      { op: 'add', type: 'EVIDENCE', statement: 'late', source: 'codebase' },
+    ], goConsent);
+    expect(result.errors.some(e => PROOF_FINISHED.test(e))).toBe(true);
+    expect(result.added).toEqual([]);
+    expect(result.revised).toEqual([]);
+    expect(result.withdrawn).toEqual([]);
+  });
+
+  it('manageFriction refuses', () => {
+    const s = finishedState();
+    const [id, , hints, err] = manageFriction(s, {
+      op: 'add', friction_shape: 'permission-risk-linkage',
+      anchor_a: 'EVID-1', anchor_b: 'NCON-1', disposition: 'lived-with',
+    }, goConsent);
+    expect(id).toBeNull();
+    expect(hints).toEqual([]);
+    expect(err).toMatch(PROOF_FINISHED);
+  });
+
+  it('overrideFrictionDisposition refuses', () => {
+    const s = finishedState();
+    const [, hints, err] = overrideFrictionDisposition(s, { elementId: 'EVID-1', disposition: 'lived-with' }, goConsent);
+    expect(hints).toEqual([]);
+    expect(err).toMatch(PROOF_FINISHED);
+  });
+
+  it('manageDefinitions refuses (mutating ops)', () => {
+    const s = finishedState();
+    const [first, , err] = manageDefinitions(s, 'add', { canonical_name: 'X', definition: 'd', sense_constraints: 's' }, goConsent);
+    expect(first).toBeNull();
+    expect(err).toMatch(PROOF_FINISHED);
+  });
+
+  it('withdrawElement refuses', () => {
+    const s = finishedState();
+    const [, err] = withdrawElement(s, 'EVID-1', 'unclassified', goConsent);
+    expect(err).toMatch(PROOF_FINISHED);
+  });
+
+  it('withdrawConcern refuses', () => {
+    const s = finishedState();
+    const [, err] = withdrawConcern(s, 'CERN-1', 'unclassified', goConsent);
+    expect(err).toMatch(PROOF_FINISHED);
+  });
+
+  it('withdrawDefinition refuses', () => {
+    const s = finishedState();
+    // Add a definition before finish so we have something to attempt withdrawing.
+    // (Build alt state with a definition then finish.)
+    const base = buildClosableState();
+    base.definitions = [{
+      id: 'DEFN-1',
+      canonical_name: 'thing',
+      aliases: [], definition: 'd', sense_constraints: 's',
+      status: 'ratified', source: 'designer', revision: 0, history: [],
+    }];
+    base.definitionCounter = 1;
+    const [finished, err1] = recordDesignerGo(base, goConsent);
+    expect(err1).toBeNull();
+    const [, err] = withdrawDefinition(finished, 'DEFN-1', 'unclassified', goConsent);
+    expect(err).toMatch(PROOF_FINISHED);
+    // (use s param to avoid unused-var lint)
+    expect(s.proofStatus).toBe('finish');
+  });
+
+  it('recordClosingArgPresented refuses', () => {
+    const s = finishedState();
+    const [, err] = recordClosingArgPresented(s, goConsent);
+    expect(err).toMatch(PROOF_FINISHED);
   });
 });

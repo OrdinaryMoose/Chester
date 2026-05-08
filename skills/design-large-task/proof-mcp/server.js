@@ -47,12 +47,28 @@ const server = new Server(
 );
 
 // Classify a state-layer error string into the MCP error response shape.
-// INVALID_CONSENT: ... is the only currently-defined coded class; everything else
-// is a domain error (e.g. integrity check failure, NOT_FOUND).
+// Coded classes: INVALID_CONSENT, PROOF_FINISHED. Everything else falls through
+// to DOMAIN_ERROR (integrity check failure, NOT_FOUND, etc.).
 function classifyStateError(err) {
+  if (err.startsWith('INVALID_CONSENT')) return { code: 'INVALID_CONSENT', message: err };
+  if (err.startsWith('PROOF_FINISHED')) return { code: 'PROOF_FINISHED', message: err };
+  return { code: 'DOMAIN_ERROR', message: err };
+}
+
+// Pre-flight refusal for mutating handlers: returns an isError MCP response
+// when the proof is already finished. Defense-in-depth: handleSubmitProofUpdate
+// reads result.errors[] directly rather than going through classifyStateError,
+// so handlers must guard before calling the state layer.
+function proofFinishedResponse() {
   return {
-    code: err.startsWith('INVALID_CONSENT') ? 'INVALID_CONSENT' : 'DOMAIN_ERROR',
-    message: err,
+    content: [{
+      type: 'text',
+      text: JSON.stringify({
+        code: 'PROOF_FINISHED',
+        message: 'Proof is finished; no further mutations permitted',
+      }),
+    }],
+    isError: true,
   };
 }
 
@@ -311,6 +327,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 export function handleSubmitProofUpdate({ state_file, operations, consent }) {
   let state = loadState(state_file);
 
+  if (state.proofStatus === 'finish') {
+    return proofFinishedResponse();
+  }
+
   const result = applyOperations(state, operations, consent);
 
   const consentRejected = result.errors.some(e => typeof e === 'string' && e.startsWith('INVALID_CONSENT'));
@@ -443,6 +463,9 @@ export function handleGetProofState({ state_file, summary_mode }) {
 
 function handleManageConcerns({ state_file, op, label, description, concern_id, consent }) {
   let state = loadState(state_file);
+  if (state.proofStatus === 'finish') {
+    return proofFinishedResponse();
+  }
   if (op === 'add') {
     if (!label) {
       return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: 'label required for op=add' }) }], isError: true };
@@ -471,6 +494,9 @@ function handleManageConcerns({ state_file, op, label, description, concern_id, 
 
 function handleManageFriction({ state_file, op, friction_shape, anchor_a, anchor_b, disposition, statement, source, consent }) {
   let state = loadState(state_file);
+  if (state.proofStatus === 'finish') {
+    return proofFinishedResponse();
+  }
   const [fricId, newState, friction_hints, err] = manageFriction(state, { op, friction_shape, anchor_a, anchor_b, disposition, statement, source }, consent);
   if (err) {
     return { content: [{ type: 'text', text: JSON.stringify(classifyStateError(err)) }], isError: true };
@@ -509,6 +535,9 @@ export function handleManageDefinitions({ state_file, op, canonical_name, aliase
     };
   }
 
+  if (state.proofStatus === 'finish') {
+    return proofFinishedResponse();
+  }
   const payload = { canonical_name, aliases, definition, sense_constraints, id };
   const [resultId, newState, err] = manageDefinitions(state, op, payload, consent);
   if (err) {
@@ -531,6 +560,9 @@ export function handleManageDefinitions({ state_file, op, canonical_name, aliase
 
 function handleOverrideFrictionDisposition({ state_file, element_id, disposition, consent }) {
   let state = loadState(state_file);
+  if (state.proofStatus === 'finish') {
+    return proofFinishedResponse();
+  }
   const [newState, friction_hints, err] = overrideFrictionDisposition(state, { elementId: element_id, disposition }, consent);
   if (err) {
     return { content: [{ type: 'text', text: JSON.stringify(classifyStateError(err)) }], isError: true };
@@ -553,6 +585,9 @@ function handleOverrideFrictionDisposition({ state_file, element_id, disposition
 
 function handleRatifyResolveCondition({ state_file, element_id, ratification, consent }) {
   let state = loadState(state_file);
+  if (state.proofStatus === 'finish') {
+    return proofFinishedResponse();
+  }
   const [newState, friction_hints, err] = ratifyResolveCondition(state, { elementId: element_id, ratificationText: ratification }, consent);
   if (err) {
     return { content: [{ type: 'text', text: JSON.stringify(classifyStateError(err)) }], isError: true };
@@ -577,6 +612,9 @@ function handleRatifyResolveCondition({ state_file, element_id, ratification, co
 
 export function handlePresentClosingArgument({ state_file, consent }) {
   let state = loadState(state_file);
+  if (state.proofStatus === 'finish') {
+    return proofFinishedResponse();
+  }
   // First-yes precondition (AC-4.1, AC-4.2): every active element across the
   // four lanes (NCs, RCs, Concerns, Definitions) must be ratified before a
   // closing argument can be generated. Gate failure returns FIRST_YES_GATE_FAILED
@@ -612,6 +650,9 @@ export function handlePresentClosingArgument({ state_file, consent }) {
 
 function handleConfirmClosureGo({ state_file, consent }) {
   let state = loadState(state_file);
+  if (state.proofStatus === 'finish') {
+    return proofFinishedResponse();
+  }
   const [newState, err] = recordDesignerGo(state, consent);
   if (err) {
     if (err.startsWith('INVALID_CONSENT')) {
@@ -915,6 +956,10 @@ export function handleWithdraw({ state_file, category, element_id, disposition, 
   }
 
   let state = loadState(state_file);
+
+  if (state.proofStatus === 'finish') {
+    return proofFinishedResponse();
+  }
 
   let derivedCategory;
   try {

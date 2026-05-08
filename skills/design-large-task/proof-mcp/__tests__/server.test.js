@@ -625,3 +625,94 @@ describe('challenge mode personalities retired (AC-2.3)', () => {
     expect(s.markChallengeUsed).toBeUndefined();
   });
 });
+
+describe('AC-7.1: server handlers refuse mutations after proofStatus=finish', () => {
+  function finishedStateFile(extras = (_s) => {}) {
+    const tmp = `/tmp/proof-finished-${Date.now()}-${Math.random().toString(36).slice(2)}.json`;
+    const s = initializeState('p');
+    s.proofStatus = 'finish';
+    extras(s);
+    saveState(s, tmp);
+    return tmp;
+  }
+
+  const consent = { source: 'designer', rationale: 'test' };
+
+  function expectProofFinished(res) {
+    expect(res.isError).toBe(true);
+    const payload = JSON.parse(res.content[0].text);
+    expect(payload.code).toBe('PROOF_FINISHED');
+    expect(payload.message).toMatch(/Proof is finished/);
+  }
+
+  it('handleSubmitProofUpdate refuses', async () => {
+    const tmp = finishedStateFile();
+    const res = handleSubmitProofUpdate({
+      state_file: tmp, operations: [{ op: 'add', type: 'EVIDENCE', statement: 'x', source: 'codebase' }], consent,
+    });
+    expectProofFinished(res);
+    if (existsSync(tmp)) unlinkSync(tmp);
+  });
+
+  it('handleManageConcerns source has pre-flight refusal', () => {
+    expect(serverSource).toMatch(/function handleManageConcerns[\s\S]*?proofStatus === 'finish'/);
+  });
+
+  it('handleManageDefinitions refuses (mutating ops)', () => {
+    const tmp = finishedStateFile();
+    const res = handleManageDefinitions({
+      state_file: tmp, op: 'add', canonical_name: 'X', definition: 'd', sense_constraints: 's', consent,
+    });
+    expectProofFinished(res);
+    if (existsSync(tmp)) unlinkSync(tmp);
+  });
+
+  it('handleManageFriction source has pre-flight refusal', () => {
+    expect(serverSource).toMatch(/function handleManageFriction[\s\S]*?proofStatus === 'finish'/);
+  });
+
+  it('handleOverrideFrictionDisposition source has pre-flight refusal', () => {
+    expect(serverSource).toMatch(/function handleOverrideFrictionDisposition[\s\S]*?proofStatus === 'finish'/);
+  });
+
+  it('handleRatifyResolveCondition source has pre-flight refusal', () => {
+    expect(serverSource).toMatch(/function handleRatifyResolveCondition[\s\S]*?proofStatus === 'finish'/);
+  });
+
+  it('handleWithdraw source has pre-flight refusal', () => {
+    expect(serverSource).toMatch(/function handleWithdraw[\s\S]*?proofStatus === 'finish'/);
+  });
+
+  it('handleConfirmClosureGo source has pre-flight refusal', () => {
+    expect(serverSource).toMatch(/function handleConfirmClosureGo[\s\S]*?proofStatus === 'finish'/);
+  });
+
+  it('handlePresentClosingArgument refuses', () => {
+    const tmp = finishedStateFile();
+    const res = handlePresentClosingArgument({ state_file: tmp, consent });
+    expectProofFinished(res);
+    if (existsSync(tmp)) unlinkSync(tmp);
+  });
+
+  it('handleGetProofState (read-only) does NOT refuse', () => {
+    const tmp = finishedStateFile();
+    const res = handleGetProofState({ state_file: tmp });
+    expect(res.isError).toBeUndefined();
+    const payload = JSON.parse(res.content[0].text);
+    expect(payload.proofStatus).toBe('finish');
+    if (existsSync(tmp)) unlinkSync(tmp);
+  });
+
+  it('classifyStateError handles PROOF_FINISHED', () => {
+    expect(serverSource).toMatch(/PROOF_FINISHED'\)\s*\)\s*return\s*\{\s*code:\s*'PROOF_FINISHED'/);
+  });
+});
+
+describe('AC-2.4: server confirm_closure_go writes a single op:close log entry', () => {
+  it('no bulk-ratify entries appear after handleConfirmClosureGo (source-level)', () => {
+    // recordDesignerGo no longer emits bulk-ratify entries.
+    const stateSource = readFileSync(join(__dirname, '../state.js'), 'utf-8');
+    // The bulk-ratify operation log call is fully removed from state.js.
+    expect(stateSource).not.toMatch(/op:\s*'bulk-ratify'/);
+  });
+});

@@ -106,6 +106,9 @@ export function recordClosingArgPresented(state, consent) {
   if (!consentCheck.valid) {
     return [state, `INVALID_CONSENT: ${consentCheck.reason}`];
   }
+  if (state.proofStatus === 'finish') {
+    return [state, 'PROOF_FINISHED: Proof is finished; no further mutations permitted'];
+  }
   const newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
   newState.closingArgPresentedRound = newState.round;
@@ -144,6 +147,9 @@ export function recordDesignerGo(state, consent) {
   if (!consentCheck.valid) {
     return [state, `INVALID_CONSENT: ${consentCheck.reason}`];
   }
+  if (state.proofStatus === 'finish') {
+    return [state, 'PROOF_FINISHED: Proof is finished; no further mutations permitted'];
+  }
   if (state.closingArgPresentedRound !== state.round) {
     const presentedDesc = state.closingArgPresentedRound ?? 'never';
     return [state, `GO_REQUIRES_VIEW_THIS_ROUND: closing argument presented in round ${presentedDesc}, current round ${state.round}; call present_closing_argument first`];
@@ -154,21 +160,11 @@ export function recordDesignerGo(state, consent) {
   // closure transition (RULE-9): proofStatus -> 'finish'.
   // initializeState seeds 'planning'; under the binary lifecycle 'finish' is
   // terminal — there is no path back to 'planning' once recordDesignerGo fires.
+  // The first-yes precondition (Task 6) ensures every NC/RC/Concern/Definition
+  // is already ratified before present_closing_argument succeeds, so no
+  // bulk-ratify is needed here. Closure appends exactly one op:close entry.
   const fromStatus = newState.proofStatus ?? 'planning';
   newState.proofStatus = 'finish';
-  // bulk-ratify draft NCs (active only)
-  const ratifiedNCs = [];
-  // bulk-ratify unratified active RCs
-  const ratifiedRCs = [];
-  for (const [id, el] of newState.elements) {
-    if (el.type === 'NECESSARY_CONDITION' && el.status === 'active' && el.ratificationStatus === 'draft') {
-      el.ratificationStatus = 'ratified';
-      ratifiedNCs.push(id);
-    } else if (el.type === 'RESOLVE_CONDITION' && el.status === 'active' && !el.ratification) {
-      el.ratification = { ratifiedAtRound: newState.round, text: 'bulk-ratified at confirm_closure_go (RULE-9)' };
-      ratifiedRCs.push(id);
-    }
-  }
   appendOperationLog(newState, {
     round: newState.round,
     op: 'close',
@@ -177,24 +173,6 @@ export function recordDesignerGo(state, consent) {
     consent,
     changedFields: ['proofStatus'],
     provenance: { from: fromStatus, to: 'finish' },
-  });
-  appendOperationLog(newState, {
-    round: newState.round,
-    op: 'bulk-ratify',
-    entityId: null,
-    type: 'NECESSARY_CONDITION',
-    consent,
-    changedFields: ['ratificationStatus'],
-    provenance: { count: ratifiedNCs.length, elementIds: ratifiedNCs },
-  });
-  appendOperationLog(newState, {
-    round: newState.round,
-    op: 'bulk-ratify',
-    entityId: null,
-    type: 'RESOLVE_CONDITION',
-    consent,
-    changedFields: ['ratification'],
-    provenance: { count: ratifiedRCs.length, elementIds: ratifiedRCs },
   });
   return [newState, null];
 }
@@ -264,6 +242,9 @@ export function addConcern(state, { label, description }, consent) {
   if (!consentCheck.valid) {
     return [null, state, [], `INVALID_CONSENT: ${consentCheck.reason}`];
   }
+  if (state.proofStatus === 'finish') {
+    return [null, state, [], 'PROOF_FINISHED: Proof is finished; no further mutations permitted'];
+  }
   let newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
   resetFirstYesIfFired(newState);
@@ -297,6 +278,9 @@ export function ratifyConcern(state, concernId, consent) {
   const consentCheck = validateConsentToken(consent);
   if (!consentCheck.valid) {
     return [state, `INVALID_CONSENT: ${consentCheck.reason}`];
+  }
+  if (state.proofStatus === 'finish') {
+    return [state, 'PROOF_FINISHED: Proof is finished; no further mutations permitted'];
   }
   const exists = state.concerns.some(c => c.id === concernId);
   if (!exists) {
@@ -336,6 +320,9 @@ export function ratifyResolveCondition(state, { elementId, ratificationText }, c
   const consentCheck = validateConsentToken(consent);
   if (!consentCheck.valid) {
     return [state, [], `INVALID_CONSENT: ${consentCheck.reason}`];
+  }
+  if (state.proofStatus === 'finish') {
+    return [state, [], 'PROOF_FINISHED: Proof is finished; no further mutations permitted'];
   }
   const target = state.elements.get(elementId);
   if (!target) {
@@ -409,6 +396,20 @@ export function applyOperations(state, operations, consent) {
       revised: [],
       withdrawn: [],
       errors: [`INVALID_CONSENT: ${consentCheck.reason}`],
+      integrityWarnings: [],
+      completeness: null,
+      bodyAdvancement: null,
+      closure: { permitted: false, reasons: [] },
+      friction_hints: [],
+    };
+  }
+  if (state.proofStatus === 'finish') {
+    return {
+      state,
+      added: [],
+      revised: [],
+      withdrawn: [],
+      errors: ['PROOF_FINISHED: Proof is finished; no further mutations permitted'],
       integrityWarnings: [],
       completeness: null,
       bodyAdvancement: null,
@@ -707,6 +708,9 @@ export function manageFriction(state, input, consent) {
   if (!consentCheck.valid) {
     return [null, state, [], `INVALID_CONSENT: ${consentCheck.reason}`];
   }
+  if (state.proofStatus === 'finish') {
+    return [null, state, [], 'PROOF_FINISHED: Proof is finished; no further mutations permitted'];
+  }
   const { op } = input;
   if (op !== 'add') {
     return [null, state, [], `Unknown manage_friction op: ${op}`];
@@ -766,6 +770,9 @@ export function overrideFrictionDisposition(state, { elementId, disposition }, c
   const consentCheck = validateConsentToken(consent);
   if (!consentCheck.valid) {
     return [state, [], `INVALID_CONSENT: ${consentCheck.reason}`];
+  }
+  if (state.proofStatus === 'finish') {
+    return [state, [], 'PROOF_FINISHED: Proof is finished; no further mutations permitted'];
   }
   const target = state.elements.get(elementId);
   if (!target) {
@@ -844,6 +851,10 @@ export function manageDefinitions(state, op, payload, consent) {
   const consentCheck = validateConsentToken(consent);
   if (!consentCheck.valid) {
     return [null, state, `INVALID_CONSENT: ${consentCheck.reason}`];
+  }
+
+  if (state.proofStatus === 'finish') {
+    return [null, state, 'PROOF_FINISHED: Proof is finished; no further mutations permitted'];
   }
 
   if (op === 'deprecate') {
@@ -1007,6 +1018,9 @@ export function withdrawElement(state, elementId, disposition, consent) {
   if (!consentCheck.valid) {
     return [state, `INVALID_CONSENT: ${consentCheck.reason}`];
   }
+  if (state.proofStatus === 'finish') {
+    return [state, 'PROOF_FINISHED: Proof is finished; no further mutations permitted'];
+  }
   const target = state.elements.get(elementId);
   if (!target) {
     return [state, `NOT_FOUND: element ${elementId} not found`];
@@ -1060,6 +1074,9 @@ export function withdrawConcern(state, concernId, disposition, consent) {
   if (!consentCheck.valid) {
     return [state, `INVALID_CONSENT: ${consentCheck.reason}`];
   }
+  if (state.proofStatus === 'finish') {
+    return [state, 'PROOF_FINISHED: Proof is finished; no further mutations permitted'];
+  }
   const target = state.concerns.find(c => c.id === concernId);
   if (!target) {
     return [state, `NOT_FOUND: concern ${concernId} not found`];
@@ -1109,6 +1126,9 @@ export function withdrawDefinition(state, definitionId, disposition, consent) {
   const consentCheck = validateConsentToken(consent);
   if (!consentCheck.valid) {
     return [state, `INVALID_CONSENT: ${consentCheck.reason}`];
+  }
+  if (state.proofStatus === 'finish') {
+    return [state, 'PROOF_FINISHED: Proof is finished; no further mutations permitted'];
   }
   const target = (state.definitions ?? []).find(d => d.id === definitionId);
   if (!target) {
