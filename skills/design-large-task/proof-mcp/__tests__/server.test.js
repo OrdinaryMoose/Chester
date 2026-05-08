@@ -442,34 +442,19 @@ describe('server.js — manage_definitions tool', () => {
   });
 });
 
-describe('handlePresentClosingArgument — concernsRatificationGate (NC-9)', () => {
+describe('handlePresentClosingArgument — first-yes gate + trigger', () => {
   const TEST_CONSENT = { source: 'designer', rationale: 'present' };
 
-  it('returns isError with CONCERNS_UNLOCKED when concerns are not locked', () => {
-    const tmp = `/tmp/present-unlocked-${Date.now()}.json`;
+  it('returns isError with FIRST_YES_GATE_FAILED when a draft Concern remains', () => {
+    const tmp = `/tmp/present-first-yes-${Date.now()}.json`;
     let s = initializeState('p');
     [, s] = addConcern(s, { label: 'CERN-A', description: 'd' }, { source: 'designer', rationale: 't' });
-    // intentionally do NOT lock
     saveState(s, tmp);
     const resp = handlePresentClosingArgument({ state_file: tmp, consent: TEST_CONSENT });
     expect(resp.isError).toBe(true);
     const payload = JSON.parse(resp.content[0].text);
-    expect(payload.code).toBe('CONCERNS_UNLOCKED');
-    if (existsSync(tmp)) unlinkSync(tmp);
-  });
-
-  it('returns isError with CONCERNS_UNRATIFIED when at least one Concern is draft', () => {
-    const tmp = `/tmp/present-unratified-${Date.now()}.json`;
-    let s = initializeState('p');
-    [, s] = addConcern(s, { label: 'CERN-A', description: 'd' }, { source: 'designer', rationale: 't' });
-    [s] = lockConcerns(s, { source: 'designer', rationale: 't' });
-    // Concerns remain in 'draft' status (not ratified) → gate must refuse with CONCERNS_UNRATIFIED.
-    saveState(s, tmp);
-    const resp = handlePresentClosingArgument({ state_file: tmp, consent: TEST_CONSENT });
-    expect(resp.isError).toBe(true);
-    const payload = JSON.parse(resp.content[0].text);
-    expect(payload.code).toBe('CONCERNS_UNRATIFIED');
-    expect(payload.message).toMatch(/draft/);
+    expect(payload.code).toBe('FIRST_YES_GATE_FAILED');
+    expect(payload.unratified_ids).toContain('CERN-1');
     if (existsSync(tmp)) unlinkSync(tmp);
   });
 
@@ -480,7 +465,7 @@ describe('handlePresentClosingArgument — concernsRatificationGate (NC-9)', () 
     [, s] = addConcern(s, { label: 'CERN-A', description: 'd' }, consent);
     [s] = lockConcerns(s, consent);
     [s] = ratifyConcern(s, 'CERN-1', consent);
-    // Gate passes (locked + ratified) but state has no NCs / RCs / Evidence — trigger floors fail.
+    // Gate passes (no draft elements) but state has no NCs / RCs / Evidence — trigger floors fail.
     saveState(s, tmp);
     const resp = handlePresentClosingArgument({ state_file: tmp, consent: TEST_CONSENT });
     expect(resp.isError).toBe(true);

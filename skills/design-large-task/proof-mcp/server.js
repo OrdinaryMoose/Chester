@@ -16,11 +16,12 @@ import {
 import { checkAllIntegrity, FRICTION_SHAPES, FRICTION_DISPOSITIONS, WITHDRAWAL_DISPOSITIONS, CONSENT_SOURCES, SCHEMA_VERSION, validateConsentToken, entityType } from './proof.js';
 import {
   computeCompleteness, computeGroundingCoverage, detectChallenge, checkClosure,
-  checkConcernCoverage, evaluateTrigger, concernsRatificationGate,
+  checkConcernCoverage, evaluateTrigger,
 } from './metrics.js';
 import { deriveClosingArgument } from './closing-argument.js';
 import { restructure } from './restructure.js';
 import { checkOpenGate } from './open-gate.js';
+import { checkFirstYesGate } from './first-yes-gate.js';
 import { existsSync } from 'node:fs';
 
 const ELEMENT_TYPES = ['EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK', 'RESOLVE_CONDITION', 'FRICTION'];
@@ -550,13 +551,18 @@ function handleRatifyResolveCondition({ state_file, element_id, ratification, co
 
 export function handlePresentClosingArgument({ state_file, consent }) {
   let state = loadState(state_file);
-  // Hard gate (NC-9): Concerns must be locked AND fully ratified before any
-  // closing-argument generation. Gate failures are isError responses with a
-  // structured code so callers can differentiate refusal types.
-  const gate = concernsRatificationGate(state);
+  // First-yes precondition (AC-4.1, AC-4.2): every active element across the
+  // four lanes (NCs, RCs, Concerns, Definitions) must be ratified before a
+  // closing argument can be generated. Gate failure returns FIRST_YES_GATE_FAILED
+  // with the list of unratified element ids so the caller can drive ratification.
+  const gate = checkFirstYesGate(state);
   if (!gate.passed) {
     return {
-      content: [{ type: 'text', text: JSON.stringify({ code: gate.code, message: gate.message }) }],
+      content: [{ type: 'text', text: JSON.stringify({
+        code: 'FIRST_YES_GATE_FAILED',
+        unratified_ids: gate.unratifiedIds,
+        message: 'Closing argument cannot be presented while elements are in working state',
+      }) }],
       isError: true,
     };
   }
