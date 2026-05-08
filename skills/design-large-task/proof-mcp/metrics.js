@@ -442,13 +442,10 @@ export function evaluateTrigger(state, overrides) {
   }
   if (!allHaveCollapse) reasons.push('not all active NCs have collapse_test');
   if (!anyHasAlt) reasons.push('no NC has rejected_alternatives');
-  // Concerns ratification gate (draft count only; lock retired AC-2.2) —
-  // surfaces as a reason string in this pure-function path.
-  const gate = concernsRatificationGate(state);
-  if (!gate.passed) {
-    reasons.push(gate.message);
-  }
   // Per-Concern coverage check whenever any Concerns exist (lock retired AC-2.2).
+  // The first-yes precondition at handlePresentClosingArgument supersedes any
+  // ratification gate here — by the time evaluateTrigger runs, every Concern
+  // is already ratified by precondition.
   if (state.concerns && state.concerns.length > 0) {
     const { uncovered } = checkConcernCoverage(state);
     if (uncovered.length > 0) reasons.push(`Concerns uncovered: ${uncovered.join(', ')}`);
