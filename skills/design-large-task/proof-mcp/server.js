@@ -113,6 +113,7 @@ const TOOLS = [
       type: 'object',
       properties: {
         state_file: { type: 'string', description: 'Absolute path to state JSON' },
+        summary_mode: { type: 'boolean', description: 'When true, return counts and IDs only (no element bodies, no operation log).' },
       },
       required: ['state_file'],
     },
@@ -382,8 +383,57 @@ export function handleSubmitProofUpdate({ state_file, operations, consent }) {
   };
 }
 
-export function handleGetProofState({ state_file }) {
+function buildSummaryShape(state) {
+  const counts = {
+    ncs: 0, rcs: 0, rules: 0, permissions: 0,
+    evidence: 0, risks: 0, frictions: 0,
+    concerns: (state.concerns || []).filter(c => c.status !== 'withdrawn').length,
+    definitions: (state.definitions || []).filter(d => d.status !== 'withdrawn').length,
+    ratified: { ncs: 0, rcs: 0, concerns: 0, definitions: 0 },
+  };
+  const elementsOut = {};
+  for (const [id, el] of state.elements) {
+    if (el.status !== 'active' && el.status !== 'withdrawn') continue;
+    elementsOut[id] = { type: el.type, status: el.status };
+    if (el.status !== 'active') continue;
+    switch (el.type) {
+      case 'NECESSARY_CONDITION':
+        counts.ncs++;
+        if (el.ratificationStatus === 'ratified') counts.ratified.ncs++;
+        break;
+      case 'RESOLVE_CONDITION':
+        counts.rcs++;
+        if (el.ratification !== null) counts.ratified.rcs++;
+        break;
+      case 'RULE': counts.rules++; break;
+      case 'PERMISSION': counts.permissions++; break;
+      case 'EVIDENCE': counts.evidence++; break;
+      case 'RISK': counts.risks++; break;
+      case 'FRICTION': counts.frictions++; break;
+    }
+  }
+  for (const c of state.concerns || []) if (c.status === 'ratified') counts.ratified.concerns++;
+  for (const d of state.definitions || []) if (d.status === 'ratified') counts.ratified.definitions++;
+
+  const closure = checkClosure(state);
+  return {
+    proofStatus: state.proofStatus,
+    round: state.round,
+    counts,
+    closurePermitted: closure.permitted,
+    closureReasons: closure.reasons,
+    elements: elementsOut,
+    concerns: (state.concerns || []).map(c => ({ id: c.id, status: c.status })),
+    definitions: (state.definitions || []).map(d => ({ id: d.id, status: d.status })),
+  };
+}
+
+export function handleGetProofState({ state_file, summary_mode }) {
   const state = loadState(state_file);
+
+  if (summary_mode === true) {
+    return { content: [{ type: 'text', text: JSON.stringify(buildSummaryShape(state)) }] };
+  }
 
   const integrityWarnings = checkAllIntegrity(state.elements);
   const completeness = {
