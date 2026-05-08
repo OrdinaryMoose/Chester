@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { initializeState, addConcern, applyOperations, recordClosingArgPresented, markChallengeUsed } from '../state.js';
+import { initializeState, addConcern, applyOperations, recordClosingArgPresented } from '../state.js';
 
 const consent = { source: 'designer', rationale: 'test' };
 
@@ -50,13 +50,4 @@ describe('operationLog', () => {
     expect(entry.provenance.presentedAtRound).toBe(s.round);
   });
 
-  it('markChallengeUsed appends entry with op:mark-challenge', () => {
-    const s = initializeState('test problem');
-    const after = markChallengeUsed(s, 'contrarian');
-    const entry = after.operationLog.find(e => e.op === 'mark-challenge');
-    expect(entry).toBeDefined();
-    expect(entry.consent).toBeNull();
-    expect(entry.provenance).toEqual({ mode: 'contrarian' });
-    expect(entry.changedFields).toEqual(['challengeModesUsed', 'challengeLog']);
-  });
 });

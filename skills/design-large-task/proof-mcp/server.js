@@ -5,7 +5,7 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { ListToolsRequestSchema, CallToolRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 import {
-  initializeState, applyOperations, markChallengeUsed, saveState, loadState,
+  initializeState, applyOperations, saveState, loadState,
   addConcern, ratifyConcern, ratifyResolveCondition,
   manageFriction, overrideFrictionDisposition,
   recordClosingArgPresented, recordDesignerGo,
@@ -15,7 +15,7 @@ import {
 } from './state.js';
 import { checkAllIntegrity, FRICTION_SHAPES, FRICTION_DISPOSITIONS, WITHDRAWAL_DISPOSITIONS, CONSENT_SOURCES, SCHEMA_VERSION, validateConsentToken, entityType } from './proof.js';
 import {
-  computeCompleteness, computeGroundingCoverage, detectChallenge, checkClosure,
+  computeCompleteness, computeGroundingCoverage, checkClosure,
   checkConcernCoverage, evaluateTrigger,
 } from './metrics.js';
 import { deriveClosingArgument } from './closing-argument.js';
@@ -426,14 +426,12 @@ export function handleGetProofState({ state_file, summary_mode }) {
     ...computeCompleteness(state.elements, state),
     groundingCoverage: computeGroundingCoverage(state.elements),
   };
-  const challengeTrigger = detectChallenge(state);
   const closure = checkClosure(state);
   const response = {
     ...state,
     elements: Object.fromEntries(state.elements),
     integrity_warnings: integrityWarnings,
     completeness,
-    challenge_trigger: challengeTrigger,
     closure_permitted: closure.permitted,
     closure_reasons: closure.reasons,
   };

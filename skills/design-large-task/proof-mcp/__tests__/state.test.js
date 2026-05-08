@@ -6,7 +6,6 @@ import {
   initializeState,
   generateId,
   applyOperations,
-  markChallengeUsed,
   saveState,
   loadState,
   addConcern,
@@ -24,10 +23,6 @@ describe('initializeState', () => {
     expect(state.elementCounters).toEqual({
       EVIDENCE: 0, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 0, RISK: 0, RESOLVE_CONDITION: 0, FRICTION: 0,
     });
-    expect(state.conditionCountHistory).toEqual([]);
-    expect(state.elementCountHistory).toEqual([]);
-    expect(state.challengeModesUsed).toEqual([]);
-    expect(state.challengeLog).toEqual([]);
     expect(state.revisionLog).toEqual([]);
     expect(state.phaseTransitionRound).toBe(0);
   });
@@ -406,25 +401,6 @@ describe('applyOperations', () => {
       expect(result).not.toHaveProperty('stallDetected');
     });
 
-    it('does not push to conditionCountHistory or elementCountHistory (retired)', () => {
-      const r1 = applyOperations(state, [
-        { op: 'add', type: 'EVIDENCE', statement: 'fact', source: 'codebase' },
-      ], { source: 'designer', rationale: 'test' });
-      expect(r1.state.conditionCountHistory).toEqual([]);
-      expect(r1.state.elementCountHistory).toEqual([]);
-
-      const r2 = applyOperations(r1.state, [
-        {
-          op: 'add', type: 'NECESSARY_CONDITION',
-          statement: 'nc',
-          grounding: ['EVID-1'],
-          collapse_test: 'x',
-          reasoning_chain: 'y',
-        },
-      ], { source: 'designer', rationale: 'test' });
-      expect(r2.state.conditionCountHistory).toEqual([]);
-      expect(r2.state.elementCountHistory).toEqual([]);
-    });
   });
 });
 
@@ -446,22 +422,6 @@ describe('applyOperations — RESOLVE_CONDITION add anchor validation', () => {
     ], { source: 'designer', rationale: 'test' });
     expect(result.errors.some(e => /CERN-99/.test(e) && /Concern/i.test(e))).toBe(true);
     expect(result.added).toEqual([]);
-  });
-});
-
-describe('markChallengeUsed', () => {
-  it('adds mode to challengeModesUsed and challengeLog', () => {
-    const state = initializeState('test');
-    const updated = markChallengeUsed(state, 'ontologist');
-    expect(updated.challengeModesUsed).toContain('ontologist');
-    expect(updated.challengeLog).toHaveLength(1);
-    expect(updated.challengeLog[0]).toBe('ontologist');
-  });
-
-  it('does not mutate original state', () => {
-    const state = initializeState('test');
-    markChallengeUsed(state, 'simplifier');
-    expect(state.challengeModesUsed).toHaveLength(0);
   });
 });
 
@@ -494,7 +454,6 @@ describe('saveState / loadState', () => {
     expect(loaded.elements.get('EVID-1').statement).toBe('Fact');
     expect(loaded.elementCounters.EVIDENCE).toBe(1);
     expect(loaded.elementCounters.RULE).toBe(1);
-    expect(loaded.conditionCountHistory).toEqual(r1.state.conditionCountHistory);
   });
 
   it('preserves generateId counters after load', () => {

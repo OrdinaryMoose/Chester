@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdtempSync, rmSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
-import { initializeState, applyOperations, addConcern, ratifyConcern, ratifyResolveCondition, markChallengeUsed, manageFriction, overrideFrictionDisposition, manageDefinitions, withdrawElement, withdrawConcern, withdrawDefinition, recordClosingArgPresented, recordDesignerGo, loadState, resetFirstYesIfFired } from '../state.js';
+import { initializeState, applyOperations, addConcern, ratifyConcern, ratifyResolveCondition, manageFriction, overrideFrictionDisposition, manageDefinitions, withdrawElement, withdrawConcern, withdrawDefinition, recordClosingArgPresented, recordDesignerGo, loadState, resetFirstYesIfFired } from '../state.js';
 
 function withFlagsSet(state) {
   state.closingArgPresentedRound = 3;
@@ -40,13 +40,6 @@ describe('mutation-clears-flags', () => {
     ], { source: 'designer', rationale: 'test' });
     s = withFlagsSet(r.state);
     const [newS] = ratifyResolveCondition(s, { elementId: 'RCON-1', ratificationText: 'ok' }, { source: 'designer', rationale: 'test' });
-    expect(newS.closingArgPresentedRound).toBeNull();
-    expect(newS.closingArgGoRound).toBeNull();
-  });
-
-  it('markChallengeUsed clears flags', () => {
-    let s = withFlagsSet(initializeState('p'));
-    const newS = markChallengeUsed(s, 'devil');
     expect(newS.closingArgPresentedRound).toBeNull();
     expect(newS.closingArgGoRound).toBeNull();
   });

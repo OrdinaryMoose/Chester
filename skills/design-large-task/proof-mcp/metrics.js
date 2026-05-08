@@ -1,17 +1,12 @@
 /**
- * metrics.js — Completeness computation, challenge trigger detection,
- * and closure condition checking for the design proof MCP server.
- * Pure-functions module with no I/O.
+ * metrics.js — Completeness computation and closure condition checking
+ * for the design proof MCP server. Pure-functions module with no I/O.
  *
  * Necessary Conditions Model (v2):
  *   Completeness tracks grounded conditions, not open-question inventory.
- *   Stall detection uses condition count stagnation (no OPENs to count).
- *   Challenges check grounding quality, not bookkeeping coverage.
  */
 
 import { traverseGroundingChain, checkAllIntegrity } from './proof.js';
-
-export const STALL_WINDOW = 3;
 
 /**
  * Compute completeness metrics from the elements map. Optionally accepts state
@@ -145,79 +140,6 @@ export function computeGroundingCoverage(elements) {
   }
 
   return grounded / conditions.length;
-}
-
-/**
- * Returns true if active NECESSARY_CONDITION count has not changed for
- * STALL_WINDOW consecutive rounds. Needs STALL_WINDOW + 1 entries in history.
- * @param {number[]} conditionCountHistory
- * @returns {boolean}
- */
-export function detectStall(conditionCountHistory) {
-  if (conditionCountHistory.length < STALL_WINDOW + 1) return false;
-
-  const recent = conditionCountHistory.slice(-(STALL_WINDOW + 1));
-  const val = recent[0];
-  return recent.every(v => v === val);
-}
-
-/**
- * Detect if a challenge mode should fire. Checks in priority order:
- * ontologist, simplifier, contrarian.
- * @param {object} state - { round, elements, conditionCountHistory, elementCountHistory, challengeModesUsed }
- * @returns {{ mode: string|null, reason: string|null }}
- */
-export function detectChallenge(state) {
-  const { round, elements, conditionCountHistory, elementCountHistory, challengeModesUsed } = state;
-
-  // Ontologist: condition count stall detected and not used
-  if (!challengeModesUsed.includes('ontologist') && detectStall(conditionCountHistory)) {
-    return {
-      mode: 'ontologist',
-      reason: 'Condition count has not changed for 3 consecutive rounds — ontologist challenge triggered',
-    };
-  }
-
-  // Simplifier: condition count grew by >= 2 without any conditions being consolidated
-  if (!challengeModesUsed.includes('simplifier') && conditionCountHistory.length >= 2) {
-    const prev = conditionCountHistory[conditionCountHistory.length - 2];
-    const curr = conditionCountHistory[conditionCountHistory.length - 1];
-    const growth = curr - prev;
-
-    if (growth >= 2) {
-      return {
-        mode: 'simplifier',
-        reason: `Condition count grew by ${growth} without consolidation — simplifier challenge triggered`,
-      };
-    }
-  }
-
-  // Contrarian: round >= 2, any active NC grounded only in EVIDENCE (no RULE)
-  if (!challengeModesUsed.includes('contrarian') && round >= 2) {
-    for (const [, el] of elements) {
-      if (el.status !== 'active' || el.type !== 'NECESSARY_CONDITION') continue;
-
-      const chain = traverseGroundingChain(elements, el.id);
-      const hasRule = chain.some(refId => {
-        const dep = elements.get(refId);
-        return dep && dep.type === 'RULE';
-      });
-      const hasEvidence = chain.some(refId => {
-        const dep = elements.get(refId);
-        return dep && dep.type === 'EVIDENCE';
-      });
-
-      // Grounded only in EVIDENCE, no RULE — agent deriving requirements from code alone
-      if (hasEvidence && !hasRule) {
-        return {
-          mode: 'contrarian',
-          reason: `Necessary condition "${el.id}" is grounded only in EVIDENCE with no RULE — contrarian challenge triggered`,
-        };
-      }
-    }
-  }
-
-  return { mode: null, reason: null };
 }
 
 /**

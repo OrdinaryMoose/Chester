@@ -1,17 +1,16 @@
 /**
  * state.js — State lifecycle and persistence for the design proof MCP server.
- * Orchestrates proof.js (element model, integrity) and metrics.js (completeness,
- * challenges, closure). Uses I/O for save/load.
+ * Orchestrates proof.js (element model, integrity) and metrics.js
+ * (completeness, closure). Uses I/O for save/load.
  *
  * Necessary Conditions Model (v2):
  *   - Longer ID prefixes (EVID-, RULE-, PERM-, NCON-, RISK-) avoid collisions
  *   - No resolve operation (OPENs removed)
- *   - Tracks conditionCountHistory instead of openCountHistory
  */
 
 import { readFileSync, writeFileSync, renameSync } from 'fs';
 import { createElement, validateRefs, checkAllIntegrity, FRICTION_DISPOSITIONS, TERMINAL_FRICTION_DISPOSITIONS, WITHDRAWAL_DISPOSITIONS, UNCLASSIFIED_DISPOSITION, SCHEMA_VERSION, DISPOSITIONS_BY_CATEGORY, validateConsentToken } from './proof.js';
-import { computeCompleteness, computeGroundingCoverage, detectChallenge, detectStall, checkClosure } from './metrics.js';
+import { computeCompleteness, computeGroundingCoverage, checkClosure } from './metrics.js';
 import { computeBodyAdvancement } from './body-advancement.js';
 import { runFrictionDetection } from './friction-detection.js';
 import { validateDefinitionInput, createDefinition, queryOverlapCandidates } from './definitions.js';
@@ -40,10 +39,6 @@ export function initializeState(problemStatement) {
     elementCounters: {
       EVIDENCE: 0, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 0, RISK: 0, RESOLVE_CONDITION: 0, FRICTION: 0,
     },
-    conditionCountHistory: [],
-    elementCountHistory: [],
-    challengeModesUsed: [],
-    challengeLog: [],
     revisionLog: [],
     phaseTransitionRound: 0,
     concerns: [],
@@ -622,31 +617,6 @@ export function applyOperations(state, operations, consent) {
     closure,
     friction_hints,
   };
-}
-
-/**
- * Mark a challenge mode as used. Returns new state without mutating input.
- * @param {object} state
- * @param {string} mode
- * @returns {object}
- */
-export function markChallengeUsed(state, mode) {
-  const newState = structuredClone(state);
-  newState.elements = cloneElements(state.elements);
-  newState.closingArgPresentedRound = null;
-  newState.closingArgGoRound = null;
-  newState.challengeModesUsed.push(mode);
-  newState.challengeLog.push(mode);
-  appendOperationLog(newState, {
-    round: newState.round,
-    op: 'mark-challenge',
-    entityId: null,
-    type: null,
-    consent: null,
-    changedFields: ['challengeModesUsed', 'challengeLog'],
-    provenance: { mode },
-  });
-  return newState;
 }
 
 /**

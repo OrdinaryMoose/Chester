@@ -594,3 +594,34 @@ describe('reopen_proof retired (AC-2.1)', () => {
     expect(s).not.toHaveProperty('lastClosureArtifact');
   });
 });
+
+describe('challenge mode personalities retired (AC-2.3)', () => {
+  it('get_proof_state response does not carry challenge_trigger', () => {
+    const tmp = `/tmp/no-challenge-trigger-${Date.now()}.json`;
+    saveState(initializeState('p'), tmp);
+    const res = handleGetProofState({ state_file: tmp });
+    const payload = JSON.parse(res.content[0].text);
+    expect(payload).not.toHaveProperty('challenge_trigger');
+    if (existsSync(tmp)) unlinkSync(tmp);
+  });
+
+  it('initializeState does not set challenge personality fields', () => {
+    const s = initializeState('p');
+    expect(s).not.toHaveProperty('challengeModesUsed');
+    expect(s).not.toHaveProperty('challengeLog');
+    expect(s).not.toHaveProperty('conditionCountHistory');
+    expect(s).not.toHaveProperty('elementCountHistory');
+  });
+
+  it('detectChallenge / detectStall / STALL_WINDOW retired from metrics.js', async () => {
+    const m = await import('../metrics.js');
+    expect(m.detectChallenge).toBeUndefined();
+    expect(m.detectStall).toBeUndefined();
+    expect(m.STALL_WINDOW).toBeUndefined();
+  });
+
+  it('markChallengeUsed retired from state.js', async () => {
+    const s = await import('../state.js');
+    expect(s.markChallengeUsed).toBeUndefined();
+  });
+});
