@@ -66,6 +66,23 @@ describe('deriveClosingArgument', () => {
     expect(out.phantomNCs.some(p => p.id === 'NCON-2' && p.dispositionTag === 'unclassified')).toBe(true);
   });
 
+  it('lockedConcerns is empty during planning (AC-6.1)', () => {
+    const s = build();
+    // build() locks concerns and leaves proofStatus='planning'.
+    // Force planning explicitly to assert partition predicate is on proofStatus.
+    s.proofStatus = 'planning';
+    const env = deriveClosingArgument(s);
+    expect(env.lockedConcerns).toEqual([]);
+  });
+
+  it('lockedConcerns carries every active Concern at finish (AC-6.1)', () => {
+    const s = build();
+    s.proofStatus = 'finish';
+    const env = deriveClosingArgument(s);
+    expect(env.lockedConcerns.length).toBe(1);
+    expect(env.lockedConcerns[0].id).toBe('CERN-1');
+  });
+
   it('partitions FRICTION elements: liveFriction holds active, phantomFriction holds withdrawn', () => {
     let s = build();
     // add a second NC so we have two anchorable NCs for the friction
@@ -107,6 +124,7 @@ describe('deriveClosingArgument extended envelope (NC-9 + NC-16)', () => {
     s = sb;
     [s] = lockConcerns(s, { source: 'designer', rationale: 'test' });
     [s] = withdrawConcern(s, 'CERN-2', 'scope-removed', { source: 'designer', rationale: 'test' });
+    s.proofStatus = 'finish'; // lockedConcerns partition fires at finish (AC-6.1)
     const env = deriveClosingArgument(s);
     expect(env.phantomConcerns).toBeDefined();
     expect(Array.isArray(env.phantomConcerns)).toBe(true);
@@ -182,6 +200,7 @@ describe('deriveClosingArgument extended envelope (NC-9 + NC-16)', () => {
   it('includes closureProvenance per cited element with derivationChain', () => {
     let s = build();
     s.elements.get('NCON-1').ratificationStatus = 'ratified';
+    s.proofStatus = 'finish'; // lockedConcerns partition fires at finish (AC-6.1)
     const env = deriveClosingArgument(s);
     expect(env.closureProvenance).toBeDefined();
     expect(Array.isArray(env.closureProvenance)).toBe(true);
@@ -235,6 +254,7 @@ describe('deriveClosingArgument extended envelope (NC-9 + NC-16)', () => {
     let [, sa] = addConcern(s, { label: 'c', description: 'd' }, { source: 'designer', rationale: 'test' });
     s = sa;
     [s] = lockConcerns(s, { source: 'designer', rationale: 'test' });
+    s.proofStatus = 'finish'; // lockedConcerns partition fires at finish (AC-6.1)
     const env = deriveClosingArgument(s);
     for (const key of [
       'lockedConcerns', 'phantomConcerns', 'resolveConditions', 'phantomRCs',

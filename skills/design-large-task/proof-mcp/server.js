@@ -401,7 +401,7 @@ export function handleGetProofState({ state_file }) {
     closure_permitted: closure.permitted,
     closure_reasons: closure.reasons,
   };
-  if (state.concernsLocked) {
+  if (state.concerns && state.concerns.length > 0) {
     response.concernCoverage = checkConcernCoverage(state);
   }
   return { content: [{ type: 'text', text: JSON.stringify(response) }] };
