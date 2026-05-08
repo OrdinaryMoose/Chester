@@ -93,7 +93,7 @@ describe('open_proof consent + INVALID_SEED_PACKET', () => {
     const ok = await handleOpenProof({ state_file, submission_material: validSubmission() });
     expect(ok.isError).toBeFalsy();
     const before = loadState(state_file);
-    expect(before.proofStatus).toBe('open');
+    expect(before.proofStatus).toBe('planning');
     const successLog = before.operationLog.find(e => e.op === 'open' && !e.provenance?.rejected);
     expect(successLog).toBeDefined();
 
@@ -107,7 +107,7 @@ describe('open_proof consent + INVALID_SEED_PACKET', () => {
 
     const after = loadState(state_file);
     // Prior successful open is preserved.
-    expect(after.proofStatus).toBe('open');
+    expect(after.proofStatus).toBe('planning');
     // Audit entry is appended with priorOpen=true.
     const rejected = after.operationLog.find(e => e.op === 'open' && e.provenance?.rejected);
     expect(rejected).toBeDefined();

@@ -29,7 +29,7 @@ describe('loadState backfill for cluster B.2 fields', () => {
 });
 
 describe('loadState proofStatus backfill', () => {
-  it('backfills proofStatus to "unopen" when missing from prior state', () => {
+  it("backfills proofStatus to 'planning' when missing from prior state", () => {
     const tmpFile = `/tmp/test-loadstate-${Date.now()}.json`;
     const priorState = {
       round: 0,
@@ -45,11 +45,11 @@ describe('loadState proofStatus backfill', () => {
     };
     writeFileSync(tmpFile, JSON.stringify(priorState));
     const loaded = loadState(tmpFile);
-    expect(loaded.proofStatus).toBe('unopen');
+    expect(loaded.proofStatus).toBe('planning');
     unlinkSync(tmpFile);
   });
 
-  it('preserves proofStatus when present in state file', () => {
+  it("maps legacy proofStatus 'open' to 'planning' when loading", () => {
     const tmpFile = `/tmp/test-loadstate-${Date.now()}.json`;
     const priorState = {
       round: 0, problemStatement: 'test', elements: {},
@@ -59,12 +59,44 @@ describe('loadState proofStatus backfill', () => {
     };
     writeFileSync(tmpFile, JSON.stringify(priorState));
     const loaded = loadState(tmpFile);
-    expect(loaded.proofStatus).toBe('open');
+    expect(loaded.proofStatus).toBe('planning');
     unlinkSync(tmpFile);
   });
 
-  it('initializeState includes proofStatus="unopen" by default', () => {
+  it("initializeState includes proofStatus='planning' by default", () => {
     const state = initializeState('test problem');
-    expect(state.proofStatus).toBe('unopen');
+    expect(state.proofStatus).toBe('planning');
+  });
+});
+
+describe('loadState legacy proofStatus backfill (sprint-d-1-fix)', () => {
+  function writeStateFileWith(proofStatusValue) {
+    const tmpFile = `/tmp/test-loadstate-legacy-${Date.now()}-${Math.random()}.json`;
+    const base = initializeState('legacy-test');
+    const raw = {
+      ...base,
+      elements: {},
+      proofStatus: proofStatusValue,
+    };
+    writeFileSync(tmpFile, JSON.stringify(raw));
+    return tmpFile;
+  }
+
+  it("maps proofStatus 'open' → 'planning'", () => {
+    const file = writeStateFileWith('open');
+    expect(loadState(file).proofStatus).toBe('planning');
+    unlinkSync(file);
+  });
+
+  it("maps proofStatus 'closed' → 'finish'", () => {
+    const file = writeStateFileWith('closed');
+    expect(loadState(file).proofStatus).toBe('finish');
+    unlinkSync(file);
+  });
+
+  it("maps proofStatus 'unopen' → 'planning'", () => {
+    const file = writeStateFileWith('unopen');
+    expect(loadState(file).proofStatus).toBe('planning');
+    unlinkSync(file);
   });
 });

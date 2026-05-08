@@ -20,7 +20,7 @@ function fixture() {
   s.concerns = [{ id: 'CERN-1', label: 'C', description: null, status: 'ratified' }];
   s.concernsLocked = true;
   s.concernCounter = 1;
-  s.proofStatus = 'open';
+  s.proofStatus = 'planning';
   s.closingArgPresentedRound = 5;
 
   const evid = createElement(
@@ -81,12 +81,12 @@ function fixture() {
 const consent = { source: 'designer', rationale: 'test' };
 
 describe('confirm_closure_go bulk-ratify + close (Task 14, RULE-9)', () => {
-  it('successful go sets proofStatus to closed', () => {
+  it('successful go sets proofStatus to finish', () => {
     const s = fixture();
-    expect(s.proofStatus).toBe('open');
+    expect(s.proofStatus).toBe('planning');
     const [newS, err] = recordDesignerGo(s, consent);
     expect(err).toBeNull();
-    expect(newS.proofStatus).toBe('closed');
+    expect(newS.proofStatus).toBe('finish');
   });
 
   it('bulk-ratifies all draft active NCs; withdrawn NCs untouched; ratified NCs unchanged', () => {
@@ -136,7 +136,7 @@ describe('confirm_closure_go bulk-ratify + close (Task 14, RULE-9)', () => {
     const close = newEntries.find(e => e.op === 'close');
     expect(close).toBeDefined();
     expect(close.changedFields).toEqual(['proofStatus']);
-    expect(close.provenance.to).toBe('closed');
+    expect(close.provenance.to).toBe('finish');
     const bulkNC = newEntries.find(e => e.op === 'bulk-ratify' && e.type === 'NECESSARY_CONDITION');
     expect(bulkNC).toBeDefined();
     expect(bulkNC.changedFields).toEqual(['ratificationStatus']);

@@ -20,7 +20,7 @@ import { handleReopenProof } from '../server.js';
 const consent = { source: 'designer', rationale: 'amend' };
 
 /**
- * Build a state with proofStatus='closed' via the full happy path.
+ * Build a state with proofStatus='finish' via the full happy path.
  * Mirrors the closing-argument-end-to-end fixture so envelope contents are
  * realistic.
  */
@@ -46,23 +46,23 @@ function buildClosedState() {
 }
 
 describe('reopenProof', () => {
-  it('rejects when proofStatus !== closed', () => {
+  it('rejects when proofStatus !== finish', () => {
     const s = initializeState('p');
     const [, err] = reopenProof(s, consent);
     expect(err).toMatch(/^NOT_CLOSED:/);
-    expect(err).toMatch(/unopen/);
+    expect(err).toMatch(/planning/);
   });
 
-  it('rejects when proofStatus is open (not closed)', () => {
+  it('rejects when proofStatus is planning (not finish)', () => {
     const s = initializeState('p');
-    s.proofStatus = 'open';
+    s.proofStatus = 'planning';
     const [, err] = reopenProof(s, consent);
-    expect(err).toMatch(/^NOT_CLOSED: proofStatus is open/);
+    expect(err).toMatch(/^NOT_CLOSED: proofStatus is planning/);
   });
 
   it('captures closure envelope into lastClosureArtifact', () => {
     const closed = buildClosedState();
-    expect(closed.proofStatus).toBe('closed');
+    expect(closed.proofStatus).toBe('finish');
     const expectedEnvelope = deriveClosingArgument(closed);
     const [reopened, err] = reopenProof(closed, consent);
     expect(err).toBeNull();
@@ -79,11 +79,11 @@ describe('reopenProof', () => {
     expect(reopened.closingArgGoRound).toBeNull();
   });
 
-  it('sets proofStatus to open', () => {
+  it('sets proofStatus to planning', () => {
     const closed = buildClosedState();
     const [reopened, err] = reopenProof(closed, consent);
     expect(err).toBeNull();
-    expect(reopened.proofStatus).toBe('open');
+    expect(reopened.proofStatus).toBe('planning');
   });
 
   it('preserves concernsLocked', () => {
@@ -106,7 +106,7 @@ describe('reopenProof', () => {
     expect(last.type).toBeNull();
     expect(last.consent).toEqual(consent);
     expect(last.changedFields).toEqual(['proofStatus']);
-    expect(last.provenance).toEqual({ from: 'closed', to: 'open' });
+    expect(last.provenance).toEqual({ from: 'finish', to: 'planning' });
     expect(last.round).toBe(reopened.round);
   });
 
@@ -143,12 +143,12 @@ describe('reopenProof', () => {
     expect(envelope1).not.toBeNull();
 
     // Drive a second close: present + go again. After reopen, flags are
-    // null but proofStatus is 'open' and other proof state is intact, so we
+    // null but proofStatus is 'planning' and other proof state is intact, so we
     // can present_closing_argument and confirm_closure_go again.
     let s = afterFirstReopen;
     [s] = recordClosingArgPresented(s, consent);
     [s] = recordDesignerGo(s, consent);
-    expect(s.proofStatus).toBe('closed');
+    expect(s.proofStatus).toBe('finish');
 
     // Without a second reopen, lastClosureArtifact should still be envelope_1.
     expect(s.lastClosureArtifact).toEqual(envelope1);
@@ -192,12 +192,12 @@ describe('handleReopenProof (server layer)', () => {
     const result = handleReopenProof({ state_file: path, consent });
     expect(result.isError).toBeFalsy();
     const payload = JSON.parse(result.content[0].text);
-    expect(payload).toEqual({ reopened: true, proofStatus: 'open' });
+    expect(payload).toEqual({ reopened: true, proofStatus: 'planning' });
 
     // Re-load and verify persistence
     const { loadState } = await import('../state.js');
     const reloaded = loadState(path);
-    expect(reloaded.proofStatus).toBe('open');
+    expect(reloaded.proofStatus).toBe('planning');
     expect(reloaded.lastClosureArtifact).not.toBeNull();
     expect(reloaded.closingArgPresentedRound).toBeNull();
     expect(reloaded.closingArgGoRound).toBeNull();
@@ -206,14 +206,14 @@ describe('handleReopenProof (server layer)', () => {
   it('NOT_CLOSED error path: returns isError with code NOT_CLOSED', () => {
     const path = join(dir, 'state.json');
     const s = initializeState('p');
-    s.proofStatus = 'open';
+    s.proofStatus = 'planning';
     saveState(s, path);
 
     const result = handleReopenProof({ state_file: path, consent });
     expect(result.isError).toBe(true);
     const payload = JSON.parse(result.content[0].text);
     expect(payload.code).toBe('NOT_CLOSED');
-    expect(payload.message).toMatch(/proofStatus is open/);
+    expect(payload.message).toMatch(/proofStatus is planning/);
   });
 
   it('INVALID_CONSENT error path: returns isError with code INVALID_CONSENT', () => {

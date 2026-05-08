@@ -182,7 +182,7 @@ describe('handleOpenProof — three-phase orchestration', () => {
     expect(payload.restructuring_report).toBeDefined();
     expect(existsSync(tmp)).toBe(true);
     const written = JSON.parse(readFileSync(tmp, 'utf-8'));
-    expect(written.proofStatus).toBe('open');
+    expect(written.proofStatus).toBe('planning');
     unlinkSync(tmp);
   });
 
@@ -228,7 +228,7 @@ describe('handleOpenProof — three-phase orchestration', () => {
       },
     });
     const written = JSON.parse(readFileSync(tmp, 'utf-8'));
-    expect(written.proofStatus).toBe('open');
+    expect(written.proofStatus).toBe('planning');
     expect(Object.keys(written.elements).length).toBeGreaterThan(0);
     expect(written.problemStatement).toBe('order test');
     if (existsSync(tmp)) unlinkSync(tmp);
@@ -358,7 +358,7 @@ describe('handleOpenProof — already-open refusal', () => {
     expect(payload.status).toBe('opened');
     const written = JSON.parse(readFileSync(tmp, 'utf-8'));
     expect(written.problemStatement).toBe('recovery from malformed state');
-    expect(written.proofStatus).toBe('open');
+    expect(written.proofStatus).toBe('planning');
     unlinkSync(tmp);
   });
 });

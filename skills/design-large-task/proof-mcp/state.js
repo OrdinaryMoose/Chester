@@ -53,7 +53,7 @@ export function initializeState(problemStatement) {
     frictionLog: [],
     closingArgPresentedRound: null,
     closingArgGoRound: null,
-    proofStatus: 'unopen',
+    proofStatus: 'planning',
     lastClosureArtifact: null,
     operationLog: [],
     definitions: [],
@@ -134,7 +134,7 @@ export function recordClosingArgPresented(state, consent) {
  * presentation; designer must re-present).
  *
  * On success, this is the proof's closure transition (RULE-9):
- *   - Sets proofStatus = 'closed'
+ *   - Sets proofStatus = 'finish'
  *   - Bulk-ratifies every active draft NECESSARY_CONDITION
  *   - Bulk-ratifies every active RESOLVE_CONDITION lacking ratification
  *   - Preserves both closingArgPresentedRound and closingArgGoRound (does NOT
@@ -158,11 +158,11 @@ export function recordDesignerGo(state, consent) {
   const newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
   newState.closingArgGoRound = newState.round;
-  // closure transition (RULE-9): proofStatus -> 'closed'.
-  // initializeState seeds 'unopen'; open_proof flips to 'open'; reopenProof returns
-  // 'open' after a closed cycle. Both 'open' and 'unopen' are legitimate prior states.
-  const fromStatus = newState.proofStatus ?? 'unopen';
-  newState.proofStatus = 'closed';
+  // closure transition (RULE-9): proofStatus -> 'finish'.
+  // initializeState seeds 'planning'; reopenProof returns 'planning' after a finish
+  // cycle. 'planning' is the only legitimate prior state under the binary lifecycle.
+  const fromStatus = newState.proofStatus ?? 'planning';
+  newState.proofStatus = 'finish';
   // bulk-ratify draft NCs (active only)
   const ratifiedNCs = [];
   // bulk-ratify unratified active RCs
@@ -183,7 +183,7 @@ export function recordDesignerGo(state, consent) {
     type: null,
     consent,
     changedFields: ['proofStatus'],
-    provenance: { from: fromStatus, to: 'closed' },
+    provenance: { from: fromStatus, to: 'finish' },
   });
   appendOperationLog(newState, {
     round: newState.round,
@@ -209,9 +209,9 @@ export function recordDesignerGo(state, consent) {
 /**
  * Reopen a closed proof. Captures the pre-reopen closing-argument envelope
  * into `lastClosureArtifact` (load-bearing audit snapshot per AC-5.4),
- * clears both two-yes flags, and transitions proofStatus 'closed' → 'open'.
+ * clears both two-yes flags, and transitions proofStatus 'finish' → 'planning'.
  *
- * Refuses if proof is not currently closed (NOT_CLOSED) or consent is invalid
+ * Refuses if proof is not currently in finish (NOT_CLOSED) or consent is invalid
  * (INVALID_CONSENT). Preserves `concernsLocked` as-is — reopening does not
  * unlock Concerns.
  * @param {object} state
@@ -223,7 +223,7 @@ export function reopenProof(state, consent) {
   if (!consentCheck.valid) {
     return [state, `INVALID_CONSENT: ${consentCheck.reason}`];
   }
-  if (state.proofStatus !== 'closed') {
+  if (state.proofStatus !== 'finish') {
     return [state, `NOT_CLOSED: proofStatus is ${state.proofStatus}`];
   }
   const newState = structuredClone(state);
@@ -233,7 +233,7 @@ export function reopenProof(state, consent) {
   newState.lastClosureArtifact = deriveClosingArgument(state);
   newState.closingArgPresentedRound = null;
   newState.closingArgGoRound = null;
-  newState.proofStatus = 'open';
+  newState.proofStatus = 'planning';
   // concernsLocked intentionally preserved as-is.
   appendOperationLog(newState, {
     round: newState.round,
@@ -242,7 +242,7 @@ export function reopenProof(state, consent) {
     type: null,
     consent,
     changedFields: ['proofStatus'],
-    provenance: { from: 'closed', to: 'open' },
+    provenance: { from: 'finish', to: 'planning' },
   });
   return [newState, null];
 }
@@ -786,7 +786,12 @@ export function loadState(filePath) {
   raw.elementCounters.FRICTION ??= 0;
   raw.closingArgPresentedRound ??= null;
   raw.closingArgGoRound ??= null;
-  raw.proofStatus ??= 'unopen';
+  raw.proofStatus ??= 'planning';
+  if (raw.proofStatus === 'open' || raw.proofStatus === 'unopen') {
+    raw.proofStatus = 'planning';
+  } else if (raw.proofStatus === 'closed') {
+    raw.proofStatus = 'finish';
+  }
   raw.lastClosureArtifact ??= null;
   raw.operationLog ??= [];
   raw.definitions ??= [];

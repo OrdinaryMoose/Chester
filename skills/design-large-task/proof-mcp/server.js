@@ -262,7 +262,7 @@ const TOOLS = [
   },
   {
     name: 'reopen_proof',
-    description: 'Reopen a closed proof. Captures the pre-reopen closing-argument envelope into lastClosureArtifact, clears both two-yes flags, and transitions proofStatus closed→open. Refuses if proof is not currently closed (NOT_CLOSED).',
+    description: 'Reopen a finished proof. Captures the pre-reopen closing-argument envelope into lastClosureArtifact, clears both two-yes flags, and transitions proofStatus finish→planning. Refuses if proof is not currently in finish (NOT_CLOSED).',
     inputSchema: {
       type: 'object',
       properties: {
@@ -617,7 +617,7 @@ export function handleReopenProof({ state_file, consent }) {
   }
   saveState(newState, state_file);
   return {
-    content: [{ type: 'text', text: JSON.stringify({ reopened: true, proofStatus: 'open' }) }],
+    content: [{ type: 'text', text: JSON.stringify({ reopened: true, proofStatus: 'planning' }) }],
   };
 }
 
@@ -626,7 +626,7 @@ export function handleReopenProof({ state_file, consent }) {
  * INVALID_SEED_PACKET rejections. Never overwrites a successful prior open:
  * if loadState succeeds it preserves the existing proofStatus and just appends
  * a rejection entry to the operationLog. If load fails (file missing/corrupt),
- * synthesizes a minimal stub state with proofStatus='unopen'.
+ * synthesizes a minimal stub state with proofStatus='planning'.
  *
  * Swallows secondary failures — the primary error response is what matters.
  */
@@ -636,7 +636,7 @@ function persistRejectedOpen(state_file, consent, reason) {
     let priorOpen = false;
     try {
       state = loadState(state_file);
-      priorOpen = state.proofStatus === 'open' || state.proofStatus === 'closed';
+      priorOpen = state.proofStatus === 'planning' || state.proofStatus === 'finish';
     } catch (_loadErr) {
       state = initializeState(null);
     }
@@ -757,7 +757,7 @@ export function handleOpenProof({ state_file, submission_material }) {
   if (existsSync(state_file)) {
     try {
       const existingState = loadState(state_file);
-      if (existingState.proofStatus === 'open') {
+      if (existingState.proofStatus === 'planning') {
         return {
           content: [{ type: 'text', text: JSON.stringify({
             status: 'already_open',
@@ -826,7 +826,7 @@ export function handleOpenProof({ state_file, submission_material }) {
     changedFields: null,
     provenance: { source_directive: consent?.rationale ?? null },
   });
-  state.proofStatus = 'open';
+  state.proofStatus = 'planning';
 
   // 8. Apply admitted typed elements + provision Concerns.
   const admittedTypedElements = restructured.admitted.filter(a => a.category !== 'Concern');
@@ -862,7 +862,7 @@ export function handleOpenProof({ state_file, submission_material }) {
 
   // applyOperations and addConcern create their own clones; reassert proofStatus
   // on the final reference before persistence.
-  state.proofStatus = 'open';
+  state.proofStatus = 'planning';
   try {
     saveState(state, state_file);
   } catch (saveErr) {

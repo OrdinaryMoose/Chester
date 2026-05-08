@@ -33,7 +33,7 @@ describe('operationLog', () => {
 
   it('applyOperations appends entry per op', () => {
     let s = initializeState('p');
-    s.proofStatus = 'open';
+    s.proofStatus = 'planning';
     const ops = [{ op: 'add', type: 'EVIDENCE', statement: 'e1', source: 'codebase' }];
     const result = applyOperations(s, ops, consent);
     s = result.state;

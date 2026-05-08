@@ -32,9 +32,9 @@ describe('closing-argument end-to-end', () => {
 
     [s] = recordDesignerGo(s, { source: 'designer', rationale: 'test' });
     expect(s.closingArgGoRound).toBe(s.round);
-    // Task 14: confirm_closure_go transitions proofStatus to 'closed' and
+    // Task 14: confirm_closure_go transitions proofStatus to 'finish' and
     // preserves both two-yes flags so closure remains observable.
-    expect(s.proofStatus).toBe('closed');
+    expect(s.proofStatus).toBe('finish');
     expect(s.closingArgPresentedRound).toBe(s.round);
 
     const closure = checkClosure(s);

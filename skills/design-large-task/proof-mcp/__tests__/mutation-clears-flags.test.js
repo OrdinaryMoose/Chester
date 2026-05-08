@@ -190,7 +190,7 @@ describe('mutation-clears-flags', () => {
     // After recordDesignerGo, both flags are set to current round (Task 14 invariant).
     expect(s.closingArgPresentedRound).not.toBeNull();
     expect(s.closingArgGoRound).not.toBeNull();
-    expect(s.proofStatus).toBe('closed');
+    expect(s.proofStatus).toBe('finish');
     const [newS, err] = reopenProof(s, consent);
     expect(err).toBeNull();
     expect(newS.closingArgPresentedRound).toBeNull();
