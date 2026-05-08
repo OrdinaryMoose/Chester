@@ -15,7 +15,6 @@ import { computeCompleteness, computeGroundingCoverage, detectChallenge, detectS
 import { computeBodyAdvancement } from './body-advancement.js';
 import { runFrictionDetection } from './friction-detection.js';
 import { validateDefinitionInput, createDefinition, queryOverlapCandidates } from './definitions.js';
-import { deriveClosingArgument } from './closing-argument.js';
 
 const ID_PREFIX = {
   EVIDENCE: 'EVID-',
@@ -55,7 +54,6 @@ export function initializeState(problemStatement) {
     closingArgPresentedRound: null,
     closingArgGoRound: null,
     proofStatus: 'planning',
-    lastClosureArtifact: null,
     operationLog: [],
     definitions: [],
     definitionCounter: 0,
@@ -160,8 +158,8 @@ export function recordDesignerGo(state, consent) {
   newState.elements = cloneElements(state.elements);
   newState.closingArgGoRound = newState.round;
   // closure transition (RULE-9): proofStatus -> 'finish'.
-  // initializeState seeds 'planning'; reopenProof returns 'planning' after a finish
-  // cycle. 'planning' is the only legitimate prior state under the binary lifecycle.
+  // initializeState seeds 'planning'; under the binary lifecycle 'finish' is
+  // terminal — there is no path back to 'planning' once recordDesignerGo fires.
   const fromStatus = newState.proofStatus ?? 'planning';
   newState.proofStatus = 'finish';
   // bulk-ratify draft NCs (active only)
@@ -203,47 +201,6 @@ export function recordDesignerGo(state, consent) {
     consent,
     changedFields: ['ratification'],
     provenance: { count: ratifiedRCs.length, elementIds: ratifiedRCs },
-  });
-  return [newState, null];
-}
-
-/**
- * Reopen a closed proof. Captures the pre-reopen closing-argument envelope
- * into `lastClosureArtifact` (load-bearing audit snapshot per AC-5.4),
- * clears both two-yes flags, and transitions proofStatus 'finish' → 'planning'.
- *
- * Refuses if proof is not currently in finish (NOT_CLOSED) or consent is invalid
- * (INVALID_CONSENT). Preserves `concernsLocked` as-is — reopening does not
- * unlock Concerns.
- * @param {object} state
- * @param {object} consent - Consent token; validated pre-flight.
- * @returns {[object, string|null]} [newState, error]
- */
-export function reopenProof(state, consent) {
-  const consentCheck = validateConsentToken(consent);
-  if (!consentCheck.valid) {
-    return [state, `INVALID_CONSENT: ${consentCheck.reason}`];
-  }
-  if (state.proofStatus !== 'finish') {
-    return [state, `NOT_CLOSED: proofStatus is ${state.proofStatus}`];
-  }
-  const newState = structuredClone(state);
-  newState.elements = cloneElements(state.elements);
-  // Capture pre-reopen envelope. deriveClosingArgument is pure (Task 13);
-  // pass the original (pre-clone) state — it does not mutate.
-  newState.lastClosureArtifact = deriveClosingArgument(state);
-  newState.closingArgPresentedRound = null;
-  newState.closingArgGoRound = null;
-  newState.proofStatus = 'planning';
-  // concernsLocked intentionally preserved as-is.
-  appendOperationLog(newState, {
-    round: newState.round,
-    op: 'reopen',
-    entityId: null,
-    type: null,
-    consent,
-    changedFields: ['proofStatus'],
-    provenance: { from: 'finish', to: 'planning' },
   });
   return [newState, null];
 }
@@ -785,7 +742,6 @@ export function loadState(filePath) {
   } else if (raw.proofStatus === 'closed') {
     raw.proofStatus = 'finish';
   }
-  raw.lastClosureArtifact ??= null;
   raw.operationLog ??= [];
   raw.definitions ??= [];
   raw.definitionCounter ??= 0;

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdtempSync, rmSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
-import { initializeState, applyOperations, addConcern, lockConcerns, ratifyConcern, ratifyResolveCondition, markChallengeUsed, manageFriction, overrideFrictionDisposition, manageDefinitions, withdrawElement, withdrawConcern, withdrawDefinition, recordClosingArgPresented, recordDesignerGo, reopenProof, loadState, resetFirstYesIfFired } from '../state.js';
+import { initializeState, applyOperations, addConcern, lockConcerns, ratifyConcern, ratifyResolveCondition, markChallengeUsed, manageFriction, overrideFrictionDisposition, manageDefinitions, withdrawElement, withdrawConcern, withdrawDefinition, recordClosingArgPresented, recordDesignerGo, loadState, resetFirstYesIfFired } from '../state.js';
 
 function withFlagsSet(state) {
   state.closingArgPresentedRound = 3;
@@ -164,34 +164,6 @@ describe('mutation-clears-flags', () => {
     let [id, sa] = manageDefinitions(s, 'add', { canonical_name: 'X', definition: 'd' }, { source: 'designer', rationale: 'test' });
     s = withFlagsSet(sa);
     const [newS, err] = withdrawDefinition(s, id, 'consolidated', { source: 'designer', rationale: 'test' });
-    expect(err).toBeNull();
-    expect(newS.closingArgPresentedRound).toBeNull();
-    expect(newS.closingArgGoRound).toBeNull();
-  });
-
-  it('reopenProof clears BOTH flags', () => {
-    // Build a closed-proof state by walking the happy path.
-    const consent = { source: 'designer', rationale: 'test' };
-    let s = initializeState('p');
-    const [, sa] = addConcern(s, { label: 'concern X', description: 'd' }, consent);
-    s = sa;
-    [s] = lockConcerns(s, consent);
-    [s] = ratifyConcern(s, 'CERN-1', consent);
-    let r = applyOperations(s, [
-      { op: 'add', type: 'EVIDENCE', statement: 'fact', source: 'codebase' },
-      { op: 'add', type: 'NECESSARY_CONDITION', statement: 'must Q', collapse_test: 'breaks if no Q', grounding: ['EVID-1'], reasoning_chain: 'IF fact THEN must Q', rejected_alternatives: ['alt1'] },
-      { op: 'add', type: 'RESOLVE_CONDITION', statement: 'system Qs', problem_anchor: 'CERN-1', grounding: ['NCON-1'] },
-    ], consent);
-    s = r.state;
-    [s] = ratifyResolveCondition(s, { elementId: 'RCON-1', ratificationText: 'ok' }, consent);
-    while (s.round < 3) { r = applyOperations(s, [], consent); s = r.state; }
-    [s] = recordClosingArgPresented(s, consent);
-    [s] = recordDesignerGo(s, consent);
-    // After recordDesignerGo, both flags are set to current round (Task 14 invariant).
-    expect(s.closingArgPresentedRound).not.toBeNull();
-    expect(s.closingArgGoRound).not.toBeNull();
-    expect(s.proofStatus).toBe('finish');
-    const [newS, err] = reopenProof(s, consent);
     expect(err).toBeNull();
     expect(newS.closingArgPresentedRound).toBeNull();
     expect(newS.closingArgGoRound).toBeNull();

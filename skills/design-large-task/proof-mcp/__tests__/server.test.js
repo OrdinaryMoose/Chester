@@ -539,3 +539,26 @@ describe('initialize_proof retirement', () => {
     expect(serverSource).not.toContain('handleInitialize');
   });
 });
+
+describe('reopen_proof retired (AC-2.1)', () => {
+  it('reopen_proof is not declared in server.js TOOLS source', () => {
+    expect(serverSource).not.toContain("name: 'reopen_proof'");
+    expect(serverSource).not.toContain("'reopen_proof'");
+  });
+
+  it('handleReopenProof is not present in server.js source', () => {
+    expect(serverSource).not.toContain('handleReopenProof');
+    expect(serverSource).not.toContain('reopenProof');
+  });
+
+  it('reopenProof is not exported from state.js', async () => {
+    const stateModule = await import('../state.js');
+    expect(stateModule.reopenProof).toBeUndefined();
+  });
+
+  it('initializeState does not set lastClosureArtifact', async () => {
+    const { initializeState } = await import('../state.js');
+    const s = initializeState('p');
+    expect(s).not.toHaveProperty('lastClosureArtifact');
+  });
+});
