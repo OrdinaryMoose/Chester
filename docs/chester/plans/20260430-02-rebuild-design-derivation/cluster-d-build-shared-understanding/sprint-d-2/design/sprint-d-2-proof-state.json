@@ -1,0 +1,1751 @@
+{
+  "round": 17,
+  "problemStatement": "D.2 builds the redesigned design-large-task Presentation layer (voice, packet, phase orchestration, round mechanics, render steps) that interfaces with the Proof layer contracts so that the designer can read, understand, and update proof state, culminating with the ratification of the closing argument, production of the design brief, and handover to design-specify.",
+  "elements": {
+    "EVID-1": {
+      "id": "EVID-1",
+      "type": "EVIDENCE",
+      "statement": "The current design-large-task SKILL.md prescribes a single register and single style; no Voice or Style selection mechanism exists. Locked sprint-init through closure.",
+      "source": "codebase",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {
+          "basis": "skills/design-large-task/SKILL.md Translation Gate section + Phase Map"
+        },
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[1]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      }
+    },
+    "EVID-2": {
+      "id": "EVID-2",
+      "type": "EVIDENCE",
+      "statement": "The closing-argument render protocol — translating the closing-argument envelope into prose the designer reads at present_closing_argument time — is unspecified in current SKILL.md. The skill says 'render the brief from the envelope' but never prescribes the present-time render step.",
+      "source": "codebase",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {
+          "basis": "skills/design-large-task/SKILL.md Phase 5 Closure section"
+        },
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[2]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      }
+    },
+    "EVID-3": {
+      "id": "EVID-3",
+      "type": "EVIDENCE",
+      "statement": "Three places in the current skill body have agent-supplied content silently becoming the locked decision: drafted Concerns at proof-open, drafted Resolve Condition statements, and unsupervised closing-argument prose render. None carry an explicit ratification step distinguishing 'designer corrected' from 'designer accepted because they did not have technical context to know they should correct'.",
+      "source": "codebase",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {
+          "basis": "skills/design-large-task/SKILL.md Solve Stage Opening + util-design-partner-role/SKILL.md"
+        },
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[3]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      }
+    },
+    "EVID-4": {
+      "id": "EVID-4",
+      "type": "EVIDENCE",
+      "statement": "D.1's proof MCP ships twelve tools with a single consent-token contract; every state-mutating operation requires a {source, rationale?} token where source is 'designer' or 'agent-proposed-designer-confirmed'. The closing-argument envelope returns closureProvenance per element including consent.source.",
+      "source": "codebase",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {
+          "basis": "skills/design-large-task/proof-mcp/server.js + proof.js + closing-argument.js"
+        },
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[4]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      }
+    },
+    "EVID-5": {
+      "id": "EVID-5",
+      "type": "EVIDENCE",
+      "statement": "The plugin architecture (ACTIVE_UNDERSTANDING_MCP comment-block variable + per-flow reference files + multi-package MCP server arrangement) is preserved in current SKILL.md and supports adding flows without disturbing existing ones. team-interview proves a flow can exist without an MCP server at all.",
+      "source": "codebase",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {
+          "basis": "skills/design-large-task/SKILL.md lines 9-78"
+        },
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[5]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      }
+    },
+    "EVID-6": {
+      "id": "EVID-6",
+      "type": "EVIDENCE",
+      "statement": "No unit tests exist for the skill body itself; only the proof MCP layer is tested (33 test files, 483 tests passing).",
+      "source": "codebase",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {
+          "basis": "skills/design-large-task/proof-mcp/__tests__/"
+        },
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[6]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      }
+    },
+    "RULE-1": {
+      "id": "RULE-1",
+      "type": "RULE",
+      "statement": "First organizing principle: 'Design is the code.' The proof carries structural weight that absorbs the agent's implementation drive at design altitude.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {
+          "basis": "cluster-d-foundation-v1.md §11"
+        },
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[7]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      }
+    },
+    "RULE-2": {
+      "id": "RULE-2",
+      "type": "RULE",
+      "statement": "Second organizing principle: 'The purpose is to create Shared Understanding.' Every mechanism in the design system serves designer-intent capture.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {
+          "basis": "cluster-d-foundation-v1.md §11"
+        },
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[8]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      }
+    },
+    "RULE-3": {
+      "id": "RULE-3",
+      "type": "RULE",
+      "statement": "Third organizing principle: PM-as-decider. Agent generates content (research, framing, drafts, structural placement); designer generates decisions (ratifications, choices, redirects, locks). Agent-generated decisions and PM-supplied technical content are both failure modes.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {
+          "basis": "May-5 organizing-principle research + cluster-d-foundation-v1.md §11"
+        },
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[9]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      }
+    },
+    "RULE-4": {
+      "id": "RULE-4",
+      "type": "RULE",
+      "statement": "Information packet is the fixed-shape per-round content unit the designer reads. Six components: insight + intro + facts (3-5 single-sentence bullets) + agent commentary + pessimist commentary + decision. Designer-locked from cluster-D foundation.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "withdrawn",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {
+          "basis": "cluster-d-foundation-v1.md §11"
+        },
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[10]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      },
+      "withdrawal_disposition": "found-incorrect"
+    },
+    "RULE-5": {
+      "id": "RULE-5",
+      "type": "RULE",
+      "statement": "Single-topic discipline: each round addresses exactly one topic. Multi-topic rounds prohibited; surplus topics queue for subsequent rounds in priority order.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "withdrawn",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {
+          "basis": "cluster-d-foundation-v1.md §11"
+        },
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[11]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      },
+      "withdrawal_disposition": "found-incorrect"
+    },
+    "RULE-6": {
+      "id": "RULE-6",
+      "type": "RULE",
+      "statement": "Closed element set: NC, Evidence, Rule, Permission, Risk, Concern, Resolve Condition, Friction, Phantom, Definition. Extension only by charter-level decision.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {
+          "basis": "cluster-d-foundation-v1.md §11 + D.1 deliverables"
+        },
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[12]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      }
+    },
+    "RULE-7": {
+      "id": "RULE-7",
+      "type": "RULE",
+      "statement": "Two-yes closure gate (cluster-B.2 inheritance, D.1 NC-11): closure requires designer consent twice in the same round — first 'yes' on present_closing_argument, second 'yes' on confirm_closure_go. Any mutation between the two clears both flags and forces re-presentation.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "withdrawn",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {
+          "basis": "cluster-b-2 + D.1 NC-11"
+        },
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[13]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      },
+      "withdrawal_disposition": "found-incorrect"
+    },
+    "RULE-8": {
+      "id": "RULE-8",
+      "type": "RULE",
+      "statement": "Designer-consent gate on every advancement: every state-mutating proof operation requires a designer-source-or-confirmed consent token with optional rationale. Inherited from D.1 NC-8.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "withdrawn",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {
+          "basis": "D.1 NC-8"
+        },
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[14]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      },
+      "withdrawal_disposition": "found-incorrect"
+    },
+    "RULE-9": {
+      "id": "RULE-9",
+      "type": "RULE",
+      "statement": "Agent-rule-submission discipline: only the designer creates Rules. The agent may surface a candidate Rule in commentary for designer ratification but does not auto-add Rules.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {
+          "basis": "cluster-d-foundation-v1.md §11 + skill body Solve Stage Step 3 prohibition"
+        },
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[15]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      }
+    },
+    "RULE-10": {
+      "id": "RULE-10",
+      "type": "RULE",
+      "statement": "D.1 NC-1 inheritance: open_proof requires problem_statement plus initial seed material (Concerns, Evidence, Rules) at the boundary; restructuring action labels are required on every element.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "withdrawn",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {
+          "basis": "D.1 NC-1"
+        },
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[16]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      },
+      "withdrawal_disposition": "found-incorrect"
+    },
+    "RULE-11": {
+      "id": "RULE-11",
+      "type": "RULE",
+      "statement": "D.1 NC-12 inheritance: post-confirm_closure_go state is immutable; explicit reopen_proof is required to amend.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "withdrawn",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {
+          "basis": "D.1 NC-12"
+        },
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[17]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      },
+      "withdrawal_disposition": "found-incorrect"
+    },
+    "RULE-12": {
+      "id": "RULE-12",
+      "type": "RULE",
+      "statement": "Voice and Style decision (sprint-d-2 round 2): session Voice and Style are designer-selectable at session start, mid-session mutable; defaults Voice=PM, Style=normal.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "withdrawn",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {
+          "basis": "sprint-d-2 round 2 designer ratification"
+        },
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[18]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      },
+      "withdrawal_disposition": "found-incorrect"
+    },
+    "RULE-13": {
+      "id": "RULE-13",
+      "type": "RULE",
+      "statement": "Closing-argument render and design-brief render both use a predetermined briefing voice with normal verbosity. Voice and Style for these two artifacts are not designer-selectable; skill-author-fixed.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "withdrawn",
+      "addedInRound": 1,
+      "revisedInRound": null,
+      "revision": 0,
+      "restructuring": {
+        "metadata": {
+          "basis": "sprint-d-2 round 2 designer ratification"
+        },
+        "restructuring_action_label": "verbatim-preserve",
+        "provenance": {
+          "source_citation": "submission.elements[19]",
+          "action_label": "verbatim-preserve",
+          "reasoning_chain": null,
+          "field_provenance": [
+            {
+              "field_name": "statement",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            },
+            {
+              "field_name": "source",
+              "action_label": "verbatim-preserve",
+              "reasoning_chain": null
+            }
+          ]
+        }
+      },
+      "withdrawal_disposition": "found-incorrect"
+    },
+    "NCON-1": {
+      "id": "NCON-1",
+      "type": "NECESSARY_CONDITION",
+      "statement": "Information packet has a fixed six-component shape: insight + intro + facts (3-5 single-sentence bullets) + agent commentary + pessimist commentary + decision.",
+      "source": null,
+      "grounding": [
+        "RULE-2",
+        "EVID-1"
+      ],
+      "collapse_test": "If the fixed shape is dropped, the agent improvises packet content per round, the designer can't form expectations of what each turn contains, and read-back fidelity collapses because consumers can't anticipate structure.",
+      "reasoning_chain": "IF Shared Understanding requires the designer to anticipate packet structure across rounds (RULE-2) AND the current skill ships an undifferentiated packet (EVID-1), THEN D.2's packet must carry a fixed six-component shape so the designer reads each round against a stable expectation.",
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 2,
+      "revisedInRound": null,
+      "revision": 0,
+      "ratificationStatus": "draft"
+    },
+    "NCON-2": {
+      "id": "NCON-2",
+      "type": "NECESSARY_CONDITION",
+      "statement": "Each round addresses exactly one topic; multi-topic rounds are prohibited; surplus topics queue for subsequent rounds in priority order.",
+      "source": null,
+      "grounding": [
+        "RULE-1",
+        "RULE-2"
+      ],
+      "collapse_test": "If multi-topic rounds are allowed, the decision venue shape blurs, designer ratification becomes ambiguous (which topic was approved?), proof element provenance gets noisy, and the agent can hide implementation drift in a secondary topic the designer didn't focus on.",
+      "reasoning_chain": "IF the proof carries structural weight at design altitude (RULE-1) AND Shared Understanding requires unambiguous decision venues (RULE-2) AND multi-topic packets dilute the venue, THEN single-topic discipline is necessary so designer ratification per round attaches to one decision.",
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 2,
+      "revisedInRound": null,
+      "revision": 0,
+      "ratificationStatus": "draft"
+    },
+    "NCON-3": {
+      "id": "NCON-3",
+      "type": "NECESSARY_CONDITION",
+      "statement": "Closure requires a two-yes gate: designer consents twice in the same round — first 'yes' on present_closing_argument, second 'yes' on confirm_closure_go. Any state mutation between the two clears both flags and forces re-presentation.",
+      "source": null,
+      "grounding": [
+        "EVID-4",
+        "RULE-14",
+        "RULE-15"
+      ],
+      "collapse_test": "If the gate is dropped, closure proceeds on a single signal — agent renders, designer says go without an explicit view step — substitution becomes invisible at closure, and the designer-consent gate is bypassed for the most consequential operation in the proof.",
+      "reasoning_chain": "IF D.1's proof MCP ships the two-yes closure gate as a structural commitment inherited from cluster-B.2 (EVID-4), THEN D.2 must respect and use this closure mechanism rather than design a substitute.",
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 2,
+      "revisedInRound": 4,
+      "revision": 1,
+      "ratificationStatus": "draft"
+    },
+    "NCON-4": {
+      "id": "NCON-4",
+      "type": "NECESSARY_CONDITION",
+      "statement": "Every state-mutating proof operation in D.2 requires a designer-source-or-confirmed consent token of shape {source, rationale?}.",
+      "source": null,
+      "grounding": [
+        "EVID-4",
+        "RULE-3"
+      ],
+      "collapse_test": "If consent gating is dropped, agent mutations land without designer signal, agent decisions become indistinguishable from designer decisions in operationLog, the substitution failure mode becomes structurally invisible, and the operationLog audit chain loses its evidentiary value at closure.",
+      "reasoning_chain": "IF D.1 ships the consent-token contract on every mutating tool (EVID-4) AND PM-as-decider holds (RULE-3), THEN every state-mutating proof operation in D.2 must carry a designer-source-or-confirmed consent token, with optional rationale captured in operationLog for forensic clarity.",
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 2,
+      "revisedInRound": null,
+      "revision": 0,
+      "ratificationStatus": "draft"
+    },
+    "NCON-5": {
+      "id": "NCON-5",
+      "type": "NECESSARY_CONDITION",
+      "statement": "open_proof at the Solve-Stage boundary takes a problem_statement plus initial seed material (Concerns, Evidence, Rules) with a consent token; the proof MCP restructures admitted material into typed elements with restructuring action labels.",
+      "source": null,
+      "grounding": [
+        "EVID-4",
+        "RULE-14",
+        "RULE-15"
+      ],
+      "collapse_test": "If seed is skipped at open, the proof opens empty, round 1 must hand-build all initial content from nothing, closure-readiness checks fail because no foundation Evidence or Rules ground later NCs, and D.1's open_proof contract is violated.",
+      "reasoning_chain": "IF D.1 ships open_proof requiring problem_statement plus seed elements at the boundary with consent and restructuring labels (EVID-4 / D.1 NC-1), THEN D.2 must construct seed material at proof-open rather than open empty.",
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 2,
+      "revisedInRound": 4,
+      "revision": 1,
+      "ratificationStatus": "draft"
+    },
+    "NCON-6": {
+      "id": "NCON-6",
+      "type": "NECESSARY_CONDITION",
+      "statement": "Post-confirm_closure_go state is immutable; explicit reopen_proof is required to amend after closure.",
+      "source": null,
+      "grounding": [
+        "EVID-4",
+        "RULE-14",
+        "RULE-15"
+      ],
+      "collapse_test": "If post-go mutations are permitted without reopen, closure provenance breaks, downstream design-specify reads inconsistent state, the closure event loses its 'this is final' meaning, and D.1's contract is violated.",
+      "reasoning_chain": "IF D.1 ships post-confirm_closure_go state as immutable, with explicit reopen_proof for amendment (EVID-4 / D.1 NC-12), THEN D.2 must respect post-go immutability and call reopen_proof for any post-closure changes; any direct mutation must be rejected.",
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 2,
+      "revisedInRound": 4,
+      "revision": 1,
+      "ratificationStatus": "draft"
+    },
+    "NCON-7": {
+      "id": "NCON-7",
+      "type": "NECESSARY_CONDITION",
+      "statement": "Session Voice and Style are designer-selectable at session start and mid-session mutable. Defaults: Voice=PM, Style=normal.",
+      "source": null,
+      "grounding": [
+        "RULE-2",
+        "RULE-3"
+      ],
+      "collapse_test": "If Voice/Style are locked at sprint level, the designer is forced into the agent's chosen register and cannot adjust; if locked at session start without mid-session mutability, the designer can't adapt as the conversation evolves and an early register mismatch persists; either way the designer's authority over their own consumption is reduced and Shared Understanding suffers at the consumption surface.",
+      "reasoning_chain": "IF Shared Understanding requires the designer to read the conversation in their preferred register (RULE-2) AND PM-as-decider gives the designer authority over their own engagement (RULE-3), THEN session Voice and Style are designer-selectable at session start and mid-session mutable so the designer can adjust as the conversation evolves.",
+      "rejected_alternatives": [
+        "Lock Voice and Style at sprint-author level for all sessions — rejected because designer authority over consumption register would be lost.",
+        "Lock Voice and Style at session start without mid-session mutability — rejected because the designer can't correct an early register mismatch as the conversation reveals it.",
+        "Per-output-channel Voice and Style settings (separate Voice for session vs each render channel) — rejected as over-engineered; one session Voice and Style covers all session output, with render Voice fixed separately at briefing voice."
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 2,
+      "revisedInRound": null,
+      "revision": 0,
+      "ratificationStatus": "draft"
+    },
+    "NCON-8": {
+      "id": "NCON-8",
+      "type": "NECESSARY_CONDITION",
+      "statement": "Closing-argument render and design-brief render both use a predetermined briefing voice with normal verbosity. These two renders are not designer-selectable; they are skill-author-fixed.",
+      "source": null,
+      "grounding": [
+        "RULE-2",
+        "EVID-2"
+      ],
+      "collapse_test": "If render voice varies, the artifact pair reads inconsistently across consumers (designer at closure, design-specify, downstream readers), read-back fidelity stumbles when register doesn't match the consumer's expectation, and the brief and closing argument lose their pair-coherence.",
+      "reasoning_chain": "IF Shared Understanding requires the captured artifact pair (closing argument + brief) to read consistently across consumers (RULE-2) AND the current skill leaves the render protocol unspecified (EVID-2), THEN both renders must use a predetermined briefing voice with normal verbosity to keep the artifact pair coherent.",
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 2,
+      "revisedInRound": null,
+      "revision": 0,
+      "ratificationStatus": "draft"
+    },
+    "NCON-9": {
+      "id": "NCON-9",
+      "type": "NECESSARY_CONDITION",
+      "statement": "Each round of the round cycle constructs and presents exactly one decision venue: agent-supplied research, framing, and drafted options on one architectural choice the designer is positioned to make; designer-supplied decision (ratify, choose, redirect, or lock). Venue construction does not solicit designer input that requires technical context the designer doesn't have.",
+      "source": null,
+      "grounding": [
+        "RULE-3",
+        "RULE-1"
+      ],
+      "collapse_test": "If round-level work isn't venue-shaped — e.g., the round opens with 'what should we do about X?' instead of presenting framed options on X — the agent invites designer-supplied content rather than designer-supplied decision. The designer either (a) supplies content the agent should have supplied (reverse-direction substitution), (b) stalls on input drought because they don't have the technical context to answer, or (c) ratifies whatever the agent produces without proper venue framing. PM-as-decider asymmetry collapses.",
+      "reasoning_chain": "IF PM-as-decider holds (RULE-3) — agent generates content, designer generates decisions — AND the proof carries structural weight at design altitude (RULE-1), THEN each round must construct a decision venue with the agent supplying the research, framing, and drafts and the designer supplying the decision. Soliciting designer input that requires technical context inverts the asymmetry and produces sessions that stall on input drought or extract designer answers to questions only the agent can answer from the codebase.",
+      "rejected_alternatives": [
+        "Open-ended question rounds (e.g., 'what do you think about X?' as the primary turn shape) — rejected because they invert the asymmetry and produce designer-input drought.",
+        "Multi-venue rounds (multiple decisions presented per round) — rejected because they violate single-topic discipline and dilute decision attention.",
+        "Agent-decision rounds with designer post-hoc review — rejected because they encode decision-authority substitution as the default; the designer ratifies a decision the agent already made."
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 3,
+      "revisedInRound": null,
+      "revision": 0,
+      "ratificationStatus": "draft"
+    },
+    "RULE-14": {
+      "id": "RULE-14",
+      "type": "RULE",
+      "statement": "Proof layer contracts are binding.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 4,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-15": {
+      "id": "RULE-15",
+      "type": "RULE",
+      "statement": "Proof layer contracts may not be redesigned.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 4,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "NCON-10": {
+      "id": "NCON-10",
+      "type": "NECESSARY_CONDITION",
+      "statement": "The skill has six named phases in fixed order — Phase 1 Initialize, Phase 2 Open the Proof, Phase 3 Research Summary, Phase 4 Round Cycle, Phase 5 Closing Argument, Phase 6 Closure — with explicit and observable transitions. The designer knows which phase is active at every turn via the per-turn status line indicator at the bottom of the scroll.",
+      "source": null,
+      "grounding": [
+        "RULE-2",
+        "RULE-14"
+      ],
+      "collapse_test": "If phases aren't named and ordered, the designer doesn't know what the agent is doing or what comes next; navigation loss surfaces as a documented failure mode of generation-3 designs. If transitions aren't explicit and observable, the designer can't tell when one phase ends and the next begins; the agent drifts between phases unobserved. If the status line is dropped, the designer loses the per-turn anchor for 'where are we in the pipeline' and must reverse-infer phase from agent behavior.",
+      "reasoning_chain": "IF Shared Understanding requires the designer to locate themselves in the conversation at every turn (RULE-2) AND D.1's Proof-layer contracts are binding (RULE-14) — fixing open_proof at the Phase 2 boundary and the two-yes closure gate at the Phase 5→Phase 6 boundary — THEN the skill body must commit to a fixed phase architecture with named, ordered, observable transitions plus a per-turn status indicator that names the active phase.",
+      "rejected_alternatives": [
+        "Phase-free organic conversation — rejected because navigation loss is a documented generation-3 failure mode with concrete corpus evidence (designer asking 'are we in understand loop or still in round one?').",
+        "Phases without per-turn status line — rejected because the designer needs an explicit per-turn locator; absent one, they reverse-infer phase from agent behavior, which is exactly the kind of context-burden PM-as-decider rejects.",
+        "Designer-inferable phases (phases exist but are unnamed) — rejected because the designer would need technical context to infer phase boundaries from agent activity; that context is what PM-as-decider says they don't have."
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 5,
+      "revisedInRound": null,
+      "revision": 0,
+      "ratificationStatus": "draft"
+    },
+    "NCON-11": {
+      "id": "NCON-11",
+      "type": "NECESSARY_CONDITION",
+      "statement": "The agent classifies information into proof element types per D.1's category-shape rules before submission: NC (must-be-true claim with grounding, reasoning chain, collapse test), Rule (designer-source directive restricting design space), Evidence (non-designer-source factual observation), Concern (designer-named worry anchoring RCs), Definition (vocabulary entry — G1 slot), Risk (hazard with basis pointer), Permission (designer-source relief from a Rule), Friction (tension between two existing elements), RC (resolved-state claim per Concern). When classification is uncertain, the agent surfaces the candidate and its category in commentary for designer ratification before adding. Misclassifications detected post-add are corrected via withdraw + re-add, not in-place mutation.",
+      "source": null,
+      "grounding": [
+        "RULE-3",
+        "RULE-9",
+        "RULE-14"
+      ],
+      "collapse_test": "If the agent skips pre-submission classification check, designer-source statements drift into Evidence (or vice versa), schema rejections happen at the boundary (concrete evidence this session: the EVIDENCE source=designer rejection), and the proof's structural meaning blurs. If uncertainty isn't surfaced for designer ratification, the agent guesses category and silently locks the wrong shape (concrete evidence this session: the rules-vs-NCs misclassification of 8 elements at proof open). If misclassifications can't be corrected via withdraw + re-add, the proof carries permanent category errors.",
+      "reasoning_chain": "IF the proof's structural meaning depends on category correctness (Shared Understanding via RULE-2, Design-is-the-code via RULE-1) AND D.1's Proof-layer contracts define category-shape rules (RULE-14) AND PM-as-decider says designer authority controls classification edge cases (RULE-3) AND agent-rule-submission discipline limits agent-side category creation (RULE-9), THEN agent classification must apply category-shape rules before submission, surface uncertainty for designer ratification rather than guessing, and correct misclassifications via withdraw + re-add rather than in-place mutation.",
+      "rejected_alternatives": [
+        "Agent free-classifies without pre-check — rejected because category drift produces schema rejections and structural-meaning blur; the rules-vs-NCs misclassification this session is concrete evidence of how this fails.",
+        "Designer pre-classifies all elements — rejected as inversion of PM-as-decider; designer doesn't have the codebase or proof-state context to apply D.1's category-shape rules at the volume each round produces.",
+        "In-place category-mutation tool — rejected because category change after grounding-chain references propagate would silently invalidate downstream NCs; withdraw + re-add forces re-grounding which exposes the propagation impact."
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 6,
+      "revisedInRound": null,
+      "revision": 0,
+      "ratificationStatus": "draft"
+    },
+    "NCON-12": {
+      "id": "NCON-12",
+      "type": "NECESSARY_CONDITION",
+      "statement": "The agent prepares the open_proof seed material (problem statement, initial Concerns, initial Evidence, initial Rules) and presents it to the designer for review BEFORE invoking open_proof. The designer can revise, add, or remove any element of the seed. The agent does not invoke open_proof on agent-prepared material without explicit designer approval of the seed shape.",
+      "source": null,
+      "grounding": [
+        "RULE-3",
+        "RULE-9",
+        "EVID-4"
+      ],
+      "collapse_test": "If the agent invokes open_proof on agent-prepared material without designer review, the proof's foundation Concerns and Rules are agent-decided — silent decision-authority substitution at the most consequential moment of proof construction. The designer's next opportunity to revise is post-open, where Concerns can be added but not removed (no withdraw available for Concerns in the surfaced tool set), and Rules can be issued but not retroactively backed out of the seed. Pre-open review is the only structural protection.",
+      "reasoning_chain": "IF PM-as-decider holds (RULE-3) — designer authority over decisions, including which Concerns and Rules anchor the proof — AND agent-rule-submission discipline limits agent-side Rule creation (RULE-9) AND D.1's open_proof contract takes seed material at the boundary (EVID-4), THEN the agent must present prepared seed material for designer review and explicit approval before invoking open_proof. open_proof is the structural lock-in moment for the proof shape; pre-open is the only un-restricted opportunity to revise the seed.",
+      "rejected_alternatives": [
+        "Agent invokes open_proof autonomously, designer reviews after — rejected because the seed shape locks at open and Concerns can't be withdrawn through the surfaced tool set; post-open review is too late.",
+        "Designer prepares seed material from scratch — rejected as inversion of PM-as-decider; designer doesn't have the codebase or prior-art context to assemble Evidence and Rules at the volume open_proof requires.",
+        "Combined prepare-and-open in a single turn — rejected because compressing review into one turn produces reflexive 'looks good' ratification rather than considered review; pre-open review must be a distinct turn that the designer enters expecting to revise."
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 7,
+      "revisedInRound": null,
+      "revision": 0,
+      "ratificationStatus": "draft"
+    },
+    "NCON-13": {
+      "id": "NCON-13",
+      "type": "NECESSARY_CONDITION",
+      "statement": "Research agents (codebase explorer, prior-art explorer, industry explorer, plus any task-specific named subagent) are dispatched in Phase 3 (Research Summary) with prompts framed in service of decision-venue construction for the upcoming round queue. The agent selects which research agents to dispatch and their search prompts based on the topic's research surface (codebase always; prior-art when prior sprints exist; industry when external signal is plausibly load-bearing). Findings are curated by the agent into the proof's Evidence elements before designer presentation; raw research outputs are not dumped into the conversation.",
+      "source": null,
+      "grounding": [
+        "RULE-2",
+        "RULE-3"
+      ],
+      "collapse_test": "If the wrong agents are dispatched or the right agents are dispatched with wrong prompts, the conversation absorbs noise that doesn't ground decisions. If prompts aren't framed for venue construction, agents return generic topic surveys that don't sharpen upcoming venues. If findings are dumped raw into the conversation, the StoryDesigner corpus's harshest failure pattern recurs: uncurated explorer dominance displaces designer-locked vocabulary, the designer can't tell what's load-bearing vs decorative, and decision venues form around explorer framing rather than designer intent.",
+      "reasoning_chain": "IF PM-as-decider asymmetry says agent does the active labor including research, framing, and curation (RULE-3) AND Shared Understanding requires evidence-grounded decision venues (RULE-2), THEN research-agent dispatch must be selective (right agents AND right search prompts for the topic), purposeful (prompts framed for venue construction), and curated (findings transformed into proof Evidence elements rather than presented raw to the designer).",
+      "rejected_alternatives": [
+        "Always dispatch all research agents with stock prompts — rejected because thin-signal corpora and unframed prompts waste tokens and dilute findings; selective dispatch with topic-framed prompts produces tighter Evidence.",
+        "No research-agent dispatch (designer supplies all context) — rejected as inversion of PM-as-decider; designer doesn't carry codebase or prior-art context at the volume the proof needs.",
+        "Raw findings dumped into the conversation — rejected per StoryDesigner corpus failure pattern: uncurated explorer dominance was the named root cause of the corpus's harshest failure moment."
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 8,
+      "revisedInRound": 9,
+      "revision": 1,
+      "ratificationStatus": "draft"
+    },
+    "NCON-14": {
+      "id": "NCON-14",
+      "type": "NECESSARY_CONDITION",
+      "statement": "Inside Phase 4 (Round Cycle), each round selects exactly one topic from a live priority queue with seven slots plus an auto-trigger. Queue priority order (high to low): (1) Designer-signal absorption — pushback, revision requests, or newly-issued Rules/Permissions from prior turn; (2) Ratification — Concerns or RCs in lock-ready state awaiting designer lock; (3) Coverage authoring — active Concerns lacking NC+RC pair or RC anchor; (4) NC grounding integrity — under-grounded, ungrounded, or withdrawn-grounded NCs; (5) Hazard processing — active Risks lacking basis or Friction lacking disposition; (6) Vocabulary housekeeping — unclassified or pending-G1 Definitions; (7) Agent-proposed — exploratory topics from research findings or proof gaps. Queue rebuilt at start of each round from current proof state; first non-empty slot wins. FIFO within slot. Single-topic-per-round enforced (cluster-D feedback memory); multi-topic rounds prohibited. Auto-trigger (not slot): closing-readiness audit fires when closure_permitted flips true and no slot has fired this round.",
+      "source": null,
+      "grounding": [
+        "RULE-2",
+        "RULE-3",
+        "RULE-14"
+      ],
+      "collapse_test": "If selection is non-deterministic (agent picks by feel) the designer cannot predict next venue and proof drifts. If priority inverts (agent-proposed ahead of ratification) closure gates starve and lock fails. If multi-topic rounds slip the cluster-D single-topic discipline collapses and decision venues blur. If queue is static (built once at Phase 4 start, never rebuilt) new Concerns or revisions raised mid-cycle never enter selection. If slot 1 (designer-signal absorption) is buried below completion-work slots, designer pushback gets parked while agent walks off to other proof work and conversation thread desyncs. If element-type-driven instead of action-type-driven, agent reads slot and asks 'which element' instead of 'what action shape' — turn voice and render packet shape lose alignment.",
+      "reasoning_chain": "IF rounds must converge proof toward closure (RULE-2) AND PM-as-decider says agent owns selection labor (RULE-3) AND single-topic discipline is a load-bearing feedback rule (cluster-D memory) AND proof contracts are binding (RULE-14), THEN round-cycle topic selection must be (a) deterministic from a priority queue rebuilt each round, (b) ordered by distance-to-closure within completion work (lock before build before fix before hazard before housekeep), (c) ordered by recency at queue head (designer signal absorbs first), (d) single-topic per round, (e) action-type split per slot for clear separation of concerns at round start.",
+      "rejected_alternatives": [
+        "Single-slot 'do whatever moves proof forward' queue — non-deterministic, designer cannot predict next venue.",
+        "Designer picks every round's topic — inverts PM-as-decider; loads designer with selection labor agent should carry.",
+        "Random / round-robin selection — ignores closure-gating priority; Concerns and ungrounded NCs starve behind exploratory topics.",
+        "Multi-topic rounds when topics are 'small' — collapses single-topic discipline; sized-judgment is the slippery slope cluster-D explicitly closed.",
+        "Static queue (built once, never rebuilt) — stale; new Concerns or revisions mid-cycle never enter selection.",
+        "Element-type-driven slots (Concern slot, NC slot, RC slot, Risk slot, Friction slot, Definition slot) — element-types co-fire across actions; agent at round start asks wrong question (which element vs. what action). Action-type split aligns slot name with turn voice and render packet shape.",
+        "3-slot collapsed version (designer signal / proof-state completion / agent-proposed) — single completion slot bundles 8 sub-classes; agent reads heavy priority list at round start; no clear separation between lock work, build work, fix work, hazard work, housekeep work.",
+        "Closing-readiness audit as queue slot rather than auto-trigger — slot would require 'is it time yet?' guess; auto-trigger driven by closure_permitted flag is state-machine-deterministic and removes guesswork."
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 10,
+      "revisedInRound": null,
+      "revision": 0,
+      "ratificationStatus": "draft"
+    },
+    "NCON-15": {
+      "id": "NCON-15",
+      "type": "NECESSARY_CONDITION",
+      "statement": "Necessary Conditions are authored by the agent in a draft-then-review cycle. Each NC carries five required fields: statement (the must-be-true claim), grounding (pointers to active Evidence/Rule elements), reasoning chain (IF...THEN... structure connecting grounding to statement), collapse test (what breaks if NC removed from proof), rejected alternatives (design-space candidates considered and discarded with reasons). Agent drafts the full NC before designer review per PM-as-decider; designer-facing turn prints the full text of all five fields (not just ID + summary). Designer responds with accept, push back, or revise; revisions cycle until accept. Rejected alternatives field accumulates each refinement pass as paper trail — prior drafts that lost to the landed shape stay recorded with reasons, not deleted. Multi-NC authoring per round prohibited unless Concern coverage requires NC+RC pair (slot 3 sub-state).",
+      "source": null,
+      "grounding": [
+        "RULE-2",
+        "RULE-3",
+        "RULE-14"
+      ],
+      "collapse_test": "If NCs lack any required field, schema floor fails and proof MCP rejects. If agent skips draft and asks designer to author the statement, PM-as-decider asymmetry inverts and designer carries labor agent should carry. If designer-facing turn prints ID + summary instead of full text, ratification fails — designer cannot lock what they cannot read in full. If rejected alternatives field is empty or only carries the landed shape, future skill maintainer reads NC and sees no design-space exploration — claim looks dropped from sky rather than landed via reasoning. If multi-NC authoring per round becomes routine, single-topic discipline collapses and designer attention fragments across parallel build threads.",
+      "reasoning_chain": "IF Shared Understanding requires evidence-grounded claims (RULE-2) AND PM-as-decider says agent owns authoring labor (RULE-3) AND proof contracts are binding (RULE-14), THEN NC authoring must (a) carry the five-field schema floor for structural validation, (b) be drafted before designer sees it (PM-as-decider asymmetry), (c) present full text to designer for review (ratification-readability), (d) preserve design-space paper trail in rejected alternatives (future-maintainer reads exploration not just answer), (e) iterate via accept/push-back/revise until designer locks.",
+      "rejected_alternatives": [
+        "Designer authors NC, agent records — inverts PM-as-decider; designer carries authoring labor; agent's research/curation context unused.",
+        "Agent drafts NC with statement + grounding only, omits reasoning chain and collapse test — schema floor too thin; downstream maintainer cannot reconstruct why claim holds.",
+        "Designer-facing turn prints ID + one-line summary — ratification-readability fails; designer recalls element from memory or looks up in proof state instead of reading full text in the turn.",
+        "Rejected alternatives field reset on each revision (only landed shape recorded) — paper trail lost; future maintainer reads NC and sees no exploration.",
+        "Multi-NC authoring per round as default — collapses single-topic discipline. Exception: NC+RC pair within slot 3 Concern coverage is one decision venue (one Concern), not two topics."
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 11,
+      "revisedInRound": null,
+      "revision": 0,
+      "ratificationStatus": "draft"
+    },
+    "NCON-16": {
+      "id": "NCON-16",
+      "type": "NECESSARY_CONDITION",
+      "statement": "When slot 2 of the round-cycle queue fires (Ratification), the agent presents an explicit choice with full information packet to the designer before requesting lock. Information packet contains: (a) the element under ratification (Concern, NC, or RC) printed in full text — all five fields for an NC, label + description for a Concern, statement + problem-anchor for an RC; (b) every element grounding it or anchored to it, also in full text where practical; (c) the closure gate the ratification advances toward; (d) the explicit choice — accept (ratify), push back with reason (revise then re-present), or defer (return to queue for later round). No ratification call (manage_concerns op:ratify, ratify_resolve_condition) fires until designer responds with explicit accept. Implicit consent prohibited; silence does not ratify.",
+      "source": null,
+      "grounding": [
+        "RULE-2",
+        "RULE-3",
+        "RULE-14"
+      ],
+      "collapse_test": "If agent calls ratify without presenting full element, designer locks blind — error in NC grounding goes uncaught and survives to closing argument. If only the element under review is shown without grounding context, designer cannot verify lock holds against rest of proof. If the choice is implicit ('ready to ratify?'), designer either silently accepts or has to reconstruct push-back path themselves — friction biases toward silent accept and proof quality drifts. If implicit consent permitted, ratifications fire on ambiguous designer responses ('ok', 'next') and lock work the designer didn't actually approve.",
+      "reasoning_chain": "IF Shared Understanding requires the designer can see what they are locking (RULE-2) AND PM-as-decider says agent owns presentation labor (RULE-3) AND proof contracts are binding such that ratify cannot be undone outside reopen_proof (RULE-14), THEN the ratification turn must (a) present full element text not ID + summary, (b) carry surrounding context (grounding, anchored elements) so designer can verify the lock holds, (c) name the closure gate the ratification advances, (d) present the choice explicitly with all three options including push-back path, (e) require explicit accept before mutating.",
+      "rejected_alternatives": [
+        "Agent presents element under review only, no grounding context — designer cannot verify lock holds against rest of proof.",
+        "ID + one-line summary, designer looks up full text in proof state — ratification-readability fails (memory rule from 2026-05-07).",
+        "Implicit consent ('ready to ratify? ok proceeding') — silent accepts and ambiguous responses lock work designer didn't approve.",
+        "Agent batches multiple ratifications in one turn — collapses single-topic discipline; designer attention fragments across parallel locks.",
+        "Designer drives ratification cadence (no agent-presented choice) — inverts PM-as-decider for the presentation turn."
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 12,
+      "revisedInRound": null,
+      "revision": 0,
+      "ratificationStatus": "draft"
+    },
+    "RULE-16": {
+      "id": "RULE-16",
+      "type": "RULE",
+      "statement": "Designer-consent gate on every state-mutating proof operation. Five binding hooks: (1) Source MUST be `designer`; the `agent-proposed-designer-confirmed` path is closed for proof-mutating tools. (2) Rationale REQUIRED and MUST contain a verbatim quote of the designer's accept text from the most recent designer message; no paraphrase. (3) ONE operation per state-mutating tool call; submit_proof_update operations array length = 1; multi-op batches prohibited. (4) Designer accept MUST appear in the designer's most recent message AND MUST name the target (element ID, op verb, or echo of the agent's presented choice per NCON-16). (5) Implicit consent prohibited; 'ok', 'proceed', silence, or unnamed 'yes' do not advance. Residual: agent-honesty trust boundary on Hook 1 is irreducible inside the proof MCP; out-of-band verification (transcript audit, plugin hook layer) is the only structural fix. NCON-4 carries the underlying must-be-true claim; this Rule names the constraint authority designer issues.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 13,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RULE-17": {
+      "id": "RULE-17",
+      "type": "RULE",
+      "statement": "Single-topic discipline on every round. A round = one designer-facing turn ending in zero or one state-mutating tool call. A topic = one decision venue per NCON-14 slot semantics with one element under construction, revision, ratification, or withdrawal. Multi-topic rounds prohibited; surplus topics queue for subsequent rounds in priority order. Three binding hooks: (1) ONE decision venue per round; agent does not bundle multiple choices into a single turn. (2) Multi-ratify per round prohibited; each ratification (Concern, RC) is its own round. (3) Narrow exception: a slot 3 Concern-coverage round may produce one NC + one RC bound to the same Concern as a single decision venue (one topic, two element instantiations); this is the only multi-element round shape permitted. No other expansion. Designer-issued; intent-capture discipline depends on each round having exactly one resolvable focus.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 14,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RCON-1": {
+      "id": "RCON-1",
+      "type": "RESOLVE_CONDITION",
+      "statement": "The designer reaches two-yes closure on a closing argument by reading every active element in full text, understanding its grounding chain and collapse test, mutating the proof through designer-issued constraints and consent-token-authorized ratifications, and signing off on the closing argument that envelopes the proof state.",
+      "source": null,
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": "CERN-1",
+      "ratification": {
+        "ratifiedAtRound": 15,
+        "text": "RCON-1 accepted"
+      },
+      "status": "active",
+      "addedInRound": 15,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "PERM-1": {
+      "id": "PERM-1",
+      "type": "PERMISSION",
+      "statement": "Permission relieving RULE-17 hook 2 (multi-ratify per round prohibited) for the narrow case of bundling ratify_resolve_condition + manage_concerns op:ratify in the same round when the RC's problem_anchor equals the target Concern's id (strict 1:1 relationship). Only this pair shape permitted; no other multi-ratify combinations. Applies at RC review when the anchored Concern remains in draft. If the Concern was already ratified up-front via early-presentation path, the bundle Permission does not apply and a single RC ratify call stands alone.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": "RULE-17 hook 2 (multi-ratify per round prohibited) for the narrow 1:1 RC+Concern bundle case at RC review when Concern is still in draft",
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 16,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "NCON-17": {
+      "id": "NCON-17",
+      "type": "NECESSARY_CONDITION",
+      "statement": "When Concerns are seeded at Phase 2 (open_proof) or surfaced mid-cycle via slot 7 agent-proposed topics, the agent presents each Concern in full text (label + description) and explicitly requests designer ratify per NCON-16 turn shape. Designer accept on a Concern at presentation = ratified Concern (manage_concerns op:ratify fires same round under RULE-16 strict consent). Concerns presented but not explicitly accepted in the same round remain in draft. Concerns left in draft at RC review fall under PERM-1 bundling — RC ratify + Concern ratify in same round permitted for 1:1 case. Concerns ratified up-front under this NC do not bundle at RC review; their RC ratify stands alone.",
+      "source": null,
+      "grounding": [
+        "RULE-2",
+        "RULE-3",
+        "RULE-16",
+        "NCON-16"
+      ],
+      "collapse_test": "Without this NC, designer faces two failure modes — (1) Concerns added at Phase 2 stay in draft indefinitely with no agent prompt for ratification, requiring designer to volunteer ratify out of context (PM-as-decider inverts: agent should prompt the locking moment); (2) RC ratify becomes the de facto Concern lock per the empirical CERN-1 pattern, collapsing Concern lifecycle into RC lifecycle and erasing the up-front-locks-direction discipline designer originally intended.",
+      "reasoning_chain": "IF Shared Understanding requires designer-locked Concerns to ground proof work (RULE-2) AND PM-as-decider says designer authoritatively names the targets the proof addresses (RULE-3) AND ratification turn shape requires explicit accept on lockable elements (NCON-16) AND consent must be explicit per RULE-16 hooks, THEN Concerns presented at Phase 2 or via slot 7 must (a) be presented in full text per NCON-16, (b) include explicit ratify request, (c) ratify on accept in the same round, (d) remain in draft if not accepted. PERM-1 covers the late-bundle path for Concerns that reach RC review still in draft.",
+      "rejected_alternatives": [
+        "Concerns auto-ratify on add — inverts PM-as-decider; agent silently locks designer's authority moment.",
+        "Concerns require ratify-on-add for the proof to accept the add — too rigid; sometimes designer adds a Concern intentionally as draft for later refinement.",
+        "Concerns never ratify up-front; only bundle at RC review — collapses the early-direction-setting designer wanted; Phase 2 Concerns drive Phase 3+ research and round selection, value of locking them up-front is real.",
+        "This discipline as a Rule rather than NC — Rule-class is for designer-issued constraints; this is a structural condition on agent turn shape, NC-class fits."
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 17,
+      "revisedInRound": null,
+      "revision": 0,
+      "ratificationStatus": "draft"
+    }
+  },
+  "elementCounters": {
+    "EVIDENCE": 6,
+    "RULE": 17,
+    "PERMISSION": 1,
+    "NECESSARY_CONDITION": 17,
+    "RISK": 0,
+    "RESOLVE_CONDITION": 1,
+    "FRICTION": 0
+  },
+  "conditionCountHistory": [
+    0,
+    8,
+    9,
+    9,
+    10,
+    11,
+    12,
+    13,
+    13,
+    14,
+    15,
+    16,
+    16,
+    16,
+    16,
+    16,
+    17
+  ],
+  "elementCountHistory": [
+    19,
+    27,
+    28,
+    30,
+    31,
+    32,
+    33,
+    34,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42
+  ],
+  "challengeModesUsed": [
+    "simplifier",
+    "contrarian"
+  ],
+  "challengeLog": [
+    "simplifier",
+    "contrarian"
+  ],
+  "revisionLog": [
+    {
+      "target": "NCON-3",
+      "round": 4,
+      "revision": 1
+    },
+    {
+      "target": "NCON-5",
+      "round": 4,
+      "revision": 1
+    },
+    {
+      "target": "NCON-6",
+      "round": 4,
+      "revision": 1
+    },
+    {
+      "target": "NCON-13",
+      "round": 9,
+      "revision": 1
+    }
+  ],
+  "phaseTransitionRound": 0,
+  "concerns": [
+    {
+      "id": "CERN-1",
+      "label": "C-2",
+      "description": "Designer consumption of proof state — the designer can read, understand, and update proof state, culminating with the ratification of the closing argument, production of the design brief, and handover to design-specify. Inherited from cluster-D foundation v1; rephrased per polished sprint-d-2 problem statement.",
+      "status": "draft"
+    },
+    {
+      "id": "CERN-2",
+      "label": "D2-C-1",
+      "description": "Decision venue construction — concern that the Presentation layer must construct properly framed decision venues (agent supplies research and framing, designer supplies the decision) rather than soliciting designer input that requires technical context the designer doesn't have.",
+      "status": "draft"
+    },
+    {
+      "id": "CERN-3",
+      "label": "D2-C-2",
+      "description": "Information packet shape correctness — concern that the information packet as defined and rendered each round actually delivers the six-component shape (insight + intro + facts + agent commentary + pessimist commentary + decision) consistently, with each component carrying the substance the designer needs to read against expectation.",
+      "status": "draft"
+    },
+    {
+      "id": "CERN-4",
+      "label": "D2-C-3",
+      "description": "Single-topic discipline enforcement — concern that the single-topic-per-round rule actually holds in practice across the round cycle, with mechanisms to detect and prevent multi-topic packet drift, surplus-topic queueing, and ambiguous designer ratification.",
+      "status": "draft"
+    },
+    {
+      "id": "CERN-5",
+      "label": "D2-C-4",
+      "description": "Voice/Style plugin implementation — concern that the Voice and Style system is implemented as an effective plugin: session V/S designer-selectable and mid-session mutable, render V/S fixed at briefing voice, with the selection and switching mechanics structurally enforced rather than left to agent discretion.",
+      "status": "draft"
+    },
+    {
+      "id": "CERN-6",
+      "label": "D2-C-5",
+      "description": "Interview phase structure and flow — concern that the six-phase architecture (Initialize, Open Proof, Research Summary, Round Cycle, Closing Argument, Closure) carries clear structure, well-defined transitions, and an orchestration that the designer can navigate without confusion about which phase is active or what the next move is.",
+      "status": "draft"
+    },
+    {
+      "id": "CERN-7",
+      "label": "D2-C-6",
+      "description": "Agent classification of information into proof elements — concern that the agent properly classifies information into the correct proof element types (Evidence vs Rule vs NC vs Concern vs Definition vs Risk vs RC vs Permission vs Friction), avoiding category confusion (e.g., misclassifying NCs as Rules or principles as Evidence) that would distort the proof's structural meaning.",
+      "status": "draft"
+    },
+    {
+      "id": "CERN-8",
+      "label": "D2-C-7",
+      "description": "Topic and initial concern review — concern that the topic and the initial concerns are reviewed properly before the proof is opened, with the designer having the chance to revise, add, or remove before structural lock; pre-open seeding does not become a back-door way for the agent to fix the proof shape.",
+      "status": "draft"
+    },
+    {
+      "id": "CERN-9",
+      "label": "D2-C-8",
+      "description": "Research agent dispatch — concern that the research agents (codebase explorer, prior-art explorer, industry explorer) are dispatched effectively: the right agents for the topic, with prompts that frame what they're looking for in service of decision-venue construction, and with their findings curated rather than dumped wholesale into the conversation.",
+      "status": "draft"
+    },
+    {
+      "id": "CERN-10",
+      "label": "D2-C-9",
+      "description": "Round-cycle topic selection — concern that the agent selects round-cycle topics that genuinely advance the proof toward closure, rather than topics that are easy to discuss, lowest-resistance, or that serve agent narrative; selection is grounded in proof-state gaps, designer priority, and decision-venue readiness.",
+      "status": "draft"
+    },
+    {
+      "id": "CERN-11",
+      "label": "D2-C-10",
+      "description": "Closing argument request and initiation — concern that the closing argument is requested and initiated at the right moment, by the right party, against the right readiness signals; not premature (agent rushes to closure when proof isn't ready) and not delayed (agent keeps spinning when proof is ready).",
+      "status": "draft"
+    },
+    {
+      "id": "CERN-12",
+      "label": "D2-C-11",
+      "description": "Necessary condition development — concern that NCs are developed properly: each grounded in real Evidence and Rules, each with a meaningful collapse test, each with rejected alternatives where relevant, and each authored at the right altitude (architectural, not implementation) so the proof actually carries structural weight at design altitude.",
+      "status": "draft"
+    }
+  ],
+  "concernsLocked": true,
+  "concernCounter": 12,
+  "ratificationLog": [
+    {
+      "event": "ratified",
+      "target": "RCON-1",
+      "round": 15,
+      "ratificationText": "RCON-1 accepted"
+    }
+  ],
+  "frictionLog": [],
+  "closingArgPresentedRound": null,
+  "closingArgGoRound": null,
+  "proofStatus": "open",
+  "schemaVersion": 1,
+  "lastClosureArtifact": null,
+  "operationLog": [
+    {
+      "round": 10,
+      "op": "add",
+      "entityId": "NCON-14",
+      "type": "NECESSARY_CONDITION",
+      "consent": {
+        "source": "agent-proposed-designer-confirmed",
+        "rationale": "D2-C-9 round-cycle topic selection. 7-slot queue ratified by designer through 4-pass refinement: original 4-slot draft -> red team to 8 slots -> collapse to 4 -> macro reframe to 3 -> action-type split to 7. Distance-to-closure ordering inside completion work; recency at queue head; single-topic discipline preserved."
+      },
+      "changedFields": null,
+      "provenance": {
+        "initialPayload": {
+          "op": "add",
+          "type": "NECESSARY_CONDITION",
+          "statement": "Inside Phase 4 (Round Cycle), each round selects exactly one topic from a live priority queue with seven slots plus an auto-trigger. Queue priority order (high to low): (1) Designer-signal absorption — pushback, revision requests, or newly-issued Rules/Permissions from prior turn; (2) Ratification — Concerns or RCs in lock-ready state awaiting designer lock; (3) Coverage authoring — active Concerns lacking NC+RC pair or RC anchor; (4) NC grounding integrity — under-grounded, ungrounded, or withdrawn-grounded NCs; (5) Hazard processing — active Risks lacking basis or Friction lacking disposition; (6) Vocabulary housekeeping — unclassified or pending-G1 Definitions; (7) Agent-proposed — exploratory topics from research findings or proof gaps. Queue rebuilt at start of each round from current proof state; first non-empty slot wins. FIFO within slot. Single-topic-per-round enforced (cluster-D feedback memory); multi-topic rounds prohibited. Auto-trigger (not slot): closing-readiness audit fires when closure_permitted flips true and no slot has fired this round.",
+          "grounding": [
+            "RULE-2",
+            "RULE-3",
+            "RULE-14"
+          ],
+          "reasoning_chain": "IF rounds must converge proof toward closure (RULE-2) AND PM-as-decider says agent owns selection labor (RULE-3) AND single-topic discipline is a load-bearing feedback rule (cluster-D memory) AND proof contracts are binding (RULE-14), THEN round-cycle topic selection must be (a) deterministic from a priority queue rebuilt each round, (b) ordered by distance-to-closure within completion work (lock before build before fix before hazard before housekeep), (c) ordered by recency at queue head (designer signal absorbs first), (d) single-topic per round, (e) action-type split per slot for clear separation of concerns at round start.",
+          "collapse_test": "If selection is non-deterministic (agent picks by feel) the designer cannot predict next venue and proof drifts. If priority inverts (agent-proposed ahead of ratification) closure gates starve and lock fails. If multi-topic rounds slip the cluster-D single-topic discipline collapses and decision venues blur. If queue is static (built once at Phase 4 start, never rebuilt) new Concerns or revisions raised mid-cycle never enter selection. If slot 1 (designer-signal absorption) is buried below completion-work slots, designer pushback gets parked while agent walks off to other proof work and conversation thread desyncs. If element-type-driven instead of action-type-driven, agent reads slot and asks 'which element' instead of 'what action shape' — turn voice and render packet shape lose alignment.",
+          "rejected_alternatives": [
+            "Single-slot 'do whatever moves proof forward' queue — non-deterministic, designer cannot predict next venue.",
+            "Designer picks every round's topic — inverts PM-as-decider; loads designer with selection labor agent should carry.",
+            "Random / round-robin selection — ignores closure-gating priority; Concerns and ungrounded NCs starve behind exploratory topics.",
+            "Multi-topic rounds when topics are 'small' — collapses single-topic discipline; sized-judgment is the slippery slope cluster-D explicitly closed.",
+            "Static queue (built once, never rebuilt) — stale; new Concerns or revisions mid-cycle never enter selection.",
+            "Element-type-driven slots (Concern slot, NC slot, RC slot, Risk slot, Friction slot, Definition slot) — element-types co-fire across actions; agent at round start asks wrong question (which element vs. what action). Action-type split aligns slot name with turn voice and render packet shape.",
+            "3-slot collapsed version (designer signal / proof-state completion / agent-proposed) — single completion slot bundles 8 sub-classes; agent reads heavy priority list at round start; no clear separation between lock work, build work, fix work, hazard work, housekeep work.",
+            "Closing-readiness audit as queue slot rather than auto-trigger — slot would require 'is it time yet?' guess; auto-trigger driven by closure_permitted flag is state-machine-deterministic and removes guesswork."
+          ]
+        }
+      }
+    },
+    {
+      "round": 11,
+      "op": "add",
+      "entityId": "NCON-15",
+      "type": "NECESSARY_CONDITION",
+      "consent": {
+        "source": "designer",
+        "rationale": "D2-C-11 NC development. Designer revised statement before add: trimmed memory-rule qualifier, kept full-text print discipline as parenthetical."
+      },
+      "changedFields": null,
+      "provenance": {
+        "initialPayload": {
+          "op": "add",
+          "type": "NECESSARY_CONDITION",
+          "statement": "Necessary Conditions are authored by the agent in a draft-then-review cycle. Each NC carries five required fields: statement (the must-be-true claim), grounding (pointers to active Evidence/Rule elements), reasoning chain (IF...THEN... structure connecting grounding to statement), collapse test (what breaks if NC removed from proof), rejected alternatives (design-space candidates considered and discarded with reasons). Agent drafts the full NC before designer review per PM-as-decider; designer-facing turn prints the full text of all five fields (not just ID + summary). Designer responds with accept, push back, or revise; revisions cycle until accept. Rejected alternatives field accumulates each refinement pass as paper trail — prior drafts that lost to the landed shape stay recorded with reasons, not deleted. Multi-NC authoring per round prohibited unless Concern coverage requires NC+RC pair (slot 3 sub-state).",
+          "grounding": [
+            "RULE-2",
+            "RULE-3",
+            "RULE-14"
+          ],
+          "reasoning_chain": "IF Shared Understanding requires evidence-grounded claims (RULE-2) AND PM-as-decider says agent owns authoring labor (RULE-3) AND proof contracts are binding (RULE-14), THEN NC authoring must (a) carry the five-field schema floor for structural validation, (b) be drafted before designer sees it (PM-as-decider asymmetry), (c) present full text to designer for review (ratification-readability), (d) preserve design-space paper trail in rejected alternatives (future-maintainer reads exploration not just answer), (e) iterate via accept/push-back/revise until designer locks.",
+          "collapse_test": "If NCs lack any required field, schema floor fails and proof MCP rejects. If agent skips draft and asks designer to author the statement, PM-as-decider asymmetry inverts and designer carries labor agent should carry. If designer-facing turn prints ID + summary instead of full text, ratification fails — designer cannot lock what they cannot read in full. If rejected alternatives field is empty or only carries the landed shape, future skill maintainer reads NC and sees no design-space exploration — claim looks dropped from sky rather than landed via reasoning. If multi-NC authoring per round becomes routine, single-topic discipline collapses and designer attention fragments across parallel build threads.",
+          "rejected_alternatives": [
+            "Designer authors NC, agent records — inverts PM-as-decider; designer carries authoring labor; agent's research/curation context unused.",
+            "Agent drafts NC with statement + grounding only, omits reasoning chain and collapse test — schema floor too thin; downstream maintainer cannot reconstruct why claim holds.",
+            "Designer-facing turn prints ID + one-line summary — ratification-readability fails; designer recalls element from memory or looks up in proof state instead of reading full text in the turn.",
+            "Rejected alternatives field reset on each revision (only landed shape recorded) — paper trail lost; future maintainer reads NC and sees no exploration.",
+            "Multi-NC authoring per round as default — collapses single-topic discipline. Exception: NC+RC pair within slot 3 Concern coverage is one decision venue (one Concern), not two topics."
+          ]
+        }
+      }
+    },
+    {
+      "round": 11,
+      "op": "lock",
+      "entityId": null,
+      "type": null,
+      "consent": {
+        "source": "designer",
+        "rationale": "All 11 D.2 Concerns + CERN-1 covered by NCs (NCON-3 through NCON-15). Designer ordered lock. Build-side proof complete; advancing to ratification per 7-slot queue slot 2."
+      },
+      "changedFields": [
+        "concernsLocked"
+      ],
+      "provenance": {
+        "concernCount": 12
+      }
+    },
+    {
+      "round": 12,
+      "op": "add",
+      "entityId": "NCON-16",
+      "type": "NECESSARY_CONDITION",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer raised concern that agent does not explicitly present choice and information for ratification. NCON-15 covers NC authoring; ratification turn shape uncovered. NCON-16 lifts memory rule (2026-05-07 full-text print) into proof structure with explicit choice + grounding context + closure-gate naming + accept/pushback/defer choice."
+      },
+      "changedFields": null,
+      "provenance": {
+        "initialPayload": {
+          "op": "add",
+          "type": "NECESSARY_CONDITION",
+          "statement": "When slot 2 of the round-cycle queue fires (Ratification), the agent presents an explicit choice with full information packet to the designer before requesting lock. Information packet contains: (a) the element under ratification (Concern, NC, or RC) printed in full text — all five fields for an NC, label + description for a Concern, statement + problem-anchor for an RC; (b) every element grounding it or anchored to it, also in full text where practical; (c) the closure gate the ratification advances toward; (d) the explicit choice — accept (ratify), push back with reason (revise then re-present), or defer (return to queue for later round). No ratification call (manage_concerns op:ratify, ratify_resolve_condition) fires until designer responds with explicit accept. Implicit consent prohibited; silence does not ratify.",
+          "grounding": [
+            "RULE-2",
+            "RULE-3",
+            "RULE-14"
+          ],
+          "reasoning_chain": "IF Shared Understanding requires the designer can see what they are locking (RULE-2) AND PM-as-decider says agent owns presentation labor (RULE-3) AND proof contracts are binding such that ratify cannot be undone outside reopen_proof (RULE-14), THEN the ratification turn must (a) present full element text not ID + summary, (b) carry surrounding context (grounding, anchored elements) so designer can verify the lock holds, (c) name the closure gate the ratification advances, (d) present the choice explicitly with all three options including push-back path, (e) require explicit accept before mutating.",
+          "collapse_test": "If agent calls ratify without presenting full element, designer locks blind — error in NC grounding goes uncaught and survives to closing argument. If only the element under review is shown without grounding context, designer cannot verify lock holds against rest of proof. If the choice is implicit ('ready to ratify?'), designer either silently accepts or has to reconstruct push-back path themselves — friction biases toward silent accept and proof quality drifts. If implicit consent permitted, ratifications fire on ambiguous designer responses ('ok', 'next') and lock work the designer didn't actually approve.",
+          "rejected_alternatives": [
+            "Agent presents element under review only, no grounding context — designer cannot verify lock holds against rest of proof.",
+            "ID + one-line summary, designer looks up full text in proof state — ratification-readability fails (memory rule from 2026-05-07).",
+            "Implicit consent ('ready to ratify? ok proceeding') — silent accepts and ambiguous responses lock work designer didn't approve.",
+            "Agent batches multiple ratifications in one turn — collapses single-topic discipline; designer attention fragments across parallel locks.",
+            "Designer drives ratification cadence (no agent-presented choice) — inverts PM-as-decider for the presentation turn."
+          ]
+        }
+      }
+    },
+    {
+      "round": 13,
+      "op": "add",
+      "entityId": "RULE-16",
+      "type": "RULE",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer accept: 'a'. Choice (a) selected from prior turn's three-option NCON-16 packet: (a) accept and fire add op, (b) push back with revisions, (c) defer. Operation: add RULE element with consent-gate text and five tightened hooks; conceptually replaces withdrawn RULE-8."
+      },
+      "changedFields": null,
+      "provenance": {
+        "initialPayload": {
+          "op": "add",
+          "type": "RULE",
+          "source": "designer",
+          "statement": "Designer-consent gate on every state-mutating proof operation. Five binding hooks: (1) Source MUST be `designer`; the `agent-proposed-designer-confirmed` path is closed for proof-mutating tools. (2) Rationale REQUIRED and MUST contain a verbatim quote of the designer's accept text from the most recent designer message; no paraphrase. (3) ONE operation per state-mutating tool call; submit_proof_update operations array length = 1; multi-op batches prohibited. (4) Designer accept MUST appear in the designer's most recent message AND MUST name the target (element ID, op verb, or echo of the agent's presented choice per NCON-16). (5) Implicit consent prohibited; 'ok', 'proceed', silence, or unnamed 'yes' do not advance. Residual: agent-honesty trust boundary on Hook 1 is irreducible inside the proof MCP; out-of-band verification (transcript audit, plugin hook layer) is the only structural fix. NCON-4 carries the underlying must-be-true claim; this Rule names the constraint authority designer issues."
+        }
+      }
+    },
+    {
+      "round": 14,
+      "op": "add",
+      "entityId": "RULE-17",
+      "type": "RULE",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer accept: 'a'. Choice (a) selected from prior turn's three-option NCON-16 packet: (a) accept and fire add op, (b) push back with revisions, (c) defer. Operation: add RULE element with single-topic discipline and three hooks; conceptually replaces withdrawn RULE-5; pairs with NCON-2."
+      },
+      "changedFields": null,
+      "provenance": {
+        "initialPayload": {
+          "op": "add",
+          "type": "RULE",
+          "source": "designer",
+          "statement": "Single-topic discipline on every round. A round = one designer-facing turn ending in zero or one state-mutating tool call. A topic = one decision venue per NCON-14 slot semantics with one element under construction, revision, ratification, or withdrawal. Multi-topic rounds prohibited; surplus topics queue for subsequent rounds in priority order. Three binding hooks: (1) ONE decision venue per round; agent does not bundle multiple choices into a single turn. (2) Multi-ratify per round prohibited; each ratification (Concern, RC) is its own round. (3) Narrow exception: a slot 3 Concern-coverage round may produce one NC + one RC bound to the same Concern as a single decision venue (one topic, two element instantiations); this is the only multi-element round shape permitted. No other expansion. Designer-issued; intent-capture discipline depends on each round having exactly one resolvable focus."
+        }
+      }
+    },
+    {
+      "round": 15,
+      "op": "add",
+      "entityId": "RCON-1",
+      "type": "RESOLVE_CONDITION",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer accept: 'a'. Choice (a) selected from prior turn's three-option NCON-16 packet for CERN-1 RC authoring: (a) accept and fire add op, (b) push back, (c) defer. Operation: add RESOLVE_CONDITION anchored to CERN-1 (Designer consumption of proof state)."
+      },
+      "changedFields": null,
+      "provenance": {
+        "initialPayload": {
+          "op": "add",
+          "type": "RESOLVE_CONDITION",
+          "problem_anchor": "CERN-1",
+          "statement": "The designer reaches two-yes closure on a closing argument by reading every active element in full text, understanding its grounding chain and collapse test, mutating the proof through designer-issued constraints and consent-token-authorized ratifications, and signing off on the closing argument that envelopes the proof state."
+        }
+      }
+    },
+    {
+      "round": 15,
+      "op": "ratify",
+      "entityId": "RCON-1",
+      "type": "RESOLVE_CONDITION",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer accept: 'RCON-1 accepted'. Operation: ratify_resolve_condition for RCON-1 anchored to CERN-1 (Designer consumption of proof state). Closes 'Unratified Resolve Conditions exist' warning for RCON-1."
+      },
+      "changedFields": [
+        "ratification"
+      ],
+      "provenance": {
+        "ratificationText": "RCON-1 accepted"
+      }
+    },
+    {
+      "round": 16,
+      "op": "add",
+      "entityId": "PERM-1",
+      "type": "PERMISSION",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer accept: 'Narrow permission as written is approved.' Operation: add PERMISSION element relieving RULE-17 hook 2 narrowly for 1:1 RC+Concern ratify bundle at RC review when Concern is still in draft. Path 1 (early Concern presentation/ratify pattern) deferred to next round per RULE-17 hook 1."
+      },
+      "changedFields": null,
+      "provenance": {
+        "initialPayload": {
+          "op": "add",
+          "type": "PERMISSION",
+          "source": "designer",
+          "statement": "Permission relieving RULE-17 hook 2 (multi-ratify per round prohibited) for the narrow case of bundling ratify_resolve_condition + manage_concerns op:ratify in the same round when the RC's problem_anchor equals the target Concern's id (strict 1:1 relationship). Only this pair shape permitted; no other multi-ratify combinations. Applies at RC review when the anchored Concern remains in draft. If the Concern was already ratified up-front via early-presentation path, the bundle Permission does not apply and a single RC ratify call stands alone.",
+          "relieves": "RULE-17 hook 2 (multi-ratify per round prohibited) for the narrow 1:1 RC+Concern bundle case at RC review when Concern is still in draft"
+        }
+      }
+    },
+    {
+      "round": 17,
+      "op": "add",
+      "entityId": "NCON-17",
+      "type": "NECESSARY_CONDITION",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer accept: 'a'. Choice (a) selected from prior turn's four-option NCON-16 packet for path 1 (early Concern presentation/ratify pattern): (a) accept and fire add NC op, (b) push back, (c) defer, (d) author as Rule instead. Operation: add NECESSARY_CONDITION encoding Phase 2 / slot 7 Concern presentation discipline with up-front ratify path; pairs with PERM-1 for the late-bundle path."
+      },
+      "changedFields": null,
+      "provenance": {
+        "initialPayload": {
+          "op": "add",
+          "type": "NECESSARY_CONDITION",
+          "statement": "When Concerns are seeded at Phase 2 (open_proof) or surfaced mid-cycle via slot 7 agent-proposed topics, the agent presents each Concern in full text (label + description) and explicitly requests designer ratify per NCON-16 turn shape. Designer accept on a Concern at presentation = ratified Concern (manage_concerns op:ratify fires same round under RULE-16 strict consent). Concerns presented but not explicitly accepted in the same round remain in draft. Concerns left in draft at RC review fall under PERM-1 bundling — RC ratify + Concern ratify in same round permitted for 1:1 case. Concerns ratified up-front under this NC do not bundle at RC review; their RC ratify stands alone.",
+          "grounding": [
+            "RULE-2",
+            "RULE-3",
+            "RULE-16",
+            "NCON-16"
+          ],
+          "reasoning_chain": "IF Shared Understanding requires designer-locked Concerns to ground proof work (RULE-2) AND PM-as-decider says designer authoritatively names the targets the proof addresses (RULE-3) AND ratification turn shape requires explicit accept on lockable elements (NCON-16) AND consent must be explicit per RULE-16 hooks, THEN Concerns presented at Phase 2 or via slot 7 must (a) be presented in full text per NCON-16, (b) include explicit ratify request, (c) ratify on accept in the same round, (d) remain in draft if not accepted. PERM-1 covers the late-bundle path for Concerns that reach RC review still in draft.",
+          "collapse_test": "Without this NC, designer faces two failure modes — (1) Concerns added at Phase 2 stay in draft indefinitely with no agent prompt for ratification, requiring designer to volunteer ratify out of context (PM-as-decider inverts: agent should prompt the locking moment); (2) RC ratify becomes the de facto Concern lock per the empirical CERN-1 pattern, collapsing Concern lifecycle into RC lifecycle and erasing the up-front-locks-direction discipline designer originally intended.",
+          "rejected_alternatives": [
+            "Concerns auto-ratify on add — inverts PM-as-decider; agent silently locks designer's authority moment.",
+            "Concerns require ratify-on-add for the proof to accept the add — too rigid; sometimes designer adds a Concern intentionally as draft for later refinement.",
+            "Concerns never ratify up-front; only bundle at RC review — collapses the early-direction-setting designer wanted; Phase 2 Concerns drive Phase 3+ research and round selection, value of locking them up-front is real.",
+            "This discipline as a Rule rather than NC — Rule-class is for designer-issued constraints; this is a structural condition on agent turn shape, NC-class fits."
+          ]
+        }
+      }
+    }
+  ],
+  "definitions": [],
+  "definitionCounter": 0,
+  "definitionLog": []
+}

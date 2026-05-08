@@ -6,13 +6,21 @@ import {
   initializeState,
   generateId,
   applyOperations,
-  markChallengeUsed,
   saveState,
   loadState,
   addConcern,
-  lockConcerns,
+  ratifyConcern,
   ratifyResolveCondition,
+  recordDesignerGo,
+  recordClosingArgPresented,
+  manageFriction,
+  overrideFrictionDisposition,
+  manageDefinitions,
+  withdrawElement,
+  withdrawConcern,
+  withdrawDefinition,
 } from '../state.js';
+import { createElement } from '../proof.js';
 
 describe('initializeState', () => {
   it('creates clean state with all required fields', () => {
@@ -24,10 +32,6 @@ describe('initializeState', () => {
     expect(state.elementCounters).toEqual({
       EVIDENCE: 0, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 0, RISK: 0, RESOLVE_CONDITION: 0, FRICTION: 0,
     });
-    expect(state.conditionCountHistory).toEqual([]);
-    expect(state.elementCountHistory).toEqual([]);
-    expect(state.challengeModesUsed).toEqual([]);
-    expect(state.challengeLog).toEqual([]);
     expect(state.revisionLog).toEqual([]);
     expect(state.phaseTransitionRound).toBe(0);
   });
@@ -45,10 +49,10 @@ describe('initializeState', () => {
     expect(id).toBe('RCON-1');
   });
 
-  it('initializes Concerns lifecycle fields', () => {
+  it('initializes Concerns lifecycle fields (no concernsLocked; AC-2.2)', () => {
     const state = initializeState('test');
     expect(state.concerns).toEqual([]);
-    expect(state.concernsLocked).toBe(false);
+    expect(state).not.toHaveProperty('concernsLocked');
     expect(state.concernCounter).toBe(0);
   });
 
@@ -62,7 +66,6 @@ describe('ratifyResolveCondition', () => {
   it('ratifies a single active RESOLVE_CONDITION', () => {
     let state = initializeState('test');
     [, state] = addConcern(state, { label: 'C1' }, { source: 'designer', rationale: 'test' });
-    [state] = lockConcerns(state, { source: 'designer', rationale: 'test' });
     const result = applyOperations(state, [
       { op: 'add', type: 'RESOLVE_CONDITION', statement: 'X', problem_anchor: 'CERN-1' },
     ], { source: 'designer', rationale: 'test' });
@@ -97,7 +100,6 @@ describe('ratifyResolveCondition', () => {
   it('rejects empty ratificationText', () => {
     let state = initializeState('test');
     [, state] = addConcern(state, { label: 'C1' }, { source: 'designer', rationale: 'test' });
-    [state] = lockConcerns(state, { source: 'designer', rationale: 'test' });
     const result = applyOperations(state, [
       { op: 'add', type: 'RESOLVE_CONDITION', statement: 'X', problem_anchor: 'CERN-1' },
     ], { source: 'designer', rationale: 'test' });
@@ -125,41 +127,15 @@ describe('addConcern', () => {
     expect(state2.concernCounter).toBe(2);
   });
 
-  it('refuses to add when concernsLocked is true', () => {
+  it('always succeeds when adding additional Concerns (lock retired AC-2.2)', () => {
     let state = initializeState('test');
     [, state] = addConcern(state, { label: 'A' }, { source: 'designer', rationale: 'test' });
-    [state] = lockConcerns(state, { source: 'designer', rationale: 'test' });
-    const [id, sameState, , err] = addConcern(state, { label: 'B' }, { source: 'designer', rationale: 'test' });
-    expect(id).toBeNull();
-    expect(err).toMatch(/locked/i);
-    expect(sameState.concerns).toHaveLength(1);
-    expect(sameState.concernCounter).toBe(1);
-  });
-});
-
-describe('lockConcerns', () => {
-  it('flips concernsLocked to true after at least one Concern', () => {
-    let state = initializeState('test');
-    [, state] = addConcern(state, { label: 'A' }, { source: 'designer', rationale: 'test' });
-    const [locked, , err] = lockConcerns(state, { source: 'designer', rationale: 'test' });
+    [state] = ratifyConcern(state, 'CERN-1', { source: 'designer', rationale: 'test' });
+    const [id, newState, , err] = addConcern(state, { label: 'B' }, { source: 'designer', rationale: 'test' });
     expect(err).toBeNull();
-    expect(locked.concernsLocked).toBe(true);
-  });
-
-  it('refuses to lock an empty Concerns list', () => {
-    const state = initializeState('test');
-    const [sameState, , err] = lockConcerns(state, { source: 'designer', rationale: 'test' });
-    expect(err).toMatch(/empty/i);
-    expect(sameState.concernsLocked).toBe(false);
-  });
-
-  it('refuses to lock an already-locked list', () => {
-    let state = initializeState('test');
-    [, state] = addConcern(state, { label: 'A' }, { source: 'designer', rationale: 'test' });
-    [state] = lockConcerns(state, { source: 'designer', rationale: 'test' });
-    const [sameState, , err] = lockConcerns(state, { source: 'designer', rationale: 'test' });
-    expect(err).toMatch(/already/i);
-    expect(sameState.concernsLocked).toBe(true);
+    expect(id).toBe('CERN-2');
+    expect(newState.concerns).toHaveLength(2);
+    expect(newState.concernCounter).toBe(2);
   });
 });
 
@@ -425,37 +401,15 @@ describe('applyOperations', () => {
       expect(Array.isArray(result.integrityWarnings)).toBe(true);
       expect(result.closure).toBeDefined();
       expect(typeof result.closure.permitted).toBe('boolean');
-      expect(result.challengeTrigger).toBeDefined();
-      expect(typeof result.stallDetected).toBe('boolean');
+      expect(result.bodyAdvancement).toBeDefined();
+      expect(typeof result.bodyAdvancement.advanced).toBe('boolean');
+      expect(typeof result.bodyAdvancement.addCount).toBe('number');
+      expect(typeof result.bodyAdvancement.reviseCount).toBe('number');
+      expect(typeof result.bodyAdvancement.withdrawCount).toBe('number');
+      expect(result).not.toHaveProperty('challengeTrigger');
+      expect(result).not.toHaveProperty('stallDetected');
     });
 
-    it('records conditionCountHistory', () => {
-      const r1 = applyOperations(state, [
-        { op: 'add', type: 'EVIDENCE', statement: 'fact', source: 'codebase' },
-      ], { source: 'designer', rationale: 'test' });
-      expect(r1.state.conditionCountHistory).toHaveLength(1);
-      expect(r1.state.conditionCountHistory[0]).toBe(0); // no NCs yet
-
-      const r2 = applyOperations(r1.state, [
-        {
-          op: 'add', type: 'NECESSARY_CONDITION',
-          statement: 'nc',
-          grounding: ['EVID-1'],
-          collapse_test: 'x',
-          reasoning_chain: 'y',
-        },
-      ], { source: 'designer', rationale: 'test' });
-      expect(r2.state.conditionCountHistory).toHaveLength(2);
-      expect(r2.state.conditionCountHistory[1]).toBe(1);
-    });
-
-    it('records elementCountHistory', () => {
-      const r1 = applyOperations(state, [
-        { op: 'add', type: 'EVIDENCE', statement: 'Fact', source: 'codebase' },
-      ], { source: 'designer', rationale: 'test' });
-      expect(r1.state.elementCountHistory).toHaveLength(1);
-      expect(r1.state.elementCountHistory[0]).toBe(1);
-    });
   });
 });
 
@@ -477,22 +431,6 @@ describe('applyOperations — RESOLVE_CONDITION add anchor validation', () => {
     ], { source: 'designer', rationale: 'test' });
     expect(result.errors.some(e => /CERN-99/.test(e) && /Concern/i.test(e))).toBe(true);
     expect(result.added).toEqual([]);
-  });
-});
-
-describe('markChallengeUsed', () => {
-  it('adds mode to challengeModesUsed and challengeLog', () => {
-    const state = initializeState('test');
-    const updated = markChallengeUsed(state, 'ontologist');
-    expect(updated.challengeModesUsed).toContain('ontologist');
-    expect(updated.challengeLog).toHaveLength(1);
-    expect(updated.challengeLog[0]).toBe('ontologist');
-  });
-
-  it('does not mutate original state', () => {
-    const state = initializeState('test');
-    markChallengeUsed(state, 'simplifier');
-    expect(state.challengeModesUsed).toHaveLength(0);
   });
 });
 
@@ -525,7 +463,6 @@ describe('saveState / loadState', () => {
     expect(loaded.elements.get('EVID-1').statement).toBe('Fact');
     expect(loaded.elementCounters.EVIDENCE).toBe(1);
     expect(loaded.elementCounters.RULE).toBe(1);
-    expect(loaded.conditionCountHistory).toEqual(r1.state.conditionCountHistory);
   });
 
   it('preserves generateId counters after load', () => {
@@ -555,7 +492,6 @@ describe('applyOperations — revise on RESOLVE_CONDITION clears ratification', 
     let state = initializeState('test');
     [, state] = addConcern(state, { label: 'C1' }, { source: 'designer', rationale: 'test' });
     [, state] = addConcern(state, { label: 'C2' }, { source: 'designer', rationale: 'test' });
-    [state] = lockConcerns(state, { source: 'designer', rationale: 'test' });
     const result = applyOperations(state, [
       { op: 'add', type: 'RESOLVE_CONDITION', statement: 'original', problem_anchor: 'CERN-1' },
     ], { source: 'designer', rationale: 'test' });
@@ -599,5 +535,186 @@ describe('applyOperations — revise on RESOLVE_CONDITION clears ratification', 
     const rc = result.state.elements.get('RCON-1');
     expect(rc.ratification).toEqual({ ratifiedAtRound: 1, text: 'PM approves' });
     expect(result.state.ratificationLog).toHaveLength(ratificationLogLength);
+  });
+});
+
+// Build a state ready for confirm_closure_go where every NC and RC is already
+// ratified, no draft Concerns/Definitions remain, presentation/go round
+// aligned with current round.
+function buildClosableState() {
+  const s = initializeState('p');
+  s.round = 5;
+  s.concerns = [{ id: 'CERN-1', label: 'C', description: null, status: 'ratified' }];
+  s.concernCounter = 1;
+  s.proofStatus = 'planning';
+  s.closingArgPresentedRound = 5;
+
+  const evid = createElement(
+    { type: 'EVIDENCE', statement: 'fact', source: 'codebase' },
+    'EVID-1', 5,
+  );
+  s.elements.set('EVID-1', evid);
+  s.elementCounters.EVIDENCE = 1;
+
+  const nc = createElement(
+    {
+      type: 'NECESSARY_CONDITION',
+      statement: 'NC1',
+      collapse_test: 'a',
+      grounding: ['EVID-1'],
+      reasoning_chain: 'IF fact THEN NC1',
+    },
+    'NCON-1', 5,
+  );
+  nc.ratificationStatus = 'ratified';
+  s.elements.set('NCON-1', nc);
+  s.elementCounters.NECESSARY_CONDITION = 1;
+
+  const rc = createElement(
+    {
+      type: 'RESOLVE_CONDITION',
+      statement: 'RC1',
+      problem_anchor: 'CERN-1',
+      grounding: ['NCON-1'],
+    },
+    'RCON-1', 5,
+  );
+  rc.ratification = { ratifiedAtRound: 5, text: 'pre-ratified' };
+  s.elements.set('RCON-1', rc);
+  s.elementCounters.RESOLVE_CONDITION = 1;
+  return s;
+}
+
+const goConsent = { source: 'designer', rationale: 'test' };
+
+describe('AC-2.4: recordDesignerGo closure does not bulk-ratify', () => {
+  it('appends exactly one close log entry, no bulk-ratify entries', () => {
+    const s = buildClosableState();
+    const beforeLogLen = s.operationLog.length;
+    const [after, err] = recordDesignerGo(s, goConsent);
+    expect(err).toBeNull();
+    expect(after.proofStatus).toBe('finish');
+    const newEntries = after.operationLog.slice(beforeLogLen);
+    expect(newEntries.length).toBe(1);
+    expect(newEntries[0].op).toBe('close');
+    expect(newEntries[0].provenance).toEqual({ from: 'planning', to: 'finish' });
+    // No bulk-ratify entry written
+    expect(newEntries.find(e => e.op === 'bulk-ratify')).toBeUndefined();
+  });
+
+  it('preserves closingArgPresentedRound and sets closingArgGoRound', () => {
+    const s = buildClosableState();
+    const [after, err] = recordDesignerGo(s, goConsent);
+    expect(err).toBeNull();
+    expect(after.closingArgPresentedRound).toBe(5);
+    expect(after.closingArgGoRound).toBe(5);
+  });
+});
+
+describe('AC-7.1: post-finish mutations refused', () => {
+  function finishedState() {
+    const s = buildClosableState();
+    const [after, err] = recordDesignerGo(s, goConsent);
+    expect(err).toBeNull();
+    expect(after.proofStatus).toBe('finish');
+    return after;
+  }
+
+  const PROOF_FINISHED = /^PROOF_FINISHED:/;
+
+  it('recordDesignerGo refuses', () => {
+    const s = finishedState();
+    const [, err] = recordDesignerGo(s, goConsent);
+    expect(err).toMatch(PROOF_FINISHED);
+  });
+
+  it('addConcern refuses', () => {
+    const s = finishedState();
+    const [id, , , err] = addConcern(s, { label: 'X' }, goConsent);
+    expect(id).toBeNull();
+    expect(err).toMatch(PROOF_FINISHED);
+  });
+
+  it('ratifyConcern refuses', () => {
+    const s = finishedState();
+    const [, err] = ratifyConcern(s, 'CERN-1', goConsent);
+    expect(err).toMatch(PROOF_FINISHED);
+  });
+
+  it('ratifyResolveCondition refuses', () => {
+    const s = finishedState();
+    const [, hints, err] = ratifyResolveCondition(s, { elementId: 'RCON-1', ratificationText: 'x' }, goConsent);
+    expect(hints).toEqual([]);
+    expect(err).toMatch(PROOF_FINISHED);
+  });
+
+  it('applyOperations refuses', () => {
+    const s = finishedState();
+    const result = applyOperations(s, [
+      { op: 'add', type: 'EVIDENCE', statement: 'late', source: 'codebase' },
+    ], goConsent);
+    expect(result.errors.some(e => PROOF_FINISHED.test(e))).toBe(true);
+    expect(result.added).toEqual([]);
+    expect(result.revised).toEqual([]);
+    expect(result.withdrawn).toEqual([]);
+  });
+
+  it('manageFriction refuses', () => {
+    const s = finishedState();
+    const [id, , hints, err] = manageFriction(s, {
+      op: 'add', friction_shape: 'permission-risk-linkage',
+      anchor_a: 'EVID-1', anchor_b: 'NCON-1', disposition: 'lived-with',
+    }, goConsent);
+    expect(id).toBeNull();
+    expect(hints).toEqual([]);
+    expect(err).toMatch(PROOF_FINISHED);
+  });
+
+  it('overrideFrictionDisposition refuses', () => {
+    const s = finishedState();
+    const [, hints, err] = overrideFrictionDisposition(s, { elementId: 'EVID-1', disposition: 'lived-with' }, goConsent);
+    expect(hints).toEqual([]);
+    expect(err).toMatch(PROOF_FINISHED);
+  });
+
+  it('manageDefinitions refuses (mutating ops)', () => {
+    const s = finishedState();
+    const [first, , err] = manageDefinitions(s, 'add', { canonical_name: 'X', definition: 'd', sense_constraints: 's' }, goConsent);
+    expect(first).toBeNull();
+    expect(err).toMatch(PROOF_FINISHED);
+  });
+
+  it('withdrawElement refuses', () => {
+    const s = finishedState();
+    const [, err] = withdrawElement(s, 'EVID-1', 'unclassified', goConsent);
+    expect(err).toMatch(PROOF_FINISHED);
+  });
+
+  it('withdrawConcern refuses', () => {
+    const s = finishedState();
+    const [, err] = withdrawConcern(s, 'CERN-1', 'unclassified', goConsent);
+    expect(err).toMatch(PROOF_FINISHED);
+  });
+
+  it('withdrawDefinition refuses', () => {
+    // Add a definition before finish so we have something to attempt withdrawing.
+    const base = buildClosableState();
+    base.definitions = [{
+      id: 'DEFN-1',
+      canonical_name: 'thing',
+      aliases: [], definition: 'd', sense_constraints: 's',
+      status: 'ratified', source: 'designer', revision: 0, history: [],
+    }];
+    base.definitionCounter = 1;
+    const [finished, err1] = recordDesignerGo(base, goConsent);
+    expect(err1).toBeNull();
+    const [, err] = withdrawDefinition(finished, 'DEFN-1', 'unclassified', goConsent);
+    expect(err).toMatch(PROOF_FINISHED);
+  });
+
+  it('recordClosingArgPresented refuses', () => {
+    const s = finishedState();
+    const [, err] = recordClosingArgPresented(s, goConsent);
+    expect(err).toMatch(PROOF_FINISHED);
   });
 });

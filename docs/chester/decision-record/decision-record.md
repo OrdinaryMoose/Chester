@@ -828,3 +828,136 @@ artifact_refs:
   - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1/spec/cluster-d-1-spec-03.md
   - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1/plan/cluster-d-1-plan-00.md
 ---
+
+---
+id: dr-20260508-01-binary-proof-lifecycle
+date: 2026-05-08
+sprint: 20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp
+stage: design-specify
+title: Binary proof lifecycle (planning, finish) replaces three-value lifecycle with no reopen motion
+decision: The proof MCP's `proofStatus` is a binary terminal-state value — `'planning'` (working state) and `'finish'` (terminal) — with no reopen motion; `loadState` backfills legacy values (`'open' → 'planning'`, `'closed' → 'finish'`, `'unopen' → 'planning'`) so older state files load cleanly, and once a proof reaches `'finish'` no path returns to `'planning'`.
+rationale: The d.1 lifecycle carried three states (`'unopen'`, `'open'`, `'closed'`) plus a `reopen_proof` motion that allowed a closed proof to return to working state with a `lastClosureArtifact` retention field. The d.2 design session's friction report flagged this as overcomplication — once a proof is closed, the right move is to open a new proof, not resurrect the old one — and the multi-value `'unopen' → 'open' → 'closed' → reopened` cycle invited callers to model a richer state machine than the proof system actually needs. Collapsing to binary makes terminal-state genuinely terminal at the type level. Future proof-MCP work must not reintroduce a reopen path; new proofs are cheap and clean, reopened proofs hide closure provenance under continued mutation.
+alternatives:
+  - Preserve three-value lifecycle with reopen for in-place revision — rejected because reopen invites stale-closure-artifact pollution and the d.2 friction report explicitly demanded its retirement.
+  - Keep three values but freeze closed proofs (no reopen, but distinguish `unopen` from `open`) — rejected because the `unopen` state was only meaningful before `open_proof` ran and post-`open_proof` the value is always `open`; collapsing to binary erases a state that callers could not observe anyway.
+  - Add a `'archived'` fourth state for soft-deletion — rejected as out-of-scope and as recreating the same multi-state hazard the binary collapse eliminates.
+tags: [architecture, mcp, revert]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp/spec/sprint-d-1-fix-proof-mcp-spec-00.md
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp/summary/sprint-d-1-fix-proof-mcp-summary-00.md
+---
+
+---
+id: dr-20260508-02-first-yes-precondition-replaces-concerns-gate
+date: 2026-05-08
+sprint: 20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp
+stage: design-specify
+title: First-yes precondition gates closing-argument presentation across all four ratification lanes
+decision: `present_closing_argument` is gated server-side by a per-element first-yes precondition (`checkFirstYesGate` from `first-yes-gate.js`) that iterates every active NC, RC, Concern, and Definition and refuses with structured `FIRST_YES_GATE_FAILED` (carrying `unratified_ids[]`) if any element remains in working state; this supersedes the narrower `concernsRatificationGate` that previously fired only against draft Concerns at score-derivation time.
+rationale: The d.1 closing-argument flow checked Concern ratification at `evaluateTrigger` score-time but did not require NC, RC, or Definition ratification before presentation — closure could proceed with elements in draft so long as Concerns were ratified, then bulk-ratify-on-close (RULE-9) would silently sweep the working elements into the closing artifact. The d.2 friction report flagged this as a closure-discipline failure: bulk-ratify hides what the designer actually approved, so a per-element first-yes pass before presentation makes ratification an explicit precondition rather than an end-of-pipeline implicit conversion. The pure-function `first-yes-gate.js` module localizes the check; `evaluateTrigger`'s remaining quality checks (collapse-test, rejected-alternatives) survive but the ratification gate inside `evaluateTrigger` is removed because the precondition has already enforced it. Future closure-gate changes must preserve the four-lane scope; narrowing to fewer element types reintroduces the silent-promotion hazard.
+alternatives:
+  - Keep `concernsRatificationGate` as the only gate and add bulk-ratify-on-close — rejected as the d.1 design which the d.2 friction report retired; bulk-ratify hides ratification under closure mechanics.
+  - Run the four-lane check at `evaluateTrigger` score time only — rejected because score-time refusal surfaces as a low score rather than a structured tool-level error and the caller cannot distinguish "score insufficient" from "ratification missing."
+  - Run the gate at `confirm_closure_go` (the second yes) only — rejected because it lets a closing argument be presented against working state, then reject at the final yes; failing earlier preserves the round and keeps the presentation-then-confirmation contract honest.
+tags: [architecture, mcp, governance]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp/spec/sprint-d-1-fix-proof-mcp-spec-00.md
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp/summary/sprint-d-1-fix-proof-mcp-summary-00.md
+---
+
+---
+id: dr-20260508-03-bulk-ratify-retired-replaced-by-precondition
+date: 2026-05-08
+sprint: 20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp
+stage: design-specify
+title: Bulk-ratify-on-close hook retired; first-yes precondition makes it unnecessary
+decision: The RULE-9 bulk-ratify hook in `recordDesignerGo` is removed entirely — `confirm_closure_go` no longer sweeps active draft NCs and unratified active RCs into ratified state; the first-yes precondition at `present_closing_argument` ensures every element is already ratified by the time closure can be confirmed.
+rationale: Bulk-ratify-on-close was load-bearing under d.1's lifecycle because `present_closing_argument` did not enforce per-element ratification; without it, closure could ship a closing artifact carrying unratified content. The first-yes precondition (`dr-20260508-02`) moves ratification enforcement to presentation time, which makes bulk-ratify redundant and structurally inferior — bulk-ratify implicitly converts working content to ratified inside a single tool call, while precondition-then-confirm makes the ratification step the designer's explicit upstream action. Removing the hook also simplifies `recordDesignerGo` to a pure status flip, restoring it to a small ceremonial function. Future closure paths must not reintroduce silent ratification sweeps; ratification is the designer's explicit upstream act, not closure's side effect.
+alternatives:
+  - Keep bulk-ratify alongside first-yes precondition (defense in depth) — rejected because once the precondition enforces ratification, bulk-ratify either fires against zero elements (dead code) or fires against elements the precondition let through (silent precondition violation); both are bad.
+  - Make bulk-ratify configurable via consent token — rejected because adding a knob to a closure path that must be deterministic invites caller drift and the precondition makes the knob meaningless.
+tags: [mcp, revert, governance]
+supersedes: dr-20260507-05-bulk-ratify-on-close-with-flag-preservation-exception
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp/spec/sprint-d-1-fix-proof-mcp-spec-00.md
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp/summary/sprint-d-1-fix-proof-mcp-summary-00.md
+---
+
+---
+id: dr-20260508-04-defense-in-depth-post-finish-refusal
+date: 2026-05-08
+sprint: 20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp
+stage: execute-write
+title: Post-finish mutation refusal lives at both state-layer and handler pre-flight
+decision: Every mutating proof-MCP function refuses post-finish mutations at two layers — the state-layer mutator returns a structured `PROOF_FINISHED` error when invoked against `proofStatus === 'finish'`, and every server handler runs a pre-flight `proofFinishedResponse` check before calling the mutator; the handler-layer pre-flight is structural (not redundant) because `handleSubmitProofUpdate` reads `result.errors[]` directly without passing through `classifyStateError`.
+rationale: A single state-layer guard would be sufficient for handlers that route errors through `classifyStateError` (which surfaces structured `{code, message}` responses), but `handleSubmitProofUpdate` consumes `applyOperations`' `result.errors[]` as a plain array and would surface `PROOF_FINISHED` as an undifferentiated string. The handler-layer pre-flight ensures every refusal path returns the structured error with `isError: true` and `code: 'PROOF_FINISHED'`, which is what callers and the audit consume. Future post-state-transition refusals (any new terminal status added later, any new mutating tool added later) must replicate the two-layer pattern; the layering is an invariant, not over-engineering. Reviewers should treat a missing pre-flight as a defect when the mutator's state-layer error path bypasses `classifyStateError`.
+alternatives:
+  - State-layer-only refusal (single guard) — rejected because `handleSubmitProofUpdate` would surface unstructured error strings, breaking the structured-error contract callers depend on.
+  - Handler-layer-only refusal (single guard) — rejected because internal callers of mutating state functions (e.g., `processFriction` calling `manageFriction`) bypass the handler layer; without state-layer guards a friction post-finish could mutate state by internal call path.
+  - Route every handler through `classifyStateError` — rejected as a larger refactor than the layering pattern needs; existing handlers depend on direct `result.errors[]` reads for fine-grained error reporting.
+tags: [architecture, mcp, governance]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp/spec/sprint-d-1-fix-proof-mcp-spec-00.md
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp/summary/sprint-d-1-fix-proof-mcp-summary-00.md
+---
+
+---
+id: dr-20260508-05-challenge-mode-personalities-retired
+date: 2026-05-08
+sprint: 20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp
+stage: design-small-task
+title: Challenge-mode personality machinery retired; replaced by round-prompt agent conduct
+decision: The structural challenge-mode personality machinery is fully retired — `detectChallenge`, `detectStall`, `STALL_WINDOW`, `markChallengeUsed`, the four challenge-history fields on state (`conditionCountHistory`, `elementCountHistory`, `challengeModesUsed`, `challengeLog`), the `challenge_used` parameter on `submit_proof_update`, and the `challenge_trigger` / `stall_detected` response fields are deleted; the conduct that the three personalities were meant to encode (consolidator, tighten-the-screws, drop-bad-fits) becomes round-prompt agent discipline owned by a future presentation-layer sprint.
+rationale: The d.2 friction report identified the challenge-mode machinery as a category error: the proof MCP encoded what should be agent-conduct (how to challenge a stalling proof) as state-machine machinery (count-based stall detection, personality codes flowed back to the agent as triggers). The structural shape made the proof system carry presentation-layer concerns, which violated the proof MCP's role as a pure proof-state service. Retiring the machinery reduces state surface, removes a count-based heuristic that was tunable and brittle, and pushes the conduct discipline to where it belongs — the round prompts in `design-large-task/SKILL.md`. The follow-up doc `challenge-personalities-fold-into-round-prompts.md` exists in the sprint design dir as the handoff for that future work. Future proof-MCP work must not reintroduce stall detection or personality codes in state; the conduct lives in skill prose, not in the proof system.
+alternatives:
+  - Preserve the machinery and merely soften the agent's use of it — rejected because the structural shape is the bug, not the agent's behavior; soft-touch use of brittle machinery is still brittle.
+  - Move the machinery to a sibling MCP (e.g., a dedicated challenge-mode service) — rejected as out-of-scope and as adding integration boundaries for what is fundamentally a presentation-layer concern.
+  - Delete the personalities but keep stall detection — rejected because count-based stall detection without the personalities is a signal with no consumer; the count-history fields existed to feed personality selection.
+tags: [revert, mcp, architecture]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp/design/sprint-d-1-fix-proof-mcp-design-00.md
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp/design/challenge-personalities-fold-into-round-prompts.md
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp/summary/sprint-d-1-fix-proof-mcp-summary-00.md
+---
+
+---
+id: dr-20260508-06-body-advancement-agent-internal-only
+date: 2026-05-08
+sprint: 20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp
+stage: design-specify
+title: body_advancement signal is agent-internal context, never surfaced to the designer
+decision: The `body_advancement` field returned by `submit_proof_update` (counts of adds, revises, withdraws across load-bearing element types plus Concerns and Definitions) is agent-internal context only — used by the agent to decide round pacing and prompt shape — and must never appear in any designer-facing turn output, surface text, or proof artifact; the field is also transient (computed in `applyOperations`, returned in the submit response, never persisted to state) and is therefore omitted from `summary_mode`'s response shape.
+rationale: The signal exists to give the agent a structured proxy for "is the proof advancing or churning" so round prompts can adapt; surfacing the counts to the designer would burden them with proof-internal mechanics and invite a counting game where the designer optimizes for the metric rather than the proof. Keeping it agent-internal preserves the proof MCP's role as the agent's working tool while leaving the designer's interface clean. The transience constraint (no persistence) was caught during hardening: a `state.bodyAdvancement ?? null` read in summary_mode would always be `null` because the field never lives in state; rather than ship a permanent-null in the contract, the field is dropped from summary_mode entirely. Future agent-internal signals follow the same rule: agent-context data does not flow to the designer surface and does not get persisted unless it has a state-layer consumer.
+alternatives:
+  - Surface `body_advancement` in turn output as a "round progress" line — rejected because it makes proof mechanics designer-visible and creates a counting game.
+  - Persist `body_advancement` to state for cross-round reads — rejected because the signal is per-round by definition; cross-round persistence would give a stale value and force the agent to compute deltas, duplicating the per-round computation.
+  - Include `body_advancement` in summary_mode as a snapshot of the most-recent submit — rejected because summary_mode is read by tools that did not necessarily fire the most-recent submit; the value would be ambiguous about which round it describes.
+tags: [convention, mcp, governance]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp/spec/sprint-d-1-fix-proof-mcp-spec-00.md
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp/summary/sprint-d-1-fix-proof-mcp-summary-00.md
+---
+
+---
+id: dr-20260508-07-summary-mode-for-harness-limits
+date: 2026-05-08
+sprint: 20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp
+stage: design-specify
+title: get_proof_state summary_mode flag for harness response-size compliance
+decision: `get_proof_state` accepts an optional `summary_mode: boolean` parameter; when true, the response carries counts and IDs only — `{ proofStatus, round, counts, closurePermitted, closureReasons, elements: { [id]: { type, status } }, concerns: [{ id, status }], definitions: [{ id, status }] }` — with no element bodies and no operation log, capping the response well under the 25K token harness limit; absent or false, the response is the full-body shape.
+rationale: Long sessions accumulate proof state large enough that the full `get_proof_state` response can exceed harness response-size limits, leaving the agent unable to read its own working state. A summary mode lets the agent ask for IDs-and-status when it only needs to navigate the proof's structure, reserving full-body reads for moments that genuinely need them. The flag is opt-in so existing callers continue to receive full state by default; adding a closed shape (counts, IDs, status flags only) keeps the summary deterministic and grep-able. Future proof-MCP read tools that risk crossing harness limits should follow the same pattern: opt-in summary mode with a closed response shape, full-body as the default.
+alternatives:
+  - Make summary mode the default and full-body opt-in — rejected because it silently changes the contract for every existing caller and forces audit of every read site for whether it needs full bodies.
+  - Stream the full response in chunks — rejected because the MCP tool surface returns a single response object; streaming would require a multi-call protocol the harness does not currently support.
+  - Add per-field projection (caller specifies which fields to include) — rejected as over-engineered for the actual need; the closed summary shape is what callers want when they want less.
+tags: [mcp, format, convention]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp/spec/sprint-d-1-fix-proof-mcp-spec-00.md
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp/summary/sprint-d-1-fix-proof-mcp-summary-00.md
+---

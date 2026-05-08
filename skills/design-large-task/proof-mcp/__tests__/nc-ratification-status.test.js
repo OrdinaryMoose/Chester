@@ -55,7 +55,7 @@ describe('NC ratificationStatus — loadState backfill', () => {
       elementCounters: { EVIDENCE: 1, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 1, RISK: 0, RESOLVE_CONDITION: 0, FRICTION: 0 },
       conditionCountHistory: [], elementCountHistory: [],
       challengeModesUsed: [], challengeLog: [], revisionLog: [],
-      phaseTransitionRound: 0, concerns: [], concernsLocked: false,
+      phaseTransitionRound: 0, concerns: [],
       concernCounter: 0, ratificationLog: [], frictionLog: [],
     };
     writeFileSync(path, JSON.stringify(legacy));
@@ -86,7 +86,7 @@ describe('NC ratificationStatus — loadState backfill', () => {
       elementCounters: { EVIDENCE: 1, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 1, RISK: 0, RESOLVE_CONDITION: 0, FRICTION: 0 },
       conditionCountHistory: [], elementCountHistory: [],
       challengeModesUsed: [], challengeLog: [], revisionLog: [],
-      phaseTransitionRound: 0, concerns: [], concernsLocked: false,
+      phaseTransitionRound: 0, concerns: [],
       concernCounter: 0, ratificationLog: [], frictionLog: [],
     };
     writeFileSync(path, JSON.stringify(legacy));

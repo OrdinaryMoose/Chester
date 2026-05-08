@@ -1,0 +1,1931 @@
+{
+  "schemaVersion": "problemfocused-v0.1",
+  "userPrompt": "Sprint D.2 — design the Presentation layer of the redesigned `design-large-task` skill. D.1 shipped the Proof layer (proof MCP extensions: consent tokens, Concerns ratification, friction, definitions, withdraw, closing-argument materialization, two-yes closure gate, 19 NCs / 5 RCs / 5 Concerns; merged 6387b3f, 483 tests pass). D.2 owns Concern C-2 (\"designer consumption of proof state\") under the cluster-D charter. Inheritance: cluster-D foundation v1 (two organizing principles \"Design is the code\" + \"Purpose is Shared Understanding\"; one-system architecture; six-phase plain-English skill structure; closed element set; PM register + Translation Gate; information packet shape insight+intro+facts+agent commentary+pessimist commentary+decision; single-topic discipline; coordinate placement (Structured ⊥ Bounded); two-yes closure gate; CRUD-completeness; designer-consent gate; pessimist commentary five categories foreclosure/fragility/tension/real uncertainty/surprise with random rotation). D.2 must deliver: rule-altitude resolution for presentation-side rules (currently RULE-13..17 in cluster-D session work); NCs anchored to C-2; at least one ratified RC for C-2; six-phase concrete SKILL.md body with orchestration logic and tool calls into D.1 surface; pessimist mechanism (selection); round-topic-selection logic consuming D.1's gap API; phase-transition mechanics (Round Cycle → Closing Argument); coordinate-placement rendering; closing-argument render protocol (presently un-prescribed gap); D.2's own closing argument and gate. Open per sprint-d-2 brief §12: pessimist seeding mechanism, coordinate visibility frequency, phase-transition trigger source, SKILL.md migration strategy (fourth flow vs. replacement vs. plug-in elimination), worktree boundary, status-line shape. Also surfaced from prior-art review: missing concern around decision-authority substitution — agent making decisions PM cannot detect because PM lacks technical context (master plan §4.5 cluster-D charter Concern #7 omitted from sprint-d-2 brief).",
+  "round": 5,
+  "overallThreshold": 0.65,
+  "tenetEntries": {
+    "problem_articulation": [
+      {
+        "text": "The current design-large-task skill carries a decision-authority asymmetry: the agent drafts Concerns at open time, drafts RC statements, and renders closing-argument prose unsupervised. The designer ratifies agent drafts rather than supplying decisions to agent-built venues.",
+        "current_behavior": "Agent generates content; designer confirms.",
+        "desired_behavior": "Agent constructs decision venues; designer decides.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "D.2 redesigns the half of the design conversation the designer consumes.",
+        "current_behavior": "Existing skill prescribes one register; closing-argument render unspecified; agent-supplied content and designer-supplied decisions mix in the same surface with no provenance signal at read-back.",
+        "desired_behavior": "Voice and Style designer-selectable for session; closing argument and brief in predetermined briefing voice; provenance per decision visible at read-back; pessimist mechanism with explicit selection rule.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 4
+      }
+    ],
+    "success_criteria": [
+      {
+        "text": "The designer reads the captured artifact at session end and ratifies it as their position without further correction.",
+        "observable": "Read-back fidelity test (sprint-d-2 brief §5 exit criteria).",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Decisions captured in the proof trace to designer ratification turns, not agent commentary turns.",
+        "observable": "Substitution-prevention test — proof content mostly agent-supplied; proof decisions mostly designer-supplied.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Implementation-altitude content stays out of agent commentary blocks beyond a measurable rate.",
+        "observable": "Drive-channel test.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Designer reads the closing argument and the design brief and ratifies both as their position without further correction; the pair reads consistently because both render in the same predetermined briefing voice.",
+        "observable": "Read-back fidelity test passes against both artifacts.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      }
+    ],
+    "done_state_vision": [
+      {
+        "text": "D.2 ships when the closing argument and the brief render in consistent briefing voice and the designer ratifies both as their position with no further correction.",
+        "imagined_moment": "End of a design session. Closing argument prose appears in briefing voice; designer reads, says go. Brief is written in the same briefing voice into the working directory and later archived to plans. Designer reads both as a pair; recognizes their position; no correction needed.",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      }
+    ],
+    "constraint_envelope": [
+      {
+        "text": "Cluster-D foundation locks the information packet shape, single-topic discipline, coordinate axes, two-yes closure gate, designer-consent gate on every advancement, and agent-rule-submission discipline (designer-only Rules).",
+        "constraint_type": "inheritance",
+        "source": "cluster-d-foundation-v1.md §11 architectural commitments",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Element set is closed: NC, Evidence, Rule, Permission, Risk, plus cluster-A Resolve Condition, plus cluster-B.2 Phantom and Friction, plus D.1 Definition.",
+        "constraint_type": "inheritance",
+        "source": "master plan vocabulary lock + cluster A / B.2 / D.1 deliverables",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Two organizing principles operate Rule-class: 'Design is the code' (proof carries structural weight that absorbs implementation drive at design altitude) and 'The purpose is to create Shared Understanding' (every mechanism serves designer-intent capture).",
+        "constraint_type": "hard_limit",
+        "source": "cluster-d-foundation-v1.md §11 + master-plan.md §4.5",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Closing argument render and design brief render both use a predetermined briefing voice with normal verbosity. Voice and Style for these two artifacts are not designer-selectable; they are skill-author-fixed.",
+        "constraint_type": "hard_limit",
+        "source": "designer ratification round 2",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "Session conversation Voice and Style are designer-selectable at session start. Default Voice = PM, default Style = normal. Both mid-session mutable.",
+        "constraint_type": "hard_limit",
+        "source": "designer ratification round 2",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      }
+    ],
+    "scope_boundary": [
+      {
+        "text": "C-2 (designer consumption of proof state) is the Concern D.2 owns.",
+        "placement": "IN",
+        "source": "sprint-d-2 brief §4",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "C-1, C-3, C-4, C-5, C-6 are owned by D.1 as shipped capabilities; D.2 inherits read-only.",
+        "placement": "OUT",
+        "source": "D.1 design brief + sprint-d-2 brief §4",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Decision-authority substitution (master plan §4.5 cluster-D charter Concern #7) was dropped from the sprint-d-2 brief; D.2 ownership currently borderline.",
+        "placement": "BORDERLINE",
+        "source": "master-plan.md §4.5 vs sprint-d-2-feature-dev-brief.md",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Substitution scope (master plan §4.5 cluster-D Concern #7) — borderline status reaffirmed. Pending designer ratification: in scope (folded into closing-argument render mechanics) or out (deferred with paper-trail note).",
+        "placement": "BORDERLINE",
+        "source": "designer pending round 3",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 3
+      }
+    ],
+    "personal_use_case_map": [
+      {
+        "text": "Designer at session-time, choosing Voice and Style at session start, observing the agent operate at the chosen register, optionally adjusting mid-session.",
+        "role": "current_me",
+        "scenario": "Active design session, mid-conversation",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "Designer at closure, reading the closing argument in fixed briefing voice and ratifying their position before saying go.",
+        "role": "current_me",
+        "scenario": "Closure step, reading the formal closure artifact",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "Designer returning weeks later to read the brief, remembering what was decided.",
+        "role": "future_me",
+        "scenario": "Cold reading of the archived brief",
+        "context_assumed_lost": "Specific design conversation tone, session Voice/Style choices, momentary preferences",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      }
+    ],
+    "cost_energy_budget": [
+      {
+        "text": "Why-now: D.1 shipped at commit 6387b3f; D.2 is the queued sibling required to complete cluster D's two-half architecture before the cluster can close.",
+        "dimension": "why_now",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 3
+      },
+      {
+        "text": "Maintenance budget: SKILL.md is expected to grow; reference files can absorb body length to keep top-level skill scannable.",
+        "dimension": "maintenance_budget",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 3
+      }
+    ],
+    "project_fit": [
+      {
+        "text": "PM-as-decider asymmetry is the third designer-ratified organizing principle of cluster D (May-5 refinement).",
+        "alignment": "ALIGNED",
+        "project_convention_referenced": "cluster D organizing principles",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "D.2 redesigns the surface where decision-authority substitution physically happens — the packet, the round cycle, the closing-argument render.",
+        "alignment": "ALIGNED",
+        "project_convention_referenced": "PM-as-decider third principle",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      }
+    ],
+    "open_questions_ledger": [
+      {
+        "text": "Voice and Style defaults for D.2, and whether they are fixed at sprint, designer-selectable at session start, or session-mutable.",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Pessimist selection mechanism — random rotation, agent self-select, or proof-state-derived (each fails differently).",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Coordinate rendering frequency — cluster D reached 'first round + on axis-cross'; confirm or revise.",
+        "question_source": "designer_hesitation",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Round-cycle to closing-argument transition trigger source — agent-detected, designer-driven, or proof-state-derived.",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Plugin disposition — keep current plugin and slot D.2 as a fourth flow, replace the existing flows entirely with the cluster-D one-system flow, or eliminate the plugin altogether.",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Decision-authority substitution scope — D.2 takes ownership and designs a structural guard, or scopes out and defers.",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Status-line shape — current is arrow + Phase or step name; cluster D updates this.",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Worktree boundary timing — branch and worktree creation deferred to Closure per skill default; sprint dir already exists in working directory.",
+        "question_source": "designer_hesitation",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 1
+      },
+      {
+        "text": "Voice and Style settings resolved: session V+S designer-selectable and mid-session mutable, defaults PM + normal; closing argument and design brief render in predetermined briefing voice + normal verbosity.",
+        "question_source": "designer_hesitation",
+        "status": "RESOLVED-VIA-QUOTE",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 2
+      },
+      {
+        "text": "Substitution scope ratification — in (folds into render mechanics) or out (deferred with paper-trail note).",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 3
+      },
+      {
+        "text": "Repeat-back ratification — designer confirmation that the restated problem statement matches their hypothesis.",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 3
+      },
+      {
+        "text": "Substitution scope decision — D.2 owns the surface where decision-authority substitution happens; pending: in (folded into closing-argument render mechanics) or out (deferred with paper-trail note).",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 4
+      },
+      {
+        "text": "Repeat-back round 3 ratified verbatim by designer.",
+        "question_source": "designer_hesitation",
+        "status": "RESOLVED-VIA-QUOTE",
+        "_validation_passed": true,
+        "_flags": [],
+        "round": 4
+      }
+    ]
+  },
+  "tenetScores": {
+    "problem_articulation": 1,
+    "success_criteria": 1,
+    "done_state_vision": 0.5,
+    "constraint_envelope": 1,
+    "scope_boundary": 0.8,
+    "personal_use_case_map": 1,
+    "cost_energy_budget": 1,
+    "project_fit": 1,
+    "open_questions_ledger": 1
+  },
+  "scoreHistory": [
+    {
+      "problem_articulation": 1,
+      "success_criteria": 1,
+      "done_state_vision": 0,
+      "constraint_envelope": 0.75,
+      "scope_boundary": 0.6,
+      "personal_use_case_map": 0,
+      "cost_energy_budget": 0,
+      "project_fit": 1,
+      "open_questions_ledger": 1
+    },
+    {
+      "problem_articulation": 1,
+      "success_criteria": 1,
+      "done_state_vision": 0.5,
+      "constraint_envelope": 1,
+      "scope_boundary": 0.6,
+      "personal_use_case_map": 1,
+      "cost_energy_budget": 0,
+      "project_fit": 1,
+      "open_questions_ledger": 1
+    },
+    {
+      "problem_articulation": 1,
+      "success_criteria": 1,
+      "done_state_vision": 0.5,
+      "constraint_envelope": 1,
+      "scope_boundary": 0.8,
+      "personal_use_case_map": 1,
+      "cost_energy_budget": 1,
+      "project_fit": 1,
+      "open_questions_ledger": 1
+    },
+    {
+      "problem_articulation": 1,
+      "success_criteria": 1,
+      "done_state_vision": 0.5,
+      "constraint_envelope": 1,
+      "scope_boundary": 0.8,
+      "personal_use_case_map": 1,
+      "cost_energy_budget": 1,
+      "project_fit": 1,
+      "open_questions_ledger": 1
+    },
+    {
+      "problem_articulation": 1,
+      "success_criteria": 1,
+      "done_state_vision": 0.5,
+      "constraint_envelope": 1,
+      "scope_boundary": 0.8,
+      "personal_use_case_map": 1,
+      "cost_energy_budget": 1,
+      "project_fit": 1,
+      "open_questions_ledger": 1
+    }
+  ],
+  "glossary": [
+    {
+      "canonical_name": "Presentation layer",
+      "aliases": [
+        "D.2 layer"
+      ],
+      "definition": "The half of the redesigned design-large-task skill that owns voice, packet shape, phase orchestration, round-cycle mechanics, and how proof-state is rendered to the designer. Sibling of Proof layer. Depends on Proof; Proof never reaches into Presentation.",
+      "source": {
+        "explorer": "codebase + prior-art",
+        "artifact": "cluster-d-foundation-v1.md §3"
+      },
+      "sense_constraints": [
+        "NOT the entire skill — only the designer-facing half",
+        "NOT a UI/web frontend term"
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "codebase + prior-art",
+            "artifact": "cluster-d-foundation-v1.md §3"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "Proof layer",
+      "aliases": [
+        "D.1 layer"
+      ],
+      "definition": "The half of the skill that owns the proof MCP, element CRUD, ratification, closure machinery, and the closing-argument envelope. Shipped by D.1 at commit 6387b3f. Read-only inheritance for D.2.",
+      "source": {
+        "explorer": "codebase + prior-art",
+        "artifact": "cluster-d-1-design-00.md"
+      },
+      "sense_constraints": [],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "codebase + prior-art",
+            "artifact": "cluster-d-1-design-00.md"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "information packet",
+      "aliases": [
+        "packet",
+        "round packet"
+      ],
+      "definition": "The fixed-shape per-round content unit the designer reads. Six components: insight + intro + facts (3-5 single-sentence bullets) + agent commentary + pessimist commentary + decision.",
+      "source": {
+        "explorer": "prior-art",
+        "artifact": "cluster-d-foundation-v1.md §11 architectural commitments"
+      },
+      "sense_constraints": [
+        "NOT a network packet",
+        "Six components are designer-locked from cluster-D foundation"
+      ],
+      "status": "DEPRECATED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "prior-art",
+            "artifact": "cluster-d-foundation-v1.md §11 architectural commitments"
+          }
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "Information Packet - yes, but dont define the flow in the definition",
+          "reason": "Designer kept the term but rejected embedding component list and flow into the definition itself. Definition reduced to the concept; component shape lives in design body."
+        }
+      ]
+    },
+    {
+      "canonical_name": "decision venue",
+      "aliases": [
+        "venue"
+      ],
+      "definition": "A well-framed presentation of one architectural choice the designer is in a position to make: agent-supplied research and framing, designer-supplied decision. Each round constructs and presents one venue, then waits for designer judgment.",
+      "source": {
+        "explorer": "prior-art",
+        "artifact": "rebuild-design-derivation-organizing-principle-research-2026-05-05.md"
+      },
+      "sense_constraints": [
+        "NOT a question to the designer",
+        "NOT a topic survey — a single decision presented for ratification"
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "prior-art",
+            "artifact": "rebuild-design-derivation-organizing-principle-research-2026-05-05.md"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "pessimist commentary",
+      "aliases": [],
+      "definition": "A required component of the information packet: 1-2 sentences naming what is fragile, contradictory, or uncomfortable about the round's direction. Drawn from one of five locked categories: foreclosure / fragility / tension / real uncertainty / surprise. Selection mechanism is open in D.2.",
+      "source": {
+        "explorer": "prior-art",
+        "artifact": "cluster-d-foundation-v1.md + sprint-d-2 brief §12"
+      },
+      "sense_constraints": [
+        "Five categories are designer-locked",
+        "Selection mechanism is the open question"
+      ],
+      "status": "DEPRECATED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "prior-art",
+            "artifact": "cluster-d-foundation-v1.md + sprint-d-2 brief §12"
+          }
+        },
+        {
+          "event": "REMOVE",
+          "round": 0,
+          "designer_quote": "pessimist is wrapped in the information packet",
+          "reason": "Designer scoped pessimist commentary as a sub-component wrapped inside information packet, not a top-level glossary entry. Component lives in design body, not in vocabulary."
+        }
+      ]
+    },
+    {
+      "canonical_name": "closing argument envelope",
+      "aliases": [
+        "envelope",
+        "closure envelope"
+      ],
+      "definition": "The structured artifact returned by present_closing_argument: problem statement, ratified Concerns + RCs + NCs + Definitions, phantoms, friction, rules, permissions, risks, and per-element closureProvenance audit chain. Canonical input to the design brief render at Closure.",
+      "source": {
+        "explorer": "codebase",
+        "artifact": "skills/design-large-task/proof-mcp/closing-argument.js"
+      },
+      "sense_constraints": [],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "codebase",
+            "artifact": "skills/design-large-task/proof-mcp/closing-argument.js"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "two-yes closure gate",
+      "aliases": [
+        "two-yes gate"
+      ],
+      "definition": "Closure requires designer consent twice in the same round: first 'yes' on present_closing_argument (view), second 'yes' on confirm_closure_go. Any state mutation between the two clears both flags and forces re-presentation.",
+      "source": {
+        "explorer": "codebase + prior-art",
+        "artifact": "cluster-b-2 inheritance, NC-11 in D.1"
+      },
+      "sense_constraints": [],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "codebase + prior-art",
+            "artifact": "cluster-b-2 inheritance, NC-11 in D.1"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "coordinate placement",
+      "aliases": [
+        "coordinate",
+        "placement"
+      ],
+      "definition": "The current location of the work in the two-axis problem space (Structured ⊥ Bounded). Tracked as proof-state property; rendered to the designer in the first round and on every axis-cross thereafter, not per-round.",
+      "source": {
+        "explorer": "prior-art",
+        "artifact": "structured-bounded-problem-space-reference.md"
+      },
+      "sense_constraints": [],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "prior-art",
+            "artifact": "structured-bounded-problem-space-reference.md"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "single-topic discipline",
+      "aliases": [],
+      "definition": "Each round addresses exactly one topic. Multi-topic rounds are prohibited; surplus topics queue for subsequent rounds in priority order. Designer-locked from cluster-D foundation.",
+      "source": {
+        "explorer": "prior-art",
+        "artifact": "cluster-d-foundation-v1.md §11"
+      },
+      "sense_constraints": [],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "prior-art",
+            "artifact": "cluster-d-foundation-v1.md §11"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "decision-authority substitution",
+      "aliases": [
+        "substitution",
+        "PM-bypass"
+      ],
+      "definition": "Failure mode in which the agent makes a decision that should belong to the designer, particularly when the designer cannot detect the substitution because they lack the technical context to recognize implementation-altitude options dressed as architectural choices. Named in master-plan §4.5 cluster-D charter Concern #7 but omitted from sprint-d-2 brief.",
+      "source": {
+        "explorer": "prior-art",
+        "artifact": "master-plan.md §4.5 + organizing-principle-research-2026-05-05.md"
+      },
+      "sense_constraints": [
+        "NOT every agent draft — only when agent draft locks a decision the PM did not consciously ratify"
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "prior-art",
+            "artifact": "master-plan.md §4.5 + organizing-principle-research-2026-05-05.md"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "closing-argument render protocol",
+      "aliases": [],
+      "definition": "The designer-facing presentation step that translates the closing-argument envelope (structured data) into prose the designer reads before saying go. Currently unspecified in SKILL.md — gap surfaced by codebase review.",
+      "source": {
+        "explorer": "codebase",
+        "artifact": "skills/design-large-task/SKILL.md Phase 5 Closure"
+      },
+      "sense_constraints": [
+        "NOT the brief render at Closure — separate step happening at present_closing_argument time"
+      ],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "codebase",
+            "artifact": "skills/design-large-task/SKILL.md Phase 5 Closure"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "round cycle",
+      "aliases": [
+        "Phase 4"
+      ],
+      "definition": "Phase 4 of the redesigned six-phase skill: the iterative loop in which one decision venue per round is researched, framed, presented, and ratified or redirected by the designer. Continues until the designer approves the closing argument.",
+      "source": {
+        "explorer": "prior-art",
+        "artifact": "cluster-d-foundation-v1.md §4 six-phase outline"
+      },
+      "sense_constraints": [],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "prior-art",
+            "artifact": "cluster-d-foundation-v1.md §4 six-phase outline"
+          }
+        }
+      ]
+    },
+    {
+      "canonical_name": "plugin",
+      "aliases": [
+        "plug-in architecture",
+        "ACTIVE_UNDERSTANDING_MCP",
+        "swap-line architecture"
+      ],
+      "definition": "The existing plug-in mechanism in SKILL.md (ACTIVE_UNDERSTANDING_MCP comment-block variable + per-flow references/* file + multi-package MCP server arrangement) that lets one design-large-task skill swap among classic / problemfocused / team-interview flows. Open in D.2: keep, become a fourth flow under it, or eliminate.",
+      "source": {
+        "explorer": "codebase",
+        "artifact": "skills/design-large-task/SKILL.md lines 9-78"
+      },
+      "sense_constraints": [],
+      "status": "PROPOSED-PENDING-DESIGNER",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "seeded",
+          "round": 0,
+          "source": {
+            "explorer": "codebase",
+            "artifact": "skills/design-large-task/SKILL.md lines 9-78"
+          }
+        },
+        {
+          "event": "RENAME",
+          "round": 0,
+          "from": "swap-line architecture",
+          "to": "plugin",
+          "designer_quote": "swap-line -> plugin",
+          "reason": "Designer prefers shorter canonical name. swap-line architecture renamed to plugin."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Voice",
+      "aliases": [],
+      "definition": "The persona register the agent occupies in designer-facing output. Examples: Coder, Architect, PM. Independently selectable from Style — combinations like Terse PM or Verbose Coder are valid.",
+      "source": {
+        "explorer": "codebase",
+        "artifact": "skills/design-large-task/SKILL.md Translation Gate section"
+      },
+      "sense_constraints": [],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "SPLIT-FROM",
+          "round": 0,
+          "source_term": "PM register",
+          "designer_quote": "instead of PM Register we need something like \"Voice\" which is the 'personality' of the interview (Coder, Architect, PM, for example) and then \"Style\" which is terse, normal, and verbose. Individually selectable so we could have a Terse PM but a Verbose Coder",
+          "reason": "Designer flagged PM register as conflating persona (Coder/Architect/PM) with verbosity register (terse/normal/verbose). The two are orthogonal and independently selectable; combinations like Terse PM or Verbose Coder must be expressible."
+        }
+      ]
+    },
+    {
+      "canonical_name": "Style",
+      "aliases": [],
+      "definition": "The verbosity register of designer-facing output. Examples: terse, normal, verbose. Independently selectable from Voice.",
+      "source": {
+        "explorer": "codebase",
+        "artifact": "skills/design-large-task/SKILL.md Translation Gate section"
+      },
+      "sense_constraints": [],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "SPLIT-FROM",
+          "round": 0,
+          "source_term": "PM register",
+          "designer_quote": "instead of PM Register we need something like \"Voice\" which is the 'personality' of the interview (Coder, Architect, PM, for example) and then \"Style\" which is terse, normal, and verbose. Individually selectable so we could have a Terse PM but a Verbose Coder",
+          "reason": "Designer flagged PM register as conflating persona (Coder/Architect/PM) with verbosity register (terse/normal/verbose). The two are orthogonal and independently selectable; combinations like Terse PM or Verbose Coder must be expressible."
+        }
+      ]
+    },
+    {
+      "canonical_name": "information packet",
+      "aliases": [
+        "packet",
+        "round packet"
+      ],
+      "definition": "The fixed-shape per-round content unit the designer reads. Components and rendering rules are settled elsewhere in the design.",
+      "source": null,
+      "sense_constraints": [
+        "NOT a network packet"
+      ],
+      "status": "DEFINED",
+      "first_used_round": 0,
+      "history": [
+        {
+          "event": "ADD",
+          "round": 0,
+          "designer_quote": "Information Packet - yes, but dont define the flow in the definition",
+          "reason": "Designer kept the term but rejected embedding component list and flow into the definition itself. Definition reduced to the concept; component shape lives in design body."
+        }
+      ]
+    }
+  ],
+  "vocabularyActionLog": [
+    {
+      "action": "SPLIT",
+      "target_terms": [
+        "PM register"
+      ],
+      "new_term": {},
+      "reason": "Designer flagged PM register as conflating persona (Coder/Architect/PM) with verbosity register (terse/normal/verbose). The two are orthogonal and independently selectable; combinations like Terse PM or Verbose Coder must be expressible.",
+      "designer_quote": "instead of PM Register we need something like \"Voice\" which is the 'personality' of the interview (Coder, Architect, PM, for example) and then \"Style\" which is terse, normal, and verbose. Individually selectable so we could have a Terse PM but a Verbose Coder",
+      "classification": "DRIFT",
+      "executed_round": 0,
+      "executed_at": "2026-05-07T14:00:48.333Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "information packet"
+      ],
+      "new_term": null,
+      "reason": "Designer kept the term but rejected embedding component list and flow into the definition itself. Definition reduced to the concept; component shape lives in design body.",
+      "designer_quote": "Information Packet - yes, but dont define the flow in the definition",
+      "executed_round": 0,
+      "executed_at": "2026-05-07T14:01:00.164Z"
+    },
+    {
+      "action": "ADD",
+      "target_terms": [
+        "information packet"
+      ],
+      "new_term": {
+        "canonical_name": "information packet"
+      },
+      "reason": "Designer kept the term but rejected embedding component list and flow into the definition itself. Definition reduced to the concept; component shape lives in design body.",
+      "designer_quote": "Information Packet - yes, but dont define the flow in the definition",
+      "executed_round": 0,
+      "executed_at": "2026-05-07T14:01:00.164Z"
+    },
+    {
+      "action": "REMOVE",
+      "target_terms": [
+        "pessimist commentary"
+      ],
+      "new_term": null,
+      "reason": "Designer scoped pessimist commentary as a sub-component wrapped inside information packet, not a top-level glossary entry. Component lives in design body, not in vocabulary.",
+      "designer_quote": "pessimist is wrapped in the information packet",
+      "classification": "DEPRECATE",
+      "executed_round": 0,
+      "executed_at": "2026-05-07T14:01:09.127Z"
+    },
+    {
+      "action": "RENAME",
+      "target_terms": [
+        "swap-line architecture"
+      ],
+      "new_term": {
+        "canonical_name": "plugin"
+      },
+      "reason": "Designer prefers shorter canonical name. swap-line architecture renamed to plugin.",
+      "designer_quote": "swap-line -> plugin",
+      "classification": "DRIFT",
+      "executed_round": 0,
+      "executed_at": "2026-05-07T14:01:18.448Z"
+    }
+  ],
+  "pendingVocabDispositions": [],
+  "termUsageHistory": {
+    "the": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "current": [
+      1
+    ],
+    "design-large-task": [
+      1
+    ],
+    "skill": [
+      1,
+      3
+    ],
+    "carries": [
+      1
+    ],
+    "decision-authority": [
+      1,
+      4
+    ],
+    "asymmetry": [
+      1
+    ],
+    "agent": [
+      1,
+      2
+    ],
+    "drafts": [
+      1
+    ],
+    "concerns": [
+      1
+    ],
+    "open": [
+      1
+    ],
+    "time": [
+      1
+    ],
+    "statements": [
+      1
+    ],
+    "and": [
+      1,
+      2
+    ],
+    "renders": [
+      1
+    ],
+    "closing-argument": [
+      1,
+      3,
+      4
+    ],
+    "prose": [
+      1
+    ],
+    "unsupervised": [
+      1
+    ],
+    "designer": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "reads": [
+      1,
+      2
+    ],
+    "captured": [
+      1
+    ],
+    "artifact": [
+      1
+    ],
+    "session": [
+      1,
+      2
+    ],
+    "end": [
+      1
+    ],
+    "ratifies": [
+      1,
+      2
+    ],
+    "their": [
+      1,
+      2,
+      3
+    ],
+    "position": [
+      1,
+      2
+    ],
+    "without": [
+      1,
+      2
+    ],
+    "further": [
+      1,
+      2
+    ],
+    "correction": [
+      1,
+      2
+    ],
+    "decisions": [
+      1
+    ],
+    "proof": [
+      1
+    ],
+    "trace": [
+      1
+    ],
+    "ratification": [
+      1,
+      3
+    ],
+    "turns": [
+      1
+    ],
+    "not": [
+      1
+    ],
+    "commentary": [
+      1
+    ],
+    "implementation-altitude": [
+      1
+    ],
+    "content": [
+      1
+    ],
+    "stays": [
+      1
+    ],
+    "out": [
+      1,
+      3,
+      4
+    ],
+    "blocks": [
+      1
+    ],
+    "beyond": [
+      1
+    ],
+    "measurable": [
+      1
+    ],
+    "rate": [
+      1
+    ],
+    "cluster-d": [
+      1,
+      3
+    ],
+    "foundation": [
+      1
+    ],
+    "locks": [
+      1
+    ],
+    "information": [
+      1
+    ],
+    "packet": [
+      1
+    ],
+    "shape": [
+      1
+    ],
+    "single-topic": [
+      1
+    ],
+    "discipline": [
+      1
+    ],
+    "coordinate": [
+      1
+    ],
+    "axes": [
+      1
+    ],
+    "two-yes": [
+      1
+    ],
+    "closure": [
+      1,
+      2
+    ],
+    "gate": [
+      1
+    ],
+    "designer-consent": [
+      1
+    ],
+    "every": [
+      1
+    ],
+    "advancement": [
+      1
+    ],
+    "agent-rule-submission": [
+      1
+    ],
+    "element": [
+      1
+    ],
+    "set": [
+      1
+    ],
+    "closed": [
+      1
+    ],
+    "evidence": [
+      1
+    ],
+    "rule": [
+      1
+    ],
+    "permission": [
+      1
+    ],
+    "risk": [
+      1
+    ],
+    "plus": [
+      1
+    ],
+    "cluster-a": [
+      1
+    ],
+    "resolve": [
+      1
+    ],
+    "condition": [
+      1
+    ],
+    "cluster-b": [
+      1
+    ],
+    "phantom": [
+      1
+    ],
+    "friction": [
+      1
+    ],
+    "definition": [
+      1
+    ],
+    "two": [
+      1
+    ],
+    "organizing": [
+      1
+    ],
+    "principles": [
+      1
+    ],
+    "operate": [
+      1,
+      2
+    ],
+    "rule-class": [
+      1
+    ],
+    "design": [
+      1,
+      2,
+      4
+    ],
+    "code": [
+      1
+    ],
+    "structural": [
+      1
+    ],
+    "weight": [
+      1
+    ],
+    "that": [
+      1,
+      3
+    ],
+    "absorbs": [
+      1
+    ],
+    "implementation": [
+      1
+    ],
+    "drive": [
+      1
+    ],
+    "altitude": [
+      1
+    ],
+    "c-2": [
+      1
+    ],
+    "consumption": [
+      1
+    ],
+    "state": [
+      1
+    ],
+    "concern": [
+      1,
+      3
+    ],
+    "owns": [
+      1,
+      4
+    ],
+    "c-1": [
+      1
+    ],
+    "c-3": [
+      1
+    ],
+    "c-4": [
+      1
+    ],
+    "c-5": [
+      1
+    ],
+    "c-6": [
+      1
+    ],
+    "are": [
+      1,
+      2
+    ],
+    "owned": [
+      1
+    ],
+    "shipped": [
+      1,
+      3
+    ],
+    "capabilities": [
+      1
+    ],
+    "inherits": [
+      1
+    ],
+    "read-only": [
+      1
+    ],
+    "substitution": [
+      1,
+      3,
+      4
+    ],
+    "master": [
+      1,
+      3
+    ],
+    "plan": [
+      1,
+      3
+    ],
+    "charter": [
+      1
+    ],
+    "was": [
+      1,
+      2
+    ],
+    "dropped": [
+      1
+    ],
+    "from": [
+      1
+    ],
+    "sprint-d-2": [
+      1
+    ],
+    "brief": [
+      1,
+      2
+    ],
+    "ownership": [
+      1
+    ],
+    "currently": [
+      1
+    ],
+    "borderline": [
+      1,
+      3
+    ],
+    "pm-as-decider": [
+      1
+    ],
+    "third": [
+      1
+    ],
+    "designer-ratified": [
+      1
+    ],
+    "principle": [
+      1
+    ],
+    "cluster": [
+      1,
+      3
+    ],
+    "may-5": [
+      1
+    ],
+    "refinement": [
+      1
+    ],
+    "redesigns": [
+      1,
+      4
+    ],
+    "surface": [
+      1,
+      4
+    ],
+    "where": [
+      1,
+      4
+    ],
+    "physically": [
+      1
+    ],
+    "happens": [
+      1,
+      4
+    ],
+    "round": [
+      1,
+      4
+    ],
+    "cycle": [
+      1
+    ],
+    "render": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "voice": [
+      1,
+      2
+    ],
+    "style": [
+      1,
+      2
+    ],
+    "defaults": [
+      1,
+      2
+    ],
+    "for": [
+      1,
+      2
+    ],
+    "whether": [
+      1
+    ],
+    "they": [
+      1
+    ],
+    "fixed": [
+      1,
+      2
+    ],
+    "sprint": [
+      1
+    ],
+    "designer-selectable": [
+      1,
+      2
+    ],
+    "start": [
+      1,
+      2
+    ],
+    "session-mutable": [
+      1
+    ],
+    "pessimist": [
+      1
+    ],
+    "selection": [
+      1
+    ],
+    "mechanism": [
+      1
+    ],
+    "random": [
+      1
+    ],
+    "rotation": [
+      1
+    ],
+    "self-select": [
+      1
+    ],
+    "proof-state-derived": [
+      1
+    ],
+    "each": [
+      1
+    ],
+    "fails": [
+      1
+    ],
+    "differently": [
+      1
+    ],
+    "rendering": [
+      1
+    ],
+    "frequency": [
+      1
+    ],
+    "reached": [
+      1
+    ],
+    "first": [
+      1
+    ],
+    "axis-cross": [
+      1
+    ],
+    "confirm": [
+      1
+    ],
+    "revise": [
+      1
+    ],
+    "round-cycle": [
+      1
+    ],
+    "transition": [
+      1
+    ],
+    "trigger": [
+      1
+    ],
+    "source": [
+      1
+    ],
+    "agent-detected": [
+      1
+    ],
+    "designer-driven": [
+      1
+    ],
+    "plugin": [
+      1
+    ],
+    "disposition": [
+      1
+    ],
+    "keep": [
+      1,
+      3
+    ],
+    "slot": [
+      1
+    ],
+    "fourth": [
+      1
+    ],
+    "flow": [
+      1
+    ],
+    "replace": [
+      1
+    ],
+    "existing": [
+      1
+    ],
+    "flows": [
+      1
+    ],
+    "entirely": [
+      1
+    ],
+    "with": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "one-system": [
+      1
+    ],
+    "eliminate": [
+      1
+    ],
+    "scope": [
+      1,
+      3,
+      4
+    ],
+    "takes": [
+      1
+    ],
+    "designs": [
+      1
+    ],
+    "guard": [
+      1
+    ],
+    "scopes": [
+      1
+    ],
+    "defers": [
+      1
+    ],
+    "status-line": [
+      1
+    ],
+    "arrow": [
+      1
+    ],
+    "phase": [
+      1
+    ],
+    "step": [
+      1
+    ],
+    "name": [
+      1
+    ],
+    "updates": [
+      1
+    ],
+    "this": [
+      1
+    ],
+    "worktree": [
+      1
+    ],
+    "boundary": [
+      1
+    ],
+    "timing": [
+      1
+    ],
+    "branch": [
+      1
+    ],
+    "creation": [
+      1
+    ],
+    "deferred": [
+      1,
+      3,
+      4
+    ],
+    "per": [
+      1
+    ],
+    "default": [
+      1,
+      2
+    ],
+    "dir": [
+      1
+    ],
+    "already": [
+      1
+    ],
+    "exists": [
+      1
+    ],
+    "working": [
+      1
+    ],
+    "directory": [
+      1
+    ],
+    "closing": [
+      2
+    ],
+    "argument": [
+      2
+    ],
+    "both": [
+      2
+    ],
+    "pair": [
+      2
+    ],
+    "ships": [
+      2
+    ],
+    "when": [
+      2
+    ],
+    "consistent": [
+      2
+    ],
+    "briefing": [
+      2
+    ],
+    "use": [
+      2
+    ],
+    "predetermined": [
+      2
+    ],
+    "normal": [
+      2
+    ],
+    "verbosity": [
+      2
+    ],
+    "these": [
+      2
+    ],
+    "conversation": [
+      2,
+      4
+    ],
+    "mid-session": [
+      2
+    ],
+    "mutable": [
+      2
+    ],
+    "session-time": [
+      2
+    ],
+    "choosing": [
+      2
+    ],
+    "observing": [
+      2
+    ],
+    "chosen": [
+      2
+    ],
+    "register": [
+      2
+    ],
+    "optionally": [
+      2
+    ],
+    "adjusting": [
+      2
+    ],
+    "reading": [
+      2
+    ],
+    "ratifying": [
+      2
+    ],
+    "before": [
+      2,
+      3
+    ],
+    "saying": [
+      2
+    ],
+    "returning": [
+      2
+    ],
+    "weeks": [
+      2
+    ],
+    "later": [
+      2
+    ],
+    "read": [
+      2
+    ],
+    "remembering": [
+      2
+    ],
+    "what": [
+      2
+    ],
+    "decided": [
+      2
+    ],
+    "settings": [
+      2
+    ],
+    "resolved": [
+      2
+    ],
+    "status": [
+      3
+    ],
+    "reaffirmed": [
+      3
+    ],
+    "pending": [
+      3,
+      4
+    ],
+    "folded": [
+      3,
+      4
+    ],
+    "into": [
+      3,
+      4
+    ],
+    "mechanics": [
+      3,
+      4
+    ],
+    "why-now": [
+      3
+    ],
+    "commit": [
+      3
+    ],
+    "queued": [
+      3
+    ],
+    "sibling": [
+      3
+    ],
+    "required": [
+      3
+    ],
+    "complete": [
+      3
+    ],
+    "two-half": [
+      3
+    ],
+    "architecture": [
+      3
+    ],
+    "can": [
+      3
+    ],
+    "close": [
+      3
+    ],
+    "maintenance": [
+      3
+    ],
+    "budget": [
+      3
+    ],
+    "expected": [
+      3
+    ],
+    "grow": [
+      3
+    ],
+    "reference": [
+      3
+    ],
+    "files": [
+      3
+    ],
+    "absorb": [
+      3
+    ],
+    "body": [
+      3
+    ],
+    "length": [
+      3
+    ],
+    "top-level": [
+      3
+    ],
+    "scannable": [
+      3
+    ],
+    "folds": [
+      3
+    ],
+    "paper-trail": [
+      3,
+      4
+    ],
+    "note": [
+      3
+    ],
+    "repeat-back": [
+      3,
+      4
+    ],
+    "confirmation": [
+      3
+    ],
+    "restated": [
+      3
+    ],
+    "problem": [
+      3
+    ],
+    "statement": [
+      3
+    ],
+    "matches": [
+      3
+    ],
+    "hypothesis": [
+      3
+    ],
+    "half": [
+      4
+    ],
+    "consumes": [
+      4
+    ],
+    "decision": [
+      4
+    ],
+    "ratified": [
+      4
+    ],
+    "verbatim": [
+      4
+    ]
+  },
+  "pendingOverrides": [],
+  "solveLeakageLedger": [
+    {
+      "origin_tenet": "problem_articulation",
+      "entry": {
+        "text": "D.2 redesigns the half of the conversation the designer sees and feels — Voice, Style, packet shape, phase orchestration, round-cycle mechanics, coordinate rendering, and the closing-argument render — against fixed Proof-layer contracts shipped by D.1.",
+        "current_behavior": "Skill body prescribes one packet shape; flow files prescribe per-flow detail; current shape mismatches the cluster-D-locked information packet.",
+        "desired_behavior": "Presentation reconciles with cluster-D foundation; the PM-as-decider asymmetry is structurally enforced throughout."
+      },
+      "errors": [
+        "problem_articulation: phase-vocabulary violation — solve-side tokens: layer"
+      ],
+      "round": 1
+    },
+    {
+      "origin_tenet": "constraint_envelope",
+      "entry": {
+        "text": "Proof layer ships four contracts as read-only inheritance: seed-submission shape, consent-token construction, three-state closure gate, immutable post-go semantics.",
+        "constraint_type": "inheritance",
+        "source": "D.1 design brief NC-1, NC-8, NC-11, NC-12"
+      },
+      "errors": [
+        "constraint_envelope: phase-vocabulary violation — solve-side tokens: layer"
+      ],
+      "round": 1
+    },
+    {
+      "origin_tenet": "open_questions_ledger",
+      "entry": {
+        "text": "Closing-argument render protocol shape — direct from envelope, agent-prose intermediate with designer correction, or designer-driven walkthrough with agent answering.",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN"
+      },
+      "errors": [
+        "open_questions_ledger: phase-vocabulary violation — solve-side tokens: protocol"
+      ],
+      "round": 1
+    },
+    {
+      "origin_tenet": "open_questions_ledger",
+      "entry": {
+        "text": "Closing argument render protocol mechanics remain open: how the structured envelope becomes prose, who composes it, when in the session it surfaces. Voice for that prose is now settled (briefing voice); composition mechanics still queued.",
+        "question_source": "agent_uncertainty",
+        "status": "OPEN"
+      },
+      "errors": [
+        "open_questions_ledger: phase-vocabulary violation — solve-side tokens: protocol"
+      ],
+      "round": 2
+    },
+    {
+      "origin_tenet": "problem_articulation",
+      "entry": {
+        "text": "D.2 builds the Presentation layer of the redesigned design-large-task skill — voice, packet, phase orchestration, round mechanics, render steps — sitting on D.1's fixed Proof layer contracts, so the designer consumes proof state and ratifies the closing argument and the brief as their position without further correction."
+      },
+      "errors": [
+        "problem_articulation: phase-vocabulary violation — solve-side tokens: layer"
+      ],
+      "round": 3
+    },
+    {
+      "origin_tenet": "cost_energy_budget",
+      "entry": {
+        "text": "Complexity ceiling: D.2 inherits the existing Proof layer surface; complexity is bounded by D.1's shipped contracts and cluster D's locked architectural commitments.",
+        "dimension": "complexity_ceiling"
+      },
+      "errors": [
+        "cost_energy_budget: phase-vocabulary violation — solve-side tokens: layer"
+      ],
+      "round": 3
+    }
+  ],
+  "repeatBackHistory": [
+    {
+      "round": 3,
+      "statement": "D.2 builds the Presentation layer of the redesigned design-large-task skill — voice, packet, phase orchestration, round mechanics, render steps — sitting on D.1's fixed Proof layer contracts, so the designer consumes proof state and ratifies the closing argument and the brief as their position without further correction.",
+      "designer_quote": null,
+      "designer_ratified": false,
+      "submitted_at": "2026-05-07T18:52:49.534Z"
+    },
+    {
+      "round": 4,
+      "statement": "D.2 builds the Presentation layer of the redesigned design-large-task skill — voice, packet, phase orchestration, round mechanics, render steps — sitting on D.1's fixed Proof layer contracts, so the designer consumes proof state and ratifies the closing argument and the brief as their position without further correction.",
+      "designer_quote": "approved",
+      "designer_ratified": true,
+      "submitted_at": "2026-05-07T19:12:05.786Z"
+    },
+    {
+      "round": 5,
+      "statement": "D.2 builds the redesigned design-large-task Presentation layer (voice, packet, phase orchestration, round mechanics, render steps) that interfaces with the Proof layer contracts so that the designer can read, understand, and update proof state, culminating with the ratification of the closing argument, production of the design brief, and handover to design-specify.",
+      "designer_quote": "yes",
+      "designer_ratified": true,
+      "submitted_at": "2026-05-07T20:25:54.752Z"
+    }
+  ],
+  "transition": {
+    "ready": true,
+    "reasons": [],
+    "overall": 0.93
+  },
+  "transitionHistory": [
+    {
+      "ready": false,
+      "reasons": [
+        "done_state_vision below floor (0 < 0.4)",
+        "personal_use_case_map below floor (0 < 0.4)",
+        "cost_energy_budget below floor (0 < 0.4)"
+      ],
+      "overall": 0.673
+    },
+    {
+      "ready": false,
+      "reasons": [
+        "cost_energy_budget below floor (0 < 0.4)"
+      ],
+      "overall": 0.86
+    },
+    {
+      "ready": false,
+      "reasons": [
+        "no designer-ratified problem-statement repeat-back in last 2 rounds"
+      ],
+      "overall": 0.93
+    },
+    {
+      "ready": true,
+      "reasons": [],
+      "overall": 0.93
+    },
+    {
+      "ready": true,
+      "reasons": [],
+      "overall": 0.93
+    }
+  ],
+  "warningsHistory": [
+    [],
+    [],
+    [
+      "problem_articulation: entry missing both current_behavior and desired_behavior — at least one expected",
+      "repeat_back_statement provided without designer ratification quote"
+    ],
+    [],
+    []
+  ]
+}

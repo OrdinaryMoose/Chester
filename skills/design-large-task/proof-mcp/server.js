@@ -5,22 +5,23 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { ListToolsRequestSchema, CallToolRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 import {
-  initializeState, applyOperations, markChallengeUsed, saveState, loadState,
-  addConcern, lockConcerns, ratifyConcern, ratifyResolveCondition,
+  initializeState, applyOperations, saveState, loadState,
+  addConcern, ratifyConcern, ratifyResolveCondition,
   manageFriction, overrideFrictionDisposition,
-  recordClosingArgPresented, recordDesignerGo, reopenProof,
+  recordClosingArgPresented, recordDesignerGo,
   manageDefinitions,
   withdrawElement, withdrawConcern, withdrawDefinition,
   appendOperationLog,
 } from './state.js';
 import { checkAllIntegrity, FRICTION_SHAPES, FRICTION_DISPOSITIONS, WITHDRAWAL_DISPOSITIONS, CONSENT_SOURCES, SCHEMA_VERSION, validateConsentToken, entityType } from './proof.js';
 import {
-  computeCompleteness, computeGroundingCoverage, detectChallenge, checkClosure,
-  checkConcernCoverage, evaluateTrigger, concernsRatificationGate,
+  computeCompleteness, computeGroundingCoverage, checkClosure,
+  checkConcernCoverage, evaluateTrigger,
 } from './metrics.js';
 import { deriveClosingArgument } from './closing-argument.js';
 import { restructure } from './restructure.js';
 import { checkOpenGate } from './open-gate.js';
+import { checkFirstYesGate } from './first-yes-gate.js';
 import { existsSync } from 'node:fs';
 
 const ELEMENT_TYPES = ['EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK', 'RESOLVE_CONDITION', 'FRICTION'];
@@ -46,12 +47,28 @@ const server = new Server(
 );
 
 // Classify a state-layer error string into the MCP error response shape.
-// INVALID_CONSENT: ... is the only currently-defined coded class; everything else
-// is a domain error (e.g. integrity check failure, NOT_FOUND).
+// Coded classes: INVALID_CONSENT, PROOF_FINISHED. Everything else falls through
+// to DOMAIN_ERROR (integrity check failure, NOT_FOUND, etc.).
 function classifyStateError(err) {
+  if (err.startsWith('INVALID_CONSENT')) return { code: 'INVALID_CONSENT', message: err };
+  if (err.startsWith('PROOF_FINISHED')) return { code: 'PROOF_FINISHED', message: err };
+  return { code: 'DOMAIN_ERROR', message: err };
+}
+
+// Pre-flight refusal for mutating handlers: returns an isError MCP response
+// when the proof is already finished. Defense-in-depth: handleSubmitProofUpdate
+// reads result.errors[] directly rather than going through classifyStateError,
+// so handlers must guard before calling the state layer.
+function proofFinishedResponse() {
   return {
-    code: err.startsWith('INVALID_CONSENT') ? 'INVALID_CONSENT' : 'DOMAIN_ERROR',
-    message: err,
+    content: [{
+      type: 'text',
+      text: JSON.stringify({
+        code: 'PROOF_FINISHED',
+        message: 'Proof is finished; no further mutations permitted',
+      }),
+    }],
+    isError: true,
   };
 }
 
@@ -100,11 +117,6 @@ const TOOLS = [
             required: ['op'],
           },
         },
-        challenge_used: {
-          type: 'string',
-          enum: ['contrarian', 'simplifier', 'ontologist'],
-          description: 'Optional challenge mode used this round',
-        },
         consent: CONSENT_SCHEMA,
       },
       required: ['state_file', 'operations', 'consent'],
@@ -117,18 +129,19 @@ const TOOLS = [
       type: 'object',
       properties: {
         state_file: { type: 'string', description: 'Absolute path to state JSON' },
+        summary_mode: { type: 'boolean', description: 'When true, return counts and IDs only (no element bodies, no operation log).' },
       },
       required: ['state_file'],
     },
   },
   {
     name: 'manage_concerns',
-    description: 'Add, lock, or ratify Concerns attached to the problem statement. Concerns anchor Resolve Conditions for closure coverage; ratify transitions a Concern from draft to ratified.',
+    description: 'Add or ratify Concerns attached to the problem statement. Concerns anchor Resolve Conditions for closure coverage; ratify transitions a Concern from draft to ratified.',
     inputSchema: {
       type: 'object',
       properties: {
         state_file: { type: 'string', description: 'Absolute path to state JSON' },
-        op: { type: 'string', enum: ['add', 'lock', 'ratify'] },
+        op: { type: 'string', enum: ['add', 'ratify'] },
         label: { type: 'string', description: 'Concern label (required for op=add)' },
         description: { type: 'string', description: 'Optional Concern description (op=add only)' },
         concern_id: { type: 'string', description: 'CERN-N id of the Concern to ratify (required for op=ratify)' },
@@ -260,18 +273,6 @@ const TOOLS = [
       required: ['state_file', 'consent'],
     },
   },
-  {
-    name: 'reopen_proof',
-    description: 'Reopen a closed proof. Captures the pre-reopen closing-argument envelope into lastClosureArtifact, clears both two-yes flags, and transitions proofStatus closed→open. Refuses if proof is not currently closed (NOT_CLOSED).',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        state_file: { type: 'string', description: 'Absolute path to state JSON' },
-        consent: CONSENT_SCHEMA,
-      },
-      required: ['state_file', 'consent'],
-    },
-  },
 ];
 
 // ── Request Handlers ─────────────────────────────────────────────
@@ -305,8 +306,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         return handlePresentClosingArgument(args);
       case 'confirm_closure_go':
         return handleConfirmClosureGo(args);
-      case 'reopen_proof':
-        return handleReopenProof(args);
       case 'withdraw':
         return handleWithdraw(args);
       default:
@@ -325,8 +324,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
 // ── Tool Handlers ────────────────────────────────────────────────
 
-function handleSubmitProofUpdate({ state_file, operations, challenge_used, consent }) {
+export function handleSubmitProofUpdate({ state_file, operations, consent }) {
   let state = loadState(state_file);
+
+  if (state.proofStatus === 'finish') {
+    return proofFinishedResponse();
+  }
 
   const result = applyOperations(state, operations, consent);
 
@@ -363,10 +366,6 @@ function handleSubmitProofUpdate({ state_file, operations, challenge_used, conse
 
   state = result.state;
 
-  if (challenge_used) {
-    state = markChallengeUsed(state, challenge_used);
-  }
-
   saveState(state, state_file);
 
   return {
@@ -381,8 +380,7 @@ function handleSubmitProofUpdate({ state_file, operations, challenge_used, conse
         errors: result.errors,
         integrity_warnings: result.integrityWarnings,
         completeness: result.completeness,
-        challenge_trigger: result.challengeTrigger,
-        stall_detected: result.stallDetected,
+        body_advancement: result.bodyAdvancement,
         closure_permitted: result.closure.permitted,
         closure_reasons: result.closure.reasons,
         friction_hints: result.friction_hints,
@@ -391,26 +389,73 @@ function handleSubmitProofUpdate({ state_file, operations, challenge_used, conse
   };
 }
 
-export function handleGetProofState({ state_file }) {
+function buildSummaryShape(state) {
+  const counts = {
+    ncs: 0, rcs: 0, rules: 0, permissions: 0,
+    evidence: 0, risks: 0, frictions: 0,
+    concerns: (state.concerns || []).filter(c => c.status !== 'withdrawn').length,
+    definitions: (state.definitions || []).filter(d => d.status !== 'withdrawn').length,
+    ratified: { ncs: 0, rcs: 0, concerns: 0, definitions: 0 },
+  };
+  const elementsOut = {};
+  for (const [id, el] of state.elements) {
+    if (el.status !== 'active' && el.status !== 'withdrawn') continue;
+    elementsOut[id] = { type: el.type, status: el.status };
+    if (el.status !== 'active') continue;
+    switch (el.type) {
+      case 'NECESSARY_CONDITION':
+        counts.ncs++;
+        if (el.ratificationStatus === 'ratified') counts.ratified.ncs++;
+        break;
+      case 'RESOLVE_CONDITION':
+        counts.rcs++;
+        if (el.ratification !== null) counts.ratified.rcs++;
+        break;
+      case 'RULE': counts.rules++; break;
+      case 'PERMISSION': counts.permissions++; break;
+      case 'EVIDENCE': counts.evidence++; break;
+      case 'RISK': counts.risks++; break;
+      case 'FRICTION': counts.frictions++; break;
+    }
+  }
+  for (const c of state.concerns || []) if (c.status === 'ratified') counts.ratified.concerns++;
+  for (const d of state.definitions || []) if (d.status === 'ratified') counts.ratified.definitions++;
+
+  const closure = checkClosure(state);
+  return {
+    proofStatus: state.proofStatus,
+    round: state.round,
+    counts,
+    closurePermitted: closure.permitted,
+    closureReasons: closure.reasons,
+    elements: elementsOut,
+    concerns: (state.concerns || []).map(c => ({ id: c.id, status: c.status })),
+    definitions: (state.definitions || []).map(d => ({ id: d.id, status: d.status })),
+  };
+}
+
+export function handleGetProofState({ state_file, summary_mode }) {
   const state = loadState(state_file);
+
+  if (summary_mode === true) {
+    return { content: [{ type: 'text', text: JSON.stringify(buildSummaryShape(state)) }] };
+  }
 
   const integrityWarnings = checkAllIntegrity(state.elements);
   const completeness = {
     ...computeCompleteness(state.elements, state),
     groundingCoverage: computeGroundingCoverage(state.elements),
   };
-  const challengeTrigger = detectChallenge(state);
   const closure = checkClosure(state);
   const response = {
     ...state,
     elements: Object.fromEntries(state.elements),
     integrity_warnings: integrityWarnings,
     completeness,
-    challenge_trigger: challengeTrigger,
     closure_permitted: closure.permitted,
     closure_reasons: closure.reasons,
   };
-  if (state.concernsLocked) {
+  if (state.concerns && state.concerns.length > 0) {
     response.concernCoverage = checkConcernCoverage(state);
   }
   return { content: [{ type: 'text', text: JSON.stringify(response) }] };
@@ -418,6 +463,9 @@ export function handleGetProofState({ state_file }) {
 
 function handleManageConcerns({ state_file, op, label, description, concern_id, consent }) {
   let state = loadState(state_file);
+  if (state.proofStatus === 'finish') {
+    return proofFinishedResponse();
+  }
   if (op === 'add') {
     if (!label) {
       return { content: [{ type: 'text', text: JSON.stringify({ status: 'rejected', error: 'label required for op=add' }) }], isError: true };
@@ -428,14 +476,6 @@ function handleManageConcerns({ state_file, op, label, description, concern_id, 
     }
     saveState(newState, state_file);
     return { content: [{ type: 'text', text: JSON.stringify({ status: 'accepted', concern_id: concernId, concerns_count: newState.concerns.length, friction_hints }) }] };
-  }
-  if (op === 'lock') {
-    const [newState, friction_hints, err] = lockConcerns(state, consent);
-    if (err) {
-      return { content: [{ type: 'text', text: JSON.stringify(classifyStateError(err)) }], isError: true };
-    }
-    saveState(newState, state_file);
-    return { content: [{ type: 'text', text: JSON.stringify({ status: 'accepted', locked: true, concerns_count: newState.concerns.length, friction_hints }) }] };
   }
   if (op === 'ratify') {
     if (!concern_id) {
@@ -454,6 +494,9 @@ function handleManageConcerns({ state_file, op, label, description, concern_id, 
 
 function handleManageFriction({ state_file, op, friction_shape, anchor_a, anchor_b, disposition, statement, source, consent }) {
   let state = loadState(state_file);
+  if (state.proofStatus === 'finish') {
+    return proofFinishedResponse();
+  }
   const [fricId, newState, friction_hints, err] = manageFriction(state, { op, friction_shape, anchor_a, anchor_b, disposition, statement, source }, consent);
   if (err) {
     return { content: [{ type: 'text', text: JSON.stringify(classifyStateError(err)) }], isError: true };
@@ -492,6 +535,9 @@ export function handleManageDefinitions({ state_file, op, canonical_name, aliase
     };
   }
 
+  if (state.proofStatus === 'finish') {
+    return proofFinishedResponse();
+  }
   const payload = { canonical_name, aliases, definition, sense_constraints, id };
   const [resultId, newState, err] = manageDefinitions(state, op, payload, consent);
   if (err) {
@@ -514,6 +560,9 @@ export function handleManageDefinitions({ state_file, op, canonical_name, aliase
 
 function handleOverrideFrictionDisposition({ state_file, element_id, disposition, consent }) {
   let state = loadState(state_file);
+  if (state.proofStatus === 'finish') {
+    return proofFinishedResponse();
+  }
   const [newState, friction_hints, err] = overrideFrictionDisposition(state, { elementId: element_id, disposition }, consent);
   if (err) {
     return { content: [{ type: 'text', text: JSON.stringify(classifyStateError(err)) }], isError: true };
@@ -536,6 +585,9 @@ function handleOverrideFrictionDisposition({ state_file, element_id, disposition
 
 function handleRatifyResolveCondition({ state_file, element_id, ratification, consent }) {
   let state = loadState(state_file);
+  if (state.proofStatus === 'finish') {
+    return proofFinishedResponse();
+  }
   const [newState, friction_hints, err] = ratifyResolveCondition(state, { elementId: element_id, ratificationText: ratification }, consent);
   if (err) {
     return { content: [{ type: 'text', text: JSON.stringify(classifyStateError(err)) }], isError: true };
@@ -560,13 +612,21 @@ function handleRatifyResolveCondition({ state_file, element_id, ratification, co
 
 export function handlePresentClosingArgument({ state_file, consent }) {
   let state = loadState(state_file);
-  // Hard gate (NC-9): Concerns must be locked AND fully ratified before any
-  // closing-argument generation. Gate failures are isError responses with a
-  // structured code so callers can differentiate refusal types.
-  const gate = concernsRatificationGate(state);
+  if (state.proofStatus === 'finish') {
+    return proofFinishedResponse();
+  }
+  // First-yes precondition (AC-4.1, AC-4.2): every active element across the
+  // four lanes (NCs, RCs, Concerns, Definitions) must be ratified before a
+  // closing argument can be generated. Gate failure returns FIRST_YES_GATE_FAILED
+  // with the list of unratified element ids so the caller can drive ratification.
+  const gate = checkFirstYesGate(state);
   if (!gate.passed) {
     return {
-      content: [{ type: 'text', text: JSON.stringify({ code: gate.code, message: gate.message }) }],
+      content: [{ type: 'text', text: JSON.stringify({
+        code: 'FIRST_YES_GATE_FAILED',
+        unratified_ids: gate.unratifiedIds,
+        message: 'Closing argument cannot be presented while elements are in working state',
+      }) }],
       isError: true,
     };
   }
@@ -590,6 +650,9 @@ export function handlePresentClosingArgument({ state_file, consent }) {
 
 function handleConfirmClosureGo({ state_file, consent }) {
   let state = loadState(state_file);
+  if (state.proofStatus === 'finish') {
+    return proofFinishedResponse();
+  }
   const [newState, err] = recordDesignerGo(state, consent);
   if (err) {
     if (err.startsWith('INVALID_CONSENT')) {
@@ -602,31 +665,12 @@ function handleConfirmClosureGo({ state_file, consent }) {
   return { content: [{ type: 'text', text: JSON.stringify(closure, null, 2) }] };
 }
 
-export function handleReopenProof({ state_file, consent }) {
-  const state = loadState(state_file);
-  const [newState, err] = reopenProof(state, consent);
-  if (err) {
-    let code;
-    if (err.startsWith('INVALID_CONSENT')) code = 'INVALID_CONSENT';
-    else if (err.startsWith('NOT_CLOSED')) code = 'NOT_CLOSED';
-    else code = 'DOMAIN_ERROR';
-    return {
-      content: [{ type: 'text', text: JSON.stringify({ code, message: err }) }],
-      isError: true,
-    };
-  }
-  saveState(newState, state_file);
-  return {
-    content: [{ type: 'text', text: JSON.stringify({ reopened: true, proofStatus: 'open' }) }],
-  };
-}
-
 /**
  * Best-effort persistence of a rejected open attempt so the designer can audit
  * INVALID_SEED_PACKET rejections. Never overwrites a successful prior open:
  * if loadState succeeds it preserves the existing proofStatus and just appends
  * a rejection entry to the operationLog. If load fails (file missing/corrupt),
- * synthesizes a minimal stub state with proofStatus='unopen'.
+ * synthesizes a minimal stub state with proofStatus='planning'.
  *
  * Swallows secondary failures — the primary error response is what matters.
  */
@@ -636,7 +680,7 @@ function persistRejectedOpen(state_file, consent, reason) {
     let priorOpen = false;
     try {
       state = loadState(state_file);
-      priorOpen = state.proofStatus === 'open' || state.proofStatus === 'closed';
+      priorOpen = state.proofStatus === 'planning' || state.proofStatus === 'finish';
     } catch (_loadErr) {
       state = initializeState(null);
     }
@@ -757,7 +801,7 @@ export function handleOpenProof({ state_file, submission_material }) {
   if (existsSync(state_file)) {
     try {
       const existingState = loadState(state_file);
-      if (existingState.proofStatus === 'open') {
+      if (existingState.proofStatus === 'planning') {
         return {
           content: [{ type: 'text', text: JSON.stringify({
             status: 'already_open',
@@ -826,7 +870,7 @@ export function handleOpenProof({ state_file, submission_material }) {
     changedFields: null,
     provenance: { source_directive: consent?.rationale ?? null },
   });
-  state.proofStatus = 'open';
+  state.proofStatus = 'planning';
 
   // 8. Apply admitted typed elements + provision Concerns.
   const admittedTypedElements = restructured.admitted.filter(a => a.category !== 'Concern');
@@ -862,7 +906,7 @@ export function handleOpenProof({ state_file, submission_material }) {
 
   // applyOperations and addConcern create their own clones; reassert proofStatus
   // on the final reference before persistence.
-  state.proofStatus = 'open';
+  state.proofStatus = 'planning';
   try {
     saveState(state, state_file);
   } catch (saveErr) {
@@ -912,6 +956,10 @@ export function handleWithdraw({ state_file, category, element_id, disposition, 
   }
 
   let state = loadState(state_file);
+
+  if (state.proofStatus === 'finish') {
+    return proofFinishedResponse();
+  }
 
   let derivedCategory;
   try {

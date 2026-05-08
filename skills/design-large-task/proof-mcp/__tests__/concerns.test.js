@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
 import {
-  initializeState, applyOperations, addConcern, lockConcerns,
+  initializeState, applyOperations, addConcern,
   ratifyResolveCondition, ratifyConcern, saveState, loadState,
 } from '../state.js';
 import { checkClosure } from '../metrics.js';
@@ -13,20 +13,23 @@ describe('Concerns lifecycle — full integration', () => {
   beforeEach(() => { tmp = mkdtempSync(join(tmpdir(), 'concerns-')); });
   afterEach(() => { rmSync(tmp, { recursive: true, force: true }); });
 
-  it('enumerate → lock → add RC → ratify → close', () => {
+  it('enumerate → ratify → add RC → ratify-RC → close', () => {
     let state = initializeState('How to ensure correctness?');
     [, state] = addConcern(state, { label: 'Correctness', description: 'system rejects invalid input' }, { source: 'designer', rationale: 'test' });
     [, state] = addConcern(state, { label: 'Performance' }, { source: 'designer', rationale: 'test' });
-    [state] = lockConcerns(state, { source: 'designer', rationale: 'test' });
+    [state] = ratifyConcern(state, 'CERN-1', { source: 'designer', rationale: 'test' });
+    [state] = ratifyConcern(state, 'CERN-2', { source: 'designer', rationale: 'test' });
 
     let result = applyOperations(state, [
       { op: 'add', type: 'EVIDENCE', statement: 'audit', source: 'codebase' },
       { op: 'add', type: 'NECESSARY_CONDITION', statement: 'must validate', grounding: ['EVID-1'], collapse_test: 'breaks', reasoning_chain: 'IF...THEN', rejected_alternatives: ['skip'] },
       { op: 'add', type: 'RESOLVE_CONDITION', statement: 'invalid input rejected', problem_anchor: 'CERN-1' },
+      { op: 'add', type: 'RESOLVE_CONDITION', statement: 'performance maintained', problem_anchor: 'CERN-2' },
     ], { source: 'designer', rationale: 'test' });
     expect(result.errors).toEqual([]);
     state = result.state;
     [state] = ratifyResolveCondition(state, { elementId: 'RCON-1', ratificationText: 'PM approves' }, { source: 'designer', rationale: 'test' });
+    [state] = ratifyResolveCondition(state, { elementId: 'RCON-2', ratificationText: 'PM approves perf' }, { source: 'designer', rationale: 'test' });
 
     result = applyOperations(state, [
       { op: 'add', type: 'RULE', statement: 'preserve performance baseline', source: 'designer' },
@@ -45,15 +48,10 @@ describe('Concerns lifecycle — full integration', () => {
     expect(closure.reasons).toEqual([]);
   });
 
-  it('refuses to add Concern after lock; coverage refuses on uncovered Concern', () => {
+  it('coverage refuses on uncovered Concern (no lock gate; AC-2.2)', () => {
     let state = initializeState('test');
     [, state] = addConcern(state, { label: 'A' }, { source: 'designer', rationale: 'test' });
     [, state] = addConcern(state, { label: 'B' }, { source: 'designer', rationale: 'test' });
-    [state] = lockConcerns(state, { source: 'designer', rationale: 'test' });
-    const [id, sameState, , err] = addConcern(state, { label: 'C' }, { source: 'designer', rationale: 'test' });
-    expect(id).toBeNull();
-    expect(err).toMatch(/locked/i);
-    expect(sameState.concerns).toHaveLength(2);
 
     state.phaseTransitionRound = 0;
     state.round = 3;
@@ -72,7 +70,6 @@ describe('Concerns lifecycle — full integration', () => {
   it('round-trips state with concerns + ratificationLog through saveState/loadState', () => {
     let state = initializeState('test');
     [, state] = addConcern(state, { label: 'X', description: 'd' }, { source: 'designer', rationale: 'test' });
-    [state] = lockConcerns(state, { source: 'designer', rationale: 'test' });
     const result = applyOperations(state, [
       { op: 'add', type: 'RESOLVE_CONDITION', statement: 's', problem_anchor: 'CERN-1' },
     ], { source: 'designer', rationale: 'test' });
@@ -84,7 +81,7 @@ describe('Concerns lifecycle — full integration', () => {
     const loaded = loadState(path);
 
     expect(loaded.concerns).toEqual(state.concerns);
-    expect(loaded.concernsLocked).toBe(true);
+    expect(loaded).not.toHaveProperty('concernsLocked');
     expect(loaded.ratificationLog).toHaveLength(1);
     expect(loaded.ratificationLog[0]).toMatchObject({ event: 'ratified', target: 'RCON-1' });
     expect(loaded.elements.get('RCON-1').ratification).toEqual({ ratifiedAtRound: 1, text: 'ok' });
@@ -145,7 +142,7 @@ describe('Concern status field', () => {
     expect(lastOp.provenance).toEqual({ before: 'draft', after: 'ratified' });
   });
 
-  it('loadState backfills draft status on legacy state with concernsLocked: false', () => {
+  it('loadState backfills draft status on legacy state without per-Concern status (AC-2.2)', () => {
     const legacy = {
       schemaVersion: 1,
       round: 0,
@@ -159,7 +156,6 @@ describe('Concern status field', () => {
       revisionLog: [],
       phaseTransitionRound: 0,
       concerns: [{ id: 'CERN-1', label: 'A', description: 'd' }],
-      concernsLocked: false,
       concernCounter: 1,
       ratificationLog: [],
       frictionLog: [],
@@ -168,39 +164,10 @@ describe('Concern status field', () => {
       proofStatus: 'open',
       operationLog: [],
     };
-    const path = join(tmp, 'legacy-unlocked.json');
+    const path = join(tmp, 'legacy.json');
     writeFileSync(path, JSON.stringify(legacy));
     const loaded = loadState(path);
     expect(loaded.concerns[0].status).toBe('draft');
-  });
-
-  it('loadState backfills ratified status on legacy state with concernsLocked: true', () => {
-    const legacy = {
-      schemaVersion: 1,
-      round: 0,
-      problemStatement: 't',
-      elements: {},
-      elementCounters: { EVIDENCE: 0, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 0, RISK: 0, RESOLVE_CONDITION: 0, FRICTION: 0 },
-      conditionCountHistory: [],
-      elementCountHistory: [],
-      challengeModesUsed: [],
-      challengeLog: [],
-      revisionLog: [],
-      phaseTransitionRound: 0,
-      concerns: [{ id: 'CERN-1', label: 'A', description: 'd' }],
-      concernsLocked: true,
-      concernCounter: 1,
-      ratificationLog: [],
-      frictionLog: [],
-      closingArgPresentedRound: null,
-      closingArgGoRound: null,
-      proofStatus: 'open',
-      operationLog: [],
-    };
-    const path = join(tmp, 'legacy-locked.json');
-    writeFileSync(path, JSON.stringify(legacy));
-    const loaded = loadState(path);
-    expect(loaded.concerns[0].status).toBe('ratified');
   });
 
   it('loadState preserves explicit status when already present', () => {
@@ -217,7 +184,6 @@ describe('Concern status field', () => {
       revisionLog: [],
       phaseTransitionRound: 0,
       concerns: [{ id: 'CERN-1', label: 'A', description: 'd', status: 'ratified' }],
-      concernsLocked: false,
       concernCounter: 1,
       ratificationLog: [],
       frictionLog: [],

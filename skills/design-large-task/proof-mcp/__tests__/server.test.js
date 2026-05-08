@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync, existsSync, unlinkSync, writeFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { handleOpenProof, handleManageDefinitions, handleGetProofState, handlePresentClosingArgument } from '../server.js';
-import { initializeState, saveState, addConcern, lockConcerns, ratifyConcern } from '../state.js';
+import { handleOpenProof, handleManageDefinitions, handleGetProofState, handlePresentClosingArgument, handleSubmitProofUpdate } from '../server.js';
+import { initializeState, saveState, addConcern, ratifyConcern } from '../state.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const serverSource = readFileSync(join(__dirname, '../server.js'), 'utf-8');
@@ -23,8 +23,8 @@ describe('server.js — manage_concerns tool', () => {
     expect(serverSource).toMatch(/name:\s*'manage_concerns'/);
   });
 
-  it('manage_concerns op enum lists add, lock, and ratify', () => {
-    expect(serverSource).toMatch(/op:\s*\{[^}]*enum:\s*\[\s*'add',\s*'lock',\s*'ratify'\s*\]/s);
+  it('manage_concerns op enum lists add and ratify (lock retired AC-2.2)', () => {
+    expect(serverSource).toMatch(/op:\s*\{[^}]*enum:\s*\[\s*'add',\s*'ratify'\s*\]/s);
   });
 
   it('dispatches ratify op in manage_concerns handler', () => {
@@ -182,7 +182,7 @@ describe('handleOpenProof — three-phase orchestration', () => {
     expect(payload.restructuring_report).toBeDefined();
     expect(existsSync(tmp)).toBe(true);
     const written = JSON.parse(readFileSync(tmp, 'utf-8'));
-    expect(written.proofStatus).toBe('open');
+    expect(written.proofStatus).toBe('planning');
     unlinkSync(tmp);
   });
 
@@ -228,7 +228,7 @@ describe('handleOpenProof — three-phase orchestration', () => {
       },
     });
     const written = JSON.parse(readFileSync(tmp, 'utf-8'));
-    expect(written.proofStatus).toBe('open');
+    expect(written.proofStatus).toBe('planning');
     expect(Object.keys(written.elements).length).toBeGreaterThan(0);
     expect(written.problemStatement).toBe('order test');
     if (existsSync(tmp)) unlinkSync(tmp);
@@ -316,7 +316,7 @@ describe('handleOpenProof — already-open refusal', () => {
       round: 5, problemStatement: 'prior', elements: {},
       elementCounters: { EVIDENCE: 0, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 0, RISK: 0, RESOLVE_CONDITION: 0, FRICTION: 0 },
       conditionCountHistory: [], elementCountHistory: [], challengeModesUsed: [], challengeLog: [], revisionLog: [], phaseTransitionRound: 0,
-      concerns: [], concernsLocked: false, concernCounter: 0, ratificationLog: [], frictionLog: [],
+      concerns: [], concernCounter: 0, ratificationLog: [], frictionLog: [],
       closingArgPresentedRound: null, closingArgGoRound: null,
       proofStatus: 'open',
     };
@@ -358,7 +358,7 @@ describe('handleOpenProof — already-open refusal', () => {
     expect(payload.status).toBe('opened');
     const written = JSON.parse(readFileSync(tmp, 'utf-8'));
     expect(written.problemStatement).toBe('recovery from malformed state');
-    expect(written.proofStatus).toBe('open');
+    expect(written.proofStatus).toBe('planning');
     unlinkSync(tmp);
   });
 });
@@ -442,34 +442,19 @@ describe('server.js — manage_definitions tool', () => {
   });
 });
 
-describe('handlePresentClosingArgument — concernsRatificationGate (NC-9)', () => {
+describe('handlePresentClosingArgument — first-yes gate + trigger', () => {
   const TEST_CONSENT = { source: 'designer', rationale: 'present' };
 
-  it('returns isError with CONCERNS_UNLOCKED when concerns are not locked', () => {
-    const tmp = `/tmp/present-unlocked-${Date.now()}.json`;
+  it('returns isError with FIRST_YES_GATE_FAILED when a draft Concern remains', () => {
+    const tmp = `/tmp/present-first-yes-${Date.now()}.json`;
     let s = initializeState('p');
     [, s] = addConcern(s, { label: 'CERN-A', description: 'd' }, { source: 'designer', rationale: 't' });
-    // intentionally do NOT lock
     saveState(s, tmp);
     const resp = handlePresentClosingArgument({ state_file: tmp, consent: TEST_CONSENT });
     expect(resp.isError).toBe(true);
     const payload = JSON.parse(resp.content[0].text);
-    expect(payload.code).toBe('CONCERNS_UNLOCKED');
-    if (existsSync(tmp)) unlinkSync(tmp);
-  });
-
-  it('returns isError with CONCERNS_UNRATIFIED when at least one Concern is draft', () => {
-    const tmp = `/tmp/present-unratified-${Date.now()}.json`;
-    let s = initializeState('p');
-    [, s] = addConcern(s, { label: 'CERN-A', description: 'd' }, { source: 'designer', rationale: 't' });
-    [s] = lockConcerns(s, { source: 'designer', rationale: 't' });
-    // Concerns remain in 'draft' status (not ratified) → gate must refuse with CONCERNS_UNRATIFIED.
-    saveState(s, tmp);
-    const resp = handlePresentClosingArgument({ state_file: tmp, consent: TEST_CONSENT });
-    expect(resp.isError).toBe(true);
-    const payload = JSON.parse(resp.content[0].text);
-    expect(payload.code).toBe('CONCERNS_UNRATIFIED');
-    expect(payload.message).toMatch(/draft/);
+    expect(payload.code).toBe('FIRST_YES_GATE_FAILED');
+    expect(payload.unratified_ids).toContain('CERN-1');
     if (existsSync(tmp)) unlinkSync(tmp);
   });
 
@@ -478,9 +463,8 @@ describe('handlePresentClosingArgument — concernsRatificationGate (NC-9)', () 
     const consent = { source: 'designer', rationale: 't' };
     let s = initializeState('p');
     [, s] = addConcern(s, { label: 'CERN-A', description: 'd' }, consent);
-    [s] = lockConcerns(s, consent);
     [s] = ratifyConcern(s, 'CERN-1', consent);
-    // Gate passes (locked + ratified) but state has no NCs / RCs / Evidence — trigger floors fail.
+    // Gate passes (no draft elements) but state has no NCs / RCs / Evidence — trigger floors fail.
     saveState(s, tmp);
     const resp = handlePresentClosingArgument({ state_file: tmp, consent: TEST_CONSENT });
     expect(resp.isError).toBe(true);
@@ -489,6 +473,54 @@ describe('handlePresentClosingArgument — concernsRatificationGate (NC-9)', () 
     expect(Array.isArray(payload.reasons)).toBe(true);
     expect(payload.reasons.length).toBeGreaterThan(0);
     if (existsSync(tmp)) unlinkSync(tmp);
+  });
+});
+
+describe('handleSubmitProofUpdate — body_advancement response shape', () => {
+  it('submit_proof_update response carries body_advancement and omits retired fields', () => {
+    const tmp = `/tmp/submit-body-adv-${Date.now()}.json`;
+    handleOpenProof({
+      state_file: tmp,
+      submission_material: {
+        problem_statement: 'a problem to solve.',
+        concerns: [{ label: 'C-1', description: 'concern' }],
+        elements: [evidenceEl(), ruleEl()],
+        consent: TEST_CONSENT,
+      },
+    });
+    const response = handleSubmitProofUpdate({
+      state_file: tmp,
+      operations: [
+        {
+          op: 'add',
+          type: 'NECESSARY_CONDITION',
+          statement: 'X',
+          grounding: ['EVID-1'],
+          collapse_test: 'breaks',
+          reasoning_chain: 'because',
+        },
+      ],
+      consent: { source: 'designer', rationale: 'test' },
+    });
+    const payload = JSON.parse(response.content[0].text);
+    expect(payload.body_advancement).toBeDefined();
+    expect(payload.body_advancement).toMatchObject({
+      advanced: expect.any(Boolean),
+      addCount: expect.any(Number),
+      reviseCount: expect.any(Number),
+      withdrawCount: expect.any(Number),
+    });
+    expect(payload.body_advancement.advanced).toBe(true);
+    expect(payload.body_advancement.addCount).toBe(1);
+    expect(payload).not.toHaveProperty('challenge_trigger');
+    expect(payload).not.toHaveProperty('stall_detected');
+    if (existsSync(tmp)) unlinkSync(tmp);
+  });
+
+  it('submit_proof_update tool schema does not declare challenge_used', () => {
+    const block = serverSource.split("name: 'submit_proof_update'")[1] ?? '';
+    const blockEnd = block.indexOf('},\n  {') > -1 ? block.indexOf('},\n  {') : block.length;
+    expect(block.slice(0, blockEnd)).not.toMatch(/challenge_used/);
   });
 });
 
@@ -504,5 +536,183 @@ describe('initialize_proof retirement', () => {
   it('server.js contains no remaining references to initialize_proof or handleInitialize', () => {
     expect(serverSource).not.toContain('initialize_proof');
     expect(serverSource).not.toContain('handleInitialize');
+  });
+});
+
+describe('manage_concerns op:lock retired (AC-2.2)', () => {
+  it("op enum is exactly ['add', 'ratify']", () => {
+    expect(serverSource).toMatch(/op:\s*\{[^}]*enum:\s*\[\s*'add',\s*'ratify'\s*\]/s);
+    expect(serverSource).not.toMatch(/op:\s*\{[^}]*enum:\s*\[[^\]]*'lock'/s);
+  });
+
+  it('lockConcerns is not exported from state.js', async () => {
+    const stateModule = await import('../state.js');
+    expect(stateModule.lockConcerns).toBeUndefined();
+  });
+
+  it('initializeState does not set concernsLocked', async () => {
+    const { initializeState: init } = await import('../state.js');
+    const s = init('p');
+    expect(s).not.toHaveProperty('concernsLocked');
+  });
+
+  it('adding a Concern always succeeds, regardless of prior count', async () => {
+    const { initializeState: init, addConcern: add } = await import('../state.js');
+    let s = init('p');
+    for (let i = 0; i < 5; i++) {
+      const [, ns] = add(s, { label: `C${i}` }, { source: 'designer', rationale: 't' });
+      s = ns;
+    }
+    expect(s.concerns.length).toBe(5);
+  });
+
+  it('server.js source contains no remaining references to lockConcerns or op === lock', () => {
+    expect(serverSource).not.toContain('lockConcerns');
+    expect(serverSource).not.toMatch(/op\s*===\s*'lock'/);
+  });
+});
+
+describe('reopen_proof retired (AC-2.1)', () => {
+  it('reopen_proof is not declared in server.js TOOLS source', () => {
+    expect(serverSource).not.toContain("name: 'reopen_proof'");
+    expect(serverSource).not.toContain("'reopen_proof'");
+  });
+
+  it('handleReopenProof is not present in server.js source', () => {
+    expect(serverSource).not.toContain('handleReopenProof');
+    expect(serverSource).not.toContain('reopenProof');
+  });
+
+  it('reopenProof is not exported from state.js', async () => {
+    const stateModule = await import('../state.js');
+    expect(stateModule.reopenProof).toBeUndefined();
+  });
+
+  it('initializeState does not set lastClosureArtifact', async () => {
+    const { initializeState } = await import('../state.js');
+    const s = initializeState('p');
+    expect(s).not.toHaveProperty('lastClosureArtifact');
+  });
+});
+
+describe('challenge mode personalities retired (AC-2.3)', () => {
+  it('get_proof_state response does not carry challenge_trigger', () => {
+    const tmp = `/tmp/no-challenge-trigger-${Date.now()}.json`;
+    saveState(initializeState('p'), tmp);
+    const res = handleGetProofState({ state_file: tmp });
+    const payload = JSON.parse(res.content[0].text);
+    expect(payload).not.toHaveProperty('challenge_trigger');
+    if (existsSync(tmp)) unlinkSync(tmp);
+  });
+
+  it('initializeState does not set challenge personality fields', () => {
+    const s = initializeState('p');
+    expect(s).not.toHaveProperty('challengeModesUsed');
+    expect(s).not.toHaveProperty('challengeLog');
+    expect(s).not.toHaveProperty('conditionCountHistory');
+    expect(s).not.toHaveProperty('elementCountHistory');
+  });
+
+  it('detectChallenge / detectStall / STALL_WINDOW retired from metrics.js', async () => {
+    const m = await import('../metrics.js');
+    expect(m.detectChallenge).toBeUndefined();
+    expect(m.detectStall).toBeUndefined();
+    expect(m.STALL_WINDOW).toBeUndefined();
+  });
+
+  it('markChallengeUsed retired from state.js', async () => {
+    const s = await import('../state.js');
+    expect(s.markChallengeUsed).toBeUndefined();
+  });
+});
+
+describe('AC-7.1: server handlers refuse mutations after proofStatus=finish', () => {
+  function finishedStateFile(extras = (_s) => {}) {
+    const tmp = `/tmp/proof-finished-${Date.now()}-${Math.random().toString(36).slice(2)}.json`;
+    const s = initializeState('p');
+    s.proofStatus = 'finish';
+    extras(s);
+    saveState(s, tmp);
+    return tmp;
+  }
+
+  const consent = { source: 'designer', rationale: 'test' };
+
+  function expectProofFinished(res) {
+    expect(res.isError).toBe(true);
+    const payload = JSON.parse(res.content[0].text);
+    expect(payload.code).toBe('PROOF_FINISHED');
+    expect(payload.message).toMatch(/Proof is finished/);
+  }
+
+  it('handleSubmitProofUpdate refuses', async () => {
+    const tmp = finishedStateFile();
+    const res = handleSubmitProofUpdate({
+      state_file: tmp, operations: [{ op: 'add', type: 'EVIDENCE', statement: 'x', source: 'codebase' }], consent,
+    });
+    expectProofFinished(res);
+    if (existsSync(tmp)) unlinkSync(tmp);
+  });
+
+  it('handleManageConcerns source has pre-flight refusal', () => {
+    expect(serverSource).toMatch(/function handleManageConcerns[\s\S]*?proofStatus === 'finish'/);
+  });
+
+  it('handleManageDefinitions refuses (mutating ops)', () => {
+    const tmp = finishedStateFile();
+    const res = handleManageDefinitions({
+      state_file: tmp, op: 'add', canonical_name: 'X', definition: 'd', sense_constraints: 's', consent,
+    });
+    expectProofFinished(res);
+    if (existsSync(tmp)) unlinkSync(tmp);
+  });
+
+  it('handleManageFriction source has pre-flight refusal', () => {
+    expect(serverSource).toMatch(/function handleManageFriction[\s\S]*?proofStatus === 'finish'/);
+  });
+
+  it('handleOverrideFrictionDisposition source has pre-flight refusal', () => {
+    expect(serverSource).toMatch(/function handleOverrideFrictionDisposition[\s\S]*?proofStatus === 'finish'/);
+  });
+
+  it('handleRatifyResolveCondition source has pre-flight refusal', () => {
+    expect(serverSource).toMatch(/function handleRatifyResolveCondition[\s\S]*?proofStatus === 'finish'/);
+  });
+
+  it('handleWithdraw source has pre-flight refusal', () => {
+    expect(serverSource).toMatch(/function handleWithdraw[\s\S]*?proofStatus === 'finish'/);
+  });
+
+  it('handleConfirmClosureGo source has pre-flight refusal', () => {
+    expect(serverSource).toMatch(/function handleConfirmClosureGo[\s\S]*?proofStatus === 'finish'/);
+  });
+
+  it('handlePresentClosingArgument refuses', () => {
+    const tmp = finishedStateFile();
+    const res = handlePresentClosingArgument({ state_file: tmp, consent });
+    expectProofFinished(res);
+    if (existsSync(tmp)) unlinkSync(tmp);
+  });
+
+  it('handleGetProofState (read-only) does NOT refuse', () => {
+    const tmp = finishedStateFile();
+    const res = handleGetProofState({ state_file: tmp });
+    expect(res.isError).toBeUndefined();
+    const payload = JSON.parse(res.content[0].text);
+    expect(payload.proofStatus).toBe('finish');
+    if (existsSync(tmp)) unlinkSync(tmp);
+  });
+
+  it('classifyStateError handles PROOF_FINISHED', () => {
+    expect(serverSource).toMatch(/PROOF_FINISHED'\)\s*\)\s*return\s*\{\s*code:\s*'PROOF_FINISHED'/);
+  });
+});
+
+describe('AC-2.4: server confirm_closure_go writes a single op:close log entry', () => {
+  it('no bulk-ratify entries appear after handleConfirmClosureGo (source-level)', () => {
+    // recordDesignerGo no longer emits bulk-ratify entries.
+    const stateSource = readFileSync(join(__dirname, '../state.js'), 'utf-8');
+    // The bulk-ratify operation log call is fully removed from state.js.
+    expect(stateSource).not.toMatch(/op:\s*'bulk-ratify'/);
   });
 });

@@ -2,8 +2,6 @@ import { describe, it, expect } from 'vitest';
 import {
   computeCompleteness,
   computeGroundingCoverage,
-  detectStall,
-  detectChallenge,
   checkClosure,
   checkConcernCoverage,
   concernsRatificationGate,
@@ -182,146 +180,6 @@ describe('computeGroundingCoverage', () => {
 });
 
 // =============================================================================
-// detectStall
-// =============================================================================
-describe('detectStall', () => {
-  it('returns false with fewer than 4 entries', () => {
-    expect(detectStall([2, 2, 2])).toBe(false);
-  });
-
-  it('returns true when condition count unchanged for 3 consecutive rounds', () => {
-    expect(detectStall([2, 2, 2, 2])).toBe(true);
-  });
-
-  it('returns false when count changes within window', () => {
-    expect(detectStall([2, 2, 3, 2])).toBe(false);
-  });
-
-  it('checks only the last 4 entries', () => {
-    expect(detectStall([1, 0, 3, 3, 3, 3])).toBe(true);
-  });
-});
-
-// =============================================================================
-// detectChallenge
-// =============================================================================
-describe('detectChallenge', () => {
-  const baseState = {
-    round: 3,
-    elements: new Map(),
-    conditionCountHistory: [],
-    elementCountHistory: [],
-    challengeModesUsed: [],
-  };
-
-  describe('ontologist trigger', () => {
-    it('fires when condition count stalls', () => {
-      const state = {
-        ...baseState,
-        conditionCountHistory: [2, 2, 2, 2],
-      };
-      const result = detectChallenge(state);
-      expect(result.mode).toBe('ontologist');
-    });
-
-    it('does not fire when already used', () => {
-      const state = {
-        ...baseState,
-        conditionCountHistory: [2, 2, 2, 2],
-        challengeModesUsed: ['ontologist'],
-      };
-      expect(detectChallenge(state).mode).not.toBe('ontologist');
-    });
-  });
-
-  describe('simplifier trigger', () => {
-    it('fires when condition count grew by >= 2', () => {
-      const state = {
-        ...baseState,
-        conditionCountHistory: [1, 3],
-        elementCountHistory: [5, 8],
-      };
-      const result = detectChallenge(state);
-      expect(result.mode).toBe('simplifier');
-    });
-
-    it('does not fire when condition growth < 2', () => {
-      const state = {
-        ...baseState,
-        conditionCountHistory: [2, 3],
-        elementCountHistory: [5, 8],
-      };
-      expect(detectChallenge(state).mode).not.toBe('simplifier');
-    });
-
-    it('does not fire when already used', () => {
-      const state = {
-        ...baseState,
-        conditionCountHistory: [1, 3],
-        challengeModesUsed: ['simplifier'],
-      };
-      expect(detectChallenge(state).mode).not.toBe('simplifier');
-    });
-  });
-
-  describe('contrarian trigger', () => {
-    it('fires when NC grounded only in EVIDENCE (no RULE)', () => {
-      const elements = mapOf(
-        makeElement({ id: 'EVID-1', type: 'EVIDENCE' }),
-        makeElement({
-          id: 'NCON-1', type: 'NECESSARY_CONDITION',
-          grounding: ['EVID-1'], collapse_test: 'x', reasoning_chain: 'y',
-        }),
-      );
-      const state = { ...baseState, round: 3, elements };
-      const result = detectChallenge(state);
-      expect(result.mode).toBe('contrarian');
-    });
-
-    it('does not fire when NC has RULE in grounding', () => {
-      const elements = mapOf(
-        makeElement({ id: 'EVID-1', type: 'EVIDENCE' }),
-        makeElement({ id: 'RULE-1', type: 'RULE', source: 'designer' }),
-        makeElement({
-          id: 'NCON-1', type: 'NECESSARY_CONDITION',
-          grounding: ['EVID-1', 'RULE-1'], collapse_test: 'x', reasoning_chain: 'y',
-        }),
-      );
-      const state = { ...baseState, round: 3, elements };
-      expect(detectChallenge(state).mode).not.toBe('contrarian');
-    });
-
-    it('does not fire before round 2', () => {
-      const elements = mapOf(
-        makeElement({ id: 'EVID-1', type: 'EVIDENCE' }),
-        makeElement({
-          id: 'NCON-1', type: 'NECESSARY_CONDITION',
-          grounding: ['EVID-1'], collapse_test: 'x', reasoning_chain: 'y',
-        }),
-      );
-      const state = { ...baseState, round: 1, elements };
-      expect(detectChallenge(state).mode).not.toBe('contrarian');
-    });
-
-    it('does not fire when already used', () => {
-      const elements = mapOf(
-        makeElement({ id: 'EVID-1', type: 'EVIDENCE' }),
-        makeElement({
-          id: 'NCON-1', type: 'NECESSARY_CONDITION',
-          grounding: ['EVID-1'], collapse_test: 'x', reasoning_chain: 'y',
-        }),
-      );
-      const state = { ...baseState, round: 3, elements, challengeModesUsed: ['contrarian'] };
-      expect(detectChallenge(state).mode).not.toBe('contrarian');
-    });
-  });
-
-  it('returns null mode when no challenges trigger', () => {
-    expect(detectChallenge(baseState)).toEqual({ mode: null, reason: null });
-  });
-});
-
-// =============================================================================
 // checkClosure
 // =============================================================================
 describe('checkClosure', () => {
@@ -349,7 +207,6 @@ describe('checkClosure', () => {
       round: 4,
       phaseTransitionRound: 1,
       concerns: [{ id: 'CERN-1', label: 'X', description: null }],
-      concernsLocked: true,
       closingArgPresentedRound: 4,
       closingArgGoRound: 4,
     };
@@ -464,7 +321,7 @@ describe('checkConcernCoverage', () => {
   function buildState({ concerns, elements }) {
     const map = new Map();
     for (const el of elements) map.set(el.id, el);
-    return { concerns, concernsLocked: true, elements: map };
+    return { concerns, elements: map };
   }
 
   it('marks Concern as covered when a ratified RC anchors to it', () => {
@@ -558,29 +415,19 @@ describe('checkClosure — Concerns and Resolve Conditions (conditions 7-10)', (
       round: 3, phaseTransitionRound: 1,
       elements: mapOf(evidence, nc),
       concerns: [],
-      concernsLocked: false,
     };
   }
 
-  it('condition 8: refuses closure when Concerns list is empty', () => {
+  it('condition 7: refuses closure when Concerns list is empty', () => {
     const state = baseClosureState();
     const c = checkClosure(state);
     expect(c.permitted).toBe(false);
     expect(c.reasons).toContain('No Concerns enumerated — at least one Concern required before closure');
   });
 
-  it('condition 7: refuses closure when Concerns are not locked', () => {
+  it('condition 8: refuses closure when an RC is unratified', () => {
     const state = baseClosureState();
     state.concerns = [{ id: 'CERN-1', label: 'X', description: null }];
-    state.concernsLocked = false;
-    const c = checkClosure(state);
-    expect(c.reasons).toContain('Concerns must be locked before closure');
-  });
-
-  it('condition 9: refuses closure when an RC is unratified', () => {
-    const state = baseClosureState();
-    state.concerns = [{ id: 'CERN-1', label: 'X', description: null }];
-    state.concernsLocked = true;
     const rc = makeElement({
       id: 'RCON-1', type: 'RESOLVE_CONDITION', statement: 'r',
       problem_anchor: 'CERN-1', ratification: null,
@@ -590,13 +437,12 @@ describe('checkClosure — Concerns and Resolve Conditions (conditions 7-10)', (
     expect(c.reasons.some(r => /Unratified Resolve Conditions/.test(r))).toBe(true);
   });
 
-  it('condition 10: lists each uncovered Concern', () => {
+  it('condition 9: lists each uncovered Concern', () => {
     const state = baseClosureState();
     state.concerns = [
       { id: 'CERN-1', label: 'X', description: null },
       { id: 'CERN-2', label: 'Y', description: null },
     ];
-    state.concernsLocked = true;
     const rc = makeElement({
       id: 'RCON-1', type: 'RESOLVE_CONDITION', statement: 'r',
       problem_anchor: 'CERN-1',
@@ -608,10 +454,9 @@ describe('checkClosure — Concerns and Resolve Conditions (conditions 7-10)', (
     expect(c.reasons.some(r => /CERN-1/.test(r))).toBe(false);
   });
 
-  it('permits closure when all 11 conditions pass', () => {
+  it('permits closure when all conditions pass', () => {
     const state = baseClosureState();
     state.concerns = [{ id: 'CERN-1', label: 'X', description: null }];
-    state.concernsLocked = true;
     state.closingArgPresentedRound = state.round;
     state.closingArgGoRound = state.round;
     const rc = makeElement({
@@ -629,18 +474,9 @@ describe('checkClosure — Concerns and Resolve Conditions (conditions 7-10)', (
 // =============================================================================
 // concernsRatificationGate (NC-9) — pure gate used by present_closing_argument
 // =============================================================================
-describe('concernsRatificationGate', () => {
-  it('returns CONCERNS_UNLOCKED when concernsLocked is false', () => {
-    const s = { concernsLocked: false, concerns: [{ id: 'CERN-1', status: 'ratified' }] };
-    const r = concernsRatificationGate(s);
-    expect(r.passed).toBe(false);
-    expect(r.code).toBe('CONCERNS_UNLOCKED');
-    expect(typeof r.message).toBe('string');
-  });
-
+describe('concernsRatificationGate (lock retired AC-2.2)', () => {
   it('returns CONCERNS_UNRATIFIED when any Concern is draft', () => {
     const s = {
-      concernsLocked: true,
       concerns: [
         { id: 'CERN-1', status: 'ratified' },
         { id: 'CERN-2', status: 'draft' },
@@ -652,28 +488,18 @@ describe('concernsRatificationGate', () => {
     expect(r.message).toMatch(/1 draft/);
   });
 
-  it('returns passed: true when locked and all ratified', () => {
-    const s = { concernsLocked: true, concerns: [{ id: 'CERN-1', status: 'ratified' }] };
+  it('returns passed: true when all ratified', () => {
+    const s = { concerns: [{ id: 'CERN-1', status: 'ratified' }] };
     expect(concernsRatificationGate(s).passed).toBe(true);
   });
 
   it('passes when concerns array is empty (gate is structural)', () => {
-    const s = { concernsLocked: true, concerns: [] };
+    const s = { concerns: [] };
     expect(concernsRatificationGate(s).passed).toBe(true);
-  });
-
-  it('checks locked before ratification — unlocked + draft surfaces UNLOCKED', () => {
-    const s = {
-      concernsLocked: false,
-      concerns: [{ id: 'CERN-1', status: 'draft' }],
-    };
-    const r = concernsRatificationGate(s);
-    expect(r.code).toBe('CONCERNS_UNLOCKED');
   });
 
   it('counts multiple draft Concerns in the message', () => {
     const s = {
-      concernsLocked: true,
       concerns: [
         { id: 'CERN-1', status: 'draft' },
         { id: 'CERN-2', status: 'draft' },

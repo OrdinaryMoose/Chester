@@ -1,20 +1,19 @@
 /**
  * state.js — State lifecycle and persistence for the design proof MCP server.
- * Orchestrates proof.js (element model, integrity) and metrics.js (completeness,
- * challenges, closure). Uses I/O for save/load.
+ * Orchestrates proof.js (element model, integrity) and metrics.js
+ * (completeness, closure). Uses I/O for save/load.
  *
  * Necessary Conditions Model (v2):
  *   - Longer ID prefixes (EVID-, RULE-, PERM-, NCON-, RISK-) avoid collisions
  *   - No resolve operation (OPENs removed)
- *   - Tracks conditionCountHistory instead of openCountHistory
  */
 
 import { readFileSync, writeFileSync, renameSync } from 'fs';
 import { createElement, validateRefs, checkAllIntegrity, FRICTION_DISPOSITIONS, TERMINAL_FRICTION_DISPOSITIONS, WITHDRAWAL_DISPOSITIONS, UNCLASSIFIED_DISPOSITION, SCHEMA_VERSION, DISPOSITIONS_BY_CATEGORY, validateConsentToken } from './proof.js';
-import { computeCompleteness, computeGroundingCoverage, detectChallenge, detectStall, checkClosure } from './metrics.js';
+import { computeCompleteness, computeGroundingCoverage, checkClosure } from './metrics.js';
+import { computeBodyAdvancement } from './body-advancement.js';
 import { runFrictionDetection } from './friction-detection.js';
 import { validateDefinitionInput, createDefinition, queryOverlapCandidates } from './definitions.js';
-import { deriveClosingArgument } from './closing-argument.js';
 
 const ID_PREFIX = {
   EVIDENCE: 'EVID-',
@@ -40,21 +39,15 @@ export function initializeState(problemStatement) {
     elementCounters: {
       EVIDENCE: 0, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 0, RISK: 0, RESOLVE_CONDITION: 0, FRICTION: 0,
     },
-    conditionCountHistory: [],
-    elementCountHistory: [],
-    challengeModesUsed: [],
-    challengeLog: [],
     revisionLog: [],
     phaseTransitionRound: 0,
     concerns: [],
-    concernsLocked: false,
     concernCounter: 0,
     ratificationLog: [],
     frictionLog: [],
     closingArgPresentedRound: null,
     closingArgGoRound: null,
-    proofStatus: 'unopen',
-    lastClosureArtifact: null,
+    proofStatus: 'planning',
     operationLog: [],
     definitions: [],
     definitionCounter: 0,
@@ -95,7 +88,7 @@ export function appendOperationLog(state, entry) {
  * @param {object} state
  * @returns {object} same reference passed in
  */
-export function clearClosingFlags(state) {
+export function resetFirstYesIfFired(state) {
   state.closingArgPresentedRound = null;
   state.closingArgGoRound = null;
   return state;
@@ -112,6 +105,9 @@ export function recordClosingArgPresented(state, consent) {
   const consentCheck = validateConsentToken(consent);
   if (!consentCheck.valid) {
     return [state, `INVALID_CONSENT: ${consentCheck.reason}`];
+  }
+  if (state.proofStatus === 'finish') {
+    return [state, 'PROOF_FINISHED: Proof is finished; no further mutations permitted'];
   }
   const newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
@@ -134,9 +130,10 @@ export function recordClosingArgPresented(state, consent) {
  * presentation; designer must re-present).
  *
  * On success, this is the proof's closure transition (RULE-9):
- *   - Sets proofStatus = 'closed'
- *   - Bulk-ratifies every active draft NECESSARY_CONDITION
- *   - Bulk-ratifies every active RESOLVE_CONDITION lacking ratification
+ *   - Sets proofStatus = 'finish'
+ *   - Appends exactly one operation log entry: { op: 'close', provenance: { from: 'planning', to: 'finish' } }.
+ *     No bulk-ratify (AC-2.4): the first-yes precondition guarantees every active
+ *     element is already ratified by the time this runs.
  *   - Preserves both closingArgPresentedRound and closingArgGoRound (does NOT
  *     clear them — closure must remain observable). All other mutating
  *     functions clear these flags; recordDesignerGo is the documented exception.
@@ -151,6 +148,9 @@ export function recordDesignerGo(state, consent) {
   if (!consentCheck.valid) {
     return [state, `INVALID_CONSENT: ${consentCheck.reason}`];
   }
+  if (state.proofStatus === 'finish') {
+    return [state, 'PROOF_FINISHED: Proof is finished; no further mutations permitted'];
+  }
   if (state.closingArgPresentedRound !== state.round) {
     const presentedDesc = state.closingArgPresentedRound ?? 'never';
     return [state, `GO_REQUIRES_VIEW_THIS_ROUND: closing argument presented in round ${presentedDesc}, current round ${state.round}; call present_closing_argument first`];
@@ -158,24 +158,14 @@ export function recordDesignerGo(state, consent) {
   const newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
   newState.closingArgGoRound = newState.round;
-  // closure transition (RULE-9): proofStatus -> 'closed'.
-  // initializeState seeds 'unopen'; open_proof flips to 'open'; reopenProof returns
-  // 'open' after a closed cycle. Both 'open' and 'unopen' are legitimate prior states.
-  const fromStatus = newState.proofStatus ?? 'unopen';
-  newState.proofStatus = 'closed';
-  // bulk-ratify draft NCs (active only)
-  const ratifiedNCs = [];
-  // bulk-ratify unratified active RCs
-  const ratifiedRCs = [];
-  for (const [id, el] of newState.elements) {
-    if (el.type === 'NECESSARY_CONDITION' && el.status === 'active' && el.ratificationStatus === 'draft') {
-      el.ratificationStatus = 'ratified';
-      ratifiedNCs.push(id);
-    } else if (el.type === 'RESOLVE_CONDITION' && el.status === 'active' && !el.ratification) {
-      el.ratification = { ratifiedAtRound: newState.round, text: 'bulk-ratified at confirm_closure_go (RULE-9)' };
-      ratifiedRCs.push(id);
-    }
-  }
+  // closure transition (RULE-9): proofStatus -> 'finish'.
+  // initializeState seeds 'planning'; under the binary lifecycle 'finish' is
+  // terminal — there is no path back to 'planning' once recordDesignerGo fires.
+  // The first-yes precondition (Task 6) ensures every NC/RC/Concern/Definition
+  // is already ratified before present_closing_argument succeeds, so no
+  // bulk-ratify is needed here. Closure appends exactly one op:close entry.
+  const fromStatus = newState.proofStatus ?? 'planning';
+  newState.proofStatus = 'finish';
   appendOperationLog(newState, {
     round: newState.round,
     op: 'close',
@@ -183,66 +173,7 @@ export function recordDesignerGo(state, consent) {
     type: null,
     consent,
     changedFields: ['proofStatus'],
-    provenance: { from: fromStatus, to: 'closed' },
-  });
-  appendOperationLog(newState, {
-    round: newState.round,
-    op: 'bulk-ratify',
-    entityId: null,
-    type: 'NECESSARY_CONDITION',
-    consent,
-    changedFields: ['ratificationStatus'],
-    provenance: { count: ratifiedNCs.length, elementIds: ratifiedNCs },
-  });
-  appendOperationLog(newState, {
-    round: newState.round,
-    op: 'bulk-ratify',
-    entityId: null,
-    type: 'RESOLVE_CONDITION',
-    consent,
-    changedFields: ['ratification'],
-    provenance: { count: ratifiedRCs.length, elementIds: ratifiedRCs },
-  });
-  return [newState, null];
-}
-
-/**
- * Reopen a closed proof. Captures the pre-reopen closing-argument envelope
- * into `lastClosureArtifact` (load-bearing audit snapshot per AC-5.4),
- * clears both two-yes flags, and transitions proofStatus 'closed' → 'open'.
- *
- * Refuses if proof is not currently closed (NOT_CLOSED) or consent is invalid
- * (INVALID_CONSENT). Preserves `concernsLocked` as-is — reopening does not
- * unlock Concerns.
- * @param {object} state
- * @param {object} consent - Consent token; validated pre-flight.
- * @returns {[object, string|null]} [newState, error]
- */
-export function reopenProof(state, consent) {
-  const consentCheck = validateConsentToken(consent);
-  if (!consentCheck.valid) {
-    return [state, `INVALID_CONSENT: ${consentCheck.reason}`];
-  }
-  if (state.proofStatus !== 'closed') {
-    return [state, `NOT_CLOSED: proofStatus is ${state.proofStatus}`];
-  }
-  const newState = structuredClone(state);
-  newState.elements = cloneElements(state.elements);
-  // Capture pre-reopen envelope. deriveClosingArgument is pure (Task 13);
-  // pass the original (pre-clone) state — it does not mutate.
-  newState.lastClosureArtifact = deriveClosingArgument(state);
-  newState.closingArgPresentedRound = null;
-  newState.closingArgGoRound = null;
-  newState.proofStatus = 'open';
-  // concernsLocked intentionally preserved as-is.
-  appendOperationLog(newState, {
-    round: newState.round,
-    op: 'reopen',
-    entityId: null,
-    type: null,
-    consent,
-    changedFields: ['proofStatus'],
-    provenance: { from: 'closed', to: 'open' },
+    provenance: { from: fromStatus, to: 'finish' },
   });
   return [newState, null];
 }
@@ -302,7 +233,7 @@ function processFriction(state, parentConsent = null, parentOp = null) {
 }
 
 /**
- * Append a Concern to state. Refuses if Concerns list is locked.
+ * Append a Concern to state.
  * @param {object} state
  * @param {{label: string, description?: string}} input
  * @returns {[string|null, object, Array<object>, string|null]} [concernId, newState, friction_hints, error]
@@ -312,13 +243,12 @@ export function addConcern(state, { label, description }, consent) {
   if (!consentCheck.valid) {
     return [null, state, [], `INVALID_CONSENT: ${consentCheck.reason}`];
   }
-  if (state.concernsLocked) {
-    return [null, state, [], 'Concerns are locked; cannot add'];
+  if (state.proofStatus === 'finish') {
+    return [null, state, [], 'PROOF_FINISHED: Proof is finished; no further mutations permitted'];
   }
   let newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
-  newState.closingArgPresentedRound = null;
-  newState.closingArgGoRound = null;
+  resetFirstYesIfFired(newState);
   newState.concernCounter++;
   const id = `CERN-${newState.concernCounter}`;
   newState.concerns.push({ id, label, description: description ?? null, status: 'draft' });
@@ -337,41 +267,6 @@ export function addConcern(state, { label, description }, consent) {
 }
 
 /**
- * Lock the Concerns list. Refuses on empty list or already-locked list.
- * @param {object} state
- * @returns {[object, Array<object>, string|null]} [newState, friction_hints, error]
- */
-export function lockConcerns(state, consent) {
-  const consentCheck = validateConsentToken(consent);
-  if (!consentCheck.valid) {
-    return [state, [], `INVALID_CONSENT: ${consentCheck.reason}`];
-  }
-  if (state.concernsLocked) {
-    return [state, [], 'Concerns already locked'];
-  }
-  if (state.concerns.length === 0) {
-    return [state, [], 'Cannot lock empty Concerns list'];
-  }
-  let newState = structuredClone(state);
-  newState.elements = cloneElements(state.elements);
-  newState.closingArgPresentedRound = null;
-  newState.closingArgGoRound = null;
-  newState.concernsLocked = true;
-  appendOperationLog(newState, {
-    round: newState.round,
-    op: 'lock',
-    entityId: null,
-    type: null,
-    consent,
-    changedFields: ['concernsLocked'],
-    provenance: { concernCount: newState.concerns.length },
-  });
-  const fricResult = processFriction(newState, consent, 'lockConcerns');
-  newState = fricResult.state;
-  return [newState, fricResult.hints, null];
-}
-
-/**
  * Ratify a single Concern. Transitions Concern.status from 'draft' to 'ratified'.
  * Refuses unknown id (NOT_FOUND) or invalid consent (INVALID_CONSENT).
  * Clears two-yes closing flags and appends an operationLog entry.
@@ -385,14 +280,16 @@ export function ratifyConcern(state, concernId, consent) {
   if (!consentCheck.valid) {
     return [state, `INVALID_CONSENT: ${consentCheck.reason}`];
   }
+  if (state.proofStatus === 'finish') {
+    return [state, 'PROOF_FINISHED: Proof is finished; no further mutations permitted'];
+  }
   const exists = state.concerns.some(c => c.id === concernId);
   if (!exists) {
     return [state, `NOT_FOUND: concern ${concernId} not found`];
   }
   const newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
-  newState.closingArgPresentedRound = null;
-  newState.closingArgGoRound = null;
+  resetFirstYesIfFired(newState);
   const concern = newState.concerns.find(c => c.id === concernId);
   const before = concern.status ?? 'draft';
   concern.status = 'ratified';
@@ -425,6 +322,9 @@ export function ratifyResolveCondition(state, { elementId, ratificationText }, c
   if (!consentCheck.valid) {
     return [state, [], `INVALID_CONSENT: ${consentCheck.reason}`];
   }
+  if (state.proofStatus === 'finish') {
+    return [state, [], 'PROOF_FINISHED: Proof is finished; no further mutations permitted'];
+  }
   const target = state.elements.get(elementId);
   if (!target) {
     return [state, [], `Element "${elementId}" not found`];
@@ -440,8 +340,7 @@ export function ratifyResolveCondition(state, { elementId, ratificationText }, c
   }
   let newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
-  newState.closingArgPresentedRound = null;
-  newState.closingArgGoRound = null;
+  resetFirstYesIfFired(newState);
   const updatedTarget = newState.elements.get(elementId);
   updatedTarget.ratification = { ratifiedAtRound: state.round, text: ratificationText };
   newState.ratificationLog.push({
@@ -500,16 +399,33 @@ export function applyOperations(state, operations, consent) {
       errors: [`INVALID_CONSENT: ${consentCheck.reason}`],
       integrityWarnings: [],
       completeness: null,
-      challengeTrigger: null,
-      stallDetected: false,
+      bodyAdvancement: null,
+      closure: { permitted: false, reasons: [] },
+      friction_hints: [],
+    };
+  }
+  if (state.proofStatus === 'finish') {
+    return {
+      state,
+      added: [],
+      revised: [],
+      withdrawn: [],
+      errors: ['PROOF_FINISHED: Proof is finished; no further mutations permitted'],
+      integrityWarnings: [],
+      completeness: null,
+      bodyAdvancement: null,
       closure: { permitted: false, reasons: [] },
       friction_hints: [],
     };
   }
   let current = structuredClone(state);
   current.elements = cloneElements(state.elements);
-  current.closingArgPresentedRound = null;
-  current.closingArgGoRound = null;
+  const snapshot = {
+    elements: cloneElements(state.elements),
+    concerns: structuredClone(state.concerns || []),
+    definitions: structuredClone(state.definitions || []),
+  };
+  resetFirstYesIfFired(current);
 
   current.round++;
 
@@ -682,24 +598,13 @@ export function applyOperations(state, operations, consent) {
   current = fricResult.state;
   const friction_hints = fricResult.hints;
 
-  // Record history
-  let activeConditions = 0;
-  for (const [, el] of current.elements) {
-    if (el.status === 'active' && el.type === 'NECESSARY_CONDITION') {
-      activeConditions++;
-    }
-  }
-  current.conditionCountHistory.push(activeConditions);
-  current.elementCountHistory.push(current.elements.size);
-
   // Compute post-operation metadata
   const integrityWarnings = checkAllIntegrity(current.elements);
   const completeness = {
     ...computeCompleteness(current.elements, current),
     groundingCoverage: computeGroundingCoverage(current.elements),
   };
-  const challengeTrigger = detectChallenge(current);
-  const stallDetected = detectStall(current.conditionCountHistory);
+  const bodyAdvancement = computeBodyAdvancement(snapshot, current);
   const closure = checkClosure(current);
 
   return {
@@ -710,36 +615,10 @@ export function applyOperations(state, operations, consent) {
     errors,
     integrityWarnings,
     completeness,
-    challengeTrigger,
-    stallDetected,
+    bodyAdvancement,
     closure,
     friction_hints,
   };
-}
-
-/**
- * Mark a challenge mode as used. Returns new state without mutating input.
- * @param {object} state
- * @param {string} mode
- * @returns {object}
- */
-export function markChallengeUsed(state, mode) {
-  const newState = structuredClone(state);
-  newState.elements = cloneElements(state.elements);
-  newState.closingArgPresentedRound = null;
-  newState.closingArgGoRound = null;
-  newState.challengeModesUsed.push(mode);
-  newState.challengeLog.push(mode);
-  appendOperationLog(newState, {
-    round: newState.round,
-    op: 'mark-challenge',
-    entityId: null,
-    type: null,
-    consent: null,
-    changedFields: ['challengeModesUsed', 'challengeLog'],
-    provenance: { mode },
-  });
-  return newState;
 }
 
 /**
@@ -775,14 +654,12 @@ export function loadState(filePath) {
   raw.elements = new Map(Object.entries(raw.elements));
   // Backfill cluster-A fields when loading pre-cluster-A state files
   raw.concerns ??= [];
-  raw.concernsLocked ??= false;
   raw.concernCounter ??= 0;
-  // Backfill per-Concern status: locked-list legacy state implies all concerns
-  // were already ratified under the prior model; unlocked legacy state defaults
-  // each concern to draft.
-  const defaultConcernStatus = raw.concernsLocked ? 'ratified' : 'draft';
+  // Per-Concern status defaults to 'draft' when missing. Lock semantics retired
+  // (AC-2.2): each Concern is independently ratified; legacy locked-list state
+  // can no longer round-trip the prior implicit "ratified-by-lock" assumption.
   for (const c of raw.concerns) {
-    c.status ??= defaultConcernStatus;
+    c.status ??= 'draft';
   }
   raw.ratificationLog ??= [];
   raw.frictionLog ??= [];
@@ -790,8 +667,12 @@ export function loadState(filePath) {
   raw.elementCounters.FRICTION ??= 0;
   raw.closingArgPresentedRound ??= null;
   raw.closingArgGoRound ??= null;
-  raw.proofStatus ??= 'unopen';
-  raw.lastClosureArtifact ??= null;
+  raw.proofStatus ??= 'planning';
+  if (raw.proofStatus === 'open' || raw.proofStatus === 'unopen') {
+    raw.proofStatus = 'planning';
+  } else if (raw.proofStatus === 'closed') {
+    raw.proofStatus = 'finish';
+  }
   raw.operationLog ??= [];
   raw.definitions ??= [];
   raw.definitionCounter ??= 0;
@@ -828,6 +709,9 @@ export function manageFriction(state, input, consent) {
   if (!consentCheck.valid) {
     return [null, state, [], `INVALID_CONSENT: ${consentCheck.reason}`];
   }
+  if (state.proofStatus === 'finish') {
+    return [null, state, [], 'PROOF_FINISHED: Proof is finished; no further mutations permitted'];
+  }
   const { op } = input;
   if (op !== 'add') {
     return [null, state, [], `Unknown manage_friction op: ${op}`];
@@ -839,8 +723,7 @@ export function manageFriction(state, input, consent) {
     return [null, state, [], `unknown element id: ${input.anchor_b}`];
   }
   const [id, withId] = generateId(state, 'FRICTION');
-  withId.closingArgPresentedRound = null;
-  withId.closingArgGoRound = null;
+  resetFirstYesIfFired(withId);
   let element;
   try {
     element = createElement({ ...input, type: 'FRICTION' }, id, withId.round);
@@ -889,6 +772,9 @@ export function overrideFrictionDisposition(state, { elementId, disposition }, c
   if (!consentCheck.valid) {
     return [state, [], `INVALID_CONSENT: ${consentCheck.reason}`];
   }
+  if (state.proofStatus === 'finish') {
+    return [state, [], 'PROOF_FINISHED: Proof is finished; no further mutations permitted'];
+  }
   const target = state.elements.get(elementId);
   if (!target) {
     return [state, [], `unknown element id: ${elementId}`];
@@ -901,8 +787,7 @@ export function overrideFrictionDisposition(state, { elementId, disposition }, c
   }
   let newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
-  newState.closingArgPresentedRound = null;
-  newState.closingArgGoRound = null;
+  resetFirstYesIfFired(newState);
   const t = newState.elements.get(elementId);
   const oldDisposition = t.disposition;
   t.disposition = disposition;
@@ -969,6 +854,10 @@ export function manageDefinitions(state, op, payload, consent) {
     return [null, state, `INVALID_CONSENT: ${consentCheck.reason}`];
   }
 
+  if (state.proofStatus === 'finish') {
+    return [null, state, 'PROOF_FINISHED: Proof is finished; no further mutations permitted'];
+  }
+
   if (op === 'deprecate') {
     return [null, state, "DOMAIN_ERROR: use withdraw(category: 'DEFINITION', id, disposition, consent) for deprecation"];
   }
@@ -980,8 +869,7 @@ export function manageDefinitions(state, op, payload, consent) {
     }
     let newState = structuredClone(state);
     newState.elements = cloneElements(state.elements);
-    newState.closingArgPresentedRound = null;
-    newState.closingArgGoRound = null;
+    resetFirstYesIfFired(newState);
     newState.definitionCounter++;
     const id = `DEFN-${newState.definitionCounter}`;
     const source = consent.source === 'designer' ? 'designer' : 'agent-derivation';
@@ -1025,8 +913,7 @@ export function manageDefinitions(state, op, payload, consent) {
     }
     let newState = structuredClone(state);
     newState.elements = cloneElements(state.elements);
-    newState.closingArgPresentedRound = null;
-    newState.closingArgGoRound = null;
+    resetFirstYesIfFired(newState);
     const t = newState.definitions.find(d => d.id === id);
     const before = {
       definition: t.definition,
@@ -1091,8 +978,7 @@ export function manageDefinitions(state, op, payload, consent) {
     }
     let newState = structuredClone(state);
     newState.elements = cloneElements(state.elements);
-    newState.closingArgPresentedRound = null;
-    newState.closingArgGoRound = null;
+    resetFirstYesIfFired(newState);
     const t = newState.definitions.find(d => d.id === id);
     const before = t.status;
     t.status = 'ratified';
@@ -1133,6 +1019,9 @@ export function withdrawElement(state, elementId, disposition, consent) {
   if (!consentCheck.valid) {
     return [state, `INVALID_CONSENT: ${consentCheck.reason}`];
   }
+  if (state.proofStatus === 'finish') {
+    return [state, 'PROOF_FINISHED: Proof is finished; no further mutations permitted'];
+  }
   const target = state.elements.get(elementId);
   if (!target) {
     return [state, `NOT_FOUND: element ${elementId} not found`];
@@ -1149,8 +1038,7 @@ export function withdrawElement(state, elementId, disposition, consent) {
   }
   let newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
-  newState.closingArgPresentedRound = null;
-  newState.closingArgGoRound = null;
+  resetFirstYesIfFired(newState);
   const t = newState.elements.get(elementId);
   t.status = 'withdrawn';
   t.withdrawal_disposition = disposition;
@@ -1187,6 +1075,9 @@ export function withdrawConcern(state, concernId, disposition, consent) {
   if (!consentCheck.valid) {
     return [state, `INVALID_CONSENT: ${consentCheck.reason}`];
   }
+  if (state.proofStatus === 'finish') {
+    return [state, 'PROOF_FINISHED: Proof is finished; no further mutations permitted'];
+  }
   const target = state.concerns.find(c => c.id === concernId);
   if (!target) {
     return [state, `NOT_FOUND: concern ${concernId} not found`];
@@ -1200,8 +1091,7 @@ export function withdrawConcern(state, concernId, disposition, consent) {
   }
   let newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
-  newState.closingArgPresentedRound = null;
-  newState.closingArgGoRound = null;
+  resetFirstYesIfFired(newState);
   const t = newState.concerns.find(c => c.id === concernId);
   t.status = 'withdrawn';
   t.withdrawal_disposition = disposition;
@@ -1238,6 +1128,9 @@ export function withdrawDefinition(state, definitionId, disposition, consent) {
   if (!consentCheck.valid) {
     return [state, `INVALID_CONSENT: ${consentCheck.reason}`];
   }
+  if (state.proofStatus === 'finish') {
+    return [state, 'PROOF_FINISHED: Proof is finished; no further mutations permitted'];
+  }
   const target = (state.definitions ?? []).find(d => d.id === definitionId);
   if (!target) {
     return [state, `NOT_FOUND: definition ${definitionId} not found`];
@@ -1251,8 +1144,7 @@ export function withdrawDefinition(state, definitionId, disposition, consent) {
   }
   let newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
-  newState.closingArgPresentedRound = null;
-  newState.closingArgGoRound = null;
+  resetFirstYesIfFired(newState);
   const t = newState.definitions.find(d => d.id === definitionId);
   t.status = 'withdrawn';
   t.withdrawal_disposition = disposition;

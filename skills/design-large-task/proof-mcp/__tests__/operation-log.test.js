@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { initializeState, addConcern, lockConcerns, applyOperations, recordClosingArgPresented, markChallengeUsed } from '../state.js';
+import { initializeState, addConcern, applyOperations, recordClosingArgPresented } from '../state.js';
 
 const consent = { source: 'designer', rationale: 'test' };
 
@@ -21,19 +21,9 @@ describe('operationLog', () => {
     });
   });
 
-  it('lockConcerns appends entry with op:lock', () => {
-    let s = initializeState('test problem');
-    let id1, id2;
-    [id1, s] = addConcern(s, { label: 'C-1', description: 'd' }, consent);
-    [id2, s] = addConcern(s, { label: 'C-2', description: 'd' }, consent);
-    const [locked] = lockConcerns(s, consent);
-    s = locked;
-    expect(s.operationLog.find(e => e.op === 'lock')).toBeDefined();
-  });
-
   it('applyOperations appends entry per op', () => {
     let s = initializeState('p');
-    s.proofStatus = 'open';
+    s.proofStatus = 'planning';
     const ops = [{ op: 'add', type: 'EVIDENCE', statement: 'e1', source: 'codebase' }];
     const result = applyOperations(s, ops, consent);
     s = result.state;
@@ -60,13 +50,4 @@ describe('operationLog', () => {
     expect(entry.provenance.presentedAtRound).toBe(s.round);
   });
 
-  it('markChallengeUsed appends entry with op:mark-challenge', () => {
-    const s = initializeState('test problem');
-    const after = markChallengeUsed(s, 'contrarian');
-    const entry = after.operationLog.find(e => e.op === 'mark-challenge');
-    expect(entry).toBeDefined();
-    expect(entry.consent).toBeNull();
-    expect(entry.provenance).toEqual({ mode: 'contrarian' });
-    expect(entry.changedFields).toEqual(['challengeModesUsed', 'challengeLog']);
-  });
 });

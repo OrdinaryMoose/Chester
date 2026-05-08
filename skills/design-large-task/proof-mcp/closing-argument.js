@@ -24,7 +24,7 @@ export function deriveClosingArgument(state) {
 
   // Concerns (excluding withdrawn) when locked; phantom Concerns when withdrawn.
   const concernsList = state.concerns ?? [];
-  const lockedConcerns = state.concernsLocked
+  const lockedConcerns = state.proofStatus === 'finish'
     ? concernsList.filter(c => c.status !== 'withdrawn')
     : [];
   const phantomConcerns = concernsList.filter(c => c.status === 'withdrawn');
