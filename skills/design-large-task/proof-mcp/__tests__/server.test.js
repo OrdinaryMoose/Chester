@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync, existsSync, unlinkSync, writeFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { handleOpenProof, handleManageDefinitions, handleGetProofState, handlePresentClosingArgument } from '../server.js';
+import { handleOpenProof, handleManageDefinitions, handleGetProofState, handlePresentClosingArgument, handleSubmitProofUpdate } from '../server.js';
 import { initializeState, saveState, addConcern, lockConcerns, ratifyConcern } from '../state.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -489,6 +489,54 @@ describe('handlePresentClosingArgument — concernsRatificationGate (NC-9)', () 
     expect(Array.isArray(payload.reasons)).toBe(true);
     expect(payload.reasons.length).toBeGreaterThan(0);
     if (existsSync(tmp)) unlinkSync(tmp);
+  });
+});
+
+describe('handleSubmitProofUpdate — body_advancement response shape', () => {
+  it('submit_proof_update response carries body_advancement and omits retired fields', () => {
+    const tmp = `/tmp/submit-body-adv-${Date.now()}.json`;
+    handleOpenProof({
+      state_file: tmp,
+      submission_material: {
+        problem_statement: 'a problem to solve.',
+        concerns: [{ label: 'C-1', description: 'concern' }],
+        elements: [evidenceEl(), ruleEl()],
+        consent: TEST_CONSENT,
+      },
+    });
+    const response = handleSubmitProofUpdate({
+      state_file: tmp,
+      operations: [
+        {
+          op: 'add',
+          type: 'NECESSARY_CONDITION',
+          statement: 'X',
+          grounding: ['EVID-1'],
+          collapse_test: 'breaks',
+          reasoning_chain: 'because',
+        },
+      ],
+      consent: { source: 'designer', rationale: 'test' },
+    });
+    const payload = JSON.parse(response.content[0].text);
+    expect(payload.body_advancement).toBeDefined();
+    expect(payload.body_advancement).toMatchObject({
+      advanced: expect.any(Boolean),
+      addCount: expect.any(Number),
+      reviseCount: expect.any(Number),
+      withdrawCount: expect.any(Number),
+    });
+    expect(payload.body_advancement.advanced).toBe(true);
+    expect(payload.body_advancement.addCount).toBe(1);
+    expect(payload).not.toHaveProperty('challenge_trigger');
+    expect(payload).not.toHaveProperty('stall_detected');
+    if (existsSync(tmp)) unlinkSync(tmp);
+  });
+
+  it('submit_proof_update tool schema does not declare challenge_used', () => {
+    const block = serverSource.split("name: 'submit_proof_update'")[1] ?? '';
+    const blockEnd = block.indexOf('},\n  {') > -1 ? block.indexOf('},\n  {') : block.length;
+    expect(block.slice(0, blockEnd)).not.toMatch(/challenge_used/);
   });
 });
 

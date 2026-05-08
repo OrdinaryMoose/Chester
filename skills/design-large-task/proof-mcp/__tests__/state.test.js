@@ -425,16 +425,21 @@ describe('applyOperations', () => {
       expect(Array.isArray(result.integrityWarnings)).toBe(true);
       expect(result.closure).toBeDefined();
       expect(typeof result.closure.permitted).toBe('boolean');
-      expect(result.challengeTrigger).toBeDefined();
-      expect(typeof result.stallDetected).toBe('boolean');
+      expect(result.bodyAdvancement).toBeDefined();
+      expect(typeof result.bodyAdvancement.advanced).toBe('boolean');
+      expect(typeof result.bodyAdvancement.addCount).toBe('number');
+      expect(typeof result.bodyAdvancement.reviseCount).toBe('number');
+      expect(typeof result.bodyAdvancement.withdrawCount).toBe('number');
+      expect(result).not.toHaveProperty('challengeTrigger');
+      expect(result).not.toHaveProperty('stallDetected');
     });
 
-    it('records conditionCountHistory', () => {
+    it('does not push to conditionCountHistory or elementCountHistory (retired)', () => {
       const r1 = applyOperations(state, [
         { op: 'add', type: 'EVIDENCE', statement: 'fact', source: 'codebase' },
       ], { source: 'designer', rationale: 'test' });
-      expect(r1.state.conditionCountHistory).toHaveLength(1);
-      expect(r1.state.conditionCountHistory[0]).toBe(0); // no NCs yet
+      expect(r1.state.conditionCountHistory).toEqual([]);
+      expect(r1.state.elementCountHistory).toEqual([]);
 
       const r2 = applyOperations(r1.state, [
         {
@@ -445,16 +450,8 @@ describe('applyOperations', () => {
           reasoning_chain: 'y',
         },
       ], { source: 'designer', rationale: 'test' });
-      expect(r2.state.conditionCountHistory).toHaveLength(2);
-      expect(r2.state.conditionCountHistory[1]).toBe(1);
-    });
-
-    it('records elementCountHistory', () => {
-      const r1 = applyOperations(state, [
-        { op: 'add', type: 'EVIDENCE', statement: 'Fact', source: 'codebase' },
-      ], { source: 'designer', rationale: 'test' });
-      expect(r1.state.elementCountHistory).toHaveLength(1);
-      expect(r1.state.elementCountHistory[0]).toBe(1);
+      expect(r2.state.conditionCountHistory).toEqual([]);
+      expect(r2.state.elementCountHistory).toEqual([]);
     });
   });
 });

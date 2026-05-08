@@ -100,11 +100,6 @@ const TOOLS = [
             required: ['op'],
           },
         },
-        challenge_used: {
-          type: 'string',
-          enum: ['contrarian', 'simplifier', 'ontologist'],
-          description: 'Optional challenge mode used this round',
-        },
         consent: CONSENT_SCHEMA,
       },
       required: ['state_file', 'operations', 'consent'],
@@ -325,7 +320,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
 // ── Tool Handlers ────────────────────────────────────────────────
 
-function handleSubmitProofUpdate({ state_file, operations, challenge_used, consent }) {
+export function handleSubmitProofUpdate({ state_file, operations, consent }) {
   let state = loadState(state_file);
 
   const result = applyOperations(state, operations, consent);
@@ -363,10 +358,6 @@ function handleSubmitProofUpdate({ state_file, operations, challenge_used, conse
 
   state = result.state;
 
-  if (challenge_used) {
-    state = markChallengeUsed(state, challenge_used);
-  }
-
   saveState(state, state_file);
 
   return {
@@ -381,8 +372,7 @@ function handleSubmitProofUpdate({ state_file, operations, challenge_used, conse
         errors: result.errors,
         integrity_warnings: result.integrityWarnings,
         completeness: result.completeness,
-        challenge_trigger: result.challengeTrigger,
-        stall_detected: result.stallDetected,
+        body_advancement: result.bodyAdvancement,
         closure_permitted: result.closure.permitted,
         closure_reasons: result.closure.reasons,
         friction_hints: result.friction_hints,

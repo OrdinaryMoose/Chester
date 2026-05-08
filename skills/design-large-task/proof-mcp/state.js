@@ -12,6 +12,7 @@
 import { readFileSync, writeFileSync, renameSync } from 'fs';
 import { createElement, validateRefs, checkAllIntegrity, FRICTION_DISPOSITIONS, TERMINAL_FRICTION_DISPOSITIONS, WITHDRAWAL_DISPOSITIONS, UNCLASSIFIED_DISPOSITION, SCHEMA_VERSION, DISPOSITIONS_BY_CATEGORY, validateConsentToken } from './proof.js';
 import { computeCompleteness, computeGroundingCoverage, detectChallenge, detectStall, checkClosure } from './metrics.js';
+import { computeBodyAdvancement } from './body-advancement.js';
 import { runFrictionDetection } from './friction-detection.js';
 import { validateDefinitionInput, createDefinition, queryOverlapCandidates } from './definitions.js';
 import { deriveClosingArgument } from './closing-argument.js';
@@ -497,14 +498,18 @@ export function applyOperations(state, operations, consent) {
       errors: [`INVALID_CONSENT: ${consentCheck.reason}`],
       integrityWarnings: [],
       completeness: null,
-      challengeTrigger: null,
-      stallDetected: false,
+      bodyAdvancement: null,
       closure: { permitted: false, reasons: [] },
       friction_hints: [],
     };
   }
   let current = structuredClone(state);
   current.elements = cloneElements(state.elements);
+  const snapshot = {
+    elements: cloneElements(state.elements),
+    concerns: structuredClone(state.concerns || []),
+    definitions: structuredClone(state.definitions || []),
+  };
   resetFirstYesIfFired(current);
 
   current.round++;
@@ -678,24 +683,13 @@ export function applyOperations(state, operations, consent) {
   current = fricResult.state;
   const friction_hints = fricResult.hints;
 
-  // Record history
-  let activeConditions = 0;
-  for (const [, el] of current.elements) {
-    if (el.status === 'active' && el.type === 'NECESSARY_CONDITION') {
-      activeConditions++;
-    }
-  }
-  current.conditionCountHistory.push(activeConditions);
-  current.elementCountHistory.push(current.elements.size);
-
   // Compute post-operation metadata
   const integrityWarnings = checkAllIntegrity(current.elements);
   const completeness = {
     ...computeCompleteness(current.elements, current),
     groundingCoverage: computeGroundingCoverage(current.elements),
   };
-  const challengeTrigger = detectChallenge(current);
-  const stallDetected = detectStall(current.conditionCountHistory);
+  const bodyAdvancement = computeBodyAdvancement(snapshot, current);
   const closure = checkClosure(current);
 
   return {
@@ -706,8 +700,7 @@ export function applyOperations(state, operations, consent) {
     errors,
     integrityWarnings,
     completeness,
-    challengeTrigger,
-    stallDetected,
+    bodyAdvancement,
     closure,
     friction_hints,
   };
