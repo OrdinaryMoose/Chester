@@ -1,7 +1,7 @@
 ---
 name: design-large-task
 description: "Default structural design skill for architectural or multi-decision work. Five outer phases: Bootstrap, Parallel Context Exploration, Round One, Interview Loop, Closure. Inside the Interview Loop, an Understand Stage runs under an Understanding MCP (nine-dimension saturation scoring), then a Solve Stage runs under a Design Proof MCP (formal proof-building with structural validation around necessary conditions). Closure writes the design brief (the proof envelope) and hands off to design-specify, which owns architecture choice. Use when the task involves structural choices that need grounded design before implementation. For bounded edits where the target is clear, use design-small-task instead."
-version: v0012
+version: v0013
 ---
 
 # Large-Task Design Discovery with Formal Proof Language
@@ -407,7 +407,7 @@ The boundary between Understand and Solve is marked by a **transition checkpoint
 
 ### Solve Stage Opening
 
-**Consent token construction.** Every mutating proof tool (`open_proof`, `submit_proof_update`, `manage_concerns`, `manage_friction`, `override_friction_disposition`, `manage_definitions`, `withdraw`, `ratify_resolve_condition`, `present_closing_argument`, `confirm_closure_go`, `reopen_proof`) requires a consent token argument shaped `{ source, rationale? }`. `source` must be either `'designer'` (when the designer's words directly authorize the mutation) or `'agent-proposed-designer-confirmed'` (when you proposed the change and the designer confirmed it in the same turn). `rationale` is an optional short string capturing why the mutation is being made — surfaced into the operationLog for forensic clarity. Construct the token at the call site; never reuse a stale token across turns. Missing or malformed consent returns `INVALID_CONSENT` and the proof state is unchanged.
+**Consent token construction.** Every mutating proof tool (`open_proof`, `submit_proof_update`, `manage_concerns`, `manage_friction`, `override_friction_disposition`, `manage_definitions`, `withdraw`, `ratify_resolve_condition`, `present_closing_argument`, `confirm_closure_go`) requires a consent token argument shaped `{ source, rationale? }`. `source` must be either `'designer'` (when the designer's words directly authorize the mutation) or `'agent-proposed-designer-confirmed'` (when you proposed the change and the designer confirmed it in the same turn). `rationale` is an optional short string capturing why the mutation is being made — surfaced into the operationLog for forensic clarity. Construct the token at the call site; never reuse a stale token across turns. Missing or malformed consent returns `INVALID_CONSENT` and the proof state is unchanged.
 
 The Solve Stage opens with three steps before the proof-governed interview loop begins:
 
@@ -428,13 +428,13 @@ The Solve Stage opens with three steps before the proof-governed interview loop 
 The Solve Stage uses the Design Proof MCP (`chester-design-proof`). Tools in invocation order across the stage:
 
 - **`open_proof`** — open a proof from a single caller submission. Restructures untrusted material into typed proof elements per a 4b-owned schema; gates on per-element artifacts before opening.
-- **`submit_proof_update`** — apply a batch of element operations (`add` / `revise` / `withdraw`) for the current round. Validates types, references, and per-type required fields. **FRICTION elements must NOT be created or withdrawn here** — use the dedicated friction tools below.
-- **`get_proof_state`** — load current state and computed metrics (integrity, completeness, closure readiness).
-- **`manage_concerns`** — `add` or `lock` Concerns attached to the problem statement. Concerns anchor Resolve Conditions for closure coverage.
+- **`submit_proof_update`** — apply a batch of element operations (`add` / `revise` / `withdraw`) for the current round. Validates types, references, and per-type required fields. **FRICTION elements must NOT be created or withdrawn here** — use the dedicated friction tools below. The response carries an internal `body_advancement` field describing whether this round substantively advanced the proof body — **agent-internal context only, never surfaced into designer-facing turn output**.
+- **`get_proof_state`** — load current state and computed metrics (integrity, completeness, closure readiness). Accepts an optional `summary_mode: boolean` flag that returns a condensed envelope (counts and key metrics in place of the full element arrays) for long sessions where the full state would bloat the context window.
+- **`manage_concerns`** — `add` or `ratify` Concerns attached to the problem statement. Concerns anchor Resolve Conditions for closure coverage.
 - **`ratify_resolve_condition`** — designer's sign-off on a single Resolve Condition. Sequential by design; one element_id per call.
 - **`manage_friction`** — add a FRICTION element capturing tension between two existing elements. Pre-validates anchor existence and emits a structured `frictionLog` 'added' event. Auto-creation runs as a side-effect of every state-mutating operation for `permission-risk-linkage` shape (structurally exact); the other three shapes (`nc-nc-opposing-pull`, `rc-rule-conflict`, `concern-concern-competition`) surface as `friction_hints[]` for designer confirmation via this tool.
 - **`override_friction_disposition`** — change a FRICTION element's `disposition`. Terminal dispositions (`dissolved-by-revision`, `dissolved-by-scope-cut`, `not-really-friction`) also flip status to `withdrawn` and emit a `dismissed` log event. Withdrawn FRICTION elements suppress re-detection — a designer dismissal is sticky.
-- **`present_closing_argument`** — present the structured closing argument when the composite trigger gate clears (per-signal floors: grounding ≥ 0.9, ratified RCs, all NCs have collapse_test, at least one NC has rejected_alternatives, Concerns locked + covered, round ≥ 3; aggregate score ≥ 0.8; integrity warnings = 0). Stamps `closingArgPresentedRound` to current round on success.
+- **`present_closing_argument`** — present the structured closing argument when the composite trigger gate clears (per-signal floors: grounding ≥ 0.9, ratified RCs, all NCs have collapse_test, at least one NC has rejected_alternatives, Concerns ratified + covered, round ≥ 3; aggregate score ≥ 0.8; integrity warnings = 0). **First-yes precondition**: the call requires the designer's first yes (the same-turn closure assent that fires the first-yes flag) to have already been recorded; without it the call returns a structured `FIRST_YES_GATE_FAILED` error whose payload includes `unratified_ids` listing every element still missing ratification. Resolve those ratifications before re-attempting. Stamps `closingArgPresentedRound` to current round on success.
 - **`confirm_closure_go`** — designer's go-choice against the presented argument. Refuses on round mismatch (state has shifted since presentation; re-present first). On success, `closingArgGoRound` is set, satisfying the eleventh closure condition. Any subsequent state mutation clears both flags — designer must re-present and re-confirm.
 
 ### Solve Stage Per-Turn Flow
@@ -480,10 +480,10 @@ Translate the conversation into formal proof operations. The MCP accepts these f
 **Prohibition:** You must NOT create RULE or PERMISSION elements from your own analysis. These are designer-sourced only. If you believe a restriction exists, surface it in commentary and let the designer confirm it as a RULE.
 
 **Step 4: Submit proof update.**
-Call `submit_proof_update` with all operations batched in a single call. Include `challenge_used` if a challenge mode was delivered this turn.
+Call `submit_proof_update` with all operations batched in a single call.
 
 **Step 5: Read proof response.**
-The proof MCP returns integrity warnings, completeness metrics, challenge triggers, stall detection, and closure status. Use these to inform your topic choice and commentary — but never surface them in their raw form.
+The proof MCP returns integrity warnings, completeness metrics, and closure status. Use these to inform your topic choice and commentary — but never surface them in their raw form.
 
 #### Visible: Designer-Facing Output (Steps 6–9)
 
@@ -492,12 +492,11 @@ Everything from here forward is what the designer sees. It must read like a coll
 **Step 6: Choose topic.**
 Select what to address this turn using this priority (not discretionary):
 
-1. **Challenge mode trigger (MCP)** — if the proof MCP says Contrarian, Simplifier, or Ontologist is due, your next commentary IS the challenge
-3. **Integrity warnings** — if the proof MCP reported structural anomalies, surface them (see Integrity Warning Surfacing)
-4. **Foundational untested assumption** — if you identify an assumption whose falsity would collapse the design
-5. **Codebase contradiction** — if exploration reveals something that directly contradicts the designer's stated intent
-6. **Ungrounded conditions** — necessary conditions lacking designer authority or codebase evidence
-7. **Coverage rotation** — next unaddressed area of the design space
+1. **Integrity warnings** — if the proof MCP reported structural anomalies, surface them (see Integrity Warning Surfacing)
+2. **Foundational untested assumption** — if you identify an assumption whose falsity would collapse the design
+3. **Codebase contradiction** — if exploration reveals something that directly contradicts the designer's stated intent
+4. **Ungrounded conditions** — necessary conditions lacking designer authority or codebase evidence
+5. **Coverage rotation** — next unaddressed area of the design space
 
 **Step 7: Compose information package.**
 Build the Solve Stage information package (see Information Package below).
@@ -521,7 +520,7 @@ Before sending, verify C1 and C2 from `util-design-partner-role` — every load-
 Before sending, run the Translation Gate checklist over every block you are about to output (observations, information package, commentary):
 - No type names, class names, property names, method names, file paths, or module names
 - No element IDs, element type names (EVIDENCE, RULE, PERMISSION, NECESSARY_CONDITION, RISK), field names (grounding, collapse_test, reasoning_chain), integrity warning codes, or closure conditions
-- No challenge mode names (Contrarian, Simplifier, Ontologist) or proof state references
+- No proof state references
 - No JSON, code blocks, schema fragments, or tool call examples
 
 If any slipped in, rewrite before sending. Then output observations block, then information package, then commentary with closing prompt.
@@ -546,18 +545,6 @@ Follow the translated warning with a brief explanation of which decision and whi
 **Stopping criterion:** Remaining questions are about *how to implement* rather than *what to build*. All necessary conditions are grounded in evidence or designer authority. The proof MCP confirms via `closure_permitted: true`.
 
 **Length check:** the Solve Stage is naturally shorter than the Understand Stage because the deep problem understanding constrains the solution space. If the Solve Stage consumes more rounds than the Understand Stage, note this in process evidence as a signal that understanding may have been insufficient.
-
-### Challenge Modes
-
-Three modes, each triggered by the proof MCP during the Solve Stage.
-
-| Mode | Trigger | Effect |
-|------|---------|--------|
-| Contrarian | Proof MCP: a necessary condition is grounded only in EVIDENCE with no RULE | Challenge the core premise — the agent is deriving design requirements from code alone without designer authority |
-| Simplifier | Proof MCP: condition count grew by 2+ without consolidation | Probe whether all conditions are genuinely necessary — can some be consolidated or are they redundant? |
-| Ontologist | Proof MCP: condition count unchanged for 3 consecutive rounds | Force essence-level reframing — the proof isn't evolving, are we asking the right question? |
-
-When a challenge is triggered, your next commentary MUST be the challenge — it overrides normal topic selection. After delivering a challenge triggered by the proof MCP, report it via `challenge_used` in the next `submit_proof_update` call.
 
 ### Checkpoints (Every 5 Rounds)
 
@@ -630,7 +617,6 @@ Applies to observations, information package, commentary, closing arguments, and
 - Element IDs or proof terminology (EVIDENCE, RULE, PERMISSION, NECESSARY_CONDITION, RISK, grounding, collapse_test)
 - Proof state references (closure_permitted, grounding_coverage, element counts)
 - Understanding state references (transition_ready, group_saturation, gaps_summary, tenet_scores, glossary, pending_overrides, pending_vocab_dispositions, solve_leakage_ledger, vocabulary_action_log, repeat_back_history)
-- Challenge mode names (Contrarian, Simplifier, Ontologist)
 - MCP mechanism references (submit_understanding, submit_round_evidence, submit_proof_update, open_proof, initialize_understanding, seed_glossary, apply_vocabulary_action, resolve_override, integrity_warnings, etc.)
 - Vocabulary action names (ADD, REMOVE, RENAME, SPLIT, MERGE, DEFER) and classification names (CONSISTENT, PROPOSE, DEPRECATE, DRIFT, CONFLICT) — surface their *substance* in plain language, never the label
 - Priority rule references
@@ -756,9 +742,7 @@ Use `capture_thought` / `get_thinking_summary` for positional retrieval against 
 
 **Checkpoints:** Every 5 rounds (total across both stages). Summarize what's been established, what remains open, where the conversation is heading. Domain language only — no element IDs, no proof terminology. Offer exit opportunity.
 
-**Stall recovery:**
-1. Ontologist fires (if available)
-2. Ontologist already used → present a checkpoint: "We have open questions that aren't being addressed. Is the design genuinely ambiguous here, or are we missing the right topic?"
+**Stall recovery:** if rounds pass without the proof body advancing, present a checkpoint: "We have open questions that aren't being addressed. Is the design genuinely ambiguous here, or are we missing the right topic?"
 
 **Solve Stage length check:** If the Solve Stage consumes more rounds than the Understand Stage, note in process evidence as a signal that understanding may have been insufficient.
 
@@ -770,7 +754,7 @@ If interrupted:
 1. `get_thinking_summary()` — check for `understanding-confirmed` thought
 2. If absent AND `ACTIVE_UNDERSTANDING_MCP` is `classic` / `problemfocused` / `architectural`, the Understand Stage was active under an MCP — call `get_understanding_state` with the understanding state file path (`{CHESTER_WORKING_DIR}/{sprint-subdir}/design/{sprint-name}-understanding-state.json`) to reload dimension scores, group saturation, and gap status. Summarize current saturation in domain language and resume the per-turn scoring cycle. No writes or edits until the Solve Stage opens. **If absent AND `ACTIVE_UNDERSTANDING_MCP=team-interview`, the team debate was in progress** — call `get_thinking_summary()` and read the `team-interview-r{N}-recommendation` thoughts captured incrementally during the rounds (per the flow file's per-round `capture_thought` step). Reconstruct from the most recent recommendation: which round was active, which poles had spoken, which statements were alive/wounded/dead. Summarize current debate state in domain language and resume the next round per `references/team-interview-flow.md`. (No process-evidence transcript file is read — that file is written only at Phase 5 Closure, not incrementally during the Understand Stage.)
 3. If present: the Solve Stage was active. Call `get_proof_state` with the proof state file path (`{CHESTER_WORKING_DIR}/{sprint-subdir}/design/{sprint-name}-proof-state.json`).
-4. Summarize current proof state in domain language: "We were in round N. We've established [summary of key evidence and rules], built [N] necessary conditions, and have [summary of grounding status and any integrity warnings]. [Challenge modes used, if any]. Continuing."
+4. Summarize current proof state in domain language: "We were in round N. We've established [summary of key evidence and rules], built [N] necessary conditions, and have [summary of grounding status and any integrity warnings]. Continuing."
 5. Pick up from last completed round. Do not re-present prior turns.
 
 ---
@@ -803,8 +787,7 @@ After at least 3 rounds of the Solve Stage, the designer may exit at any checkpo
 
 ### Stall Recovery
 
-1. Stall detected → Ontologist fires (if available)
-2. Ontologist already used → present a checkpoint asking whether the session is stuck because the design is genuinely ambiguous at this level, or because the commentary isn't reaching the right topic
+If rounds pass without the proof body advancing, present a checkpoint asking whether the session is stuck because the design is genuinely ambiguous at this level, or because the commentary isn't reaching the right topic.
 
 ---
 
@@ -818,7 +801,7 @@ The Solve Stage ended when the designer approved the closing argument. Closure w
 2. Reformat the thinking summary into a clean document. Hold in memory — written to disk in step 5.
 3. Present the completed design brief to the user — each decision with conclusion and rationale. The Problem section contains the confirmed problem statement from Solve Stage opening.
 4. Ask: "Does this capture what we're building?"
-5. After confirmation, write the design brief, thinking summary, and process evidence to the `design/` subdirectory (see `util-artifact-schema` for naming and path conventions). Process evidence compiles from both state files: understanding MCP saturation history and gap evolution (Understand Stage); proof MCP interview profile, drift assessments, challenge mode firings, readiness gate satisfaction, closure decision (Solve Stage). Include **stage transition timing** and **Solve Stage length relative to the Understand Stage**. Human-readable narrative — stories, not scores.
+5. After confirmation, write the design brief, thinking summary, and process evidence to the `design/` subdirectory (see `util-artifact-schema` for naming and path conventions). Process evidence compiles from both state files: understanding MCP saturation history and gap evolution (Understand Stage); proof MCP interview profile, drift assessments, readiness gate satisfaction, closure decision (Solve Stage). Include **stage transition timing** and **Solve Stage length relative to the Understand Stage**. Human-readable narrative — stories, not scores.
    <!-- <STAMP-BLOCK> -->
    **Stamp provenance.** After each artifact is written, stamp the provenance trailer per `util-artifact-schema` `## Provenance Trailers`. Each artifact gets its own independent chain (sidecars do not share trailers — see D7 of the schema):
 
@@ -842,7 +825,7 @@ permanent history.
 
 2. **Thinking summary** (`{sprint-name}-thinking-00.md`) — HOW decisions were made. Domain language. Decision history, alternatives considered, user corrections, confidence levels, understanding shifts.
 
-3. **Process evidence** (`{sprint-name}-process-00.md`) — HOW the interview operated. Human-readable narrative. Understanding dimension saturation over time, where the conversation pulled vertical, stage transition timing, challenge mode firings, how gates were satisfied, where drift was caught, Solve Stage length relative to the Understand Stage.
+3. **Process evidence** (`{sprint-name}-process-00.md`) — HOW the interview operated. Human-readable narrative. Understanding dimension saturation over time, where the conversation pulled vertical, stage transition timing, how gates were satisfied, where drift was caught, Solve Stage length relative to the Understand Stage.
 
 ## Integration
 
