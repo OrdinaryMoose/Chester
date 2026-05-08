@@ -131,8 +131,9 @@ export function recordClosingArgPresented(state, consent) {
  *
  * On success, this is the proof's closure transition (RULE-9):
  *   - Sets proofStatus = 'finish'
- *   - Bulk-ratifies every active draft NECESSARY_CONDITION
- *   - Bulk-ratifies every active RESOLVE_CONDITION lacking ratification
+ *   - Appends exactly one operation log entry: { op: 'close', provenance: { from: 'planning', to: 'finish' } }.
+ *     No bulk-ratify (AC-2.4): the first-yes precondition guarantees every active
+ *     element is already ratified by the time this runs.
  *   - Preserves both closingArgPresentedRound and closingArgGoRound (does NOT
  *     clear them — closure must remain observable). All other mutating
  *     functions clear these flags; recordDesignerGo is the documented exception.

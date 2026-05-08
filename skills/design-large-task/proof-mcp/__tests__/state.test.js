@@ -697,9 +697,7 @@ describe('AC-7.1: post-finish mutations refused', () => {
   });
 
   it('withdrawDefinition refuses', () => {
-    const s = finishedState();
     // Add a definition before finish so we have something to attempt withdrawing.
-    // (Build alt state with a definition then finish.)
     const base = buildClosableState();
     base.definitions = [{
       id: 'DEFN-1',
@@ -712,8 +710,6 @@ describe('AC-7.1: post-finish mutations refused', () => {
     expect(err1).toBeNull();
     const [, err] = withdrawDefinition(finished, 'DEFN-1', 'unclassified', goConsent);
     expect(err).toMatch(PROOF_FINISHED);
-    // (use s param to avoid unused-var lint)
-    expect(s.proofStatus).toBe('finish');
   });
 
   it('recordClosingArgPresented refuses', () => {
