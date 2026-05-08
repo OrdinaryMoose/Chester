@@ -16,7 +16,7 @@ describe('loadState backfill for cluster B.2 fields', () => {
       elementCounters: { EVIDENCE: 0, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 0, RISK: 0, RESOLVE_CONDITION: 0 },
       conditionCountHistory: [], elementCountHistory: [],
       challengeModesUsed: [], challengeLog: [], revisionLog: [],
-      phaseTransitionRound: 0, concerns: [], concernsLocked: false,
+      phaseTransitionRound: 0, concerns: [],
       concernCounter: 0, ratificationLog: [],
     };
     writeFileSync(path, JSON.stringify(legacy));

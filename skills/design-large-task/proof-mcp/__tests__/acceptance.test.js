@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { ELEMENT_TYPES, createElement, checkStaleRatification } from '../proof.js';
-import { initializeState, addConcern, lockConcerns, applyOperations, ratifyResolveCondition } from '../state.js';
+import { initializeState, addConcern, ratifyConcern, applyOperations, ratifyResolveCondition } from '../state.js';
 import { checkConcernCoverage, checkClosure } from '../metrics.js';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
@@ -81,37 +81,23 @@ describe('AC-2.1 addConcern appends sequential CERN IDs', () => {
   });
 });
 
-describe('AC-2.2 lockConcerns is irreversible', () => {
-  it('ac-2-2-lock-concerns-irreversible', () => {
-    let state = initializeState('test');
-    [, state] = addConcern(state, { label: 'A' }, { source: 'designer', rationale: 'test' });
-    let err;
-    [state, , err] = lockConcerns(state, { source: 'designer', rationale: 'test' });
-    expect(err).toBeNull();
-    expect(state.concernsLocked).toBe(true);
-    [, , err] = lockConcerns(state, { source: 'designer', rationale: 'test' });
-    expect(err).toMatch(/already locked/i);
-  });
-});
-
-describe('AC-2.3 addConcern refused after lock', () => {
-  it('ac-2-3-add-concern-refused-after-lock', () => {
-    let state = initializeState('test');
-    [, state] = addConcern(state, { label: 'A' }, { source: 'designer', rationale: 'test' });
-    [state] = lockConcerns(state, { source: 'designer', rationale: 'test' });
-    const [id, sameState, , err] = addConcern(state, { label: 'B' }, { source: 'designer', rationale: 'test' });
-    expect(id).toBeNull();
-    expect(sameState).toBe(state);
-    expect(err).toMatch(/locked/i);
-  });
-});
-
-describe('AC-2.4 lockConcerns refuses empty Concerns set', () => {
-  it('ac-2-4-lock-concerns-refuses-empty', () => {
+describe('AC-2.2 lock retired — no concernsLocked, no lockConcerns export', () => {
+  it('ac-2-2-lock-retired', () => {
     const state = initializeState('test');
-    const [sameState, , err] = lockConcerns(state, { source: 'designer', rationale: 'test' });
-    expect(sameState).toBe(state);
-    expect(err).toMatch(/empty/i);
+    expect(state).not.toHaveProperty('concernsLocked');
+  });
+});
+
+describe('AC-2.3 Concerns can be added at any time during planning (lock retired)', () => {
+  it('ac-2-3-add-concern-always-permitted', () => {
+    const consent = { source: 'designer', rationale: 'test' };
+    let state = initializeState('test');
+    [, state] = addConcern(state, { label: 'A' }, consent);
+    [state] = ratifyConcern(state, 'CERN-1', consent);
+    const [id, newState, , err] = addConcern(state, { label: 'B' }, consent);
+    expect(err).toBeNull();
+    expect(id).toBe('CERN-2');
+    expect(newState.concerns).toHaveLength(2);
   });
 });
 
@@ -119,12 +105,12 @@ describe('AC-2.4 lockConcerns refuses empty Concerns set', () => {
 // AC-3.x — Closure conditions
 // ---------------------------------------------------------------------------
 
-describe('AC-3.1 closure refuses unlocked Concerns', () => {
-  it('ac-3-1-closure-refuses-unlocked-concerns', () => {
+describe('AC-3.1 closure detects uncovered Concern (no lock gate; AC-2.2)', () => {
+  it('ac-3-1-closure-uncovered-concern', () => {
     let state = initializeState('test');
     [, state] = addConcern(state, { label: 'A' }, { source: 'designer', rationale: 'test' });
     const closure = checkClosure(state);
-    expect(closure.reasons).toContain('Concerns must be locked before closure');
+    expect(closure.reasons.some(r => /CERN-1/.test(r))).toBe(true);
   });
 });
 
@@ -141,7 +127,6 @@ describe('AC-3.3 closure per-Concern uncovered detection', () => {
     let state = initializeState('test');
     [, state] = addConcern(state, { label: 'A' }, { source: 'designer', rationale: 'test' });
     [, state] = addConcern(state, { label: 'B' }, { source: 'designer', rationale: 'test' });
-    [state] = lockConcerns(state, { source: 'designer', rationale: 'test' });
     const closure = checkClosure(state);
     expect(closure.reasons.some(r => /CERN-2/.test(r))).toBe(true);
   });
@@ -152,7 +137,6 @@ describe('AC-3.4 closure permits Rule-union coverage', () => {
     let state = initializeState('test');
     [, state] = addConcern(state, { label: 'Performance' }, { source: 'designer', rationale: 'test' });
     [, state] = addConcern(state, { label: 'Correctness' }, { source: 'designer', rationale: 'test' });
-    [state] = lockConcerns(state, { source: 'designer', rationale: 'test' });
     const result = applyOperations(state, [
       { op: 'add', type: 'RULE', statement: 'preserve Performance baseline', source: 'designer' },
       { op: 'add', type: 'RULE', statement: 'require CERN-2 enforcement', source: 'designer' },
@@ -167,7 +151,6 @@ describe('AC-3.5 closure refuses unratified RC', () => {
   it('ac-3-5-closure-refuses-unratified-rc', () => {
     let state = initializeState('test');
     [, state] = addConcern(state, { label: 'A' }, { source: 'designer', rationale: 'test' });
-    [state] = lockConcerns(state, { source: 'designer', rationale: 'test' });
     const result = applyOperations(state, [
       { op: 'add', type: 'RESOLVE_CONDITION', statement: 's', problem_anchor: 'CERN-1' },
     ], { source: 'designer', rationale: 'test' });
@@ -185,7 +168,6 @@ describe('AC-4.1 ratify single RC succeeds', () => {
   it('ac-4-1-ratify-single-rc-success', () => {
     let state = initializeState('test');
     [, state] = addConcern(state, { label: 'A' }, { source: 'designer', rationale: 'test' });
-    [state] = lockConcerns(state, { source: 'designer', rationale: 'test' });
     const result = applyOperations(state, [
       { op: 'add', type: 'RESOLVE_CONDITION', statement: 's', problem_anchor: 'CERN-1' },
     ], { source: 'designer', rationale: 'test' });
@@ -229,7 +211,6 @@ describe('AC-5.1 revise statement clears ratification', () => {
   it('ac-5-1-revise-statement-clears-ratification', () => {
     let state = initializeState('test');
     [, state] = addConcern(state, { label: 'A' }, { source: 'designer', rationale: 'test' });
-    [state] = lockConcerns(state, { source: 'designer', rationale: 'test' });
     let result = applyOperations(state, [
       { op: 'add', type: 'RESOLVE_CONDITION', statement: 'orig', problem_anchor: 'CERN-1' },
     ], { source: 'designer', rationale: 'test' });
@@ -251,7 +232,6 @@ describe('AC-5.2 revise problem_anchor clears ratification', () => {
     let state = initializeState('test');
     [, state] = addConcern(state, { label: 'A' }, { source: 'designer', rationale: 'test' });
     [, state] = addConcern(state, { label: 'B' }, { source: 'designer', rationale: 'test' });
-    [state] = lockConcerns(state, { source: 'designer', rationale: 'test' });
     let result = applyOperations(state, [
       { op: 'add', type: 'RESOLVE_CONDITION', statement: 's', problem_anchor: 'CERN-1' },
     ], { source: 'designer', rationale: 'test' });
@@ -272,7 +252,6 @@ describe('AC-5.3 revise other field preserves ratification', () => {
   it('ac-5-3-revise-other-preserves-ratification', () => {
     let state = initializeState('test');
     [, state] = addConcern(state, { label: 'A' }, { source: 'designer', rationale: 'test' });
-    [state] = lockConcerns(state, { source: 'designer', rationale: 'test' });
     let result = applyOperations(state, [
       { op: 'add', type: 'RESOLVE_CONDITION', statement: 's', problem_anchor: 'CERN-1' },
     ], { source: 'designer', rationale: 'test' });

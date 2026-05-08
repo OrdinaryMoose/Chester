@@ -3,7 +3,7 @@ import { readFileSync, existsSync, unlinkSync, writeFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { handleOpenProof, handleManageDefinitions, handleGetProofState, handlePresentClosingArgument, handleSubmitProofUpdate } from '../server.js';
-import { initializeState, saveState, addConcern, lockConcerns, ratifyConcern } from '../state.js';
+import { initializeState, saveState, addConcern, ratifyConcern } from '../state.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const serverSource = readFileSync(join(__dirname, '../server.js'), 'utf-8');
@@ -23,8 +23,8 @@ describe('server.js — manage_concerns tool', () => {
     expect(serverSource).toMatch(/name:\s*'manage_concerns'/);
   });
 
-  it('manage_concerns op enum lists add, lock, and ratify', () => {
-    expect(serverSource).toMatch(/op:\s*\{[^}]*enum:\s*\[\s*'add',\s*'lock',\s*'ratify'\s*\]/s);
+  it('manage_concerns op enum lists add and ratify (lock retired AC-2.2)', () => {
+    expect(serverSource).toMatch(/op:\s*\{[^}]*enum:\s*\[\s*'add',\s*'ratify'\s*\]/s);
   });
 
   it('dispatches ratify op in manage_concerns handler', () => {
@@ -316,7 +316,7 @@ describe('handleOpenProof — already-open refusal', () => {
       round: 5, problemStatement: 'prior', elements: {},
       elementCounters: { EVIDENCE: 0, RULE: 0, PERMISSION: 0, NECESSARY_CONDITION: 0, RISK: 0, RESOLVE_CONDITION: 0, FRICTION: 0 },
       conditionCountHistory: [], elementCountHistory: [], challengeModesUsed: [], challengeLog: [], revisionLog: [], phaseTransitionRound: 0,
-      concerns: [], concernsLocked: false, concernCounter: 0, ratificationLog: [], frictionLog: [],
+      concerns: [], concernCounter: 0, ratificationLog: [], frictionLog: [],
       closingArgPresentedRound: null, closingArgGoRound: null,
       proofStatus: 'open',
     };
@@ -463,7 +463,6 @@ describe('handlePresentClosingArgument — first-yes gate + trigger', () => {
     const consent = { source: 'designer', rationale: 't' };
     let s = initializeState('p');
     [, s] = addConcern(s, { label: 'CERN-A', description: 'd' }, consent);
-    [s] = lockConcerns(s, consent);
     [s] = ratifyConcern(s, 'CERN-1', consent);
     // Gate passes (no draft elements) but state has no NCs / RCs / Evidence — trigger floors fail.
     saveState(s, tmp);
@@ -537,6 +536,39 @@ describe('initialize_proof retirement', () => {
   it('server.js contains no remaining references to initialize_proof or handleInitialize', () => {
     expect(serverSource).not.toContain('initialize_proof');
     expect(serverSource).not.toContain('handleInitialize');
+  });
+});
+
+describe('manage_concerns op:lock retired (AC-2.2)', () => {
+  it("op enum is exactly ['add', 'ratify']", () => {
+    expect(serverSource).toMatch(/op:\s*\{[^}]*enum:\s*\[\s*'add',\s*'ratify'\s*\]/s);
+    expect(serverSource).not.toMatch(/op:\s*\{[^}]*enum:\s*\[[^\]]*'lock'/s);
+  });
+
+  it('lockConcerns is not exported from state.js', async () => {
+    const stateModule = await import('../state.js');
+    expect(stateModule.lockConcerns).toBeUndefined();
+  });
+
+  it('initializeState does not set concernsLocked', async () => {
+    const { initializeState: init } = await import('../state.js');
+    const s = init('p');
+    expect(s).not.toHaveProperty('concernsLocked');
+  });
+
+  it('adding a Concern always succeeds, regardless of prior count', async () => {
+    const { initializeState: init, addConcern: add } = await import('../state.js');
+    let s = init('p');
+    for (let i = 0; i < 5; i++) {
+      const [, ns] = add(s, { label: `C${i}` }, { source: 'designer', rationale: 't' });
+      s = ns;
+    }
+    expect(s.concerns.length).toBe(5);
+  });
+
+  it('server.js source contains no remaining references to lockConcerns or op === lock', () => {
+    expect(serverSource).not.toContain('lockConcerns');
+    expect(serverSource).not.toMatch(/op\s*===\s*'lock'/);
   });
 });
 

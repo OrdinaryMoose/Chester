@@ -18,7 +18,6 @@ function fixture() {
   const s = initializeState('p');
   s.round = 5;
   s.concerns = [{ id: 'CERN-1', label: 'C', description: null, status: 'ratified' }];
-  s.concernsLocked = true;
   s.concernCounter = 1;
   s.proofStatus = 'planning';
   s.closingArgPresentedRound = 5;

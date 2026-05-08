@@ -349,7 +349,6 @@ describe('checkClosure', () => {
       round: 4,
       phaseTransitionRound: 1,
       concerns: [{ id: 'CERN-1', label: 'X', description: null }],
-      concernsLocked: true,
       closingArgPresentedRound: 4,
       closingArgGoRound: 4,
     };
@@ -464,7 +463,7 @@ describe('checkConcernCoverage', () => {
   function buildState({ concerns, elements }) {
     const map = new Map();
     for (const el of elements) map.set(el.id, el);
-    return { concerns, concernsLocked: true, elements: map };
+    return { concerns, elements: map };
   }
 
   it('marks Concern as covered when a ratified RC anchors to it', () => {
@@ -558,29 +557,19 @@ describe('checkClosure — Concerns and Resolve Conditions (conditions 7-10)', (
       round: 3, phaseTransitionRound: 1,
       elements: mapOf(evidence, nc),
       concerns: [],
-      concernsLocked: false,
     };
   }
 
-  it('condition 8: refuses closure when Concerns list is empty', () => {
+  it('condition 7: refuses closure when Concerns list is empty', () => {
     const state = baseClosureState();
     const c = checkClosure(state);
     expect(c.permitted).toBe(false);
     expect(c.reasons).toContain('No Concerns enumerated — at least one Concern required before closure');
   });
 
-  it('condition 7: refuses closure when Concerns are not locked', () => {
+  it('condition 8: refuses closure when an RC is unratified', () => {
     const state = baseClosureState();
     state.concerns = [{ id: 'CERN-1', label: 'X', description: null }];
-    state.concernsLocked = false;
-    const c = checkClosure(state);
-    expect(c.reasons).toContain('Concerns must be locked before closure');
-  });
-
-  it('condition 9: refuses closure when an RC is unratified', () => {
-    const state = baseClosureState();
-    state.concerns = [{ id: 'CERN-1', label: 'X', description: null }];
-    state.concernsLocked = true;
     const rc = makeElement({
       id: 'RCON-1', type: 'RESOLVE_CONDITION', statement: 'r',
       problem_anchor: 'CERN-1', ratification: null,
@@ -590,13 +579,12 @@ describe('checkClosure — Concerns and Resolve Conditions (conditions 7-10)', (
     expect(c.reasons.some(r => /Unratified Resolve Conditions/.test(r))).toBe(true);
   });
 
-  it('condition 10: lists each uncovered Concern', () => {
+  it('condition 9: lists each uncovered Concern', () => {
     const state = baseClosureState();
     state.concerns = [
       { id: 'CERN-1', label: 'X', description: null },
       { id: 'CERN-2', label: 'Y', description: null },
     ];
-    state.concernsLocked = true;
     const rc = makeElement({
       id: 'RCON-1', type: 'RESOLVE_CONDITION', statement: 'r',
       problem_anchor: 'CERN-1',
@@ -608,10 +596,9 @@ describe('checkClosure — Concerns and Resolve Conditions (conditions 7-10)', (
     expect(c.reasons.some(r => /CERN-1/.test(r))).toBe(false);
   });
 
-  it('permits closure when all 11 conditions pass', () => {
+  it('permits closure when all conditions pass', () => {
     const state = baseClosureState();
     state.concerns = [{ id: 'CERN-1', label: 'X', description: null }];
-    state.concernsLocked = true;
     state.closingArgPresentedRound = state.round;
     state.closingArgGoRound = state.round;
     const rc = makeElement({
@@ -629,18 +616,9 @@ describe('checkClosure — Concerns and Resolve Conditions (conditions 7-10)', (
 // =============================================================================
 // concernsRatificationGate (NC-9) — pure gate used by present_closing_argument
 // =============================================================================
-describe('concernsRatificationGate', () => {
-  it('returns CONCERNS_UNLOCKED when concernsLocked is false', () => {
-    const s = { concernsLocked: false, concerns: [{ id: 'CERN-1', status: 'ratified' }] };
-    const r = concernsRatificationGate(s);
-    expect(r.passed).toBe(false);
-    expect(r.code).toBe('CONCERNS_UNLOCKED');
-    expect(typeof r.message).toBe('string');
-  });
-
+describe('concernsRatificationGate (lock retired AC-2.2)', () => {
   it('returns CONCERNS_UNRATIFIED when any Concern is draft', () => {
     const s = {
-      concernsLocked: true,
       concerns: [
         { id: 'CERN-1', status: 'ratified' },
         { id: 'CERN-2', status: 'draft' },
@@ -652,28 +630,18 @@ describe('concernsRatificationGate', () => {
     expect(r.message).toMatch(/1 draft/);
   });
 
-  it('returns passed: true when locked and all ratified', () => {
-    const s = { concernsLocked: true, concerns: [{ id: 'CERN-1', status: 'ratified' }] };
+  it('returns passed: true when all ratified', () => {
+    const s = { concerns: [{ id: 'CERN-1', status: 'ratified' }] };
     expect(concernsRatificationGate(s).passed).toBe(true);
   });
 
   it('passes when concerns array is empty (gate is structural)', () => {
-    const s = { concernsLocked: true, concerns: [] };
+    const s = { concerns: [] };
     expect(concernsRatificationGate(s).passed).toBe(true);
-  });
-
-  it('checks locked before ratification — unlocked + draft surfaces UNLOCKED', () => {
-    const s = {
-      concernsLocked: false,
-      concerns: [{ id: 'CERN-1', status: 'draft' }],
-    };
-    const r = concernsRatificationGate(s);
-    expect(r.code).toBe('CONCERNS_UNLOCKED');
   });
 
   it('counts multiple draft Concerns in the message', () => {
     const s = {
-      concernsLocked: true,
       concerns: [
         { id: 'CERN-1', status: 'draft' },
         { id: 'CERN-2', status: 'draft' },

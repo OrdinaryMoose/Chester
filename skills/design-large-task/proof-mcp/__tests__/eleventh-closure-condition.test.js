@@ -9,7 +9,6 @@ function fullyCompliantState() {
     closingArgPresentedRound: 5,
     closingArgGoRound: 5,
     concerns: [{ id: 'CERN-1', label: 'C', description: 'd' }],
-    concernsLocked: true,
   };
 }
 

@@ -267,11 +267,14 @@ export function checkConcernCoverage(state) {
 
 /**
  * Check whether closure (finishing the design proof) is permitted.
- * All eleven conditions must pass. Conditions 1-6 cover the necessary-conditions
- * proof; conditions 7-10 cover Concerns lock, Concerns presence, RC ratification,
- * and per-Concern coverage (in that fixed order — spec lines 68-72); condition 11
- * requires the designer go-choice (closingArgGoRound) to match the current round.
- * @param {object} state - { elements, round, phaseTransitionRound, concerns, concernsLocked, closingArgPresentedRound, closingArgGoRound }
+ * All ten conditions must pass. Conditions 1-6 cover the necessary-conditions
+ * proof; conditions 7-9 cover Concerns presence, RC ratification, and per-Concern
+ * coverage (in that fixed order); condition 10 requires the designer go-choice
+ * (closingArgGoRound) to match the current round.
+ *
+ * Lock semantics retired (AC-2.2): per-Concern coverage is checked whenever any
+ * Concerns exist, with no separate lock-state gate.
+ * @param {object} state - { elements, round, phaseTransitionRound, concerns, closingArgPresentedRound, closingArgGoRound }
  * @returns {{ permitted: boolean, reasons: string[] }}
  */
 export function checkClosure(state) {
@@ -342,17 +345,12 @@ export function checkClosure(state) {
     reasons.push('No active necessary conditions exist');
   }
 
-  // 7. Concerns must be locked before closure (when any are present)
-  if (state.concerns && state.concerns.length > 0 && !state.concernsLocked) {
-    reasons.push('Concerns must be locked before closure');
-  }
-
-  // 8. At least one Concern required
+  // 7. At least one Concern required
   if (!state.concerns || state.concerns.length === 0) {
     reasons.push('No Concerns enumerated — at least one Concern required before closure');
   }
 
-  // 9. No active RC may be unratified
+  // 8. No active RC may be unratified
   let anyUnratifiedRc = false;
   for (const [, el] of elements) {
     if (el.status === 'active' && el.type === 'RESOLVE_CONDITION' && el.ratification === null) {
@@ -364,15 +362,15 @@ export function checkClosure(state) {
     reasons.push('Unratified Resolve Conditions exist — ratify each before closure');
   }
 
-  // 10. Per-Concern coverage when locked
-  if (state.concernsLocked) {
+  // 9. Per-Concern coverage (whenever any Concerns exist; lock retired AC-2.2)
+  if (state.concerns && state.concerns.length > 0) {
     const { uncovered } = checkConcernCoverage(state);
     for (const concernId of uncovered) {
       reasons.push(`Concern "${concernId}" is not covered by any ratified Resolve Condition or Rule`);
     }
   }
 
-  // 11. Designer go-choice required against a presented closing argument in current round
+  // 10. Designer go-choice required against a presented closing argument in current round
   if (state.closingArgGoRound !== state.round) {
     reasons.push('Designer go-choice not given against a presented closing argument — call present_closing_argument then confirm_closure_go');
   }
@@ -392,19 +390,12 @@ export const CLOSING_ARG_FLOORS = Object.freeze({
 
 /**
  * Pure gate: tests Concerns ratification readiness for closing-argument flow.
- * Order matters — locked is checked first, then ratification status.
+ * Lock semantics retired (AC-2.2) — only ratification status matters.
  * @param {object} state
  * @returns {{ passed: true } | { passed: false, code: string, message: string }}
  */
 export function concernsRatificationGate(state) {
-  if (!state || !state.concernsLocked) {
-    return {
-      passed: false,
-      code: 'CONCERNS_UNLOCKED',
-      message: 'Concerns must be locked before closing argument',
-    };
-  }
-  const concerns = Array.isArray(state.concerns) ? state.concerns : [];
+  const concerns = Array.isArray(state?.concerns) ? state.concerns : [];
   const draftCount = concerns.filter((c) => c && c.status === 'draft').length;
   if (draftCount > 0) {
     return {
@@ -451,19 +442,14 @@ export function evaluateTrigger(state, overrides) {
   }
   if (!allHaveCollapse) reasons.push('not all active NCs have collapse_test');
   if (!anyHasAlt) reasons.push('no NC has rejected_alternatives');
-  // Concerns ratification gate (locked first, then draft count) — surfaces as a
-  // reason string in this pure-function path; the server-side handler upgrades
-  // gate failure to an isError response with structured code.
+  // Concerns ratification gate (draft count only; lock retired AC-2.2) —
+  // surfaces as a reason string in this pure-function path.
   const gate = concernsRatificationGate(state);
   if (!gate.passed) {
-    if (gate.code === 'CONCERNS_UNLOCKED') {
-      reasons.push('Concerns must be locked');
-    } else {
-      reasons.push(gate.message);
-    }
+    reasons.push(gate.message);
   }
-  // Coverage check is meaningful only after Concerns are locked — matches checkClosure semantics.
-  if (state.concernsLocked) {
+  // Per-Concern coverage check whenever any Concerns exist (lock retired AC-2.2).
+  if (state.concerns && state.concerns.length > 0) {
     const { uncovered } = checkConcernCoverage(state);
     if (uncovered.length > 0) reasons.push(`Concerns uncovered: ${uncovered.join(', ')}`);
   }

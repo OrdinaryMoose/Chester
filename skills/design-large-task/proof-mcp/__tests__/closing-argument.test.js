@@ -1,13 +1,13 @@
 // proof-mcp/__tests__/closing-argument.test.js
 import { describe, it, expect } from 'vitest';
 import { deriveClosingArgument } from '../closing-argument.js';
-import { initializeState, applyOperations, addConcern, lockConcerns, ratifyResolveCondition, manageFriction, overrideFrictionDisposition, withdrawConcern, manageDefinitions, withdrawDefinition } from '../state.js';
+import { initializeState, applyOperations, addConcern, ratifyConcern, ratifyResolveCondition, manageFriction, overrideFrictionDisposition, withdrawConcern, manageDefinitions, withdrawDefinition } from '../state.js';
 
 function build() {
   let s = initializeState('design problem');
   let [, sa] = addConcern(s, { label: 'concern X', description: 'd' }, { source: 'designer', rationale: 'test' });
   s = sa;
-  [s] = lockConcerns(s, { source: 'designer', rationale: 'test' });
+  [s] = ratifyConcern(s, 'CERN-1', { source: 'designer', rationale: 'test' });
   let r = applyOperations(s, [
     { op: 'add', type: 'EVIDENCE', statement: 'evidence body', source: 'codebase' },
     { op: 'add', type: 'NECESSARY_CONDITION', statement: 'must Q', collapse_test: 'breaks if no Q', grounding: ['EVID-1'], reasoning_chain: 'IF evidence body THEN must Q' },
@@ -122,7 +122,8 @@ describe('deriveClosingArgument extended envelope (NC-9 + NC-16)', () => {
     s = sa;
     let [, sb] = addConcern(s, { label: 'concern Y', description: 'd2' }, { source: 'designer', rationale: 'test' });
     s = sb;
-    [s] = lockConcerns(s, { source: 'designer', rationale: 'test' });
+    [s] = ratifyConcern(s, 'CERN-1', { source: 'designer', rationale: 'test' });
+    [s] = ratifyConcern(s, 'CERN-2', { source: 'designer', rationale: 'test' });
     [s] = withdrawConcern(s, 'CERN-2', 'scope-removed', { source: 'designer', rationale: 'test' });
     s.proofStatus = 'finish'; // lockedConcerns partition fires at finish (AC-6.1)
     const env = deriveClosingArgument(s);
@@ -161,7 +162,7 @@ describe('deriveClosingArgument extended envelope (NC-9 + NC-16)', () => {
     let s = initializeState('p');
     let [, sa] = addConcern(s, { label: 'c', description: 'd' }, { source: 'designer', rationale: 'test' });
     s = sa;
-    [s] = lockConcerns(s, { source: 'designer', rationale: 'test' });
+    [s] = ratifyConcern(s, 'CERN-1', { source: 'designer', rationale: 'test' });
     let r = applyOperations(s, [
       { op: 'add', type: 'EVIDENCE', statement: 'e', source: 'codebase' },
       { op: 'add', type: 'RULE', statement: 'rule one', source: 'designer', basis: ['EVID-1'], rejected_alternatives: ['none'] },
@@ -182,7 +183,7 @@ describe('deriveClosingArgument extended envelope (NC-9 + NC-16)', () => {
     let s = initializeState('p');
     let [, sa] = addConcern(s, { label: 'c', description: 'd' }, { source: 'designer', rationale: 'test' });
     s = sa;
-    [s] = lockConcerns(s, { source: 'designer', rationale: 'test' });
+    [s] = ratifyConcern(s, 'CERN-1', { source: 'designer', rationale: 'test' });
     let [, ns1] = manageDefinitions(s, 'add', { canonical_name: 'thing-one', definition: 'a thing', aliases: [], sense_constraints: null }, { source: 'designer', rationale: 'test' });
     s = ns1;
     let [, ns2] = manageDefinitions(s, 'add', { canonical_name: 'thing-two', definition: 'another thing', aliases: [], sense_constraints: null }, { source: 'designer', rationale: 'test' });
@@ -253,7 +254,7 @@ describe('deriveClosingArgument extended envelope (NC-9 + NC-16)', () => {
     let s = initializeState('p');
     let [, sa] = addConcern(s, { label: 'c', description: 'd' }, { source: 'designer', rationale: 'test' });
     s = sa;
-    [s] = lockConcerns(s, { source: 'designer', rationale: 'test' });
+    [s] = ratifyConcern(s, 'CERN-1', { source: 'designer', rationale: 'test' });
     s.proofStatus = 'finish'; // lockedConcerns partition fires at finish (AC-6.1)
     const env = deriveClosingArgument(s);
     for (const key of [

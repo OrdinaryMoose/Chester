@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { validateConsentToken } from '../proof.js';
 import {
-  initializeState, addConcern, lockConcerns, applyOperations,
+  initializeState, addConcern, applyOperations,
   manageFriction, overrideFrictionDisposition, ratifyResolveCondition,
   recordClosingArgPresented, recordDesignerGo,
 } from '../state.js';
@@ -47,24 +47,6 @@ describe('addConcern with consent', () => {
     expect(id).toBe('CERN-1');
     expect(newState.concerns).toHaveLength(1);
     expect(hints).toEqual([]);
-  });
-});
-
-describe('lockConcerns with consent', () => {
-  it('rejects without consent', () => {
-    let s = initializeState('test');
-    [, s] = addConcern(s, { label: 'C' }, valid);
-    const [newState, hints, err] = lockConcerns(s, undefined);
-    expect(err).toMatch(/INVALID_CONSENT/);
-    expect(newState).toEqual(s);
-    expect(hints).toEqual([]);
-  });
-  it('accepts with valid consent', () => {
-    let s = initializeState('test');
-    [, s] = addConcern(s, { label: 'C' }, valid);
-    const [newState, , err] = lockConcerns(s, valid);
-    expect(err).toBeNull();
-    expect(newState.concernsLocked).toBe(true);
   });
 });
 
@@ -134,7 +116,6 @@ describe('ratifyResolveCondition with consent', () => {
   it('rejects without consent', () => {
     let s = initializeState('test');
     [, s] = addConcern(s, { label: 'C' }, valid);
-    [s] = lockConcerns(s, valid);
     let r = applyOperations(s, [
       { op: 'add', type: 'RESOLVE_CONDITION', statement: 'rc', problem_anchor: 'CERN-1' },
     ], valid);

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { initializeState, addConcern, lockConcerns, applyOperations, recordClosingArgPresented, markChallengeUsed } from '../state.js';
+import { initializeState, addConcern, applyOperations, recordClosingArgPresented, markChallengeUsed } from '../state.js';
 
 const consent = { source: 'designer', rationale: 'test' };
 
@@ -19,16 +19,6 @@ describe('operationLog', () => {
       entityId: id,
       consent,
     });
-  });
-
-  it('lockConcerns appends entry with op:lock', () => {
-    let s = initializeState('test problem');
-    let id1, id2;
-    [id1, s] = addConcern(s, { label: 'C-1', description: 'd' }, consent);
-    [id2, s] = addConcern(s, { label: 'C-2', description: 'd' }, consent);
-    const [locked] = lockConcerns(s, consent);
-    s = locked;
-    expect(s.operationLog.find(e => e.op === 'lock')).toBeDefined();
   });
 
   it('applyOperations appends entry per op', () => {

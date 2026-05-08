@@ -10,7 +10,7 @@ import {
   saveState,
   loadState,
   addConcern,
-  lockConcerns,
+  ratifyConcern,
   ratifyResolveCondition,
 } from '../state.js';
 
@@ -45,10 +45,10 @@ describe('initializeState', () => {
     expect(id).toBe('RCON-1');
   });
 
-  it('initializes Concerns lifecycle fields', () => {
+  it('initializes Concerns lifecycle fields (no concernsLocked; AC-2.2)', () => {
     const state = initializeState('test');
     expect(state.concerns).toEqual([]);
-    expect(state.concernsLocked).toBe(false);
+    expect(state).not.toHaveProperty('concernsLocked');
     expect(state.concernCounter).toBe(0);
   });
 
@@ -62,7 +62,6 @@ describe('ratifyResolveCondition', () => {
   it('ratifies a single active RESOLVE_CONDITION', () => {
     let state = initializeState('test');
     [, state] = addConcern(state, { label: 'C1' }, { source: 'designer', rationale: 'test' });
-    [state] = lockConcerns(state, { source: 'designer', rationale: 'test' });
     const result = applyOperations(state, [
       { op: 'add', type: 'RESOLVE_CONDITION', statement: 'X', problem_anchor: 'CERN-1' },
     ], { source: 'designer', rationale: 'test' });
@@ -97,7 +96,6 @@ describe('ratifyResolveCondition', () => {
   it('rejects empty ratificationText', () => {
     let state = initializeState('test');
     [, state] = addConcern(state, { label: 'C1' }, { source: 'designer', rationale: 'test' });
-    [state] = lockConcerns(state, { source: 'designer', rationale: 'test' });
     const result = applyOperations(state, [
       { op: 'add', type: 'RESOLVE_CONDITION', statement: 'X', problem_anchor: 'CERN-1' },
     ], { source: 'designer', rationale: 'test' });
@@ -125,41 +123,15 @@ describe('addConcern', () => {
     expect(state2.concernCounter).toBe(2);
   });
 
-  it('refuses to add when concernsLocked is true', () => {
+  it('always succeeds when adding additional Concerns (lock retired AC-2.2)', () => {
     let state = initializeState('test');
     [, state] = addConcern(state, { label: 'A' }, { source: 'designer', rationale: 'test' });
-    [state] = lockConcerns(state, { source: 'designer', rationale: 'test' });
-    const [id, sameState, , err] = addConcern(state, { label: 'B' }, { source: 'designer', rationale: 'test' });
-    expect(id).toBeNull();
-    expect(err).toMatch(/locked/i);
-    expect(sameState.concerns).toHaveLength(1);
-    expect(sameState.concernCounter).toBe(1);
-  });
-});
-
-describe('lockConcerns', () => {
-  it('flips concernsLocked to true after at least one Concern', () => {
-    let state = initializeState('test');
-    [, state] = addConcern(state, { label: 'A' }, { source: 'designer', rationale: 'test' });
-    const [locked, , err] = lockConcerns(state, { source: 'designer', rationale: 'test' });
+    [state] = ratifyConcern(state, 'CERN-1', { source: 'designer', rationale: 'test' });
+    const [id, newState, , err] = addConcern(state, { label: 'B' }, { source: 'designer', rationale: 'test' });
     expect(err).toBeNull();
-    expect(locked.concernsLocked).toBe(true);
-  });
-
-  it('refuses to lock an empty Concerns list', () => {
-    const state = initializeState('test');
-    const [sameState, , err] = lockConcerns(state, { source: 'designer', rationale: 'test' });
-    expect(err).toMatch(/empty/i);
-    expect(sameState.concernsLocked).toBe(false);
-  });
-
-  it('refuses to lock an already-locked list', () => {
-    let state = initializeState('test');
-    [, state] = addConcern(state, { label: 'A' }, { source: 'designer', rationale: 'test' });
-    [state] = lockConcerns(state, { source: 'designer', rationale: 'test' });
-    const [sameState, , err] = lockConcerns(state, { source: 'designer', rationale: 'test' });
-    expect(err).toMatch(/already/i);
-    expect(sameState.concernsLocked).toBe(true);
+    expect(id).toBe('CERN-2');
+    expect(newState.concerns).toHaveLength(2);
+    expect(newState.concernCounter).toBe(2);
   });
 });
 
@@ -552,7 +524,6 @@ describe('applyOperations — revise on RESOLVE_CONDITION clears ratification', 
     let state = initializeState('test');
     [, state] = addConcern(state, { label: 'C1' }, { source: 'designer', rationale: 'test' });
     [, state] = addConcern(state, { label: 'C2' }, { source: 'designer', rationale: 'test' });
-    [state] = lockConcerns(state, { source: 'designer', rationale: 'test' });
     const result = applyOperations(state, [
       { op: 'add', type: 'RESOLVE_CONDITION', statement: 'original', problem_anchor: 'CERN-1' },
     ], { source: 'designer', rationale: 'test' });

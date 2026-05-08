@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdtempSync, rmSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
-import { initializeState, applyOperations, addConcern, lockConcerns, ratifyConcern, ratifyResolveCondition, markChallengeUsed, manageFriction, overrideFrictionDisposition, manageDefinitions, withdrawElement, withdrawConcern, withdrawDefinition, recordClosingArgPresented, recordDesignerGo, loadState, resetFirstYesIfFired } from '../state.js';
+import { initializeState, applyOperations, addConcern, ratifyConcern, ratifyResolveCondition, markChallengeUsed, manageFriction, overrideFrictionDisposition, manageDefinitions, withdrawElement, withdrawConcern, withdrawDefinition, recordClosingArgPresented, recordDesignerGo, loadState, resetFirstYesIfFired } from '../state.js';
 
 function withFlagsSet(state) {
   state.closingArgPresentedRound = 3;
@@ -28,20 +28,10 @@ describe('mutation-clears-flags', () => {
     expect(newS.closingArgGoRound).toBeNull();
   });
 
-  it('lockConcerns clears flags', () => {
-    let s = initializeState('p');
-    const [, sa] = addConcern(s, { label: 'C', description: 'd' }, { source: 'designer', rationale: 'test' });
-    s = withFlagsSet(sa);
-    const [newS] = lockConcerns(s, { source: 'designer', rationale: 'test' });
-    expect(newS.closingArgPresentedRound).toBeNull();
-    expect(newS.closingArgGoRound).toBeNull();
-  });
-
   it('ratifyResolveCondition clears flags', () => {
     let s = initializeState('p');
     const [, sa] = addConcern(s, { label: 'C', description: 'd' }, { source: 'designer', rationale: 'test' });
     s = sa;
-    [s] = lockConcerns(s, { source: 'designer', rationale: 'test' });
     let r = applyOperations(s, [{ op: 'add', type: 'EVIDENCE', statement: 'e', source: 'codebase' }], { source: 'designer', rationale: 'test' });
     s = r.state;
     r = applyOperations(s, [
@@ -103,7 +93,6 @@ describe('mutation-clears-flags', () => {
     let s = initializeState('p');
     const [, sa] = addConcern(s, { label: 'C', description: 'd' }, { source: 'designer', rationale: 'test' });
     s = sa;
-    [s] = lockConcerns(s, { source: 'designer', rationale: 'test' });
     s = withFlagsSet(s);
     const [newS] = ratifyConcern(s, 'CERN-1', { source: 'designer', rationale: 'test' });
     expect(newS.closingArgPresentedRound).toBeNull();
@@ -178,7 +167,6 @@ describe('mutation-clears-flags', () => {
     let s = initializeState('p');
     const [, sa] = addConcern(s, { label: 'concern X', description: 'd' }, consent);
     s = sa;
-    [s] = lockConcerns(s, consent);
     [s] = ratifyConcern(s, 'CERN-1', consent);
     let r = applyOperations(s, [
       { op: 'add', type: 'EVIDENCE', statement: 'fact', source: 'codebase' },

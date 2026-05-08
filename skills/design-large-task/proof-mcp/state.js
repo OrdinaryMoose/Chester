@@ -47,7 +47,6 @@ export function initializeState(problemStatement) {
     revisionLog: [],
     phaseTransitionRound: 0,
     concerns: [],
-    concernsLocked: false,
     concernCounter: 0,
     ratificationLog: [],
     frictionLog: [],
@@ -260,7 +259,7 @@ function processFriction(state, parentConsent = null, parentOp = null) {
 }
 
 /**
- * Append a Concern to state. Refuses if Concerns list is locked.
+ * Append a Concern to state.
  * @param {object} state
  * @param {{label: string, description?: string}} input
  * @returns {[string|null, object, Array<object>, string|null]} [concernId, newState, friction_hints, error]
@@ -269,9 +268,6 @@ export function addConcern(state, { label, description }, consent) {
   const consentCheck = validateConsentToken(consent);
   if (!consentCheck.valid) {
     return [null, state, [], `INVALID_CONSENT: ${consentCheck.reason}`];
-  }
-  if (state.concernsLocked) {
-    return [null, state, [], 'Concerns are locked; cannot add'];
   }
   let newState = structuredClone(state);
   newState.elements = cloneElements(state.elements);
@@ -291,41 +287,6 @@ export function addConcern(state, { label, description }, consent) {
   const fricResult = processFriction(newState, consent, 'addConcern');
   newState = fricResult.state;
   return [id, newState, fricResult.hints, null];
-}
-
-/**
- * Lock the Concerns list. Refuses on empty list or already-locked list.
- * @param {object} state
- * @returns {[object, Array<object>, string|null]} [newState, friction_hints, error]
- */
-export function lockConcerns(state, consent) {
-  const consentCheck = validateConsentToken(consent);
-  if (!consentCheck.valid) {
-    return [state, [], `INVALID_CONSENT: ${consentCheck.reason}`];
-  }
-  if (state.concernsLocked) {
-    return [state, [], 'Concerns already locked'];
-  }
-  if (state.concerns.length === 0) {
-    return [state, [], 'Cannot lock empty Concerns list'];
-  }
-  let newState = structuredClone(state);
-  newState.elements = cloneElements(state.elements);
-  newState.closingArgPresentedRound = null;
-  newState.closingArgGoRound = null;
-  newState.concernsLocked = true;
-  appendOperationLog(newState, {
-    round: newState.round,
-    op: 'lock',
-    entityId: null,
-    type: null,
-    consent,
-    changedFields: ['concernsLocked'],
-    provenance: { concernCount: newState.concerns.length },
-  });
-  const fricResult = processFriction(newState, consent, 'lockConcerns');
-  newState = fricResult.state;
-  return [newState, fricResult.hints, null];
 }
 
 /**
@@ -721,14 +682,12 @@ export function loadState(filePath) {
   raw.elements = new Map(Object.entries(raw.elements));
   // Backfill cluster-A fields when loading pre-cluster-A state files
   raw.concerns ??= [];
-  raw.concernsLocked ??= false;
   raw.concernCounter ??= 0;
-  // Backfill per-Concern status: locked-list legacy state implies all concerns
-  // were already ratified under the prior model; unlocked legacy state defaults
-  // each concern to draft.
-  const defaultConcernStatus = raw.concernsLocked ? 'ratified' : 'draft';
+  // Per-Concern status defaults to 'draft' when missing. Lock semantics retired
+  // (AC-2.2): each Concern is independently ratified; legacy locked-list state
+  // can no longer round-trip the prior implicit "ratified-by-lock" assumption.
   for (const c of raw.concerns) {
-    c.status ??= defaultConcernStatus;
+    c.status ??= 'draft';
   }
   raw.ratificationLog ??= [];
   raw.frictionLog ??= [];

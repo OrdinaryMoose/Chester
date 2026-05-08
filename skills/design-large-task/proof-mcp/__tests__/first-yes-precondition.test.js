@@ -3,7 +3,7 @@ import { mkdtempSync, existsSync, unlinkSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import {
-  initializeState, saveState, loadState, addConcern, lockConcerns, ratifyConcern,
+  initializeState, saveState, loadState, addConcern, ratifyConcern,
   applyOperations, ratifyResolveCondition,
 } from '../state.js';
 import { handlePresentClosingArgument } from '../server.js';
@@ -37,7 +37,6 @@ describe('first-yes precondition on present_closing_argument', () => {
     const file = freshStateFile();
     let s = loadState(file);
     [, s] = addConcern(s, { label: 'C1', description: 'd' }, CONSENT);
-    [s] = lockConcerns(s, CONSENT);
     [s] = ratifyConcern(s, 'CERN-1', CONSENT);
     const r = applyOperations(s, [
       { op: 'add', type: 'EVIDENCE', statement: 'fact', source: 'codebase' },
@@ -59,7 +58,6 @@ describe('first-yes precondition on present_closing_argument', () => {
     const file = freshStateFile();
     let s = loadState(file);
     [, s] = addConcern(s, { label: 'C1', description: 'd' }, CONSENT);
-    [s] = lockConcerns(s, CONSENT);
     [s] = ratifyConcern(s, 'CERN-1', CONSENT);
     const r = applyOperations(s, [
       { op: 'add', type: 'EVIDENCE', statement: 'fact', source: 'codebase' },
@@ -83,7 +81,6 @@ describe('first-yes precondition on present_closing_argument', () => {
     const file = freshStateFile();
     let s = loadState(file);
     [, s] = addConcern(s, { label: 'C1', description: 'd' }, CONSENT);
-    [s] = lockConcerns(s, CONSENT);
     [s] = ratifyConcern(s, 'CERN-1', CONSENT);
     let r = applyOperations(s, [
       { op: 'add', type: 'EVIDENCE', statement: 'fact', source: 'codebase' },

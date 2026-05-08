@@ -6,7 +6,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { ListToolsRequestSchema, CallToolRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 import {
   initializeState, applyOperations, markChallengeUsed, saveState, loadState,
-  addConcern, lockConcerns, ratifyConcern, ratifyResolveCondition,
+  addConcern, ratifyConcern, ratifyResolveCondition,
   manageFriction, overrideFrictionDisposition,
   recordClosingArgPresented, recordDesignerGo,
   manageDefinitions,
@@ -120,12 +120,12 @@ const TOOLS = [
   },
   {
     name: 'manage_concerns',
-    description: 'Add, lock, or ratify Concerns attached to the problem statement. Concerns anchor Resolve Conditions for closure coverage; ratify transitions a Concern from draft to ratified.',
+    description: 'Add or ratify Concerns attached to the problem statement. Concerns anchor Resolve Conditions for closure coverage; ratify transitions a Concern from draft to ratified.',
     inputSchema: {
       type: 'object',
       properties: {
         state_file: { type: 'string', description: 'Absolute path to state JSON' },
-        op: { type: 'string', enum: ['add', 'lock', 'ratify'] },
+        op: { type: 'string', enum: ['add', 'ratify'] },
         label: { type: 'string', description: 'Concern label (required for op=add)' },
         description: { type: 'string', description: 'Optional Concern description (op=add only)' },
         concern_id: { type: 'string', description: 'CERN-N id of the Concern to ratify (required for op=ratify)' },
@@ -455,14 +455,6 @@ function handleManageConcerns({ state_file, op, label, description, concern_id, 
     }
     saveState(newState, state_file);
     return { content: [{ type: 'text', text: JSON.stringify({ status: 'accepted', concern_id: concernId, concerns_count: newState.concerns.length, friction_hints }) }] };
-  }
-  if (op === 'lock') {
-    const [newState, friction_hints, err] = lockConcerns(state, consent);
-    if (err) {
-      return { content: [{ type: 'text', text: JSON.stringify(classifyStateError(err)) }], isError: true };
-    }
-    saveState(newState, state_file);
-    return { content: [{ type: 'text', text: JSON.stringify({ status: 'accepted', locked: true, concerns_count: newState.concerns.length, friction_hints }) }] };
   }
   if (op === 'ratify') {
     if (!concern_id) {

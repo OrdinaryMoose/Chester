@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { initializeState, applyOperations, addConcern, lockConcerns, ratifyConcern, ratifyResolveCondition, recordClosingArgPresented, recordDesignerGo } from '../state.js';
+import { initializeState, applyOperations, addConcern, ratifyConcern, ratifyResolveCondition, recordClosingArgPresented, recordDesignerGo } from '../state.js';
 import { evaluateTrigger, checkClosure } from '../metrics.js';
 import { deriveClosingArgument } from '../closing-argument.js';
 
@@ -8,7 +8,6 @@ describe('closing-argument end-to-end', () => {
     let s = initializeState('p');
     let [, sa] = addConcern(s, { label: 'concern X', description: 'd' }, { source: 'designer', rationale: 'test' });
     s = sa;
-    [s] = lockConcerns(s, { source: 'designer', rationale: 'test' });
     [s] = ratifyConcern(s, 'CERN-1', { source: 'designer', rationale: 'test' });
     let r = applyOperations(s, [
       { op: 'add', type: 'EVIDENCE', statement: 'fact', source: 'codebase' },
@@ -46,8 +45,7 @@ describe('closing-argument end-to-end', () => {
     s.round = 5;
     s.closingArgPresentedRound = 5;
     s.closingArgGoRound = 5;
-    s.concerns = [{ id: 'CERN-1', label: 'C' }];
-    s.concernsLocked = true;
+    s.concerns = [{ id: 'CERN-1', label: 'C', status: 'ratified' }];
     const r = applyOperations(s, [{ op: 'add', type: 'EVIDENCE', statement: 'mid-ratification mutation', source: 'codebase' }], { source: 'designer', rationale: 'test' });
     expect(r.state.closingArgPresentedRound).toBeNull();
     expect(r.state.closingArgGoRound).toBeNull();
