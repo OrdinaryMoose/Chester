@@ -19,7 +19,28 @@ function extractRatification(_state, el) {
   return null;
 }
 
+/**
+ * Pure type-and-status partition of the proof state's active elements and concerns.
+ * Returns raw element/concern objects in seven lanes — no field projection, no sub-mapping.
+ * Both `deriveClosingArgument` and `state-render.js`'s recap path consume this so the
+ * two call sites cannot drift on what counts as "active by type".
+ */
+export function partitionActiveElements(state) {
+  const elementsArr = [...state.elements.values()];
+  const concerns = state.concerns ?? [];
+  return {
+    activeNCsAll: elementsArr.filter(el => el.type === 'NECESSARY_CONDITION' && el.status === 'active'),
+    activeRCs: elementsArr.filter(el => el.type === 'RESOLVE_CONDITION' && el.status === 'active'),
+    activeRules: elementsArr.filter(el => el.type === 'RULE' && el.status === 'active'),
+    activePermissions: elementsArr.filter(el => el.type === 'PERMISSION' && el.status === 'active'),
+    activeEvidence: elementsArr.filter(el => el.type === 'EVIDENCE' && el.status === 'active'),
+    activeRisks: elementsArr.filter(el => el.type === 'RISK' && el.status === 'active'),
+    activeConcerns: concerns.filter(c => c.status !== 'withdrawn'),
+  };
+}
+
 export function deriveClosingArgument(state) {
+  const partition = partitionActiveElements(state);
   const elementsArr = [...state.elements.values()];
 
   // Concerns (excluding withdrawn) when locked; phantom Concerns when withdrawn.
@@ -29,18 +50,16 @@ export function deriveClosingArgument(state) {
     : [];
   const phantomConcerns = concernsList.filter(c => c.status === 'withdrawn');
 
-  const resolveConditions = elementsArr
-    .filter(el => el.type === 'RESOLVE_CONDITION' && el.status === 'active')
-    .map(el => ({
-      id: el.id,
-      statement: el.statement,
-      problem_anchor: el.problem_anchor ?? null,
-      ratification: el.ratification ?? null,
-      groundingNCs: (el.grounding ?? [])
-        .map(refId => state.elements.get(refId))
-        .filter(ref => ref && ref.type === 'NECESSARY_CONDITION')
-        .map(nc => ({ id: nc.id, statement: nc.statement, collapse_test: nc.collapse_test ?? null })),
-    }));
+  const resolveConditions = partition.activeRCs.map(el => ({
+    id: el.id,
+    statement: el.statement,
+    problem_anchor: el.problem_anchor ?? null,
+    ratification: el.ratification ?? null,
+    groundingNCs: (el.grounding ?? [])
+      .map(refId => state.elements.get(refId))
+      .filter(ref => ref && ref.type === 'NECESSARY_CONDITION')
+      .map(nc => ({ id: nc.id, statement: nc.statement, collapse_test: nc.collapse_test ?? null })),
+  }));
 
   const phantomNCs = elementsArr
     .filter(el => el.type === 'NECESSARY_CONDITION' && el.status === 'withdrawn')
@@ -67,15 +86,11 @@ export function deriveClosingArgument(state) {
     }));
 
   // Standalone NC partitions (active + ratificationStatus split).
-  const activeNCs = elementsArr
-    .filter(el => el.type === 'NECESSARY_CONDITION' && el.status === 'active' && el.ratificationStatus === 'ratified');
-  const draftNCs = elementsArr
-    .filter(el => el.type === 'NECESSARY_CONDITION' && el.status === 'active' && el.ratificationStatus === 'draft');
+  const activeNCs = partition.activeNCsAll.filter(el => el.ratificationStatus === 'ratified');
+  const draftNCs = partition.activeNCsAll.filter(el => el.ratificationStatus === 'draft');
 
   // Standalone active partitions for other typed elements.
-  const activeRules = elementsArr.filter(el => el.type === 'RULE' && el.status === 'active');
-  const activePermissions = elementsArr.filter(el => el.type === 'PERMISSION' && el.status === 'active');
-  const activeRisks = elementsArr.filter(el => el.type === 'RISK' && el.status === 'active');
+  const { activeRules, activePermissions, activeRisks } = partition;
 
   // Definitions partitioned by status.
   const definitions = state.definitions ?? [];
