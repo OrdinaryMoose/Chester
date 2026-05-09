@@ -352,6 +352,26 @@ describe('renderProofRecap', () => {
     expect(out).toContain('fake risk pushed only into partition lane');
     expect(s.elements.get('RISK-99')).toBeUndefined();
   });
+
+  it('Concerns section includes description firstSentence inline alongside label (AC-1.1, AC-1.2)', () => {
+    const s = seedFullProof();
+    const out = renderProofRecap(s, partitionActiveElements(s));
+    const concernsSection = out.slice(out.indexOf('## Concerns'), out.indexOf('## Rules'));
+    expect(concernsSection).toMatch(/^- \*\*CERN-1\*\*.*concern X: d\b/m);
+  });
+
+  it('Concerns section falls back to label-only when description is absent (AC-1.3)', () => {
+    // Omit description entirely — addConcern stores description ?? null, so this
+    // exercises the null-description shape that production legacy concerns carry,
+    // not the empty-string shape an explicit '' would produce.
+    let s = initializeState('design problem');
+    const [, sa] = addConcern(s, { label: 'concern Y' }, consent);
+    s = sa;
+    const out = renderProofRecap(s, partitionActiveElements(s));
+    const concernsSection = out.slice(out.indexOf('## Concerns'), out.indexOf('## Rules'));
+    expect(concernsSection).toMatch(/^- \*\*CERN-1\*\*.*concern Y\b/m);
+    expect(concernsSection).not.toContain('concern Y:');
+  });
 });
 
 describe('renderElementDeep', () => {
