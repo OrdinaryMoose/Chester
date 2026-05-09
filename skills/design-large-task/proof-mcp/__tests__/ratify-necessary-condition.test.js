@@ -1,9 +1,15 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import {
   initializeState,
   applyOperations,
   ratifyNecessaryCondition,
+  saveState,
+  loadState,
 } from '../state.js';
+import { handleRatifyNecessaryCondition } from '../server.js';
+import { mkdtempSync, rmSync } from 'fs';
+import { tmpdir } from 'os';
+import { join } from 'path';
 
 const validConsent = { source: 'designer', rationale: 'test ratify' };
 
@@ -161,5 +167,77 @@ describe('ratifyNecessaryCondition', () => {
     );
     expect(newState.closingArgPresentedRound).toBeNull();
     expect(newState.closingArgGoRound).toBeNull();
+  });
+});
+
+describe('handleRatifyNecessaryCondition (server)', () => {
+  let dir, statePath;
+
+  beforeEach(() => {
+    dir = mkdtempSync(join(tmpdir(), 'rnc-server-'));
+    statePath = join(dir, 'state.json');
+  });
+
+  afterEach(() => rmSync(dir, { recursive: true, force: true }));
+
+  function persistSeed() {
+    const state = seedStateWithNC();
+    saveState(state, statePath);
+    return statePath;
+  }
+
+  it('returns accepted envelope with ratificationStatus=ratified on success', () => {
+    const path = persistSeed();
+    const result = handleRatifyNecessaryCondition({
+      state_file: path,
+      element_id: 'NCON-1',
+      ratification: 'designer accept',
+      consent: validConsent,
+    });
+    expect(result.isError).toBeFalsy();
+    const payload = JSON.parse(result.content[0].text);
+    expect(payload.status).toBe('accepted');
+    expect(payload.element_id).toBe('NCON-1');
+    expect(payload.ratificationStatus).toBe('ratified');
+    expect(payload).toHaveProperty('closure_permitted');
+    expect(payload).toHaveProperty('closure_reasons');
+  });
+
+  it('returns isError on PROOF_FINISHED', () => {
+    let state = seedStateWithNC();
+    state.proofStatus = 'finish';
+    saveState(state, statePath);
+    const result = handleRatifyNecessaryCondition({
+      state_file: statePath,
+      element_id: 'NCON-1',
+      ratification: 'x',
+      consent: validConsent,
+    });
+    expect(result.isError).toBe(true);
+  });
+
+  it('persists state to disk on success (saveState called)', () => {
+    const path = persistSeed();
+    handleRatifyNecessaryCondition({
+      state_file: path,
+      element_id: 'NCON-1',
+      ratification: 'x',
+      consent: validConsent,
+    });
+    const reloaded = loadState(path);
+    expect(reloaded.elements.get('NCON-1').ratificationStatus).toBe('ratified');
+  });
+
+  it('returns isError on INVALID_CONSENT and does not persist', () => {
+    const path = persistSeed();
+    const result = handleRatifyNecessaryCondition({
+      state_file: path,
+      element_id: 'NCON-1',
+      ratification: 'x',
+      consent: {}, // invalid
+    });
+    expect(result.isError).toBe(true);
+    const reloaded = loadState(path);
+    expect(reloaded.elements.get('NCON-1').ratificationStatus).toBe('draft');
   });
 });
