@@ -1,4 +1,7 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { mkdtempSync, rmSync, readdirSync, statSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import {
   initializeState,
   applyOperations,
@@ -6,6 +9,8 @@ import {
   ratifyConcern,
   ratifyResolveCondition,
   ratifyNecessaryCondition,
+  loadState,
+  saveState,
 } from '../state.js';
 import { partitionActiveElements } from '../closing-argument.js';
 import {
@@ -26,6 +31,7 @@ import {
   renderProofRecap,
   renderElementDeep,
 } from '../state-render.js';
+import { TOOLS, handleRenderProofState } from '../server.js';
 
 const consent = { source: 'designer', rationale: 'test render' };
 
@@ -369,5 +375,77 @@ describe('renderElementDeep', () => {
   it('returns null for an unknown ID (handler will translate to ELEMENT_NOT_FOUND)', () => {
     const s = seedFullProof();
     expect(renderElementDeep('NCON-999', s)).toBeNull();
+  });
+});
+
+function dirSnapshot(dir) {
+  return readdirSync(dir).map(name => {
+    const st = statSync(join(dir, name));
+    return { name, size: st.size, mtimeMs: st.mtimeMs };
+  });
+}
+
+describe('render_proof_state tool', () => {
+  let workdir;
+  let stateFile;
+
+  beforeEach(() => {
+    workdir = mkdtempSync(join(tmpdir(), 'proof-render-'));
+    stateFile = join(workdir, 'state.json');
+    const s = seedFullProof();
+    saveState(s, stateFile);
+  });
+
+  afterEach(() => { rmSync(workdir, { recursive: true, force: true }); });
+
+  it('TOOLS array contains a render_proof_state entry with the correct schema', () => {
+    const entry = TOOLS.find(t => t.name === 'render_proof_state');
+    expect(entry).toBeDefined();
+    expect(entry.inputSchema.properties.state_file).toBeDefined();
+    expect(entry.inputSchema.properties.element_id).toBeDefined();
+    expect(entry.inputSchema.properties.consent).toBeUndefined();
+    expect(entry.inputSchema.required).toEqual(['state_file']);
+  });
+
+  it('recap mode succeeds against any proofStatus, including finish, with no consent', () => {
+    const s = loadState(stateFile);
+    s.proofStatus = 'finish';
+    saveState(s, stateFile);
+
+    const result = handleRenderProofState({ state_file: stateFile });
+    expect(result.isError).toBeFalsy();
+    expect(result.content[0].text).toMatch(/^## Problem Statement/);
+  });
+
+  it('deep mode returns markdown for an in-scope element', () => {
+    const result = handleRenderProofState({ state_file: stateFile, element_id: 'NCON-1' });
+    expect(result.isError).toBeFalsy();
+    expect(result.content[0].text).toContain('NCON-1');
+    expect(result.content[0].text).toContain('must Q');
+  });
+
+  it('returns ELEMENT_NOT_FOUND structured refusal for an unknown ID', () => {
+    const result = handleRenderProofState({ state_file: stateFile, element_id: 'NCON-999' });
+    expect(result.isError).toBe(true);
+    const body = JSON.parse(result.content[0].text);
+    expect(body).toEqual({ code: 'ELEMENT_NOT_FOUND', message: 'Element NCON-999 not found in state.' });
+  });
+
+  it('returns ELEMENT_NOT_FOUND for FRIC- prefix (out of scope)', () => {
+    const s = loadState(stateFile);
+    s.elements.set('FRIC-1', { id: 'FRIC-1', type: 'FRICTION', status: 'active', friction_shape: 'shape', anchor_a: 'CERN-1', anchor_b: 'CERN-1', disposition: 'no-conflict', statement: 'fric body' });
+    saveState(s, stateFile);
+    const result = handleRenderProofState({ state_file: stateFile, element_id: 'FRIC-1' });
+    expect(result.isError).toBe(true);
+    const body = JSON.parse(result.content[0].text);
+    expect(body.code).toBe('ELEMENT_NOT_FOUND');
+  });
+
+  it('does not write any files in either mode', () => {
+    const before = dirSnapshot(workdir);
+    handleRenderProofState({ state_file: stateFile });
+    handleRenderProofState({ state_file: stateFile, element_id: 'NCON-1' });
+    const after = dirSnapshot(workdir);
+    expect(after).toEqual(before);
   });
 });
