@@ -18,10 +18,11 @@ import {
   computeCompleteness, computeGroundingCoverage, checkClosure,
   checkConcernCoverage, evaluateTrigger,
 } from './metrics.js';
-import { deriveClosingArgument } from './closing-argument.js';
+import { deriveClosingArgument, partitionActiveElements } from './closing-argument.js';
 import { restructure } from './restructure.js';
 import { checkOpenGate } from './open-gate.js';
 import { checkFirstYesGate } from './first-yes-gate.js';
+import { renderProofRecap, renderElementDeep } from './state-render.js';
 import { existsSync } from 'node:fs';
 
 const ELEMENT_TYPES = ['EVIDENCE', 'RULE', 'PERMISSION', 'NECESSARY_CONDITION', 'RISK', 'RESOLVE_CONDITION', 'FRICTION'];
@@ -74,7 +75,7 @@ function proofFinishedResponse() {
 
 // ── Tool Definitions ─────────────────────────────────────────────
 
-const TOOLS = [
+export const TOOLS = [
   {
     name: 'submit_proof_update',
     description: 'Submit a batch of proof operations (add, revise, withdraw) for the current round',
@@ -287,6 +288,18 @@ const TOOLS = [
       required: ['state_file', 'consent'],
     },
   },
+  {
+    name: 'render_proof_state',
+    description: 'Render the active proof body as a markdown recap (no element_id) or render one element with full sub-fields (element_id supplied). Read-only — no consent token, no proofStatus gating, no filesystem writes.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        state_file: { type: 'string', description: 'Absolute path to state JSON' },
+        element_id: { type: 'string', description: 'Optional element ID for deep render. Without this, returns the eight-section recap.' },
+      },
+      required: ['state_file'],
+    },
+  },
 ];
 
 // ── Request Handlers ─────────────────────────────────────────────
@@ -304,6 +317,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         return handleSubmitProofUpdate(args);
       case 'get_proof_state':
         return handleGetProofState(args);
+      case 'render_proof_state':
+        return handleRenderProofState(args);
       case 'manage_concerns':
         return handleManageConcerns(args);
       case 'manage_friction':
@@ -475,6 +490,31 @@ export function handleGetProofState({ state_file, summary_mode }) {
     response.concernCoverage = checkConcernCoverage(state);
   }
   return { content: [{ type: 'text', text: JSON.stringify(response) }] };
+}
+
+export function handleRenderProofState({ state_file, element_id }) {
+  const state = loadState(state_file);
+
+  if (element_id) {
+    const rendered = renderElementDeep(element_id, state);
+    if (rendered === null) {
+      return {
+        content: [{
+          type: 'text',
+          text: JSON.stringify({
+            code: 'ELEMENT_NOT_FOUND',
+            message: `Element ${element_id} not found in state.`,
+          }),
+        }],
+        isError: true,
+      };
+    }
+    return { content: [{ type: 'text', text: rendered }] };
+  }
+
+  const partition = partitionActiveElements(state);
+  const rendered = renderProofRecap(state, partition);
+  return { content: [{ type: 'text', text: rendered }] };
 }
 
 function handleManageConcerns({ state_file, op, label, description, concern_id, consent }) {

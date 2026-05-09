@@ -1,5 +1,5 @@
 {
-  "round": 19,
+  "round": 20,
   "problemStatement": "D.2 builds the redesigned design-large-task Presentation layer (voice, packet, phase orchestration, round mechanics, render steps) that interfaces with the Proof layer contracts so that the designer can read, understand, and update proof state, culminating with the ratification of the closing argument, production of the design brief, and handover to design-specify.",
   "elements": {
     "EVID-1": {
@@ -1347,10 +1347,11 @@
       "basis": [],
       "problem_anchor": null,
       "ratification": null,
-      "status": "active",
+      "status": "withdrawn",
       "addedInRound": 18,
       "revisedInRound": null,
-      "revision": 0
+      "revision": 0,
+      "withdrawal_disposition": "superseded"
     },
     "RCON-2": {
       "id": "RCON-2",
@@ -1369,11 +1370,29 @@
       "addedInRound": 19,
       "revisedInRound": null,
       "revision": 0
+    },
+    "RULE-18": {
+      "id": "RULE-18",
+      "type": "RULE",
+      "statement": "Proof layer element validation checks must be complied with. The presentation layer's tool calls and turn structure must satisfy every sub-clause below; non-compliance is a structural failure mode of the presentation layer, not a recoverable runtime condition.\n\nOpen-time validation:\n18.1 — Restructuring report must be a non-empty string at open_proof.\n18.2 — Admitted elements array must be non-empty at open_proof.\n18.3 — Every admitted element must carry a restructuring_action_label in {verbatim-preserve, reshape, gap-fill, infer, derive}.\n18.4 — Every admitted element must carry a provenance object.\n18.5 — Every admitted element's provenance must carry a source_citation string.\n18.6 — Non-verbatim admitted elements must carry a non-empty reasoning_chain field.\n18.7 — Required field values must not be empty, null, placeholder strings (todo, not specified, tbd, n/a), or metadata redirects (see metadata...).\n18.8 — Reasoning anchors must match one of three shapes: rule:[a-z0-9-]+, schema:[A-Z_]+\\.[a-z_]+, or template:[a-z0-9-]+.\n\nPer-mutation validation:\n18.9 — Every state-mutating tool call must carry a consent token of shape {source, rationale?}; missing or malformed consent is rejected.\n18.10 — consent.source must be 'designer' or 'agent-proposed-designer-confirmed'; per RULE-16 hook 1, the latter path is closed for D.2 — source must be 'designer'.\n18.11 — proofStatus must not equal 'finish'; post-closure mutations are rejected.\n18.12 — Each state-mutating tool call must carry exactly one operation; submit_proof_update.operations.length must equal 1.\n\nPer-add validation:\n18.13 — type must be in the closed element set: NECESSARY_CONDITION, EVIDENCE, RULE, PERMISSION, RISK, RESOLVE_CONDITION, FRICTION, DEFINITION.\n18.14 — NC add must carry all five required fields: statement, grounding, reasoning_chain, collapse_test, rejected_alternatives.\n18.15 — NC grounding array entries must reference IDs of existing active elements.\n18.16 — RULE source must be 'designer'; PERMISSION source must be 'designer'; EVIDENCE source must not be 'designer'.\n18.17 — RC add must carry a problem_anchor matching an existing Concern ID.\n18.18 — RISK add must carry a basis array referencing existing element IDs.\n18.19 — PERMISSION add must carry a relieves field naming the restriction being relaxed.\n\nPer-ratify validation:\n18.20 — Target element must exist; missing target rejected as NOT_FOUND.\n18.21 — Target element type must match the ratify tool's expected type; mismatch rejected as TYPE_MISMATCH.\n18.22 — Target element status must be 'active'; withdrawn targets rejected.\n18.23 — For NCs, ratificationStatus must not already be 'ratified'; double-ratify rejected as ALREADY_RATIFIED.\n18.24 — ratification text must be a non-empty string; empty rejected as INVALID_RATIFICATION_TEXT.\n\nPer-revise validation:\n18.25 — Revise of NC statement or grounding must revert ratificationStatus from ratified to draft (mid-revision reset; structural invariant).\n\nPer-withdraw validation:\n18.26 — Withdraw category must be in EVIDENCE, RULE, PERMISSION, NECESSARY_CONDITION, RISK, RESOLVE_CONDITION, CONCERN, DEFINITION; FRICTION rejected (uses override_friction_disposition).\n18.27 — Withdraw disposition must be valid for the named category per the closed-set disposition table.\n18.28 — Withdraw target element must exist.\n\nPer-friction validation:\n18.29 — Both anchor_a and anchor_b element IDs must exist as active elements.\n18.30 — friction_shape must be in nc-nc-opposing-pull, rc-rule-conflict, permission-risk-linkage, concern-concern-competition.\n18.31 — disposition must be in lived-with, relieved-by-exception, dissolved-by-revision, dissolved-by-scope-cut, not-really-friction.\n18.32 — Terminal dispositions (dissolved-by-revision, dissolved-by-scope-cut, not-really-friction) auto-flip element status to 'withdrawn' and suppress re-detection.\n\nFirst-yes precondition:\n18.33 — Every active NC must have ratificationStatus === 'ratified' before present_closing_argument may fire.\n18.34 — Every active RC must have non-null ratification before present_closing_argument may fire.\n18.35 — Every Concern must have status === 'ratified' before present_closing_argument may fire.\n18.36 — Every Definition must have status === 'ratified' before present_closing_argument may fire.\n\nClosing-argument trigger gate:\n18.37 — grounding_coverage must be >= 0.9 (NC chains terminating in EVIDENCE/RULE/PERMISSION).\n18.38 — resolve_condition_count must be >= 1.\n18.39 — ratified_rc_count must equal resolve_condition_count (no draft RCs).\n18.40 — All active NCs must carry a collapse_test.\n18.41 — At least one active NC must carry a non-empty rejected_alternatives array.\n18.42 — Every Concern must be covered by a ratified RC or an active Rule.\n18.43 — state.round must be >= 3.\n18.44 — Aggregate score must be >= 0.8 — weighted 0.4 * (ratified_rc / rc_count) + 0.4 * grounding_coverage + 0.2 * (conditions_with_alt / condition_count).\n18.45 — Integrity warnings count must be 0.\n\nClosure gate:\n18.46 — All active NCs must be grounded in EVIDENCE / RULE / PERMISSION via traversed grounding chain.\n18.47 — Every active NC must carry a collapse_test.\n18.48 — At least one active NC must carry rejected_alternatives.\n18.49 — At least one element must carry revisedInRound > phaseTransitionRound (designer-interaction marker).\n18.50 — round must be >= 3.\n18.51 — At least one active NC must exist.\n18.52 — At least one Concern must exist in state.concerns.\n18.53 — No active RC may have ratification === null.\n18.54 — Every Concern must be covered by a ratified RC or an active Rule.\n18.55 — closingArgGoRound must equal state.round (designer two-yes confirmed in current round).\n\nTwo-yes invariant:\n18.56 — Every state-mutating operation must clear closingArgPresentedRound and closingArgGoRound to null.\n18.57 — confirm_closure_go must be refused unless closingArgPresentedRound === state.round (re-presentation forced if state shifted).\n\nContinuous integrity gates:\n18.58 — withdrawn-grounding warning fires when an active NC grounds on a withdrawn element.\n18.59 — ungrounded-condition warning fires when an active NC has no EVIDENCE/RULE/PERMISSION in its grounding chain.\n18.60 — missing-collapse-test warning fires when an active NC lacks a collapse_test.\n18.61 — stale-grounding warning fires when an NC's grounding was revised but the NC has not been revisited.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 20,
+      "revisedInRound": null,
+      "revision": 0
     }
   },
   "elementCounters": {
     "EVIDENCE": 6,
-    "RULE": 17,
+    "RULE": 18,
     "PERMISSION": 2,
     "NECESSARY_CONDITION": 17,
     "RISK": 0,
@@ -1446,6 +1465,12 @@
       "target": "NCON-13",
       "round": 9,
       "revision": 1
+    },
+    {
+      "event": "withdrawn",
+      "elementId": "PERM-2",
+      "round": 19,
+      "disposition": "superseded"
     }
   ],
   "phaseTransitionRound": 0,
@@ -1816,6 +1841,42 @@
           "type": "RESOLVE_CONDITION",
           "statement": "Across the Round Cycle, every information packet that requests a designer choice presents agent-constructed research, framing, and drafted options for that choice; no packet asks the designer for technical context only the agent or codebase can supply.",
           "problem_anchor": "CERN-2"
+        }
+      }
+    },
+    {
+      "round": 19,
+      "op": "withdraw",
+      "entityId": "PERM-2",
+      "type": "PERMISSION",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer accept verbatim: \"withdraw\" — echoing agent's presented option among (withdraw / narrow / hybrid). PERM-2 superseded by ratify_necessary_condition tool shipped in sprint-d-1-fix-proof-mcp-2; per-element NC ratify discipline now structurally available, broad transitive ratify-bundle relief no longer load-bearing."
+      },
+      "changedFields": [
+        "status",
+        "withdrawal_disposition"
+      ],
+      "provenance": {
+        "disposition": "superseded"
+      }
+    },
+    {
+      "round": 20,
+      "op": "add",
+      "entityId": "RULE-18",
+      "type": "RULE",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer accept verbatim: \"accept\" — echoing agent's presented choice for RULE-18 ratify per NCON-16 turn shape. Designer authored the rule statement directly: \"rule: 'Proof layer element validation checks must be complied with' the list each check from above as xx.1, xx.2, etc\". RULE-16 hooks 1-5 satisfied: source=designer, verbatim quote present, single op per call, target named via op verb 'rule:' + presented-choice echo, explicit (not implicit)."
+      },
+      "changedFields": null,
+      "provenance": {
+        "initialPayload": {
+          "op": "add",
+          "type": "RULE",
+          "source": "designer",
+          "statement": "Proof layer element validation checks must be complied with. The presentation layer's tool calls and turn structure must satisfy every sub-clause below; non-compliance is a structural failure mode of the presentation layer, not a recoverable runtime condition.\n\nOpen-time validation:\n18.1 — Restructuring report must be a non-empty string at open_proof.\n18.2 — Admitted elements array must be non-empty at open_proof.\n18.3 — Every admitted element must carry a restructuring_action_label in {verbatim-preserve, reshape, gap-fill, infer, derive}.\n18.4 — Every admitted element must carry a provenance object.\n18.5 — Every admitted element's provenance must carry a source_citation string.\n18.6 — Non-verbatim admitted elements must carry a non-empty reasoning_chain field.\n18.7 — Required field values must not be empty, null, placeholder strings (todo, not specified, tbd, n/a), or metadata redirects (see metadata...).\n18.8 — Reasoning anchors must match one of three shapes: rule:[a-z0-9-]+, schema:[A-Z_]+\\.[a-z_]+, or template:[a-z0-9-]+.\n\nPer-mutation validation:\n18.9 — Every state-mutating tool call must carry a consent token of shape {source, rationale?}; missing or malformed consent is rejected.\n18.10 — consent.source must be 'designer' or 'agent-proposed-designer-confirmed'; per RULE-16 hook 1, the latter path is closed for D.2 — source must be 'designer'.\n18.11 — proofStatus must not equal 'finish'; post-closure mutations are rejected.\n18.12 — Each state-mutating tool call must carry exactly one operation; submit_proof_update.operations.length must equal 1.\n\nPer-add validation:\n18.13 — type must be in the closed element set: NECESSARY_CONDITION, EVIDENCE, RULE, PERMISSION, RISK, RESOLVE_CONDITION, FRICTION, DEFINITION.\n18.14 — NC add must carry all five required fields: statement, grounding, reasoning_chain, collapse_test, rejected_alternatives.\n18.15 — NC grounding array entries must reference IDs of existing active elements.\n18.16 — RULE source must be 'designer'; PERMISSION source must be 'designer'; EVIDENCE source must not be 'designer'.\n18.17 — RC add must carry a problem_anchor matching an existing Concern ID.\n18.18 — RISK add must carry a basis array referencing existing element IDs.\n18.19 — PERMISSION add must carry a relieves field naming the restriction being relaxed.\n\nPer-ratify validation:\n18.20 — Target element must exist; missing target rejected as NOT_FOUND.\n18.21 — Target element type must match the ratify tool's expected type; mismatch rejected as TYPE_MISMATCH.\n18.22 — Target element status must be 'active'; withdrawn targets rejected.\n18.23 — For NCs, ratificationStatus must not already be 'ratified'; double-ratify rejected as ALREADY_RATIFIED.\n18.24 — ratification text must be a non-empty string; empty rejected as INVALID_RATIFICATION_TEXT.\n\nPer-revise validation:\n18.25 — Revise of NC statement or grounding must revert ratificationStatus from ratified to draft (mid-revision reset; structural invariant).\n\nPer-withdraw validation:\n18.26 — Withdraw category must be in EVIDENCE, RULE, PERMISSION, NECESSARY_CONDITION, RISK, RESOLVE_CONDITION, CONCERN, DEFINITION; FRICTION rejected (uses override_friction_disposition).\n18.27 — Withdraw disposition must be valid for the named category per the closed-set disposition table.\n18.28 — Withdraw target element must exist.\n\nPer-friction validation:\n18.29 — Both anchor_a and anchor_b element IDs must exist as active elements.\n18.30 — friction_shape must be in nc-nc-opposing-pull, rc-rule-conflict, permission-risk-linkage, concern-concern-competition.\n18.31 — disposition must be in lived-with, relieved-by-exception, dissolved-by-revision, dissolved-by-scope-cut, not-really-friction.\n18.32 — Terminal dispositions (dissolved-by-revision, dissolved-by-scope-cut, not-really-friction) auto-flip element status to 'withdrawn' and suppress re-detection.\n\nFirst-yes precondition:\n18.33 — Every active NC must have ratificationStatus === 'ratified' before present_closing_argument may fire.\n18.34 — Every active RC must have non-null ratification before present_closing_argument may fire.\n18.35 — Every Concern must have status === 'ratified' before present_closing_argument may fire.\n18.36 — Every Definition must have status === 'ratified' before present_closing_argument may fire.\n\nClosing-argument trigger gate:\n18.37 — grounding_coverage must be >= 0.9 (NC chains terminating in EVIDENCE/RULE/PERMISSION).\n18.38 — resolve_condition_count must be >= 1.\n18.39 — ratified_rc_count must equal resolve_condition_count (no draft RCs).\n18.40 — All active NCs must carry a collapse_test.\n18.41 — At least one active NC must carry a non-empty rejected_alternatives array.\n18.42 — Every Concern must be covered by a ratified RC or an active Rule.\n18.43 — state.round must be >= 3.\n18.44 — Aggregate score must be >= 0.8 — weighted 0.4 * (ratified_rc / rc_count) + 0.4 * grounding_coverage + 0.2 * (conditions_with_alt / condition_count).\n18.45 — Integrity warnings count must be 0.\n\nClosure gate:\n18.46 — All active NCs must be grounded in EVIDENCE / RULE / PERMISSION via traversed grounding chain.\n18.47 — Every active NC must carry a collapse_test.\n18.48 — At least one active NC must carry rejected_alternatives.\n18.49 — At least one element must carry revisedInRound > phaseTransitionRound (designer-interaction marker).\n18.50 — round must be >= 3.\n18.51 — At least one active NC must exist.\n18.52 — At least one Concern must exist in state.concerns.\n18.53 — No active RC may have ratification === null.\n18.54 — Every Concern must be covered by a ratified RC or an active Rule.\n18.55 — closingArgGoRound must equal state.round (designer two-yes confirmed in current round).\n\nTwo-yes invariant:\n18.56 — Every state-mutating operation must clear closingArgPresentedRound and closingArgGoRound to null.\n18.57 — confirm_closure_go must be refused unless closingArgPresentedRound === state.round (re-presentation forced if state shifted).\n\nContinuous integrity gates:\n18.58 — withdrawn-grounding warning fires when an active NC grounds on a withdrawn element.\n18.59 — ungrounded-condition warning fires when an active NC has no EVIDENCE/RULE/PERMISSION in its grounding chain.\n18.60 — missing-collapse-test warning fires when an active NC lacks a collapse_test.\n18.61 — stale-grounding warning fires when an NC's grounding was revised but the NC has not been revisited."
         }
       }
     }
