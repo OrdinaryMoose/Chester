@@ -980,3 +980,100 @@ artifact_refs:
   - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp-2/spec/sprint-d-1-fix-proof-mcp-2-spec-00.md
   - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp-2/plan/sprint-d-1-fix-proof-mcp-2-plan-00.md
 ---
+
+---
+id: dr-20260509-01-read-only-inspection-tool-family
+date: 2026-05-09
+sprint: 20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp-3
+stage: design-small-task
+title: Read-only inspection tools form a canonical no-consent / no-proofStatus / no-write family on the proof MCP
+decision: `render_proof_state` joins `get_proof_state` and `manage_definitions op:query-overlap` as the third member of the proof MCP's read-only inspection-tool family, formalizing the canonical shape for any future inspection-style tool — no consent token check, no `proofStatus === 'finish'` gating, no filesystem writes, no state mutation under any input.
+rationale: Two prior tools (`get_proof_state` and `manage_definitions op:query-overlap`) established the precedent ad hoc; with a third member shipped under the same shape and with the design brief explicitly anchoring on that precedent, the family is now the canonical pattern, not a one-off. The shape exists because read-only inspection paths must remain available across the entire proof lifecycle — including post-`finish` — without consuming consent tokens that the consent system reserves for mutating intent. Future read-only tools that want to consume consent or gate on `proofStatus` need to argue for a divergence; the default is family membership. Adding a fourth member is now a routine extension, not a new precedent.
+alternatives:
+  - Treat each read-only tool as an independent decision with no shared family — rejected because the third instance hitting the same shape is the moment a pattern stops being incidental and starts being load-bearing; future contributors should know the shape exists by name.
+  - Require consent tokens on read-only tools so the audit log captures every read — rejected because the audit log records mutations, not reads, and consent on reads would block post-`finish` inspection of closed proofs (a workflow the family explicitly preserves).
+  - Gate read-only tools on `proofStatus !== 'finish'` to mirror mutation refusal — rejected because reading a finished proof is precisely when designers and reviewers most need inspection access; the gate would break the closure-review workflow.
+tags: [architecture, mcp, convention]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp-3/design/sprint-d-1-fix-proof-mcp-3-design-00.md
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp-3/spec/sprint-d-1-fix-proof-mcp-3-spec-00.md
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp-3/summary/sprint-d-1-fix-proof-mcp-3-summary-00.md
+---
+
+---
+id: dr-20260509-02-inline-only-default-for-render-tools
+date: 2026-05-09
+sprint: 20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp-3
+stage: design-small-task
+title: Read-only render tools default to inline-only output; disk-write surface deferred until a real consumer drives its shape
+decision: `render_proof_state` ships with no `output_path` parameter and no filesystem write of any kind — the rendered string is returned inline in the standard tool-result `content` shape — explicitly rejecting the original problem report's `output_path` axis; the pattern that reads "read-only render tools default to inline-only; disk-write is added later when a real consumer drives the shape" becomes the precedent for future render-style tools.
+rationale: The original problem report proposed an `output_path` parameter to bypass inline-result token caps, but the design conversation's live format demonstration (5–8 KB markdown for a 45-element proof, deep render under 1 KB) showed observed output sizes are well under the inline cap. Disk-write surface ages badly without a real consumer driving its concrete shape — path validation rules, parent-directory checks, overwrite policy, three error codes from the report's Q5 — and shipping speculative shape locks future contributors into a contract no caller actually wanted. The honest move is to refuse with a clear error if a future proof exceeds the inline cap, and add disk-write at that point with a real consumer. Future render-style tools on the proof MCP follow the same posture: inline-only by default; disk-write is a deferred, consumer-driven extension.
+alternatives:
+  - Ship `output_path` per the original problem report — rejected because no current consumer drives the shape, and speculative file-write surface invites maintenance churn through revisions before the first real call.
+  - Compromise with a `format: 'inline' | 'file'` enum and a stub file path — rejected as still speculative, plus the enum invites callers to choose the wrong branch and surfaces the same uncovered shape questions inline-only avoids.
+  - Stream output in chunks via a multi-call protocol — rejected because the MCP tool surface returns one response object per call and streaming would require harness-level changes for a problem the inline-only path already solves at observed sizes.
+tags: [architecture, mcp, convention]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp-3/design/sprint-d-1-fix-proof-mcp-3-design-00.md
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp-3/spec/sprint-d-1-fix-proof-mcp-3-spec-00.md
+---
+
+---
+id: dr-20260509-03-partitioner-sharing-pattern
+date: 2026-05-09
+sprint: 20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp-3
+stage: design-specify
+title: Partitioner-sharing pattern — pure type-and-status filter shared across consumers; closure-specific work stays inline in deriveClosingArgument
+decision: `closing-argument.js` exports a new named function `partitionActiveElements(state)` returning seven raw active-by-type lanes (`activeNCsAll`, `activeRCs`, `activeRules`, `activePermissions`, `activeEvidence`, `activeRisks`, `activeConcerns`) with no field projection or sub-mapping; both `deriveClosingArgument` (closure-time consumer) and `renderProofRecap` (conversation-time consumer) consume it as the single source of truth for "which elements are active by type", while ratification splits, projection mapping, friction lifecycle, phantom partitions, locked-concerns logic, and closure provenance all stay inline in `deriveClosingArgument` because they have no other consumer.
+rationale: Both the closing-argument envelope and the conversation-time recap need the same active-by-type partition; without a shared producer, two source-of-truth paths drift silently when new element types or dispositions are added later. The partitioner stays a pure type-and-status filter so the recap path doesn't pay for closure-only computation it never consumes (provenance derivation, ratification splits, phantom-element partitioning), and so closure-specific concerns aren't smeared into a function general consumers reach for. The named lane `activeNCsAll` deliberately diverges from `deriveClosingArgument`'s published `activeNCs` key (ratified-only) to prevent caller confusion about ratification semantics. Future render-side or analytics-side tools on the proof MCP that need active-by-type access should consume `partitionActiveElements`; they should not re-derive the partition, and they should not push closure-specific work into the partitioner.
+alternatives:
+  - Share the full `deriveClosingArgument` derivation including provenance and ratification splits — rejected because closure-specific computation has no consumer in the recap path and paying for it on every recap invocation is waste, plus pulls closure semantics into a general read.
+  - Parallel re-derivation of type-and-status filtering inside the render module — rejected because two source-of-truth paths invite silent drift when new element types or dispositions are added later; the partition must be the single producer.
+  - Reuse `deriveClosingArgument`'s existing `activeNCs` lane name in the partitioner — rejected because the closure key carries ratified-only semantics and the partitioner's lane is ratified-and-draft; sharing the name would confuse callers about what the lane contains.
+tags: [architecture, mcp]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp-3/spec/sprint-d-1-fix-proof-mcp-3-spec-00.md
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp-3/summary/sprint-d-1-fix-proof-mcp-3-summary-00.md
+---
+
+---
+id: dr-20260509-04-deep-render-multi-storage-lookup-scoped-to-seven-types
+date: 2026-05-09
+sprint: 20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp-3
+stage: design-specify
+title: Deep-render multi-storage element lookup is scoped to seven types; FRIC- and DEFN- fall through to ELEMENT_NOT_FOUND
+decision: `findElementById(state, id)` in `state-render.js` dispatches by ID prefix to seven element types only — `NCON-`, `RULE-`, `PERM-`, `EVID-`, `RISK-`, `RCON-` go to `state.elements.get(id)`; `CERN-` goes to `state.concerns.find()`; every other prefix including `FRIC-` (FRICTION) and `DEFN-` (DEFINITION) returns `null` and falls through to the structured `ELEMENT_NOT_FOUND` refusal — establishing that the deep-render surface is bounded to designer-readable element types and is not a general-purpose state inspector.
+rationale: The design brief's deep-render enumeration explicitly listed seven types with their printable sub-fields; FRIC- and DEFN- have lifecycle and storage shapes (friction events with consent provenance, definitions with overlap-search semantics) whose printable form is not part of designer-recap discipline. Routing them through deep-render would either invite half-rendered output or pull in lifecycle-specific projection that doesn't belong in a render module. The `ELEMENT_NOT_FOUND` fall-through gives the same structured refusal callers already handle for unknown IDs, so out-of-scope prefixes don't need a separate error code. Future render-side tools on the proof MCP follow the same scoping: extending the deep-render surface to a new element type is an explicit decision (add the prefix dispatch, add the per-type render function, add tests), not an automatic consequence of adding a new element type to the proof system.
+alternatives:
+  - Route every prefix in `state.elements` plus `state.concerns` plus `state.definitions` plus `state.friction` to deep-render — rejected because friction and definition objects carry lifecycle shapes whose printable form is not part of the designer-recap discipline this tool serves; rendering them would either be half-baked or would smear lifecycle concerns into a recap-shaped tool.
+  - Add a separate `RENDER_OUT_OF_SCOPE` error code distinct from `ELEMENT_NOT_FOUND` for FRIC-/DEFN- prefixes — rejected because callers already handle `ELEMENT_NOT_FOUND` and the distinction adds caller-side branching for no observable benefit; an unknown ID and an out-of-scope prefix both mean "the agent should fix the ID and re-call".
+  - Route FRIC- and DEFN- through a fall-back rendering of just `id + status` so deep render works on every element — rejected because consistent partial output is worse than a clean refusal; designers who deep-render an FRIC- ID need full friction context, which the recap-shaped tool isn't built to produce.
+tags: [architecture, mcp, convention]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp-3/spec/sprint-d-1-fix-proof-mcp-3-spec-00.md
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp-3/spec/sprint-d-1-fix-proof-mcp-3-spec-ground-truth-report-00.md
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp-3/summary/sprint-d-1-fix-proof-mcp-3-summary-00.md
+---
+
+---
+id: dr-20260509-05-tools-array-named-export-for-introspection
+date: 2026-05-09
+sprint: 20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp-3
+stage: execute-write
+title: Promote proof-mcp/server.js TOOLS array to a named export so schema-introspection tests can consume it
+decision: `proof-mcp/server.js` promotes its module-internal `const TOOLS = [...]` definition to `export const TOOLS = [...]`, making the tool registry observable to tests that need to assert on schema shape (input properties, required arrays, presence and absence of fields like `consent`) without spinning up a live MCP server; the change is a deliberate, minimal expansion of the proof MCP's public surface and sets the precedent that read-only test affordances are acceptable expansions of the public module surface when the alternative is process-level integration testing for shape assertions.
+rationale: AC-1.1 required tests to assert that `render_proof_state`'s entry exists in `TOOLS` with the correct schema shape and that `consent` is absent — a contract assertion that lives most cleanly at module level, not at protocol level. Without a `TOOLS` export the test would have to spin up the server, send a `ListTools` request over the MCP transport, and inspect the response — adding integration scaffolding for what is structurally a static-data assertion. Promoting the constant to an export adds one keyword and surfaces a stable, append-only registry that already changes only when tools are added. Future proof-MCP work that registers a new tool inherits the introspection-friendly shape; future contributors who want schema assertions over the registry should write static-data tests against `TOOLS` rather than reach for live-server integration tests.
+alternatives:
+  - Keep `TOOLS` module-internal and write integration tests that send `ListTools` over the MCP transport — rejected because integration scaffolding for static-data assertions is over-engineered, and the test cost compounds with every new tool.
+  - Duplicate the tool definitions in a parallel test fixture — rejected because duplication invites silent drift between the registered shape and the asserted shape; the registry must be the single source of truth.
+  - Add a `getRegisteredTools()` accessor function rather than exporting the constant — rejected as ceremony around what is already an inert append-only data structure; the export is the simplest shape that satisfies the contract.
+tags: [architecture, mcp, tool]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp-3/plan/sprint-d-1-fix-proof-mcp-3-plan-00.md
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp-3/summary/sprint-d-1-fix-proof-mcp-3-summary-00.md
+---
