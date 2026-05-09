@@ -15,6 +15,14 @@ import {
   renderHeading,
   renderBullet,
   renderSubBullet,
+  renderNC,
+  renderRule,
+  renderRC,
+  renderConcern,
+  renderEvidence,
+  renderPermission,
+  renderRisk,
+  findElementById,
 } from '../state-render.js';
 
 const consent = { source: 'designer', rationale: 'test render' };
@@ -104,5 +112,149 @@ describe('state-render primitives and heuristics', () => {
 
   it('renderSubBullet prints two-space indented sub-bullet for non-empty value', () => {
     expect(renderSubBullet('grounding', 'EVID-1')).toBe('  - **grounding:** EVID-1\n');
+  });
+});
+
+describe('per-type render functions', () => {
+  it('renderNC includes statement, grounding, reasoning_chain, collapse_test', () => {
+    const el = {
+      id: 'NCON-1', type: 'NECESSARY_CONDITION', status: 'active',
+      ratificationStatus: 'ratified',
+      statement: 'must Q',
+      grounding: ['EVID-1'],
+      reasoning_chain: 'IF evidence THEN must Q',
+      collapse_test: 'breaks if no Q',
+    };
+    const out = renderNC(el);
+    expect(out).toContain('NCON-1');
+    expect(out).toContain('must Q');
+    expect(out).toContain('EVID-1');
+    expect(out).toContain('IF evidence THEN must Q');
+    expect(out).toContain('breaks if no Q');
+    expect(out).not.toContain('rejected_alternatives');
+  });
+
+  it('renderNC emits rejected_alternatives sub-bullet only when populated', () => {
+    const elWith = {
+      id: 'NCON-2', statement: 'X', grounding: ['EVID-1'],
+      reasoning_chain: 'IF', collapse_test: 'C',
+      rejected_alternatives: ['alt one', 'alt two'],
+    };
+    const elWithout = { ...elWith, id: 'NCON-3', rejected_alternatives: [] };
+    expect(renderNC(elWith)).toContain('rejected_alternatives');
+    expect(renderNC(elWithout)).not.toContain('rejected_alternatives');
+  });
+
+  it('renderRule(el, false) emits the full statement', () => {
+    const el = { id: 'RULE-1', statement: 'Single sentence rule.' };
+    const out = renderRule(el, false);
+    expect(out).toContain('Single sentence rule.');
+    expect(out).not.toContain('sub-clauses — request deep render');
+  });
+
+  it('renderRule(el, true) truncates to firstSentence and appends parenthetical pointer', () => {
+    const el = {
+      id: 'RULE-2',
+      statement: 'Big rule.\n  18.1 a\n  18.2 b\n  18.3 c\n  18.4 d\n  18.5 e',
+    };
+    const out = renderRule(el, true);
+    expect(out).toContain('Big rule');
+    expect(out).toContain('5 sub-clauses — request deep render to view in full');
+  });
+
+  it('renderRC includes statement, problem_anchor, ratification, grounding NC IDs', () => {
+    const el = {
+      id: 'RCON-1', statement: 'system Qs',
+      problem_anchor: 'CERN-1',
+      ratification: { ratifiedAtRound: 2, text: 'designer ok' },
+      grounding: ['NCON-1'],
+    };
+    const out = renderRC(el);
+    expect(out).toContain('RCON-1');
+    expect(out).toContain('system Qs');
+    expect(out).toContain('CERN-1');
+    expect(out).toContain('NCON-1');
+  });
+
+  it('renderConcern includes label, description, status', () => {
+    const c = { id: 'CERN-1', label: 'concern X', description: 'desc body', status: 'ratified' };
+    const out = renderConcern(c);
+    expect(out).toContain('CERN-1');
+    expect(out).toContain('concern X');
+    expect(out).toContain('desc body');
+    expect(out).toContain('ratified');
+  });
+
+  it('renderEvidence includes statement and source', () => {
+    const el = { id: 'EVID-1', statement: 'evidence body', source: 'codebase' };
+    const out = renderEvidence(el);
+    expect(out).toContain('EVID-1');
+    expect(out).toContain('evidence body');
+    expect(out).toContain('codebase');
+  });
+
+  it('renderPermission includes statement and relieves', () => {
+    const el = { id: 'PERM-1', statement: 'permission body', relieves: 'RULE-1' };
+    const out = renderPermission(el);
+    expect(out).toContain('PERM-1');
+    expect(out).toContain('permission body');
+    expect(out).toContain('RULE-1');
+  });
+
+  it('renderRisk includes statement and basis', () => {
+    const el = { id: 'RISK-1', statement: 'risk body', basis: 'EVID-1' };
+    const out = renderRisk(el);
+    expect(out).toContain('RISK-1');
+    expect(out).toContain('risk body');
+    expect(out).toContain('EVID-1');
+  });
+
+  it('per-type render surfaces withdrawal_disposition for withdrawn elements', () => {
+    const el = {
+      id: 'NCON-3', type: 'NECESSARY_CONDITION', status: 'withdrawn',
+      ratificationStatus: 'ratified',
+      statement: 'old NC', grounding: ['EVID-1'],
+      reasoning_chain: 'IF', collapse_test: 'C',
+      withdrawal_disposition: 'superseded',
+    };
+    const out = renderNC(el);
+    expect(out).toContain('superseded');
+  });
+});
+
+describe('findElementById multi-storage lookup', () => {
+  it('returns elements.get for the six in-scope element-Map prefixes', () => {
+    const s = seedFullProof();
+    expect(findElementById(s, 'NCON-1')).toBe(s.elements.get('NCON-1'));
+    expect(findElementById(s, 'RULE-1')).toBe(s.elements.get('RULE-1'));
+    expect(findElementById(s, 'PERM-1')).toBe(s.elements.get('PERM-1'));
+    expect(findElementById(s, 'EVID-1')).toBe(s.elements.get('EVID-1'));
+    expect(findElementById(s, 'RISK-1')).toBe(s.elements.get('RISK-1'));
+    expect(findElementById(s, 'RCON-1')).toBe(s.elements.get('RCON-1'));
+  });
+
+  it('returns matching concern from concerns array for CERN- prefix', () => {
+    const s = seedFullProof();
+    expect(findElementById(s, 'CERN-1')).toBe(s.concerns[0]);
+  });
+
+  it('returns null for FRIC- (out of scope)', () => {
+    const s = seedFullProof();
+    expect(findElementById(s, 'FRIC-1')).toBeNull();
+  });
+
+  it('returns null for DEFN- (out of scope)', () => {
+    const s = seedFullProof();
+    expect(findElementById(s, 'DEFN-1')).toBeNull();
+  });
+
+  it('returns null for unknown prefix', () => {
+    const s = seedFullProof();
+    expect(findElementById(s, 'XYZ-1')).toBeNull();
+  });
+
+  it('returns null when prefix is in-scope but ID does not exist', () => {
+    const s = seedFullProof();
+    expect(findElementById(s, 'NCON-999')).toBeNull();
   });
 });
