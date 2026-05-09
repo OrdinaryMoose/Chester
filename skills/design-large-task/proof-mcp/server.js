@@ -6,7 +6,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { ListToolsRequestSchema, CallToolRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 import {
   initializeState, applyOperations, saveState, loadState,
-  addConcern, ratifyConcern, ratifyResolveCondition,
+  addConcern, ratifyConcern, ratifyResolveCondition, ratifyNecessaryCondition,
   manageFriction, overrideFrictionDisposition,
   recordClosingArgPresented, recordDesignerGo,
   manageDefinitions,
@@ -213,6 +213,20 @@ const TOOLS = [
     },
   },
   {
+    name: 'ratify_necessary_condition',
+    description: "Ratify a single Necessary Condition. Sequential by design — accepts one element_id per call; batch shapes are not supported. Refused when proof is finished, when the NC is not active (withdrawn), when the NC is already ratified, or when consent token is invalid.",
+    inputSchema: {
+      type: 'object',
+      properties: {
+        state_file: { type: 'string', description: 'Absolute path to state JSON' },
+        element_id: { type: 'string', description: 'NCON-N ID of the Necessary Condition to ratify' },
+        ratification: { type: 'string', description: "PM's sign-off text" },
+        consent: CONSENT_SCHEMA,
+      },
+      required: ['state_file', 'element_id', 'ratification', 'consent'],
+    },
+  },
+  {
     name: 'present_closing_argument',
     description: 'Present the closing argument as a structured object. Refuses if the composite trigger gate is not cleared (per-signal floors, aggregate score, integrity-zero).',
     inputSchema: {
@@ -300,6 +314,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         return handleOverrideFrictionDisposition(args);
       case 'ratify_resolve_condition':
         return handleRatifyResolveCondition(args);
+      case 'ratify_necessary_condition':
+        return handleRatifyNecessaryCondition(args);
       case 'open_proof':
         return handleOpenProof(args);
       case 'present_closing_argument':
@@ -610,6 +626,32 @@ function handleRatifyResolveCondition({ state_file, element_id, ratification, co
   };
 }
 
+export function handleRatifyNecessaryCondition({ state_file, element_id, ratification, consent }) {
+  let state = loadState(state_file);
+  if (state.proofStatus === 'finish') {
+    return proofFinishedResponse();
+  }
+  const [newState, err] = ratifyNecessaryCondition(state, { elementId: element_id, ratificationText: ratification }, consent);
+  if (err) {
+    return { content: [{ type: 'text', text: JSON.stringify(classifyStateError(err)) }], isError: true };
+  }
+  saveState(newState, state_file);
+  const target = newState.elements.get(element_id);
+  const closure = checkClosure(newState);
+  return {
+    content: [{
+      type: 'text',
+      text: JSON.stringify({
+        status: 'accepted',
+        element_id,
+        ratificationStatus: target.ratificationStatus,
+        closure_permitted: closure.permitted,
+        closure_reasons: closure.reasons,
+      }),
+    }],
+  };
+}
+
 export function handlePresentClosingArgument({ state_file, consent }) {
   let state = loadState(state_file);
   if (state.proofStatus === 'finish') {
@@ -648,7 +690,7 @@ export function handlePresentClosingArgument({ state_file, consent }) {
   return { content: [{ type: 'text', text: JSON.stringify(argument, null, 2) }] };
 }
 
-function handleConfirmClosureGo({ state_file, consent }) {
+export function handleConfirmClosureGo({ state_file, consent }) {
   let state = loadState(state_file);
   if (state.proofStatus === 'finish') {
     return proofFinishedResponse();

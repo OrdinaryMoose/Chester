@@ -242,8 +242,7 @@ export function createElement(input, id, round) {
     revisedInRound: null,
     revision: 0,
   };
-  // NC-only ratificationStatus (NC-18, RULE-8): bulk-ratified at confirm_closure_go;
-  // any revise of statement or grounding resets to 'draft'. Orthogonal to .status.
+  // NC-only ratificationStatus (NC-18, RULE-8): per-element ratify via ratify_necessary_condition; reset to 'draft' on revise of statement or grounding.
   if (type === 'NECESSARY_CONDITION') {
     element.ratificationStatus = 'draft';
   }

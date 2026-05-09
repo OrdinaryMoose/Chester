@@ -364,6 +364,61 @@ export function ratifyResolveCondition(state, { elementId, ratificationText }, c
 }
 
 /**
+ * Ratify a single Necessary Condition. Refuses non-NC, withdrawn, unknown, already-ratified, or empty text.
+ * Sequential by design — caller passes a single elementId.
+ * @param {object} state
+ * @param {{elementId: string, ratificationText: string}} input
+ * @param {object} consent
+ * @returns {[object, string|null]} [newState, error]
+ */
+export function ratifyNecessaryCondition(state, { elementId, ratificationText }, consent) {
+  const consentCheck = validateConsentToken(consent);
+  if (!consentCheck.valid) {
+    return [state, `INVALID_CONSENT: ${consentCheck.reason}`];
+  }
+  if (state.proofStatus === 'finish') {
+    return [state, 'PROOF_FINISHED: Proof is finished; no further mutations permitted'];
+  }
+  const target = state.elements.get(elementId);
+  if (!target) {
+    return [state, `Element "${elementId}" not found`];
+  }
+  if (target.type !== 'NECESSARY_CONDITION') {
+    return [state, `Element "${elementId}" is not a NECESSARY_CONDITION`];
+  }
+  if (target.status !== 'active') {
+    return [state, `Element "${elementId}" is not active`];
+  }
+  if (target.ratificationStatus === 'ratified') {
+    return [state, `ALREADY_RATIFIED: NC "${elementId}" is already ratified`];
+  }
+  if (!ratificationText || typeof ratificationText !== 'string') {
+    return [state, 'Ratification text is required'];
+  }
+  const newState = structuredClone(state);
+  newState.elements = cloneElements(state.elements);
+  resetFirstYesIfFired(newState);
+  const updatedTarget = newState.elements.get(elementId);
+  updatedTarget.ratificationStatus = 'ratified';
+  newState.ratificationLog.push({
+    event: 'ratified',
+    target: elementId,
+    round: state.round,
+    ratificationText,
+  });
+  appendOperationLog(newState, {
+    round: newState.round,
+    op: 'ratify',
+    entityId: elementId,
+    type: 'NECESSARY_CONDITION',
+    consent,
+    changedFields: ['ratificationStatus'],
+    provenance: { ratificationText },
+  });
+  return [newState, null];
+}
+
+/**
  * Generate a new element ID, incrementing the counter for the given type.
  * Returns [id, updatedState] without mutating the input.
  * @param {object} state
