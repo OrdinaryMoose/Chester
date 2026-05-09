@@ -690,7 +690,7 @@ export function handlePresentClosingArgument({ state_file, consent }) {
   return { content: [{ type: 'text', text: JSON.stringify(argument, null, 2) }] };
 }
 
-function handleConfirmClosureGo({ state_file, consent }) {
+export function handleConfirmClosureGo({ state_file, consent }) {
   let state = loadState(state_file);
   if (state.proofStatus === 'finish') {
     return proofFinishedResponse();
