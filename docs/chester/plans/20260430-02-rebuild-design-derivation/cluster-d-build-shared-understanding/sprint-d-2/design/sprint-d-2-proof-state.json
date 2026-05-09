@@ -1,5 +1,5 @@
 {
-  "round": 17,
+  "round": 19,
   "problemStatement": "D.2 builds the redesigned design-large-task Presentation layer (voice, packet, phase orchestration, round mechanics, render steps) that interfaces with the Proof layer contracts so that the designer can read, understand, and update proof state, culminating with the ratification of the closing argument, production of the design brief, and handover to design-specify.",
   "elements": {
     "EVID-1": {
@@ -1333,15 +1333,51 @@
       "revisedInRound": null,
       "revision": 0,
       "ratificationStatus": "draft"
+    },
+    "PERM-2": {
+      "id": "PERM-2",
+      "type": "PERMISSION",
+      "statement": "When ratifying a Resolve Condition, any proof element in that Resolve Condition's transitive support — the anchored Concern, every Necessary Condition cited in the Resolve Condition's reasoning chain, and every Rule, Permission, Evidence, or Definition those Necessary Conditions ground onto, recursively — may be ratified in the same round. Relieves RULE-17 (single-topic discipline) for the duration of the bundled ratify turn. Supersedes PERM-1's narrow 1:1 RC+Concern scope.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": "RULE-17 (single-topic discipline); supersedes PERM-1",
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 18,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "RCON-2": {
+      "id": "RCON-2",
+      "type": "RESOLVE_CONDITION",
+      "statement": "Across the Round Cycle, every information packet that requests a designer choice presents agent-constructed research, framing, and drafted options for that choice; no packet asks the designer for technical context only the agent or codebase can supply.",
+      "source": null,
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": "CERN-2",
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 19,
+      "revisedInRound": null,
+      "revision": 0
     }
   },
   "elementCounters": {
     "EVIDENCE": 6,
     "RULE": 17,
-    "PERMISSION": 1,
+    "PERMISSION": 2,
     "NECESSARY_CONDITION": 17,
     "RISK": 0,
-    "RESOLVE_CONDITION": 1,
+    "RESOLVE_CONDITION": 2,
     "FRICTION": 0
   },
   "conditionCountHistory": [
@@ -1500,7 +1536,7 @@
   "frictionLog": [],
   "closingArgPresentedRound": null,
   "closingArgGoRound": null,
-  "proofStatus": "open",
+  "proofStatus": "planning",
   "schemaVersion": 1,
   "lastClosureArtifact": null,
   "operationLog": [
@@ -1741,6 +1777,45 @@
             "Concerns never ratify up-front; only bundle at RC review — collapses the early-direction-setting designer wanted; Phase 2 Concerns drive Phase 3+ research and round selection, value of locking them up-front is real.",
             "This discipline as a Rule rather than NC — Rule-class is for designer-issued constraints; this is a structural condition on agent turn shape, NC-class fits."
           ]
+        }
+      }
+    },
+    {
+      "round": 18,
+      "op": "add",
+      "entityId": "PERM-2",
+      "type": "PERMISSION",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer directive at round 18: 'When approving RCs, any supporting proof element may be ratified simultaneously.' Scope confirmed (a) transitive support."
+      },
+      "changedFields": null,
+      "provenance": {
+        "initialPayload": {
+          "op": "add",
+          "type": "PERMISSION",
+          "statement": "When ratifying a Resolve Condition, any proof element in that Resolve Condition's transitive support — the anchored Concern, every Necessary Condition cited in the Resolve Condition's reasoning chain, and every Rule, Permission, Evidence, or Definition those Necessary Conditions ground onto, recursively — may be ratified in the same round. Relieves RULE-17 (single-topic discipline) for the duration of the bundled ratify turn. Supersedes PERM-1's narrow 1:1 RC+Concern scope.",
+          "source": "designer",
+          "relieves": "RULE-17 (single-topic discipline); supersedes PERM-1"
+        }
+      }
+    },
+    {
+      "round": 19,
+      "op": "add",
+      "entityId": "RCON-2",
+      "type": "RESOLVE_CONDITION",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer accept on presented choice for CERN-2 / D2-C-1 RC: \"accept\". Echo of agent-presented Accept / Push back / Defer choice per NCON-16 hook 4."
+      },
+      "changedFields": null,
+      "provenance": {
+        "initialPayload": {
+          "op": "add",
+          "type": "RESOLVE_CONDITION",
+          "statement": "Across the Round Cycle, every information packet that requests a designer choice presents agent-constructed research, framing, and drafted options for that choice; no packet asks the designer for technical context only the agent or codebase can supply.",
+          "problem_anchor": "CERN-2"
         }
       }
     }
