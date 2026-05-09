@@ -403,7 +403,7 @@ export function ratifyNecessaryCondition(state, { elementId, ratificationText },
   newState.ratificationLog.push({
     event: 'ratified',
     target: elementId,
-    round: newState.round,
+    round: state.round,
     ratificationText,
   });
   appendOperationLog(newState, {

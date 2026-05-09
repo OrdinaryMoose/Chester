@@ -1,14 +1,8 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { mkdtempSync, rmSync } from 'fs';
-import { tmpdir } from 'os';
-import { join } from 'path';
+import { describe, it, expect } from 'vitest';
 import {
   initializeState,
   applyOperations,
-  saveState,
-  loadState,
   ratifyNecessaryCondition,
-  recordDesignerGo,
 } from '../state.js';
 
 const validConsent = { source: 'designer', rationale: 'test ratify' };
