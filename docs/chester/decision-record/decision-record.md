@@ -961,3 +961,22 @@ artifact_refs:
   - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp/spec/sprint-d-1-fix-proof-mcp-spec-00.md
   - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp/summary/sprint-d-1-fix-proof-mcp-summary-00.md
 ---
+
+---
+id: dr-20260508-08-nc-ratify-path-closes-first-yes-gate-cycle
+date: 2026-05-08
+sprint: 20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp-2
+stage: execute-write
+title: NC ratify path closes first-yes-gate cycle
+decision: Ship a dedicated `ratify_necessary_condition` tool mirroring `ratify_resolve_condition`'s shape (state-layer function plus server tool registration plus handler), with three intentional divergences — 2-tuple return shape (matches `ratifyConcern` rather than RC's 3-tuple), `ALREADY_RATIFIED` guard (NC ratify is non-idempotent — re-ratifying a ratified NC errors), and no `processFriction` arms (NC ratify is not a friction trigger) — to provide the missing write path that flips an NC's `ratificationStatus` to `'ratified'` so `present_closing_argument`'s per-element first-yes precondition gate from sprint-d-1-fix-proof-mcp can be cleared.
+rationale: sprint-d-1-fix-proof-mcp shipped two interacting changes in the same merge — AC-2.4 removed the bulk-ratify-NCs hook from `recordDesignerGo`, and AC-4.1 / AC-4.2 added a per-element first-yes precondition gate to `present_closing_argument` requiring every active NC to have `ratificationStatus === 'ratified'`. Both ACs were individually correct; their interaction left no code path that could flip an NC's `ratificationStatus` to `'ratified'`, leaving `present_closing_argument` unreachable, formal closure unreachable, and the closing-argument envelope unproducable. Per-element ratify discipline aligns with the per-element first-yes precondition AC-4.1 was clearly aiming for. Alternative paths (restore bulk-ratify, drop NCs from gate, lazy auto-ratify on RC bundle) all weakened the audit semantic AC-4.1 established. A dedicated tool keeps the ratify-discipline shape symmetric across element types that have a ratify lifecycle (RC, Concern, Definition, NC). Lesson: when adding a per-element gate, verify a write path exists for every element type the gate references; the closure-path integration test added by AC-5.1 catches this class of cross-AC interaction miss in CI by exercising NC creation → NC ratify → first-yes gate clearance → present_closing_argument → confirm_closure_go end-to-end.
+alternatives:
+  - Restore the bulk-ratify-NCs hook in `recordDesignerGo` — rejected because it reverts AC-2.4 and reintroduces the ratify-without-review semantic the sprint-d-1-fix sprint deliberately removed.
+  - Drop NCs from the first-yes precondition gate — rejected because it weakens AC-4.1's per-element ratification audit, leaving a class of element with no enforced first-yes record before formal closure.
+  - Lazy auto-ratify NCs as a side effect of RC ratification bundle — rejected because it couples two unrelated lifecycle transitions and produces a ratify event with no designer-visible action, defeating the audit semantic.
+tags: [mcp, governance, lifecycle]
+supersedes: null
+artifact_refs:
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp-2/spec/sprint-d-1-fix-proof-mcp-2-spec-00.md
+  - working/20260430-02-rebuild-design-derivation/cluster-d-build-shared-understanding/sprint-d-1-fix-proof-mcp-2/plan/sprint-d-1-fix-proof-mcp-2-plan-00.md
+---
