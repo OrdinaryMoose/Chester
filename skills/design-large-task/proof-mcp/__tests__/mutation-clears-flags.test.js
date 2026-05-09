@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdtempSync, rmSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
-import { initializeState, applyOperations, addConcern, ratifyConcern, ratifyResolveCondition, manageFriction, overrideFrictionDisposition, manageDefinitions, withdrawElement, withdrawConcern, withdrawDefinition, recordClosingArgPresented, recordDesignerGo, loadState, resetFirstYesIfFired } from '../state.js';
+import { initializeState, applyOperations, addConcern, ratifyConcern, ratifyResolveCondition, ratifyNecessaryCondition, manageFriction, overrideFrictionDisposition, manageDefinitions, withdrawElement, withdrawConcern, withdrawDefinition, recordClosingArgPresented, recordDesignerGo, loadState, resetFirstYesIfFired } from '../state.js';
 
 function withFlagsSet(state) {
   state.closingArgPresentedRound = 3;
@@ -40,6 +40,25 @@ describe('mutation-clears-flags', () => {
     ], { source: 'designer', rationale: 'test' });
     s = withFlagsSet(r.state);
     const [newS] = ratifyResolveCondition(s, { elementId: 'RCON-1', ratificationText: 'ok' }, { source: 'designer', rationale: 'test' });
+    expect(newS.closingArgPresentedRound).toBeNull();
+    expect(newS.closingArgGoRound).toBeNull();
+  });
+
+  it('ratifyNecessaryCondition clears closingArgPresentedRound and closingArgGoRound', () => {
+    let s = initializeState();
+    s.problemStatement = 'test';
+    const seedOps = [
+      { op: 'add', type: 'EVIDENCE', statement: 'e', source: 'codebase' },
+      { op: 'add', type: 'NECESSARY_CONDITION',
+        statement: 'nc', grounding: ['EVID-1'],
+        reasoning_chain: 'IF X THEN Y', collapse_test: 'breaks' },
+    ];
+    const consent = { source: 'designer', rationale: 'test' };
+    const seedResult = applyOperations(s, seedOps, consent);
+    s = seedResult.state;
+    s.closingArgPresentedRound = s.round;
+    s.closingArgGoRound = s.round;
+    const [newS] = ratifyNecessaryCondition(s, { elementId: 'NCON-1', ratificationText: 'ok' }, consent);
     expect(newS.closingArgPresentedRound).toBeNull();
     expect(newS.closingArgGoRound).toBeNull();
   });
