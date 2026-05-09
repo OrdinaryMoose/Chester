@@ -8,6 +8,14 @@ import {
   ratifyNecessaryCondition,
 } from '../state.js';
 import { partitionActiveElements } from '../closing-argument.js';
+import {
+  OUTSIZED_RULE_THRESHOLD,
+  isOutsizedRule,
+  firstSentence,
+  renderHeading,
+  renderBullet,
+  renderSubBullet,
+} from '../state-render.js';
 
 const consent = { source: 'designer', rationale: 'test render' };
 
@@ -53,5 +61,48 @@ describe('partitionActiveElements', () => {
     expect(p.activeEvidence[0]).toBe(s.elements.get('EVID-1'));
     expect(p.activeRisks[0]).toBe(s.elements.get('RISK-1'));
     expect(p.activeConcerns[0]).toBe(s.concerns[0]);
+  });
+});
+
+describe('state-render primitives and heuristics', () => {
+  it('exports OUTSIZED_RULE_THRESHOLD === 3', () => {
+    expect(OUTSIZED_RULE_THRESHOLD).toBe(3);
+  });
+
+  it('isOutsizedRule returns true at or above threshold of numbered sub-clauses', () => {
+    const big = '18. Big rule.\n  18.1 first\n  18.2 second\n  18.3 third';
+    const small = 'Just one sentence rule.';
+    expect(isOutsizedRule(big, 3)).toBe(true);
+    expect(isOutsizedRule(small, 3)).toBe(false);
+  });
+
+  it('isOutsizedRule returns false when count is below threshold', () => {
+    const two = 'Header.\n  18.1 a\n  18.2 b';
+    expect(isOutsizedRule(two, 3)).toBe(false);
+  });
+
+  it('firstSentence returns text up to first sentence terminator', () => {
+    expect(firstSentence('Hello world. Then more text.')).toBe('Hello world');
+    expect(firstSentence('What now? More.')).toBe('What now');
+    expect(firstSentence('Wow! Next.')).toBe('Wow');
+    expect(firstSentence('No terminator here')).toBe('No terminator here');
+  });
+
+  it('renderHeading prints a level-2 heading with newline', () => {
+    expect(renderHeading('Necessary Conditions')).toBe('## Necessary Conditions\n');
+  });
+
+  it('renderBullet prints id-meta-summary bullet', () => {
+    expect(renderBullet('NCON-1', 'ratified', 'must Q')).toBe('- **NCON-1** _(ratified)_ — must Q\n');
+  });
+
+  it('renderSubBullet returns empty string for null/undefined/empty array', () => {
+    expect(renderSubBullet('reasoning_chain', null)).toBe('');
+    expect(renderSubBullet('reasoning_chain', undefined)).toBe('');
+    expect(renderSubBullet('rejected_alternatives', [])).toBe('');
+  });
+
+  it('renderSubBullet prints two-space indented sub-bullet for non-empty value', () => {
+    expect(renderSubBullet('grounding', 'EVID-1')).toBe('  - **grounding:** EVID-1\n');
   });
 });
