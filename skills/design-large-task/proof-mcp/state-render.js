@@ -138,6 +138,20 @@ export function renderRisk(el) {
 }
 
 /**
+ * Compose the recap-line summary for a Concern: label and description firstSentence
+ * joined with ": " when both are present; one alone when the other is empty.
+ * Concerns lack a `statement` field (their primary text lives in `description`),
+ * which is why the generic `firstSentence(el.statement)` shape used by every other
+ * element type does not apply to this lane.
+ */
+export function concernRecapSummary(c) {
+  const label = (c?.label ?? '').trim();
+  const desc = firstSentence(c?.description ?? '').trim();
+  if (label && desc) return `${label}: ${desc}`;
+  return desc || label || '';
+}
+
+/**
  * Multi-storage element lookup. Dispatches on the ID's prefix to one of two storages.
  * Returns null for prefixes outside the seven in-scope types. FRIC- (FRICTION) and
  * DEFN- (DEFINITION) are explicitly out of deep-render scope per the design brief and
@@ -192,7 +206,7 @@ export function renderProofRecap(state, partition) {
 
   out += renderHeading('Concerns');
   for (const c of [...partition.activeConcerns].sort(compareById)) {
-    out += renderBullet(c.id, c.status ?? 'unknown', c.label ?? '');
+    out += renderBullet(c.id, c.status ?? 'unknown', concernRecapSummary(c));
   }
   out += '\n';
 
