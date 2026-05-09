@@ -45,8 +45,7 @@ describe('mutation-clears-flags', () => {
   });
 
   it('ratifyNecessaryCondition clears closingArgPresentedRound and closingArgGoRound', () => {
-    let s = initializeState();
-    s.problemStatement = 'test';
+    let s = initializeState('p');
     const seedOps = [
       { op: 'add', type: 'EVIDENCE', statement: 'e', source: 'codebase' },
       { op: 'add', type: 'NECESSARY_CONDITION',
@@ -54,10 +53,8 @@ describe('mutation-clears-flags', () => {
         reasoning_chain: 'IF X THEN Y', collapse_test: 'breaks' },
     ];
     const consent = { source: 'designer', rationale: 'test' };
-    const seedResult = applyOperations(s, seedOps, consent);
-    s = seedResult.state;
-    s.closingArgPresentedRound = s.round;
-    s.closingArgGoRound = s.round;
+    const r = applyOperations(s, seedOps, consent);
+    s = withFlagsSet(r.state);
     const [newS] = ratifyNecessaryCondition(s, { elementId: 'NCON-1', ratificationText: 'ok' }, consent);
     expect(newS.closingArgPresentedRound).toBeNull();
     expect(newS.closingArgGoRound).toBeNull();
