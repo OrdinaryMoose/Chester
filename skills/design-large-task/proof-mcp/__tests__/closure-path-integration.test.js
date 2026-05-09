@@ -46,8 +46,9 @@ describe('closure path integration', () => {
     state = opResult.state;
 
     // Add Concern — addConcern returns [id, newState, hints, error].
-    let cernId, hints, err;
-    [cernId, state, hints, err] = addConcern(state, { label: 'C1', description: 'concern 1' }, validConsent);
+    let cernId, addErr;
+    [cernId, state, , addErr] = addConcern(state, { label: 'C1', description: 'concern 1' }, validConsent);
+    expect(addErr).toBeNull();
 
     // Add RC anchored to the new Concern.
     opResult = applyOperations(state, [
