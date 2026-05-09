@@ -23,6 +23,8 @@ import {
   renderPermission,
   renderRisk,
   findElementById,
+  renderProofRecap,
+  renderElementDeep,
 } from '../state-render.js';
 
 const consent = { source: 'designer', rationale: 'test render' };
@@ -256,5 +258,116 @@ describe('findElementById multi-storage lookup', () => {
   it('returns null when prefix is in-scope but ID does not exist', () => {
     const s = seedFullProof();
     expect(findElementById(s, 'NCON-999')).toBeNull();
+  });
+});
+
+describe('renderProofRecap', () => {
+  it('emits exactly eight section headings in canonical order', () => {
+    const s = seedFullProof();
+    const out = renderProofRecap(s, partitionActiveElements(s));
+    const expectedHeadings = [
+      '## Problem Statement',
+      '## Concerns',
+      '## Rules',
+      '## Permissions',
+      '## Evidence',
+      '## Necessary Conditions',
+      '## Resolve Conditions',
+      '## Risks',
+    ];
+    let cursor = 0;
+    for (const h of expectedHeadings) {
+      const idx = out.indexOf(h, cursor);
+      expect(idx).toBeGreaterThanOrEqual(0);
+      cursor = idx + h.length;
+    }
+  });
+
+  it('Problem Statement section presents state.problemStatement text', () => {
+    const s = seedFullProof();
+    const out = renderProofRecap(s, partitionActiveElements(s));
+    expect(out).toContain('design problem');
+  });
+
+  it('emits one bulleted line per active element, withdrawn elements absent', () => {
+    let s = seedFullProof();
+    const r = applyOperations(s, [{ op: 'withdraw', target: 'NCON-2', withdrawal_disposition: 'superseded' }], consent);
+    s = r.state;
+    const out = renderProofRecap(s, partitionActiveElements(s));
+    expect(out).toContain('NCON-1');
+    expect(out).not.toMatch(/^- \*\*NCON-2\*\*/m);
+  });
+
+  it('orders elements within a section in ID-ascending numeric order', () => {
+    let s = seedFullProof();
+    let r = applyOperations(s, [
+      { op: 'add', type: 'NECESSARY_CONDITION', statement: 'C', collapse_test: 'c', grounding: ['EVID-1'], reasoning_chain: 'IF' },
+    ], consent);
+    s = r.state;
+    // (seedFullProof creates NCON-1, NCON-2; explicit add above creates NCON-3;
+    //  this loop creates NCON-4 through NCON-10 across 7 iterations.)
+    for (let i = 0; i < 7; i++) {
+      r = applyOperations(s, [{ op: 'add', type: 'NECESSARY_CONDITION', statement: `extra ${i}`, collapse_test: 'x', grounding: ['EVID-1'], reasoning_chain: 'IF' }], consent);
+      s = r.state;
+    }
+    const out = renderProofRecap(s, partitionActiveElements(s));
+    const ncSection = out.slice(out.indexOf('## Necessary Conditions'));
+    const idxNCON3 = ncSection.indexOf('NCON-3');
+    const idxNCON10 = ncSection.indexOf('NCON-10');
+    expect(idxNCON3).toBeGreaterThanOrEqual(0);
+    expect(idxNCON10).toBeGreaterThan(idxNCON3);
+  });
+
+  it('renders rules with >= 3 numbered sub-clauses with parenthetical pointer', () => {
+    let s = seedFullProof();
+    const r = applyOperations(s, [
+      { op: 'add', type: 'RULE',
+        statement: 'Big rule.\n  21.1 a\n  21.2 b\n  21.3 c',
+        source: 'designer' },
+    ], consent);
+    s = r.state;
+    const out = renderProofRecap(s, partitionActiveElements(s));
+    expect(out).toContain('3 sub-clauses — request deep render to view in full');
+  });
+
+  it('reads from the partition object rather than re-deriving from raw state (AC-2.3 sub-assertion d)', () => {
+    const s = seedFullProof();
+    const partition = partitionActiveElements(s);
+    const fakeRisk = {
+      id: 'RISK-99',
+      type: 'RISK',
+      status: 'active',
+      statement: 'fake risk pushed only into partition lane, not into state.elements',
+      basis: [],
+    };
+    partition.activeRisks.push(fakeRisk);
+    const out = renderProofRecap(s, partition);
+    expect(out).toContain('RISK-99');
+    expect(out).toContain('fake risk pushed only into partition lane');
+    expect(s.elements.get('RISK-99')).toBeUndefined();
+  });
+});
+
+describe('renderElementDeep', () => {
+  it('returns markdown for an in-scope element with all sub-fields', () => {
+    const s = seedFullProof();
+    const out = renderElementDeep('NCON-1', s);
+    expect(out).toContain('NCON-1');
+    expect(out).toContain('must Q');
+    expect(out).toContain('breaks if no Q');
+  });
+
+  it('surfaces withdrawal_disposition for withdrawn elements', () => {
+    let s = seedFullProof();
+    const r = applyOperations(s, [{ op: 'withdraw', target: 'NCON-2', withdrawal_disposition: 'superseded' }], consent);
+    s = r.state;
+    const out = renderElementDeep('NCON-2', s);
+    expect(out).toContain('NCON-2');
+    expect(out).toContain('superseded');
+  });
+
+  it('returns null for an unknown ID (handler will translate to ELEMENT_NOT_FOUND)', () => {
+    const s = seedFullProof();
+    expect(renderElementDeep('NCON-999', s)).toBeNull();
   });
 });

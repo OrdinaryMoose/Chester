@@ -162,3 +162,95 @@ export function findElementById(state, id) {
       return null;
   }
 }
+
+/**
+ * Numeric-suffix comparator. Splits the trailing integer off an ID and compares
+ * numerically so NCON-3 sorts before NCON-10. Falls back to lexicographic on prefix.
+ */
+function compareById(a, b) {
+  const splitId = (id) => {
+    const m = (id ?? '').match(/^([A-Z]+-)(\d+)$/);
+    return m ? [m[1], Number(m[2])] : [id ?? '', 0];
+  };
+  const [pa, na] = splitId(a.id);
+  const [pb, nb] = splitId(b.id);
+  if (pa !== pb) return pa < pb ? -1 : 1;
+  return na - nb;
+}
+
+/**
+ * Renders the active proof body as a markdown recap. Eight sections in fixed order:
+ * Problem Statement (preamble), Concerns, Rules, Permissions, Evidence,
+ * Necessary Conditions, Resolve Conditions, Risks. Reads section contents only from
+ * the supplied partition so the partitioner is the single source of truth for
+ * active-by-type filtering.
+ */
+export function renderProofRecap(state, partition) {
+  let out = '';
+  out += renderHeading('Problem Statement');
+  out += `${state.problemStatement ?? ''}\n\n`;
+
+  out += renderHeading('Concerns');
+  for (const c of [...partition.activeConcerns].sort(compareById)) {
+    out += renderBullet(c.id, c.status ?? 'unknown', c.label ?? '');
+  }
+  out += '\n';
+
+  out += renderHeading('Rules');
+  for (const el of [...partition.activeRules].sort(compareById)) {
+    out += renderRule(el, isOutsizedRule(el.statement ?? '', OUTSIZED_RULE_THRESHOLD));
+  }
+  out += '\n';
+
+  out += renderHeading('Permissions');
+  for (const el of [...partition.activePermissions].sort(compareById)) {
+    out += renderBullet(el.id, elementMeta(el), firstSentence(el.statement ?? ''));
+  }
+  out += '\n';
+
+  out += renderHeading('Evidence');
+  for (const el of [...partition.activeEvidence].sort(compareById)) {
+    out += renderBullet(el.id, elementMeta(el), firstSentence(el.statement ?? ''));
+  }
+  out += '\n';
+
+  out += renderHeading('Necessary Conditions');
+  for (const el of [...partition.activeNCsAll].sort(compareById)) {
+    out += renderBullet(el.id, elementMeta(el), firstSentence(el.statement ?? ''));
+  }
+  out += '\n';
+
+  out += renderHeading('Resolve Conditions');
+  for (const el of [...partition.activeRCs].sort(compareById)) {
+    out += renderBullet(el.id, elementMeta(el), firstSentence(el.statement ?? ''));
+  }
+  out += '\n';
+
+  out += renderHeading('Risks');
+  for (const el of [...partition.activeRisks].sort(compareById)) {
+    out += renderBullet(el.id, elementMeta(el), firstSentence(el.statement ?? ''));
+  }
+  out += '\n';
+
+  return out;
+}
+
+/**
+ * Renders a single element by ID with full sub-fields. Returns null when the ID is
+ * absent in the state's storages. Callers (the server handler) translate null to a
+ * structured ELEMENT_NOT_FOUND refusal.
+ */
+export function renderElementDeep(elementId, state) {
+  const found = findElementById(state, elementId);
+  if (!found) return null;
+  if (elementId.startsWith('CERN-')) return renderConcern(found);
+  switch (found.type) {
+    case 'NECESSARY_CONDITION': return renderNC(found);
+    case 'RULE':                return renderRule(found, false); // deep mode: no truncation
+    case 'PERMISSION':          return renderPermission(found);
+    case 'EVIDENCE':            return renderEvidence(found);
+    case 'RISK':                return renderRisk(found);
+    case 'RESOLVE_CONDITION':   return renderRC(found);
+    default:                    return null;
+  }
+}
