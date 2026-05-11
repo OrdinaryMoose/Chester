@@ -88,3 +88,79 @@ describe('Stratifier', () => {
     expect(() => stratify(rules)).not.toThrow();
   });
 });
+
+import { RuleStore } from '../RuleStore.js';
+
+describe('RuleStore', () => {
+  const r1 = {
+    ruleId: 'r1',
+    head: { predicate: 'q', arity: 1, args: [{ var: 'X' }] },
+    body: [{ predicate: 'p', arity: 2, args: [{ var: 'X' }, { var: 'Y' }], negated: false }],
+    metadata: { domain_concept: 'test' }
+  };
+
+  it('defineRule stores a rule retrievable via getRule', () => {
+    const rs = new RuleStore();
+    rs.defineRule(r1);
+    const got = rs.getRule('r1');
+    expect(got.head).toEqual(r1.head);
+    expect(got.body).toEqual(r1.body);
+    expect(got.metadata).toEqual(r1.metadata);
+  });
+
+  it('defineRule rejects duplicate ruleId with DUPLICATE_RULE_ID', () => {
+    const rs = new RuleStore();
+    rs.defineRule(r1);
+    expect(() => rs.defineRule(r1)).toThrow(expect.objectContaining({ code: 'DUPLICATE_RULE_ID' }));
+  });
+
+  it('defineRule rejects malformed head with MALFORMED_RULE', () => {
+    const rs = new RuleStore();
+    expect(() => rs.defineRule({ ruleId: 'bad', head: 'not-an-object', body: [] })).toThrow(
+      expect.objectContaining({ code: 'MALFORMED_RULE' })
+    );
+  });
+
+  it('defineRule rejects body atom with wrong shape', () => {
+    const rs = new RuleStore();
+    expect(() => rs.defineRule({
+      ruleId: 'bad',
+      head: r1.head,
+      body: ['not-an-atom']
+    })).toThrow(expect.objectContaining({ code: 'MALFORMED_RULE' }));
+  });
+
+  it('undefineRule removes a rule', () => {
+    const rs = new RuleStore();
+    rs.defineRule(r1);
+    rs.undefineRule('r1');
+    expect(rs.getRule('r1')).toBeUndefined();
+  });
+
+  it('undefineRule on non-existent id is idempotent', () => {
+    const rs = new RuleStore();
+    expect(() => rs.undefineRule('nonexistent')).not.toThrow();
+  });
+
+  it('defineRule runs stratification check and rejects cyclic negation', () => {
+    const rs = new RuleStore();
+    rs.defineRule({
+      ruleId: 'r1',
+      head: { predicate: 'p', arity: 1, args: [{ var: 'X' }] },
+      body: [{ predicate: 'q', arity: 1, args: [{ var: 'X' }], negated: true }]
+    });
+    expect(() => rs.defineRule({
+      ruleId: 'r2',
+      head: { predicate: 'q', arity: 1, args: [{ var: 'X' }] },
+      body: [{ predicate: 'p', arity: 1, args: [{ var: 'X' }], negated: true }]
+    })).toThrow(expect.objectContaining({ code: 'CYCLIC_NEGATION' }));
+    expect(rs.getRule('r2')).toBeUndefined();
+  });
+
+  it('allRules returns the full rule list', () => {
+    const rs = new RuleStore();
+    rs.defineRule(r1);
+    rs.defineRule({ ...r1, ruleId: 'r2' });
+    expect(rs.allRules()).toHaveLength(2);
+  });
+});
