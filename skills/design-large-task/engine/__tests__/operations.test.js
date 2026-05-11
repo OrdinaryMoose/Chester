@@ -163,4 +163,23 @@ describe('RuleStore', () => {
     rs.defineRule({ ...r1, ruleId: 'r2' });
     expect(rs.allRules()).toHaveLength(2);
   });
+
+  it('rulesByStratum groups rules by computed stratum', () => {
+    const rs = new RuleStore();
+    rs.defineRule({
+      ruleId: 'base',
+      head: { predicate: 'a', arity: 1, args: [{ var: 'X' }] },
+      body: [{ predicate: 'b', arity: 1, args: [{ var: 'X' }], negated: false }]
+    });
+    rs.defineRule({
+      ruleId: 'neg',
+      head: { predicate: 'c', arity: 1, args: [{ var: 'X' }] },
+      body: [{ predicate: 'a', arity: 1, args: [{ var: 'X' }], negated: true }]
+    });
+    const byStratum = rs.rulesByStratum();
+    expect(byStratum.get(0).map((r) => r.ruleId)).toEqual(['base']);
+    expect(byStratum.get(1).map((r) => r.ruleId)).toEqual(['neg']);
+    expect(rs.stratumOf('base')).toBe(0);
+    expect(rs.stratumOf('neg')).toBe(1);
+  });
 });
