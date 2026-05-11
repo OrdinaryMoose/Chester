@@ -4,7 +4,10 @@
  */
 
 const isConstant = (v) =>
-  typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean' || v === null;
+  typeof v === 'string' ||
+  (typeof v === 'number' && Number.isFinite(v)) ||
+  typeof v === 'boolean' ||
+  v === null;
 
 const factKey = (args) => JSON.stringify(args);
 const predKey = (predicate, arity) => `${predicate}/${arity}`;

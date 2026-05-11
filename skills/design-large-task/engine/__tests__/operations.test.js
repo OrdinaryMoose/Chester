@@ -41,6 +41,9 @@ describe('FactStore', () => {
     expect(() => fs.assertFact('p', [{}])).toThrow(expect.objectContaining({ code: 'TYPE_ERROR' }));
     expect(() => fs.assertFact('p', [() => {}])).toThrow(expect.objectContaining({ code: 'TYPE_ERROR' }));
     expect(() => fs.assertFact('p', [undefined])).toThrow(expect.objectContaining({ code: 'TYPE_ERROR' }));
+    expect(() => fs.assertFact('p', [NaN])).toThrow(expect.objectContaining({ code: 'TYPE_ERROR' }));
+    expect(() => fs.assertFact('p', [Infinity])).toThrow(expect.objectContaining({ code: 'TYPE_ERROR' }));
+    expect(() => fs.assertFact('p', [-Infinity])).toThrow(expect.objectContaining({ code: 'TYPE_ERROR' }));
   });
 
   it('accepts string, number, boolean, null as constants', () => {
