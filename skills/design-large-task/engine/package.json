@@ -1,0 +1,14 @@
+{
+  "name": "chester-engine",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Pure Datalog evaluator for the Chester proof system (sprint-01-proof-backend)",
+  "main": "Engine.js",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "vitest": "^3.1.1"
+  }
+}
