@@ -21,10 +21,7 @@ function matchBodyAtom(atom, factStore, derived, currentBindings, deltaFilter) {
   const arity = atom.arity;
 
   if (atom.negated) {
-    // Negation-as-failure with existential quantification of unbound atom variables.
-    // Unify the original atom pattern (which may contain still-unbound variables)
-    // against each fact and require consistency with currentBindings — any consistent
-    // match means the inner atom holds for some binding, so the negation fails.
+    // ADR-0017: unbound atom vars are existentially quantified
     const baseFacts = factStore.allFacts(atom.predicate, arity);
     const derivedFacts = [];
     for (const f of derived.values()) {
