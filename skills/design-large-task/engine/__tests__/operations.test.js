@@ -147,12 +147,18 @@ describe('RuleStore', () => {
     rs.defineRule({
       ruleId: 'r1',
       head: { predicate: 'p', arity: 1, args: [{ var: 'X' }] },
-      body: [{ predicate: 'q', arity: 1, args: [{ var: 'X' }], negated: true }]
+      body: [
+        { predicate: 'base', arity: 1, args: [{ var: 'X' }], negated: false },
+        { predicate: 'q', arity: 1, args: [{ var: 'X' }], negated: true }
+      ]
     });
     expect(() => rs.defineRule({
       ruleId: 'r2',
       head: { predicate: 'q', arity: 1, args: [{ var: 'X' }] },
-      body: [{ predicate: 'p', arity: 1, args: [{ var: 'X' }], negated: true }]
+      body: [
+        { predicate: 'base', arity: 1, args: [{ var: 'X' }], negated: false },
+        { predicate: 'p', arity: 1, args: [{ var: 'X' }], negated: true }
+      ]
     })).toThrow(expect.objectContaining({ code: 'CYCLIC_NEGATION' }));
     expect(rs.getRule('r2')).toBeUndefined();
   });
@@ -174,12 +180,49 @@ describe('RuleStore', () => {
     rs.defineRule({
       ruleId: 'neg',
       head: { predicate: 'c', arity: 1, args: [{ var: 'X' }] },
-      body: [{ predicate: 'a', arity: 1, args: [{ var: 'X' }], negated: true }]
+      body: [
+        { predicate: 'b', arity: 1, args: [{ var: 'X' }], negated: false },
+        { predicate: 'a', arity: 1, args: [{ var: 'X' }], negated: true }
+      ]
     });
     const byStratum = rs.rulesByStratum();
     expect(byStratum.get(0).map((r) => r.ruleId)).toEqual(['base']);
     expect(byStratum.get(1).map((r) => r.ruleId)).toEqual(['neg']);
     expect(rs.stratumOf('base')).toBe(0);
     expect(rs.stratumOf('neg')).toBe(1);
+  });
+
+  it('defineRule rejects unsafe rules with UNSAFE_RULE (head var not bound by non-negated body)', () => {
+    const rs1 = new RuleStore();
+    // Case 1: q(X, Y) :- p(X)  — head variable Y appears nowhere in the body
+    const unsafe1 = {
+      ruleId: 'r1',
+      head: { predicate: 'q', arity: 2, args: [{ var: 'X' }, { var: 'Y' }] },
+      body: [{ predicate: 'p', arity: 1, args: [{ var: 'X' }], negated: false }]
+    };
+    expect(() => rs1.defineRule(unsafe1)).toThrow(
+      expect.objectContaining({
+        code: 'UNSAFE_RULE',
+        ruleId: 'r1',
+        unboundVars: ['Y']
+      })
+    );
+    expect(rs1.getRule('r1')).toBeUndefined();
+
+    // Case 2: q(X) :- ¬p(X)  — head variable X appears only in a negated body atom (does not count as bound)
+    const rs2 = new RuleStore();
+    const unsafe2 = {
+      ruleId: 'r2',
+      head: { predicate: 'q', arity: 1, args: [{ var: 'X' }] },
+      body: [{ predicate: 'p', arity: 1, args: [{ var: 'X' }], negated: true }]
+    };
+    expect(() => rs2.defineRule(unsafe2)).toThrow(
+      expect.objectContaining({
+        code: 'UNSAFE_RULE',
+        ruleId: 'r2',
+        unboundVars: ['X']
+      })
+    );
+    expect(rs2.getRule('r2')).toBeUndefined();
   });
 });

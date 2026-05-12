@@ -21,6 +21,32 @@ function validateRule(rule) {
   }
 }
 
+function checkSafety(rule) {
+  // Datalog safety: every variable in the head must appear in at least one non-negated body atom.
+  // Variables that only appear in negated atoms are NOT considered bound — they would be
+  // existentially quantified in the negation branch, leaving the head variable unbound at fire time.
+  const bound = new Set();
+  for (const atom of rule.body) {
+    if (atom.negated) continue;
+    const args = Array.isArray(atom.args) ? atom.args : [];
+    for (const a of args) {
+      if (a && typeof a === 'object' && typeof a.var === 'string') {
+        bound.add(a.var);
+      }
+    }
+  }
+  const unboundVars = [];
+  const headArgs = Array.isArray(rule.head.args) ? rule.head.args : [];
+  for (const a of headArgs) {
+    if (a && typeof a === 'object' && typeof a.var === 'string') {
+      if (!bound.has(a.var)) unboundVars.push(a.var);
+    }
+  }
+  if (unboundVars.length > 0) {
+    throw { code: 'UNSAFE_RULE', ruleId: rule.ruleId, unboundVars, message: `rule ${rule.ruleId} has head variables not bound by any non-negated body atom: ${unboundVars.join(', ')}` };
+  }
+}
+
 export class RuleStore {
   constructor() {
     // Map<ruleId, rule>
@@ -32,7 +58,9 @@ export class RuleStore {
   }
 
   defineRule(rule) {
+    // ADR-0016: unsafe head var produces poisoned IDB
     validateRule(rule);
+    checkSafety(rule);
     if (this._rules.has(rule.ruleId)) {
       throw { code: 'DUPLICATE_RULE_ID', ruleId: rule.ruleId };
     }

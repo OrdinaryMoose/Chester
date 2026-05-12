@@ -15,12 +15,18 @@ describe('Failure modes — all nine error codes', () => {
     e.defineRule({
       ruleId: 'r1',
       head: { predicate: 'p', arity: 1, args: [V('X')] },
-      body: [{ predicate: 'q', arity: 1, args: [V('X')], negated: true }]
+      body: [
+        { predicate: 'base', arity: 1, args: [V('X')], negated: false },
+        { predicate: 'q', arity: 1, args: [V('X')], negated: true }
+      ]
     });
     expect(() => e.defineRule({
       ruleId: 'r2',
       head: { predicate: 'q', arity: 1, args: [V('X')] },
-      body: [{ predicate: 'p', arity: 1, args: [V('X')], negated: true }]
+      body: [
+        { predicate: 'base', arity: 1, args: [V('X')], negated: false },
+        { predicate: 'p', arity: 1, args: [V('X')], negated: true }
+      ]
     })).toThrow(expect.objectContaining({ code: 'CYCLIC_NEGATION' }));
   });
 
@@ -64,6 +70,15 @@ describe('Failure modes — all nine error codes', () => {
     const h = e.begin();
     expect(() => e.clear()).toThrow(expect.objectContaining({ code: 'NESTED_TRANSACTION_OP_REFUSED' }));
     e.rollback(h);
+  });
+
+  it('UNSAFE_RULE — defineRule rejects rule with unbound head variable', () => {
+    const e = new Engine();
+    expect(() => e.defineRule({
+      ruleId: 'unsafe1',
+      head: { predicate: 'q', arity: 2, args: [{ var: 'X' }, { var: 'Y' }] },
+      body: [{ predicate: 'p', arity: 1, args: [{ var: 'X' }], negated: false }]
+    })).toThrow(expect.objectContaining({ code: 'UNSAFE_RULE', ruleId: 'unsafe1' }));
   });
 
   // MEMORY_BUDGET_EXCEEDED is a defensive guard: Evaluator.derive sets a 10000-iteration cap.

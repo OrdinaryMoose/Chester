@@ -72,12 +72,18 @@ describe('Engine transaction edge cases', () => {
     e.defineRule({
       ruleId: 'r1',
       head: { predicate: 'p', arity: 1, args: [V('X')] },
-      body: [{ predicate: 'q', arity: 1, args: [V('X')], negated: true }]
+      body: [
+        { predicate: 'base', arity: 1, args: [V('X')], negated: false },
+        { predicate: 'q', arity: 1, args: [V('X')], negated: true }
+      ]
     });
     expect(() => e.defineRule({
       ruleId: 'r2',
       head: { predicate: 'q', arity: 1, args: [V('X')] },
-      body: [{ predicate: 'p', arity: 1, args: [V('X')], negated: true }]
+      body: [
+        { predicate: 'base', arity: 1, args: [V('X')], negated: false },
+        { predicate: 'p', arity: 1, args: [V('X')], negated: true }
+      ]
     })).toThrow(expect.objectContaining({ code: 'CYCLIC_NEGATION' }));
     expect(e.getRule('r1')).toBeDefined();
     expect(e.getRule('r2')).toBeUndefined();

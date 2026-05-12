@@ -40,7 +40,7 @@ export function loadEngineFrom(engine, serialized) {
   }
   // Atomic-load contract (spec AC-7.3): if any replay step throws (TYPE_ERROR on
   // an invalid fact arg, MALFORMED_RULE / DUPLICATE_RULE_ID / CYCLIC_NEGATION /
-  // UNBOUND_HEAD_VARIABLE on a rule), the engine must be restored to its prior
+  // UNSAFE_RULE on a rule), the engine must be restored to its prior
   // state. Take a snapshot before clear, restore on any replay exception.
   const rollback = engine.snapshot();
   try {
