@@ -68,4 +68,26 @@ describe('Engine lifecycle and serialization', () => {
     expect(e.factExists('p', ['a'])).toBe(false);
     expect(e.query(['p', [V('X')]])).toEqual([]);
   });
+
+  it('loadFrom is atomic on mid-replay failure — prior state preserved (AC-7.3)', () => {
+    const e = new Engine();
+    e.assertFact('p', ['a']);
+    e.defineRule({
+      ruleId: 'r',
+      head: { predicate: 'q', arity: 1, args: [V('X')] },
+      body: [{ predicate: 'p', arity: 1, args: [V('X')], negated: false }]
+    });
+    // Tampered payload that passes shallow schema validation but trips
+    // a deeper engine constraint during replay: NaN trips FactStore TYPE_ERROR.
+    const tampered = {
+      version: 1,
+      facts: [{ predicate: 'p', args: [NaN] }],
+      rules: []
+    };
+    expect(() => e.loadFrom(tampered)).toThrow(expect.objectContaining({ code: 'TYPE_ERROR' }));
+    // Prior state preserved: original fact AND rule remain.
+    expect(e.factExists('p', ['a'])).toBe(true);
+    expect(e.getRule('r')).toBeDefined();
+    expect(e.query(['q', [V('X')]])).toEqual([{ X: 'a' }]);
+  });
 });
