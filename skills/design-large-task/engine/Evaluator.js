@@ -108,6 +108,9 @@ export class Evaluator {
           }
           for (const b of bindingsList) {
             const headArgs = substituteArgs(rule.head.args, b);
+            if (headArgs.some((a) => a === undefined)) {
+              throw { code: 'UNBOUND_HEAD_VARIABLE', ruleId: rule.ruleId, message: `rule ${rule.ruleId} head contains a variable not bound by its body` };
+            }
             const fk = factKey(rule.head.predicate, headArgs);
             if (derived.has(fk)) continue;
             derived.set(fk, {
