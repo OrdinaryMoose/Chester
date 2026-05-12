@@ -10,6 +10,7 @@ import { unify } from './Unifier.js';
 import { factKey } from './utils.js';
 import { explainFact } from './Explain.js';
 import { captureSnapshot, restoreSnapshot } from './Snapshot.js';
+import { serializeEngine, loadEngineFrom } from './Serializer.js';
 
 export class Engine {
   constructor() {
@@ -77,6 +78,8 @@ export class Engine {
 
   snapshot() { return captureSnapshot(this); }
   restore(token) { restoreSnapshot(this, token); }
+  serialize() { return serializeEngine(this); }
+  loadFrom(serialized) { loadEngineFrom(this, serialized); }
   clear() {
     this._facts = new FactStore();
     this._rules = new RuleStore();
