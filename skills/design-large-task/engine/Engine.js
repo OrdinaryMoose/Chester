@@ -88,7 +88,7 @@ export class Engine {
     this._isDerived = false;
   }
 
-  // §4.5 transactions (snapshot-rollback strategy; mutations apply live, snapshot
+  // §4.8 transactions (snapshot-rollback strategy; mutations apply live, snapshot
   // taken at begin() is restored on rollback or discarded on commit).
   _assertNoTx() { if (this._tx) throw { code: 'NESTED_TRANSACTION', message: 'transaction already open' }; }
   _assertHandleValid(h) {
