@@ -52,7 +52,7 @@ When multiple skills could apply, use this order:
 - `util-worktree` — Git worktree workflow for parallel branches
 - `util-dispatch` — Dispatching parallel subagents
 - `util-artifact-schema` — Artifact naming, versioning, and directory layout (read, don't invoke)
-- `util-design-partner-role` — Canonical voice rules for design skills (Interpreter Frame, option-naming, self-evaluation). Read, don't invoke.
+- `util-design-partner-role` — Canonical voice rules for design skills (Interpreter Frame, option-naming, self-evaluation, info-packet style overlay). Read, don't invoke.
 
 Brief templates are **not** standalone skills — they live inside each design skill as references:
 
