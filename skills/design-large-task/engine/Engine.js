@@ -78,10 +78,20 @@ export class Engine {
   exists(pattern) { return this.count(pattern) > 0; }
 
   snapshot() { return captureSnapshot(this); }
-  restore(token) { restoreSnapshot(this, token); }
+  restore(token) {
+    if (this._tx) {
+      // Invalidate handle by clearing _tx. The caller's handle becomes stale.
+      this._tx = null;
+    }
+    restoreSnapshot(this, token);
+  }
   serialize() { return serializeEngine(this); }
-  loadFrom(serialized) { loadEngineFrom(this, serialized); }
+  loadFrom(serialized) {
+    if (this._tx) throw { code: 'NESTED_TRANSACTION_OP_REFUSED', op: 'loadFrom', message: 'cannot loadFrom during open transaction' };
+    loadEngineFrom(this, serialized);
+  }
   clear() {
+    if (this._tx) throw { code: 'NESTED_TRANSACTION_OP_REFUSED', op: 'clear', message: 'cannot clear during open transaction' };
     this._facts = new FactStore();
     this._rules = new RuleStore();
     this._derived = new Map();

@@ -64,3 +64,112 @@ describe('Engine transactions', () => {
     expect(JSON.stringify(after)).toBe(JSON.stringify(before));
   });
 });
+
+describe('Engine transaction edge cases', () => {
+  it('cyclic-negation rule inside tx is rejected at defineRule, tx remains usable', () => {
+    const e = new Engine();
+    const h = e.begin();
+    e.defineRule({
+      ruleId: 'r1',
+      head: { predicate: 'p', arity: 1, args: [V('X')] },
+      body: [{ predicate: 'q', arity: 1, args: [V('X')], negated: true }]
+    });
+    expect(() => e.defineRule({
+      ruleId: 'r2',
+      head: { predicate: 'q', arity: 1, args: [V('X')] },
+      body: [{ predicate: 'p', arity: 1, args: [V('X')], negated: true }]
+    })).toThrow(expect.objectContaining({ code: 'CYCLIC_NEGATION' }));
+    expect(e.getRule('r1')).toBeDefined();
+    expect(e.getRule('r2')).toBeUndefined();
+    e.commit(h);
+    expect(e.getRule('r1')).toBeDefined();
+  });
+
+  it('clear() inside tx refused with NESTED_TRANSACTION_OP_REFUSED', () => {
+    const e = new Engine();
+    e.assertFact('p', ['a']);
+    const h = e.begin();
+    expect(() => e.clear()).toThrow(expect.objectContaining({ code: 'NESTED_TRANSACTION_OP_REFUSED' }));
+    expect(e.factExists('p', ['a'])).toBe(true);
+    e.rollback(h);
+  });
+
+  it('loadFrom() inside tx refused with NESTED_TRANSACTION_OP_REFUSED', () => {
+    const e = new Engine();
+    e.assertFact('p', ['a']);
+    const h = e.begin();
+    expect(() => e.loadFrom({ version: 1, facts: [], rules: [] })).toThrow(
+      expect.objectContaining({ code: 'NESTED_TRANSACTION_OP_REFUSED' })
+    );
+    expect(e.factExists('p', ['a'])).toBe(true);
+    e.rollback(h);
+  });
+
+  it('serialize() inside tx returns logical view (committed + buffered)', () => {
+    const e = new Engine();
+    e.assertFact('p', ['a']);
+    const h = e.begin();
+    e.assertFact('p', ['b']);
+    const s = e.serialize();
+    expect(s.facts.find(f => f.predicate === 'p' && f.args[0] === 'b')).toBeDefined();
+    e.rollback(h);
+  });
+
+  it('restore() inside tx implicitly rolls back', () => {
+    const e = new Engine();
+    e.assertFact('p', ['a']);
+    const pre = e.snapshot();
+    const h = e.begin();
+    e.assertFact('p', ['b']);
+    e.restore(pre);
+    expect(e.factExists('p', ['a'])).toBe(true);
+    expect(e.factExists('p', ['b'])).toBe(false);
+    expect(() => e.commit(h)).toThrow(expect.objectContaining({ code: 'STALE_HANDLE' }));
+  });
+
+  it('snapshot inside tx captures logical view; restore returns to that view', () => {
+    const e = new Engine();
+    e.assertFact('p', ['a']);
+    const h = e.begin();
+    e.assertFact('p', ['b']);
+    const snap = e.snapshot();
+    // Even after rollback, restore brings us back to logical view (a + b).
+    e.rollback(h);
+    expect(e.factExists('p', ['b'])).toBe(false);
+    e.restore(snap);
+    expect(e.factExists('p', ['a'])).toBe(true);
+    expect(e.factExists('p', ['b'])).toBe(true);
+  });
+
+  it('AC-8.7 commit-time atomicity: post-commit state = pre-begin + mutations (no halfway state)', () => {
+    // The snapshot-rollback implementation makes commit trivially atomic:
+    // mutations apply live; commit only clears the active-tx handle.
+    // This test verifies the observable invariant: after commit, no halfway state is reachable.
+    const e = new Engine();
+    e.assertFact('p', ['a']);
+    const preBegin = e.snapshot();
+
+    const h = e.begin();
+    e.assertFact('p', ['b']);
+    e.assertFact('p', ['c']);
+    e.commit(h);
+
+    // Post-commit state must match pre-begin + the buffered mutations exactly — no half-applied state.
+    const expectedPostCommit = new Engine();
+    expectedPostCommit.loadFrom({ version: 1, facts: [
+      { predicate: 'p', args: ['a'] },
+      { predicate: 'p', args: ['b'] },
+      { predicate: 'p', args: ['c'] }
+    ], rules: [] });
+    expect(e.count(['p', [V('X')]])).toBe(expectedPostCommit.count(['p', [V('X')]]));
+    expect(e.factExists('p', ['a'])).toBe(true);
+    expect(e.factExists('p', ['b'])).toBe(true);
+    expect(e.factExists('p', ['c'])).toBe(true);
+
+    // Inverse property: rolling back to pre-begin via restore returns to exact pre-begin state.
+    e.restore(preBegin);
+    expect(e.factExists('p', ['b'])).toBe(false);
+    expect(e.factExists('p', ['c'])).toBe(false);
+    expect(e.factExists('p', ['a'])).toBe(true);
+  });
+});
