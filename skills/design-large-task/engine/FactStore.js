@@ -3,6 +3,7 @@
  * Stores base facts as predicate/arity-keyed Maps; set semantics; per-position indexes.
  */
 
+// ADR-0015: NaN/Infinity collide via JSON.stringify
 const isConstant = (v) =>
   typeof v === 'string' ||
   (typeof v === 'number' && Number.isFinite(v)) ||
