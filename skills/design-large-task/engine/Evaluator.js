@@ -21,15 +21,24 @@ function matchBodyAtom(atom, factStore, derived, currentBindings, deltaFilter) {
   const arity = atom.arity;
 
   if (atom.negated) {
-    // Negation-as-failure: succeeds if no matching fact exists under currentBindings.
-    const groundedPattern = substituteArgs(atom.args, currentBindings);
+    // Negation-as-failure with existential quantification of unbound atom variables.
+    // Unify the original atom pattern (which may contain still-unbound variables)
+    // against each fact and require consistency with currentBindings — any consistent
+    // match means the inner atom holds for some binding, so the negation fails.
     const baseFacts = factStore.allFacts(atom.predicate, arity);
     const derivedFacts = [];
     for (const f of derived.values()) {
       if (f.predicate === atom.predicate && f.args.length === arity) derivedFacts.push(f);
     }
-    const matchFn = (factArgs) => unify(groundedPattern, factArgs) !== null;
-    const hasMatch = baseFacts.some(args => matchFn(args)) || derivedFacts.some(f => matchFn(f.args));
+    const isConsistent = (factArgs) => {
+      const fresh = unify(atom.args, factArgs);
+      if (fresh === null) return false;
+      for (const [k, v] of Object.entries(fresh)) {
+        if (k in currentBindings && currentBindings[k] !== v) return false;
+      }
+      return true;
+    };
+    const hasMatch = baseFacts.some((args) => isConsistent(args)) || derivedFacts.some((f) => isConsistent(f.args));
     return hasMatch ? [] : [{ ...currentBindings }];
   }
 
