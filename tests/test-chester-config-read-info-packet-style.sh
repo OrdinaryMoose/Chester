@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Verifies CHESTER_INFO_PACKET_STYLE export across the four spec cases.
+# Verifies CHESTER_INFO_PACKET_STYLE export across the five spec cases.
 set -euo pipefail
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
@@ -49,24 +49,29 @@ case3() {
   rm -rf "$home"
 }
 
-# Case 4: jq unavailable. Simulate by stubbing PATH so jq is not found.
-# IMPORTANT: prefix assignments must bind to the command substitution (the bash
-# subprocess that runs $SCRIPT), not to the eval builtin. Writing
-# `HOME=... PATH=... eval "$(bash "$SCRIPT")"` is WRONG — the assignments only
-# apply to eval (a builtin that doesn't use PATH), and the command substitution
-# runs with the outer shell's PATH (jq still findable). The correct form puts
-# the assignments inside the command substitution so the bash subprocess
-# inherits them.
+# Case 4: jq unavailable. The script depends on bash, git, head, sed in
+# addition to jq — on most systems they all live in /usr/bin alongside jq,
+# so we cannot "filter out the directory containing jq" without breaking the
+# other dependencies. Instead, build an isolated PATH containing symlinks to
+# only the tools the script needs (excluding jq), and run the script with
+# that PATH. The script's `command -v jq` correctly returns failure because
+# no jq symlink exists in the stub.
+# IMPORTANT: prefix assignments must bind to the command substitution (the
+# bash subprocess that runs $SCRIPT), not to the eval builtin — that's why
+# the assignments live inside $(...) rather than before `eval`.
 case4() {
   local home; home="$(make_home)"
   local stub_bin; stub_bin="$(mktemp -d)"
-  # Use absolute path to bash so the stub PATH (which hides jq) doesn't also
-  # hide bash itself. The goal is to make jq unfindable, not to break the
-  # bash invocation that runs the script.
-  local bash_bin; bash_bin="$(command -v bash)"
-  eval "$(HOME="$home" PATH="$stub_bin" "$bash_bin" "$SCRIPT")"
-  if [ "$CHESTER_INFO_PACKET_STYLE" != "$FACTORY_DEFAULT" ]; then
-    echo "FAIL case4 (no jq): got '$CHESTER_INFO_PACKET_STYLE'" >&2; FAIL=1
+  local tool
+  for tool in bash git head sed; do
+    ln -s "$(command -v "$tool")" "$stub_bin/$tool"
+  done
+  # Defense in depth: clear the var so a prior case's value cannot satisfy
+  # this assertion by accident.
+  unset CHESTER_INFO_PACKET_STYLE
+  eval "$(HOME="$home" PATH="$stub_bin" "$stub_bin/bash" "$SCRIPT")"
+  if [ "${CHESTER_INFO_PACKET_STYLE:-<unset>}" != "$FACTORY_DEFAULT" ]; then
+    echo "FAIL case4 (no jq): got '${CHESTER_INFO_PACKET_STYLE:-<unset>}'" >&2; FAIL=1
   fi
   rm -rf "$home" "$stub_bin"
 }

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # chester-config-read.sh — Resolve layered Chester config
 # Usage: eval "$($CHESTER_ROOT/chester-util-config/chester-config-read.sh)"
-# Exports: CHESTER_WORKING_DIR, CHESTER_PLANS_DIR, CHESTER_CONFIG_PATH
+# Exports: CHESTER_WORKING_DIR, CHESTER_PLANS_DIR, CHESTER_CONFIG_PATH, CHESTER_MAIN_ROOT, CHESTER_INFO_PACKET_STYLE
 #
 # Directory model:
 #   CHESTER_WORKING_DIR — absolute path, gitignored; all pipeline skills write here
