@@ -42,6 +42,7 @@ export function loadEngineFrom(engine, serialized) {
   // an invalid fact arg, MALFORMED_RULE / DUPLICATE_RULE_ID / CYCLIC_NEGATION /
   // UNSAFE_RULE on a rule), the engine must be restored to its prior
   // state. Take a snapshot before clear, restore on any replay exception.
+  // ADR-0018: mid-replay failure leaves partial-load state
   const rollback = engine.snapshot();
   try {
     engine.clear();
