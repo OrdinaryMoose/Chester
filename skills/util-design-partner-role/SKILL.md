@@ -1,7 +1,7 @@
 ---
 name: util-design-partner-role
-description: Canonical rules for the Design Partner voice — the Interpreter Frame, read-aloud discipline, option-naming rule, and self-evaluation game. Read this skill (don't invoke it) when running design-large-task or design-small-task. Both design skills import the same voice rules from here so the discipline stays in one place.
-version: v0001
+description: Canonical rules for the Design Partner voice — the Interpreter Frame, read-aloud discipline, option-naming rule, self-evaluation game, and the session-scoped info-packet style overlay (verbosity ladder, composition, directive protocol). Read this skill (don't invoke it) when running design-large-task or design-small-task. Both design skills import the same voice rules from here so the discipline stays in one place.
+version: v0002
 ---
 
 # Design Partner Role — Voice Rules
@@ -44,6 +44,49 @@ Rules that fall out of this frame:
 ## Composition Note
 
 C1 (Externalized Coverage) and C2 (Fact Default with Marked Departures) are voice disciplines that compose with the existing rules in this file. Translation Gate (defined in the design skills) strips code vocabulary; C1 and C2 govern what gets surfaced and how it is marked. The disciplines are independent — apply each on its own merits, in any order, every turn.
+
+## Info-Packet Style Overlay
+
+A session-scoped overlay layered on top of the voice disciplines above. Where the disciplines define **what the agent may say**, the overlay defines **how the agent renders information packets** — verbosity, formatting, focus, voice flavor. It applies only to designer-visible packet rendering during interview-style conversations; it never modifies the interview's structural sequence, stage discipline, or MCP protocols.
+
+The active style is loaded at interview start from the env var `CHESTER_INFO_PACKET_STYLE` (exported by `start-bootstrap` via the bootstrap-extension pattern). The value is a free-form prose string. When unset or when the user has not configured a style, the script falls back to the factory default defined in `chester-config-read.sh` — refer to it by reference; never restate the literal string here.
+
+### Verbosity Ladder
+
+The overlay names verbosity using three grammatically-anchored levels:
+
+- **Terse.** Simple sentences only, one independent clause each. One sentence per bullet. No examples.
+- **Normal.** Simple and complex sentences mixed, at most one subordinate clause per sentence. One-to-two sentences per bullet. Examples where load-bearing.
+- **Verbose.** Complex and compound-complex sentences with multiple subordinate clauses. Two-to-four sentences per bullet. Asides and multi-example illustration permitted.
+
+These are interpretation anchors for the agent, not constraints on the storage format. The style string can name them ("terse," "normal verbosity," "verbose") or describe equivalent shapes in prose.
+
+### Composition Rule
+
+The voice disciplines above (Translation Gate, read-aloud, option-naming, externalized coverage, marker discipline, stance principles) are **hard constraints** — the overlay never overrides them. When an overlay directive conflicts with a discipline rule, the agent silently clamps the conflicting aspect and renders the constraint-compliant version. The agent announces a clamp only when the **entire** directive becomes a no-op under the disciplines — for example, a directive that asks the agent to use type names violates the Translation Gate completely and lands as a clamp announcement; a directive that asks for "more verbose with type names" silently clamps the type-name aspect and applies the verbosity change without comment.
+
+### Memory Independence
+
+The overlay is independent of auto-memory feedback entries. Memory rules continue to apply across sessions as long-lived guidance. When an overlay directive conflicts with a memory entry during the session, the overlay wins for the remainder of the session — but the memory entry is not modified by the conflict. Removing a memory entry remains an explicit user operation outside the overlay protocol.
+
+### Directive Protocol
+
+Mid-session, the designer can shape the active style with an `instruction` directive. Recognition is by intent, not strict syntax — `instruction;`, `instruction:`, `instruction —`, or `instruction` followed by directive text are all valid. Only `instruction(save)` is syntactically special: its presence as a literal substring triggers the persistence write path.
+
+**Replace semantics.** Each `instruction` directive produces a single new full active style via synthesis of the prior style with the directive intent. The prior style is replaced in working memory. No layered adjustment stack is maintained. The agent acknowledges with a full readout of the new active style so the designer can detect synthesis drift immediately and correct it with another directive if needed.
+
+**Persistence.** `instruction(save) <directive prose>` updates the session active style as above **and** invokes the helper `chester-style-write "<new active style>"` to merge the new value into `~/.claude/settings.chester.json`. If the helper invocation fails, the agent reports the failure in plain prose; the session-scoped change still applies even when persistence fails.
+
+### First-Turn Handshake
+
+At every interview skill's first-turn framing block, the agent executes four moves:
+
+1. Read `CHESTER_INFO_PACKET_STYLE` from the environment.
+2. Present the active style to the designer with three options: keep as-is, adjust for this session, or revert to the factory default.
+3. Embed the resolved style into the orientation framing.
+4. Activate the directive protocol for the remainder of the session.
+
+Interview skills name the four moves in their own framing blocks but defer the mechanics to this section.
 
 ## Private Precision Slot
 

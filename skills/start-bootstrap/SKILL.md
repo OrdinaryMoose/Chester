@@ -5,7 +5,7 @@ description: >
   pipeline skill that needs a sprint context — config reading, sprint naming, directory
   creation, task reset, and thinking history initialization. Called by design-large-task
   and execute-write (standalone).
-version: v0001
+version: v0002
 ---
 
 # Session Bootstrap
@@ -107,6 +107,7 @@ After bootstrap completes, the calling skill has:
 
 - `CHESTER_WORKING_DIR` — absolute path to gitignored working directory
 - `CHESTER_PLANS_DIR` — relative path to tracked plans directory
+- `CHESTER_INFO_PACKET_STYLE` — the active info-packet style string (from user settings or factory default), consumed by interview skills at first-turn framing
 - Sprint subdirectory name (e.g., `20260407-01-strip-console-reports`)
 - Sprint name (three-word portion: `strip-console-reports`)
 - Clean task list

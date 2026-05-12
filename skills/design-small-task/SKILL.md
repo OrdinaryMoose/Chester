@@ -1,7 +1,7 @@
 ---
 name: design-small-task
 description: "Lightweight design conversation for well-bounded tasks. Use when the task is clear but you want to surface considerations before jumping to planning. Holds an interactive Q&A loop with structured information packages — the agent presents observations and asks questions, never suggests proceeding. The designer explicitly directs when to write the brief. Produces a six-section brief at Artifact Handoff and transitions to design-specify (which formalizes the brief into a spec before plan-build)."
-version: v0002
+version: v0003
 ---
 
 # Small Task Design Conversation
@@ -110,6 +110,8 @@ Round One is a handoff moment. You've done private exploration; the designer has
    - **Where I landed** — one sentence previewing the shape of the observations that follow.
 
    This block is a paragraph or short list — plain conversational opener. No "alignment check" language yet; there is nothing to align to. The framing *builds* the shared model; subsequent turns align against it.
+
+   **Info-packet style handshake.** As part of this first turn, execute the four-move handshake defined in the Info-Packet Style Overlay section of `util-design-partner-role`: read `CHESTER_INFO_PACKET_STYLE` from the environment, present the active style to the designer with three options (keep, adjust for this session, revert to factory default), embed the resolved style into the orientation framing above, and activate the directive protocol for the remainder of the session. The handshake is a parallel operation to the framing block — it does not alter the four framing bullets the designer sees. Do not read `~/.claude/settings.chester.json` directly; the env var is the only entry path.
 
 2. **Observations / Information Package / Commentary** (after framing):
    - Present what you know from the conversation and exploration:
