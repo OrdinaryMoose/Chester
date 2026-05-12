@@ -8,6 +8,7 @@ import { RuleStore } from './RuleStore.js';
 import { Evaluator } from './Evaluator.js';
 import { unify } from './Unifier.js';
 import { factKey } from './utils.js';
+import { explainFact } from './Explain.js';
 
 export class Engine {
   constructor() {
@@ -37,6 +38,11 @@ export class Engine {
     return this._derived;
   }
   isDerived() { return this._isDerived; }
+
+  explain(predicate, args) {
+    this._ensureDerived();
+    return explainFact(predicate, args, this._derived, this._rules, this._facts);
+  }
 
   // §4.4 query
   _ensureDerived() { if (!this._isDerived) this.derive(); }
