@@ -33,8 +33,8 @@ The Engine implements **stratified Datalog with negation**: a subset chosen for 
 Included:
 - **Horn clauses**: rules of form `head :- body₁, body₂, …, bodyₙ` where head is a positive atom and each body atom is positive or negated
 - **Recursion**: rules may transitively refer to themselves (allowing transitive closure, ancestor relations, grounding chains)
-- **Stratified negation**: `¬p(X)` admissible in body when `p` is fully evaluated in a lower stratum
-- **Constants**: string, number, boolean, null
+- **Stratified negation**: `¬p(X)` admissible in body when `p` is fully evaluated in a lower stratum. Unbound variables in negated atoms are existentially quantified: `¬p(X, Y)` with `X` bound holds for the current binding of `X` if and only if there is no value of `Y` such that `p(X, Y)` is derivable. (See ADR-0017.)
+- **Constants**: string, finite number, boolean, null. NaN, +Infinity, and -Infinity are excluded. (See ADR-0015.)
 - **Variables**: identifiers (uppercase by convention) that bind to constants during evaluation
 - **Multiple clauses per head**: alternative supporting paths (OR semantics)
 
@@ -90,7 +90,7 @@ The Engine's surface is intentionally small. All public operations live here.
 - `factExists(predicate, args)` — boolean test for fact presence in the EDB.
 
 ### 4.2 Rule operations (rule-store surface)
-- `defineRule(ruleId, headAtom, bodyAtoms, metadata)` — write a Horn clause into the rule store. RuleId must be unique. Metadata is opaque to the Engine; carried through for the Domain's use.
+- `defineRule(ruleId, headAtom, bodyAtoms, metadata)` — write a Horn clause into the rule store. RuleId must be unique. Every variable appearing in `headAtom` must also appear in at least one non-negated atom of `bodyAtoms` (Datalog safety condition); violations are rejected at the call with `UNSAFE_RULE`. (See ADR-0016.) Metadata is opaque to the Engine; carried through for the Domain's use.
 - `undefineRule(ruleId)` — remove a rule by id.
 - `getRule(ruleId)` — return the rule shape (head, body, metadata) for inspection.
 
@@ -222,7 +222,8 @@ restore(snap)
 The Engine raises exceptions for:
 - **Malformed rules**: head not a positive atom, body atoms with wrong shape
 - **Stratification failure**: cyclic negation
-- **Type errors**: assertFact called with non-constant value where constants required
+- **Unsafe rules**: `defineRule` called with a rule whose head variable is not bound by any non-negated body atom; rejected at the call. (See ADR-0016.)
+- **Type errors**: `assertFact` called with non-constant value where constants required, including non-finite numerical values (NaN, ±Infinity). (See ADR-0015.)
 - **Storage failure**: any condition under which the Engine cannot produce a deterministic answer
 
 The Engine does not classify errors by domain concern (no `INVALID_CONSENT`, `PROOF_FINISHED`, etc.). Domain-specific error codes are the Domain layer's responsibility.
@@ -263,7 +264,7 @@ Canonical Datalog programs exercising the §3 semantic rules:
 - **Determinism (§3.4)**: same fact + rule set across repeated runs produces the same fixed point and the same query bindings.
 - **Insertion-order independence**: asserting facts in different orders produces the same fixed point.
 - **Stratum ordering (§3.2)**: in multi-stratum programs, lower strata reach fixed point before higher strata begin firing; a stratum-N rule with a negated body atom never sees partially-derived facts from stratum N-1.
-- **Negation interacting with retraction**: retracting a positive fact that supported a negation literal causes dependent derivations to update on next `derive`.
+- **Negation interacting with retraction**: retracting a positive fact that supported a negation literal causes dependent derivations to update on next `derive`. Negated body atoms with unbound variables are existentially quantified; the evaluator's `matchBodyAtom` negation branch uses unify-then-consistency-check on each candidate fact. (See ADR-0017.)
 
 ### 9.2 Fact and rule operations (§4.1, §4.2)
 
@@ -311,7 +312,7 @@ Per-operation obligations:
 - **`clear`**: empties EDB and rule store; subsequent `derive` returns empty IDB; `factExists` returns false for all previously-asserted facts.
 - **`serialize` round-trip**: returns a JSON-serializable representation that round-trips through `loadFrom`; the round-tripped engine matches the original on `factExists`, `query` results, and `derive` output.
 - **`serialize` excludes derived facts**: serialized form omits the IDB; `loadFrom` followed by `derive` reproduces the original derived set.
-- **`loadFrom` on malformed input**: rejects with a structured error; does not partially-load.
+- **`loadFrom` on malformed input or mid-replay failure**: rejects with a structured error (`MALFORMED_SERIALIZED_INPUT` for shallow-schema failure; the underlying replay error for mid-replay failure); does not partially-load. The implementation wraps the replay in a snapshot/restore pair so prior engine state is restored on any throw. (See ADR-0018.)
 - **`loadFrom` on empty input**: results in an empty engine equivalent to `clear`.
 
 ### 9.7 Transactions (§4.8)
@@ -349,11 +350,12 @@ Universal properties spanning multiple operations:
 - **Cyclic negation refused at `defineRule`** (outside a transaction) with a structured error.
 - **Cyclic negation refused at `defineRule` inside an open transaction** at the call that introduced the cycle, not deferred to commit; the rest of the transaction remains usable; subsequent `rollback` discards buffered mutations cleanly.
 - **Malformed rules rejected** at `defineRule` (head not a positive atom; body atoms with wrong shape).
+- **Unsafe rules rejected** at `defineRule` (head variable not bound by any non-negated body atom; carries `{ code: 'UNSAFE_RULE', ruleId, unboundVars }`). (See ADR-0016.)
 - **Duplicate `ruleId` rejected** at `defineRule` with a structured error.
 - **Type errors caught** at `assertFact` when arguments are non-constants.
 - **Nested `begin` refused** while a transaction is open.
 - **Operations on a stale transaction handle**: `commit`/`rollback` on a handle that has already been committed or rolled back raises a structured error.
-- **Malformed serialized input rejected** at `loadFrom` with a structured error and no partial-load side effects.
+- **Malformed serialized input rejected** at `loadFrom` with a structured error and no partial-load side effects. **Mid-replay failures** (a malformed fact triggering `TYPE_ERROR`; a malformed/cyclic/duplicate/unsafe rule triggering its respective error) likewise produce no partial-load side effects — the engine state is restored via the snapshot/restore wrap. (See ADR-0018.)
 - **Programs exceeding memory budget**: do not silently corrupt state; raise a documented error or refuse the program at definition time.
 
 ---
