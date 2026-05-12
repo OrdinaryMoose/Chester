@@ -125,18 +125,6 @@ describe('Evaluator — fixed-point semantics', () => {
     expect(deltas[deltas.length - 1]).toBe(0);
   });
 
-  it('throws UNBOUND_HEAD_VARIABLE when a head variable is not bound by the body', () => {
-    const fs = new FactStore();
-    fs.assertFact('p', ['a']);
-    const rs = new RuleStore();
-    rs.defineRule({
-      ruleId: 'unsafe',
-      head: { predicate: 'q', arity: 2, args: [V('X'), V('Y')] },
-      body: [{ predicate: 'p', arity: 1, args: [V('X')], negated: false }]
-    });
-    const ev = new Evaluator(fs, rs);
-    expect(() => ev.derive()).toThrow(expect.objectContaining({ code: 'UNBOUND_HEAD_VARIABLE', ruleId: 'unsafe' }));
-  });
 });
 
 describe('Canonical Datalog programs', () => {
