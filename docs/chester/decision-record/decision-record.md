@@ -1225,3 +1225,112 @@ supersedes: null
 artifact_refs:
   - working/20260511-01-mp-redesign-proof-system/sprint-01-proof-backend/plan/sprint-01-proof-backend-deferred-00.md
 ---
+
+---
+id: dr-20260512-09-voice-authority-centralization-for-overlays
+date: 2026-05-12
+sprint: 20260512-01-add-interview-instructions
+stage: design-specify
+title: Voice-authority centralization as the canonical home for cross-skill interview overlays
+decision: Capabilities that shape how interview-style skills present information packets (verbosity, formatting, voice flavor) are written once in the shared voice authority (`util-design-partner-role`) and imported by every interview skill, rather than duplicated per skill or assembled from a per-skill registry.
+rationale: Two interview skills (`design-large-task`, `design-small-task`) already share voice rules via the same authority, so cross-cutting style behavior has a single natural home; adding the info-packet style overlay there means future interview skills inherit the capability by importing the existing authority rather than by re-declaring the rule. The competing architect dispatch surfaced the alternative (per-skill duplication or a thin overlay registry) and the hybrid recommendation chose maximum centralization. Future cross-skill voice or presentation rules (multi-voice selection, project-level overrides, third-interview-skill cases) should extend the same authority section rather than fork the rule.
+alternatives:
+  - Duplicate the overlay logic inside each interview skill's first-turn framing block — rejected because two call sites already share byte-identical handshake prose; a third skill would triple-paste, and rule drift across skills becomes a maintenance hazard.
+  - Build a thin overlay registry that interview skills consult at runtime — rejected as over-engineered for two consumers; the voice authority is already the consultation point, so a registry would be a redundant layer.
+tags: [architecture, skill, convention]
+supersedes: null
+artifact_refs:
+  - working/20260512-01-add-interview-instructions/design/add-interview-instructions-design-00.md
+  - working/20260512-01-add-interview-instructions/spec/add-interview-instructions-spec-01.md
+---
+
+---
+id: dr-20260512-10-replace-semantics-for-instruction-directives
+date: 2026-05-12
+sprint: 20260512-01-add-interview-instructions
+stage: design-specify
+title: Replace semantics (not accumulate-stack) for in-session instruction directives
+decision: Each `instruction` directive issued mid-interview produces a single new full active style that wholly replaces the prior style; there is no accumulation stack, no diff merge, and no per-directive history.
+rationale: Replace semantics keeps the active style at all times a single, readable, fully-specified value the designer can audit at any moment via the full-readout acknowledgment — the designer always knows what voice/format/verbosity is live without mentally composing a stack of N successive directives. The competing architect on merge semantics explored accumulate-stack and the hybrid chose replace; the cost is that "undo" requires reissuing the prior style verbatim, but that cost falls on the rare correction case and not on the steady-state every-directive case. Future directive-protocol extensions (other interview-style overlays, project-level rules, scoped overrides) should adopt the same replace semantics unless an explicit accumulation use case justifies the audit cost.
+alternatives:
+  - Accumulate-stack semantics where each directive layers onto the previous style with explicit pop/clear directives — rejected because the active style becomes a virtual composition of N entries; the designer cannot audit the live voice without mentally replaying the stack, and full-readout acknowledgment grows in size with every directive.
+  - Per-axis merge semantics where each directive updates only the named axes and leaves others — rejected because the directive grammar would need to parse axes and the designer would lose the simple "say the new style, that's the new style" mental model.
+tags: [convention, architecture, governance]
+supersedes: null
+artifact_refs:
+  - working/20260512-01-add-interview-instructions/design/add-interview-instructions-design-00.md
+  - working/20260512-01-add-interview-instructions/spec/add-interview-instructions-spec-01.md
+---
+
+---
+id: dr-20260512-11-bootstrap-extension-pattern-for-user-settings
+date: 2026-05-12
+sprint: 20260512-01-add-interview-instructions
+stage: plan-build
+title: Bootstrap-extension pattern for new Chester user settings
+decision: A new Chester user-level setting reaches skill code through four mechanical pieces in fixed positions — (1) a factory-default constant and a user-config read branch added to `chester-util-config/chester-config-read.sh`, (2) a `printf %q` `eval`-safe export from that script, (3) a `start-bootstrap` `What It Returns` bullet documenting the env var, and (4) a dedicated helper script in `chester-util-config/` plus a self-resolving wrapper in `bin/` whenever the setting needs a programmatic write path.
+rationale: This sprint added `info_packet_style` and `CHESTER_INFO_PACKET_STYLE` via exactly this pattern — extending the existing `chester-config-read.sh` rather than introducing a new resolver, exporting via `printf %q` for `eval` consumption rather than building a structured channel, and adding `chester-style-write.sh` + `bin/chester-style-write` for the persistence path rather than embedding write logic in skill prose. The pattern reuses the project-scoped config resolution that `chester-util-config/` already centralizes and keeps the bin-wrapper convention (self-resolving, forwards `"$@"`) consistent. Future settings additions should follow the same four-piece template rather than introducing parallel resolvers, ad-hoc env-var emit points, or skill-local write logic.
+alternatives:
+  - Introduce a new per-setting resolver script instead of extending `chester-config-read.sh` — rejected because every skill already sources the single resolver via `eval "$(chester-config-read)"`; a parallel script would multiply load points and obscure which settings exist.
+  - Embed the persistence write directly in voice-authority skill prose (`jq` invocation in markdown) — rejected because skill prose is interpreted by an agent at runtime; shelling to a dedicated helper isolates atomicity (`mktemp` + `mv`) and `jq --arg` quoting in tested code rather than in prose.
+  - Use a structured (JSON) channel between resolver and skills instead of env vars — rejected as inconsistent with existing skill consumption (`eval "$(chester-config-read)"`); env vars round-trip through bash safely once `printf %q` quoting is used.
+tags: [architecture, convention, tool]
+supersedes: null
+artifact_refs:
+  - working/20260512-01-add-interview-instructions/spec/add-interview-instructions-spec-01.md
+  - working/20260512-01-add-interview-instructions/plan/add-interview-instructions-plan-00.md
+---
+
+---
+id: dr-20260512-12-printf-q-idiom-for-eval-bound-exports
+date: 2026-05-12
+sprint: 20260512-01-add-interview-instructions
+stage: plan-build
+title: printf %q quoting for user-provided values in eval-consumed exports
+decision: User-provided string values emitted from `chester-config-read.sh` (or any future eval-consumed config resolver) are exported via `printf %q` quoting — e.g. `printf 'export CHESTER_INFO_PACKET_STYLE=%q\n' "$value"` — rather than bare interpolation, single-quote wrapping, or printf `%s` with manual escaping, and the asymmetry against existing bare-string exports is documented inline with a comment naming why.
+rationale: User-provided settings can contain shell-special characters (quotes, backticks, `$`, `;`, newlines) that would break `eval` consumption with bare or hand-quoted emit; `printf %q` is the bash-builtin canonical answer that produces an `eval`-safe representation for any input. This sprint introduced the idiom inline next to other bare-export lines in `chester-config-read.sh`, so the cohabitation of two emit styles needed a justifying comment to keep future readers from "normalizing" the asymmetry. Future Chester settings whose values originate outside the resolver script (user JSON, env, project config) should use the same idiom and the same inline-comment discipline at the call site.
+alternatives:
+  - Bare interpolation `export FOO="$value"` — rejected because values containing `"` or `$` corrupt the export; AC-1.4 of this sprint explicitly tested shell-special survival.
+  - Manual `sed`/`tr` escaping into a printf `%s` template — rejected as fragile (escape coverage is the writer's burden) and slower than the builtin `%q`.
+  - Constrain settings to a closed character set so bare interpolation is safe — rejected because the `info_packet_style` value is free-form prose, and constraining it would compromise the feature.
+tags: [convention, tool]
+supersedes: null
+artifact_refs:
+  - working/20260512-01-add-interview-instructions/plan/add-interview-instructions-plan-00.md
+---
+
+---
+id: dr-20260512-13-memory-and-overlay-as-independent-layers
+date: 2026-05-12
+sprint: 20260512-01-add-interview-instructions
+stage: design-specify
+title: Auto-memory and info-packet style overlay remain independent composition layers
+decision: Claude Code's auto-memory entries and the info-packet style overlay are treated as two independent layers — auto-memory continues to fire as the harness emits it, the overlay's active style wins for the duration of the session on any axis they conflict, and no merger reads memory entries to seed the overlay (or vice versa).
+rationale: Auto-memory and the overlay are produced by different mechanisms at different cadences (memory is harness-emitted across sessions; overlay is session-scoped and designer-driven), and modeling them as a single composed value would force the agent to reconcile cross-axis conflicts at every information packet. Keeping them independent with a deterministic "overlay wins this session" rule lets the designer override memory entries without modifying memory and lets memory continue to inform default behavior when no overlay is active. Future cross-layer composition decisions (project-level overrides, multi-voice selection, scoped style modes) should be evaluated against this two-layer model rather than collapsing back into a merged authority.
+alternatives:
+  - Deep-merge auto-memory entries into the active overlay style at session start — rejected because memory axes and overlay axes are not coterminous; a merge would require axis mapping logic and would surface as silently-mutating overlay readouts.
+  - Have the overlay seed itself from auto-memory entries that look style-ish — rejected as fragile classification (which memory entries are style-ish?) and as conflating two distinct authoring channels.
+tags: [architecture, convention]
+supersedes: null
+artifact_refs:
+  - working/20260512-01-add-interview-instructions/design/add-interview-instructions-design-00.md
+  - working/20260512-01-add-interview-instructions/spec/add-interview-instructions-spec-01.md
+---
+
+---
+id: dr-20260512-14-substring-match-recognition-for-special-directive-forms
+date: 2026-05-12
+sprint: 20260512-01-add-interview-instructions
+stage: design-specify
+title: Substring-match recognition (not structured parsing) for instruction(save) and future special forms
+decision: The voice-authority section recognizes the persistence directive by the substring `instruction(save)` appearing in the designer's message rather than by structured grammar parsing; the rest of the directive is treated as free-form prose for the agent to synthesize into the new style.
+rationale: Substring recognition matches the rest of the directive protocol, which is intentionally free-form ("say the new style, that's the new style") — adding a parser for one special form would create asymmetric machinery for one branch and invite users to expect parser-like behavior elsewhere. The convention also keeps the recognition rule entirely in voice-authority prose (no code), so adding a second special form is one section edit, not a grammar revision. Future special forms in this directive family (e.g. `instruction(reset)`, `instruction(memory-write)`) should follow the same substring-trigger convention with a one-line addition to the voice-authority recognition list, not by promoting the protocol to a structured grammar.
+alternatives:
+  - Define a structured directive grammar with explicit lex/parse steps — rejected as inconsistent with the rest of the free-form directive protocol and as overkill for a recognition rule that the agent interprets at runtime anyway.
+  - Use a unique sentinel token (e.g. a magic emoji or rare unicode) for save semantics — rejected because the substring `instruction(save)` is already self-describing and discoverable by readers of the voice-authority section without a sentinel legend.
+tags: [convention, mcp, governance]
+supersedes: null
+artifact_refs:
+  - working/20260512-01-add-interview-instructions/design/add-interview-instructions-design-00.md
+  - working/20260512-01-add-interview-instructions/spec/add-interview-instructions-spec-01.md
+---
