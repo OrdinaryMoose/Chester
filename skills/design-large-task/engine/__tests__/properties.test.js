@@ -43,10 +43,10 @@ describe('Cross-cutting properties', () => {
     const count = e.count(['ancestor', [V('X'), V('Y')]]);
     const elapsed = Date.now() - start;
     expect(count).toBe(100 * 101 / 2); // n*(n+1)/2 = 5050
-    // 15s bound while matchBodyAtom does an O(IDB-size) linear scan per body atom
-    // per iteration (yielding O(N^3) on an N-element chain). Tightening this bound
-    // requires the per-predicate IDB index proposed for Task 15 — see D5 in
-    // plan/sprint-01-proof-backend-deferred-00.md.
+    // 15s bound while the Evaluator's IDB lacks a per-position index. The recursive
+    // ancestor(Z, Y) join scans the full IDB filtered only by predicate, yielding
+    // O(N^3) on an N-element chain. Closure of D5 (per-position IDB index) is
+    // expected to drop this well under 1s. See plan/sprint-01-proof-backend-deferred-00.md.
     expect(elapsed).toBeLessThan(15000);
   });
 });
