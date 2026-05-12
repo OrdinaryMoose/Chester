@@ -18,6 +18,7 @@ export class Engine {
     this._rules = new RuleStore();
     this._derived = new Map();
     this._isDerived = false;
+    this._tx = null;
   }
 
   _markDirty() { this._isDerived = false; }
@@ -85,5 +86,35 @@ export class Engine {
     this._rules = new RuleStore();
     this._derived = new Map();
     this._isDerived = false;
+  }
+
+  // §4.5 transactions (snapshot-rollback strategy; mutations apply live, snapshot
+  // taken at begin() is restored on rollback or discarded on commit).
+  _assertNoTx() { if (this._tx) throw { code: 'NESTED_TRANSACTION', message: 'transaction already open' }; }
+  _assertHandleValid(h) {
+    if (!this._tx || this._tx.handle !== h) {
+      throw { code: 'STALE_HANDLE', message: 'handle does not match active transaction' };
+    }
+  }
+
+  begin() {
+    this._assertNoTx();
+    const h = Symbol('tx');
+    this._tx = { handle: h, preSnapshot: this.snapshot() };
+    return h;
+  }
+
+  commit(handle) {
+    this._assertHandleValid(handle);
+    this._tx = null;
+    return true;
+  }
+
+  rollback(handle) {
+    this._assertHandleValid(handle);
+    const snap = this._tx.preSnapshot;
+    this._tx = null;
+    this.restore(snap);
+    return true;
   }
 }
