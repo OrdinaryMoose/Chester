@@ -80,4 +80,19 @@ export class RuleStore {
     }
     return out;
   }
+
+  _snapshot() {
+    return { rules: Array.from(this._rules.entries()) };
+  }
+
+  _restore(token) {
+    this._rules = new Map(token.rules);
+    this._byHead = new Map();
+    for (const [ruleId, rule] of this._rules.entries()) {
+      const hk = `${rule.head.predicate}/${rule.head.arity}`;
+      if (!this._byHead.has(hk)) this._byHead.set(hk, new Set());
+      this._byHead.get(hk).add(ruleId);
+    }
+    this._strata = stratify(Array.from(this._rules.values()));
+  }
 }

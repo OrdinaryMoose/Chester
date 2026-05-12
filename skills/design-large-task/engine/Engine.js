@@ -9,6 +9,7 @@ import { Evaluator } from './Evaluator.js';
 import { unify } from './Unifier.js';
 import { factKey } from './utils.js';
 import { explainFact } from './Explain.js';
+import { captureSnapshot, restoreSnapshot } from './Snapshot.js';
 
 export class Engine {
   constructor() {
@@ -73,4 +74,13 @@ export class Engine {
   query(pattern) { this._ensureDerived(); return this._matchAllAgainstPattern(pattern); }
   count(pattern) { return this.query(pattern).length; }
   exists(pattern) { return this.count(pattern) > 0; }
+
+  snapshot() { return captureSnapshot(this); }
+  restore(token) { restoreSnapshot(this, token); }
+  clear() {
+    this._facts = new FactStore();
+    this._rules = new RuleStore();
+    this._derived = new Map();
+    this._isDerived = false;
+  }
 }

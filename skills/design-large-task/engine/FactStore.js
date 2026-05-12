@@ -97,4 +97,30 @@ export class FactStore {
     const rel = this._facts.get(pk);
     return Array.from(bucket, (fk) => rel.get(fk));
   }
+
+  _snapshot() {
+    // Return plain JSON-serializable form. structuredClone handles Maps/Sets too.
+    return {
+      facts: Array.from(this._facts.entries()).map(([k, m]) => [k, Array.from(m.entries())])
+    };
+  }
+
+  _restore(token) {
+    this._facts = new Map();
+    this._positionalIndex = new Map();
+    for (const [pk, entries] of token.facts) {
+      const rel = new Map(entries);
+      this._facts.set(pk, rel);
+      const arity = entries.length > 0 ? entries[0][1].length : 0;
+      const indexes = Array.from({ length: arity }, () => new Map());
+      for (const [fk, args] of entries) {
+        for (let i = 0; i < args.length; i++) {
+          let bucket = indexes[i].get(args[i]);
+          if (!bucket) { bucket = new Set(); indexes[i].set(args[i], bucket); }
+          bucket.add(fk);
+        }
+      }
+      this._positionalIndex.set(pk, indexes);
+    }
+  }
 }
