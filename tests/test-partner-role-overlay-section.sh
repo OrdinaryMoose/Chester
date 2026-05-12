@@ -12,9 +12,12 @@ FAIL=0
 grep -q '^## Info-Packet Style Overlay$' "$SKILL" || {
   echo "FAIL: Info-Packet Style Overlay section heading missing" >&2; FAIL=1; }
 
-# Five contract pieces named in the new section (case-insensitive substring).
-for needle in 'verbosity ladder' 'composition' 'memory' 'directive protocol' 'handshake'; do
-  grep -qi "$needle" "$SKILL" || { echo "FAIL: section missing '$needle' coverage" >&2; FAIL=1; }
+# Five contract pieces named as subsection headings in the new section. Pin to
+# the H3 heading syntax so the check fails if the subsection is removed, even
+# when the bare word appears elsewhere in the file (e.g., the pre-existing
+# "Composition Note" H2 and "Composition with Translation Gate" inline bold).
+for heading in '### Verbosity Ladder' '### Composition Rule' '### Memory Independence' '### Directive Protocol' '### First-Turn Handshake'; do
+  grep -qF "$heading" "$SKILL" || { echo "FAIL: section missing '$heading' subsection" >&2; FAIL=1; }
 done
 
 # Factory-default-by-reference (no restatement of the literal string).
@@ -29,6 +32,9 @@ fi
 grep -q '^version: v0002$' "$SKILL" || { echo "FAIL: version not v0002" >&2; FAIL=1; }
 
 # skill-index entry mentions the overlay so the description stays in sync.
-grep -q 'overlay' "$INDEX" || { echo "FAIL: skill-index entry not updated to mention overlay" >&2; FAIL=1; }
+# Pin to the specific phrase used in the SKILL.md description, not just "overlay" —
+# that catches description-drift between the two locations.
+grep -q 'info-packet style overlay' "$INDEX" || {
+  echo "FAIL: skill-index entry missing 'info-packet style overlay' mention" >&2; FAIL=1; }
 
 [ $FAIL -eq 0 ] && echo "PASS test-partner-role-overlay-section" || exit 1
