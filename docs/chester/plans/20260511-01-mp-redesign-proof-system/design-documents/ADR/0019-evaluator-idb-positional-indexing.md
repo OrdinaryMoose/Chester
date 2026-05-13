@@ -3,7 +3,7 @@ status: Accepted
 date: 2026-05-13
 deciders: [M]
 related_docs: [04-engine-spec]
-related_adrs: [0002]
+related_adrs: [0002, 0016, 0017]
 ---
 
 # ADR-0019: Evaluator IDB Positional Indexing (with Delta-Driven Join)
