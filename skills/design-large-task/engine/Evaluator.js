@@ -75,46 +75,59 @@ export function candidatesFor(atom, currentBindings, factStore, idbIndex, deltaF
     return out;
   }
 
-  // Step 3: bound positions exist. Compute per-position fact-key unions (base ∪ derived).
+  // Step 3: bound positions exist. Compute per-position fact-key candidate sets,
+  // keeping base and derived buckets SEPARATE (no copy of either bucket — derived's
+  // bucket is the live Set inside DerivedPositionalIndex; we treat it read-only).
   const baseArgsByKey = new Map();
-  const perPositionUnions = boundPositions.map(({ position, value }) => {
+  const positions = boundPositions.map(({ position, value }) => {
     const baseFacts = factStore.factsMatching(predicate, arity, position, value);
     for (const bArgs of baseFacts) baseArgsByKey.set(factKey(predicate, bArgs), bArgs);
     const baseKeys = new Set(baseFacts.map(bArgs => factKey(predicate, bArgs)));
     const derivedKeys = idbIndex.bucketFor(predicate, arity, position, value);
-    const union = new Set(baseKeys);
-    for (const k of derivedKeys) union.add(k);
-    return union;
+    return { baseKeys, derivedKeys, totalSize: baseKeys.size + derivedKeys.size };
   });
 
-  // Step 4: smallest-set-driver — pick smallest union as iteration driver.
-  let driverIdx = 0;
-  for (let i = 1; i < perPositionUnions.length; i++) {
-    if (perPositionUnions[i].size < perPositionUnions[driverIdx].size) driverIdx = i;
+  // Step 4: pick the smallest driver across position unions AND deltaFilter.
+  // The delta-set is often dramatically smaller than any position bucket on later
+  // semi-naive iterations (it's the new facts derived in the previous pass), so
+  // including it in the smallest-set selection is the key asymptotic optimization
+  // for recursive transitive-closure workloads (avoids O(N) bucket-copy per call).
+  let driverPosIdx = 0;
+  for (let i = 1; i < positions.length; i++) {
+    if (positions[i].totalSize < positions[driverPosIdx].totalSize) driverPosIdx = i;
   }
-  const driverKeys = new Set(perPositionUnions[driverIdx]);
+  const driverPos = positions[driverPosIdx];
+  const deltaSize = deltaFilter !== null ? deltaFilter.size : Infinity;
+  const driveDelta = deltaSize < driverPos.totalSize;
 
-  // Step 5: intersect driver with other positions' unions.
-  for (let i = 0; i < perPositionUnions.length; i++) {
-    if (i === driverIdx) continue;
-    for (const k of [...driverKeys]) {
-      if (!perPositionUnions[i].has(k)) driverKeys.delete(k);
-    }
-  }
+  // Step 5: iterate the chosen driver and check membership in the other filters.
+  // No Set is copied; intersection is done by per-key membership tests.
+  const inPosition = (pos, fk) => pos.baseKeys.has(fk) || pos.derivedKeys.has(fk);
 
-  // Step 6: intersect with delta when present.
-  if (deltaFilter !== null) {
-    for (const k of [...driverKeys]) {
-      if (!deltaFilter.has(k)) driverKeys.delete(k);
-    }
-  }
-
-  // Step 7: materialize args for each surviving key.
   const out = [];
-  for (const k of driverKeys) {
-    const derivedEntry = derivedMap.get(k);
-    const fArgs = baseArgsByKey.get(k) || (derivedEntry && derivedEntry.args);
-    if (fArgs) out.push({ args: fArgs, fk: k });
+  if (driveDelta) {
+    // Drive off delta (smaller). For each delta entry, check membership in all positions.
+    for (const [fk, fArgs] of deltaFilter) {
+      let ok = true;
+      for (const pos of positions) {
+        if (!inPosition(pos, fk)) { ok = false; break; }
+      }
+      if (ok) out.push({ args: fArgs, fk });
+    }
+  } else {
+    // Drive off the smallest position bucket. Check other positions and delta.
+    const visit = (fk) => {
+      for (let i = 0; i < positions.length; i++) {
+        if (i === driverPosIdx) continue;
+        if (!inPosition(positions[i], fk)) return;
+      }
+      if (deltaFilter !== null && !deltaFilter.has(fk)) return;
+      const derivedEntry = derivedMap.get(fk);
+      const fArgs = baseArgsByKey.get(fk) || (derivedEntry && derivedEntry.args);
+      if (fArgs) out.push({ args: fArgs, fk });
+    };
+    for (const fk of driverPos.baseKeys) visit(fk);
+    for (const fk of driverPos.derivedKeys) visit(fk);
   }
   return out;
 }
