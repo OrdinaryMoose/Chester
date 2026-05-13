@@ -49,7 +49,7 @@ Three tiers govern the response:
 - **MATCH only** — every file is identical on both sides. The skill proceeds silently to `cp -r` with the existing single-line commit message.
 - **PLANS_ONLY only** — sub-sprint added cascade files (e.g. new ADRs) absent from working/. The skill auto-syncs each `PLANS_ONLY` file from worktree-plans/ to working/ (so future sub-sprint worktrees see them) and appends `Cascade sync: PLANS_ONLY auto-synced: <file-list>` to the commit body.
 - **CONFLICT or WORKING_ONLY present** — content disagreement or sub-sprint-side deletion. The skill halts and surfaces a manifest listing every diverging file with both hashes (for CONFLICT) or the relative path (for WORKING_ONLY). The operator types one of:
-  - `accept-plans` — worktree-plans/ wins; working/ is reconciled to match before the copy. Commit body: `Cascade sync: accepted plans/ for: <file-list>`.
+  - `accept-plans` — worktree-plans/ wins; working/ is reconciled to match before the copy. CONFLICT files are overwritten in working/ with plans/'s content. WORKING_ONLY files are **deleted** from working/ — they are absent in plans/, so reconciliation produces a removal in the gitignored working/ tree (non-recoverable since working/ is outside git). Commit body: `Cascade sync: accepted plans/ for: <file-list>`.
   - `accept-working` — working/ wins; the subsequent `cp -r` overwrites worktree-plans/ with the (potentially pre-edit) working/ content. Commit body: `Cascade OVERWRITE: reverted plans/ to working/ state for: <file-list>`. The label announces destruction at the point of choice; there is no default.
   - `abort` — no files copied, no commit; operator handles manually.
 
