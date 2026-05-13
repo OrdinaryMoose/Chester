@@ -1334,3 +1334,73 @@ artifact_refs:
   - working/20260512-01-add-interview-instructions/design/add-interview-instructions-design-00.md
   - working/20260512-01-add-interview-instructions/spec/add-interview-instructions-spec-01.md
 ---
+
+---
+id: dr-20260513-01-idb-per-position-indexing-engine-spec-contract
+date: 2026-05-13
+sprint: 20260511-01-mp-redesign-proof-system/sprint-01-proof-backend-pass-3
+stage: design-small-task
+title: Per-position IDB indexing promoted to engine-spec §5.3 contract
+decision: The rule-firing engine carries per-position lookup tables on the derived-facts (IDB) side mirroring the existing base-facts positional index, and the engine specification's internal-data-structures section (§5.3) is amended from the implicit "same shape as the fact store" gesture into an explicit contract stating that the IDB side carries the same by-position lookup machinery with derive-local lifecycle.
+rationale: The full linear scan over derived facts per body atom produced O(N^3) cost on recursive transitive-closure workloads, leaving AC-11.2 (1000-element chain) skipped because it could not complete within any reasonable budget. Promoting the gesture into an enforced spec contract — rather than just landing the implementation — locks in the structural commitment so future engine changes (sprint-02 Domain workloads, future perf gates) cannot regress by accident, and gives ADR-0019 a normative anchor in the cascade. The contract is small (one section amendment plus a cross-reference) but binding: any future evaluator implementation must carry per-position IDB indexing or amend §5.3.
+alternatives:
+  - Land the implementation without amending §5.3, leaving the contract implicit — rejected because the implicit "same shape as the fact store" phrasing had already let the gap persist across two prior passes; the spec must encode the discipline, not gesture at it.
+  - Amend §3.1 (fixed-point evaluation) instead of §5.3 — rejected because §3.1 talks about meaning while §5.3 already addresses mechanics; placing the contract in §3.1 would break the spec's semantics-versus-mechanics separation.
+tags: [architecture, format]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-01-proof-backend-pass-3/design/sprint-01-proof-backend-pass-3-design-00.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-01-proof-backend-pass-3/spec/sprint-01-proof-backend-pass-3-spec-01.md
+---
+
+---
+id: dr-20260513-02-parallel-positional-index-implementations
+date: 2026-05-13
+sprint: 20260511-01-mp-redesign-proof-system/sprint-01-proof-backend-pass-3
+stage: design-small-task
+title: Parallel positional-index implementations on EDB and IDB sides, no shared helper
+decision: The engine ships two parallel positional-index implementations — `FactStore._positionalIndex` (durable, mutable, supports retract) on the EDB side and `DerivedPositionalIndex` (ephemeral, grow-only, derive-local) on the IDB side — rather than extracting a shared by-position-lookup helper, with consolidation deferred to the audit task channel.
+rationale: A shared helper would carry two responsibilities (durable mutable versus ephemeral grow-only), expose a `retract` method the derived side never uses (ISP violation), and risk a refused-bequest pattern if subclassed (LSP violation). On blast-radius grounds, extracting a shared component during pass-3 would expand the change into a stable cross-cutting module for non-functional reasons. ADR-0019 records Medium confidence on the long-term consolidation question, so the audit task channel — not a future structural pass — is the right venue for revisiting parallelism once both implementations have settled under real workloads.
+alternatives:
+  - Extract a shared by-position-lookup helper as part of pass-3 — rejected on SOLID grounds (two responsibilities, ISP and LSP violations) and blast-radius grounds (expands the change into stable-component territory for non-functional reasons).
+  - Refactor the base-facts store to match the new derived-side shape — rejected because it touches code outside pass-3's natural scope and contradicts the parallel-implementations call.
+tags: [architecture, convention]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-01-proof-backend-pass-3/design/sprint-01-proof-backend-pass-3-design-00.md
+---
+
+---
+id: dr-20260513-03-firerule-delta-driven-body-atom-reorder
+date: 2026-05-13
+sprint: 20260511-01-mp-redesign-proof-system/sprint-01-proof-backend-pass-3
+stage: execute-write
+title: fireRule reorders body-atom processing to drive off the delta-restricted atom
+decision: When a rule fires and the delta-restricted atom is not body[0] (i.e. `deltaAtomIndex > 0`), `Evaluator.fireRule` reorders body-atom processing to evaluate the delta atom first and propagate its bindings to the remaining atoms via positional lookup, rather than processing body atoms in source order; the delta `Set→Map` wrap is lifted from `matchBodyAtom` into `fireRule` so wrap cost is O(deltaSize) per atom rather than per binding.
+rationale: Tightening AC-11.2's budget to 5 seconds surfaced an asymptotic gap (O(N^3)) in the originally-planned indexing-only architecture that neither the spec nor the framing-00 doc had anticipated — per-position lookup alone could not meet the budget on recursive transitive closure when the delta atom sat at body[1] or later. Driving off the delta atom first drops the asymptote to O(N^2) on these shapes and lets AC-11.2 pass in ~2.6s. The decision is a load-bearing change to evaluation-order semantics: anyone reasoning about `fireRule` must now account for the reorder, which is why ADR-0019's Negative Consequences calls it out explicitly. The heuristic is uniform (always reorders when `deltaAtomIndex > 0`); sprint-02 may need to revisit if Domain-layer workloads exhibit shapes where source-order would be faster.
+alternatives:
+  - Keep source-order body-atom processing and rely solely on per-position indexing — rejected because per-position indexing alone left AC-11.2 at O(N^3) on recursive workloads, failing the 5-second budget.
+  - Make the reorder conditional on per-rule shape analysis — rejected because the uniform heuristic was sufficient for the test contract and the conditional version adds branch complexity without measured benefit; deferred to sprint-02 evidence.
+  - Skip AC-11.2 again under a deferred-item — rejected because the indexing work was itself the closure for OQ-1's deferred state; re-deferring would have left the architectural question open across another sprint.
+tags: [architecture]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-01-proof-backend-pass-3/summary/sprint-01-proof-backend-pass-3-summary-00.md
+---
+
+---
+id: dr-20260513-04-oq-1-closed-by-adr-0019
+date: 2026-05-13
+sprint: 20260511-01-mp-redesign-proof-system/sprint-01-proof-backend-pass-3
+stage: execute-write
+title: OQ-1 (Evaluator IDB indexing) closed and removed from engine-open-questions
+decision: The OQ-1 entry — the engine-tier open architectural question on IDB indexing — is removed from `engine-open-questions.md` (which now contains only the preamble), and ADR-0019 (`0019-evaluator-idb-positional-indexing.md`) explicitly supersedes it in the design-document cascade with its Decision section recording both the hybrid module + helper architecture and the fireRule delta-driven join.
+rationale: OQ-1 was the only remaining engine-tier open architectural question; closing it required three artifacts to move in sync — the open-questions document (entry removed), the spec (§5.3 amendment plus front-matter `related_adrs` refresh), and a new ADR (0019) carrying the reasoning and the Supersedes pointer. Future agents reading the cascade must find the closure encoded in the ADR rather than reconstructed from sprint summaries, because the open-questions document itself no longer carries the entry. Recording the closure as a decision record makes the supersession discoverable from the cross-sprint corpus without needing to traverse the cascade.
+alternatives:
+  - Leave OQ-1 in the open-questions document with a "closed by ADR-0019" annotation — rejected because the open-questions document is for open questions; keeping closed entries would dilute its signal and accumulate cruft across future closures.
+  - Land ADR-0019 without removing the OQ-1 entry, treating supersession as semantic only — rejected because the open-questions document would falsely advertise OQ-1 as live work.
+tags: [architecture, governance]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-01-proof-backend-pass-3/summary/sprint-01-proof-backend-pass-3-summary-00.md
+---
