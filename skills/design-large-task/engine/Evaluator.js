@@ -5,6 +5,7 @@
 
 import { unify } from './Unifier.js';
 import { factKey } from './utils.js';
+import { DerivedPositionalIndex } from './DerivedPositionalIndex.js';
 
 /**
  * candidatesFor — unified candidate-source helper for body-atom matching.
@@ -127,18 +128,29 @@ function substituteArgs(args, bindings) {
   });
 }
 
-function matchBodyAtom(atom, factStore, derived, currentBindings, deltaFilter) {
-  // Returns array of bindings that satisfy this body atom given currentBindings.
-  // If deltaFilter is a Set<factKey>, only matches whose underlying fact is in the delta count.
+function matchBodyAtom(atom, factStore, idbIndex, derivedMap, currentBindings, deltaFilter, onCandidates) {
   const arity = atom.arity;
 
-  if (atom.negated) {
-    // ADR-0017: unbound atom vars are existentially quantified
-    const baseFacts = factStore.allFacts(atom.predicate, arity);
-    const derivedFacts = [];
-    for (const f of derived.values()) {
-      if (f.predicate === atom.predicate && f.args.length === arity) derivedFacts.push(f);
+  // Wrap deltaFilter (Set<factKey>) into Map<factKey, args>, pre-filtered to atom's predicate/arity.
+  let deltaMap = null;
+  if (deltaFilter !== null) {
+    deltaMap = new Map();
+    for (const fk of deltaFilter) {
+      const fact = derivedMap.get(fk);
+      if (fact && fact.predicate === atom.predicate && fact.args.length === arity) {
+        deltaMap.set(fk, fact.args);
+      }
     }
+  }
+
+  const candidates = candidatesFor(atom, currentBindings, factStore, idbIndex, deltaMap, derivedMap);
+
+  if (onCandidates) onCandidates(candidates.length);
+
+  if (atom.negated) {
+    // ADR-0017: unbound atom vars are existentially quantified.
+    // candidatesFor returned the bound-position-narrowed candidate set (caller passed deltaMap = null
+    // for negation; see fireRule). isConsistent verifies consistency with currentBindings.
     const isConsistent = (factArgs) => {
       const fresh = unify(atom.args, factArgs);
       if (fresh === null) return false;
@@ -147,23 +159,12 @@ function matchBodyAtom(atom, factStore, derived, currentBindings, deltaFilter) {
       }
       return true;
     };
-    const hasMatch = baseFacts.some((args) => isConsistent(args)) || derivedFacts.some((f) => isConsistent(f.args));
+    const hasMatch = candidates.some(c => isConsistent(c.args));
     return hasMatch ? [] : [{ ...currentBindings }];
   }
 
   const out = [];
-  const baseFacts = factStore.allFacts(atom.predicate, arity);
-  const derivedFacts = [];
-  for (const f of derived.values()) {
-    if (f.predicate === atom.predicate && f.args.length === arity) derivedFacts.push(f);
-  }
-  const candidates = [
-    ...baseFacts.map(args => ({ args, fk: factKey(atom.predicate, args) })),
-    ...derivedFacts.map(f => ({ args: f.args, fk: factKey(f.predicate, f.args) }))
-  ];
-
   for (const c of candidates) {
-    if (deltaFilter && !deltaFilter.has(c.fk)) continue;
     const fresh = unify(atom.args, c.args);
     if (fresh === null) continue;
     const merged = { ...currentBindings };
@@ -182,6 +183,11 @@ export class Evaluator {
     this.factStore = factStore;
     this.ruleStore = ruleStore;
     this.iterationStats = []; // [{ stratum, iteration, deltaSize }] — populated each derive() call
+    this._candidateCountObserver = null;
+  }
+
+  setCandidateCountObserver(fn) {
+    this._candidateCountObserver = fn;
   }
 
   /**
@@ -199,6 +205,7 @@ export class Evaluator {
   derive() {
     this.iterationStats = [];
     const derived = new Map();
+    const idbIndex = new DerivedPositionalIndex();
     const strata = this.ruleStore.rulesByStratum();
     const stratumIds = Array.from(strata.keys()).sort((a, b) => a - b);
 
@@ -217,9 +224,12 @@ export class Evaluator {
           for (let i = 0; i < rule.body.length; i++) {
             const atom = rule.body[i];
             const filter = (deltaAtomIndex === i && !atom.negated) ? delta : null;
+            const onCandidates = this._candidateCountObserver
+              ? (count) => this._candidateCountObserver(rule.ruleId, i, count)
+              : null;
             const next = [];
             for (const b of bindingsList) {
-              next.push(...matchBodyAtom(atom, this.factStore, derived, b, filter));
+              next.push(...matchBodyAtom(atom, this.factStore, idbIndex, derived, b, filter, onCandidates));
             }
             bindingsList = next;
             if (bindingsList.length === 0) break;
@@ -233,6 +243,7 @@ export class Evaluator {
               args: headArgs,
               provenance: { ruleId: rule.ruleId, bindings: b }
             });
+            idbIndex.addFact(rule.head.predicate, headArgs);
             newDelta.add(fk);
           }
         };
