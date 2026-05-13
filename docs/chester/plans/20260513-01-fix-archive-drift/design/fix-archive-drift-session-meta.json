@@ -1,0 +1,10 @@
+{
+  "sprintName": "20260513-01-fix-archive-drift",
+  "branchName": "20260513-01-fix-archive-drift",
+  "sessionStartTimestamp": "2026-05-13T10:58:06Z",
+  "jsonlSessionId": null,
+  "skillVersion": {
+    "utilDesignPartnerRole": "58fda695b5197bf1ec8582ce0ea1ca6da41e1b94",
+    "designLargeTask": "70bf5379a85de90051b86135ae6485441c9647a4"
+  }
+}
