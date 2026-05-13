@@ -111,7 +111,8 @@ export function candidatesFor(atom, currentBindings, factStore, idbIndex, deltaF
   // Step 7: materialize args for each surviving key.
   const out = [];
   for (const k of driverKeys) {
-    const fArgs = baseArgsByKey.get(k) || (derivedMap.get(k) && derivedMap.get(k).args);
+    const derivedEntry = derivedMap.get(k);
+    const fArgs = baseArgsByKey.get(k) || (derivedEntry && derivedEntry.args);
     if (fArgs) out.push({ args: fArgs, fk: k });
   }
   return out;
