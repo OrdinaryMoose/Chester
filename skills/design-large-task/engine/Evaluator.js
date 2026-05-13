@@ -141,21 +141,11 @@ function substituteArgs(args, bindings) {
   });
 }
 
-function matchBodyAtom(atom, factStore, idbIndex, derivedMap, currentBindings, deltaFilter, onCandidates) {
-  const arity = atom.arity;
-
-  // Wrap deltaFilter (Set<factKey>) into Map<factKey, args>, pre-filtered to atom's predicate/arity.
-  let deltaMap = null;
-  if (deltaFilter !== null) {
-    deltaMap = new Map();
-    for (const fk of deltaFilter) {
-      const fact = derivedMap.get(fk);
-      if (fact && fact.predicate === atom.predicate && fact.args.length === arity) {
-        deltaMap.set(fk, fact.args);
-      }
-    }
-  }
-
+function matchBodyAtom(atom, factStore, idbIndex, derivedMap, currentBindings, deltaMap, onCandidates) {
+  // deltaMap is precomputed by fireRule (Map<factKey, args> pre-filtered to this atom's
+  // predicate/arity) or null. Lifting the wrap out of this per-binding function changes
+  // the wrap cost from O(N × deltaSize) to O(deltaSize) per fireRule iteration — the
+  // asymptotic difference between cubic and quadratic on recursive transitive closure.
   const candidates = candidatesFor(atom, currentBindings, factStore, idbIndex, deltaMap, derivedMap);
 
   if (onCandidates) onCandidates(candidates.length);
@@ -234,15 +224,43 @@ export class Evaluator {
 
         const fireRule = (rule, deltaAtomIndex) => {
           let bindingsList = [{}];
-          for (let i = 0; i < rule.body.length; i++) {
+
+          // Build processing order: the delta-restricted atom first (when there is one),
+          // then the remaining atoms in their declared order. This is delta-driven join —
+          // for recursive joins where the delta atom is not body[0], iterating delta and
+          // binding the earlier atoms via positional lookup drops the asymptotic cost
+          // from O(N^3) to O(N^2). For iteration 1 (deltaAtomIndex === -1) and for the
+          // case where deltaAtomIndex === 0, the order is the natural declared order.
+          const order = [];
+          if (deltaAtomIndex >= 0) order.push(deltaAtomIndex);
+          for (let j = 0; j < rule.body.length; j++) {
+            if (j !== deltaAtomIndex) order.push(j);
+          }
+
+          for (const i of order) {
             const atom = rule.body[i];
             const filter = (deltaAtomIndex === i && !atom.negated) ? delta : null;
+
+            // Wrap delta (Set<factKey>) into Map<factKey, args> ONCE per atom,
+            // pre-filtered to atom's predicate/arity. Lifted out of matchBodyAtom
+            // so the wrap cost is O(deltaSize) per atom, not per binding.
+            let deltaMap = null;
+            if (filter !== null) {
+              deltaMap = new Map();
+              for (const fk of filter) {
+                const fact = derived.get(fk);
+                if (fact && fact.predicate === atom.predicate && fact.args.length === atom.arity) {
+                  deltaMap.set(fk, fact.args);
+                }
+              }
+            }
+
             const onCandidates = this._candidateCountObserver
               ? (count) => this._candidateCountObserver(rule.ruleId, i, count)
               : null;
             const next = [];
             for (const b of bindingsList) {
-              next.push(...matchBodyAtom(atom, this.factStore, idbIndex, derived, b, filter, onCandidates));
+              next.push(...matchBodyAtom(atom, this.factStore, idbIndex, derived, b, deltaMap, onCandidates));
             }
             bindingsList = next;
             if (bindingsList.length === 0) break;
