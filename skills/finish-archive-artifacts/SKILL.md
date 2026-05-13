@@ -24,7 +24,7 @@ snapshot is stale relative to those edits, a naive `cp -r` from `working/` to
 before the copy runs and reconciles it with three explicit tiers.
 
 Outside Master Plan Mode (no `.active-master` breadcrumb), the gate is skipped and
-the skill behaves bitwise-identically to `v0002`: resolve paths, copy, verify, commit.
+the skill behaves bytewise-identically to `v0002`: resolve paths, copy, verify, commit.
 
 ## Step 1: Resolve Paths
 
@@ -92,8 +92,8 @@ no manifest entries and exits `0`. Proceed to Step 5 with no commit-body additio
 
 ## Step 4: Tiered Resolution (Master Plan Mode only)
 
-Branch on the manifest content. Initialize `COMMIT_TRAILER=""`; it stays empty on
-the MATCH fast path and is set otherwise.
+Branch on the manifest content. `COMMIT_TRAILER` was initialized to `""` in Step 1;
+it stays empty on the MATCH fast path and is overwritten by the other two tiers.
 
 **Tier MATCH** — `DIFF_EXIT=0` (manifest contains only `MATCH` lines or is empty).
 Proceed to Step 5. `COMMIT_TRAILER` stays empty.
