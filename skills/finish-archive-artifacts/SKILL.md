@@ -31,7 +31,12 @@ the skill behaves bitwise-identically to `v0002`: resolve paths, copy, verify, c
 ```bash
 eval "$(chester-config-read)"
 WORKTREE_ROOT="$(git rev-parse --show-toplevel)"
+COMMIT_TRAILER=""
 ```
+
+`COMMIT_TRAILER` is initialized unconditionally so Step 7's `[ -n "$COMMIT_TRAILER" ]`
+test is safe under `set -eu` in both modes. The Master-Mode tiers may overwrite it in
+Step 4; non-master mode leaves it empty.
 
 Determine the sprint subdirectory from context (most recent sprint directory under
 `{CHESTER_WORKING_DIR}/`, or from conversation).
