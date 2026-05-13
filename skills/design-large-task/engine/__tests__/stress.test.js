@@ -22,12 +22,7 @@ describe('Stress tests', () => {
     expect(queryMs).toBeLessThan(100);
   }, 30000);
 
-  // Skipped pending D5 closure (per-position IDB index in the Evaluator). On the
-  // current Evaluator, this hangs (~hours) because matchBodyAtom scans the entire
-  // IDB filtered only by predicate, producing O(N^3) total cost on an N-element
-  // chain. Unskip when the IDB has a per-position index mirroring FactStore's
-  // _positionalIndex; see plan/sprint-01-proof-backend-deferred-00.md (D5).
-  it.skip('AC-11.2: 1000-element transitive closure terminates with correct count', () => {
+  it('AC-11.2: 1000-element transitive closure terminates with correct count', () => {
     const e = new Engine();
     for (let i = 0; i < 1000; i++) e.assertFact('parent', [`n${i}`, `n${i + 1}`]);
     e.defineRule({
@@ -45,7 +40,7 @@ describe('Stress tests', () => {
     });
     const c = e.count(['ancestor', [V('X'), V('Y')]]);
     expect(c).toBe(1000 * 1001 / 2);
-  }, 60000);
+  }, 5000);
 
   it('AC-11.3: 100 rules with shared bodies', () => {
     const e = new Engine();
