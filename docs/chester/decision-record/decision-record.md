@@ -1404,3 +1404,41 @@ supersedes: null
 artifact_refs:
   - working/20260511-01-mp-redesign-proof-system/sprint-01-proof-backend-pass-3/summary/sprint-01-proof-backend-pass-3-summary-00.md
 ---
+
+---
+id: dr-20260513-05-hybrid-tiered-cascade-archive-gate
+date: 2026-05-13
+sprint: 20260513-01-fix-archive-drift
+stage: design-specify
+title: Hybrid tiered detection-and-reconcile at the archive boundary (preserves cascade history)
+decision: Master-Mode cascade-document drift is closed by a tiered pre-flight gate inside `finish-archive-artifacts` — cascade edits continue to land in the worktree's `plans/<master>/design-documents/` during sub-sprint execution (preserving per-commit history), and a divergence scan against `working/<master>/design-documents/` runs at archive time with three tiers (silent MATCH fast path, automatic working/ ← plans/ sync for PLANS_ONLY-only divergence, interactive halt with named operator choices for CONFLICT or WORKING_ONLY) — rather than routing cascade edits through gitignored working/ (Architect A) or always halting interactively (Architect B).
+rationale: Architect A (make working/ canonical, plan-build / execute-write resolve paths to working/) would have routed cascade edits through gitignored working/ and lost the per-commit cascade history that sprint-01-proof-backend-pass-3 produced (commits 270fb45, 4d48a8b, 11544fa) and that downstream audits already reference — disqualifying. Architect B (always halt with the full manifest) would have forced an operator prompt on the common PLANS_ONLY-only case (new ADR files), training the operator to rubber-stamp. The hybrid splits the cases: trust the common new-file path, halt only on genuine conflict, and keep the destructive choice (`accept-working`) explicitly named in the prompt and recorded in the commit body. Future cross-tree-divergence problems in the Chester pipeline (e.g. the living-document gap on `master-plan.md`) should evaluate their fix against this tiered-gate-at-the-boundary pattern before reaching for a path-rewrite or always-halt design.
+alternatives:
+  - Architect A — make working/<master>/ canonical for cascade docs, with plan-build / execute-write resolving paths to working/ — rejected because it routes cascade edits through gitignored working/ and destroys the per-commit cascade history that downstream audits depend on.
+  - Architect B — always halt interactively with the full manifest on any divergence — rejected because the common PLANS_ONLY-only case (new ADR files added during the sub-sprint) is unambiguous and forcing an operator prompt there trains rubber-stamping, weakening the halt's signal on actual conflicts.
+  - Do nothing and rely on convention — rejected because the silent-reversion hazard already fired at least once during pass-3 and the failure mode is non-recoverable (working/ is gitignored, lost work has no git trail).
+tags: [architecture, governance, worktree]
+supersedes: null
+artifact_refs:
+  - working/20260513-01-fix-archive-drift/spec/fix-archive-drift-spec-00.md
+  - working/20260513-01-fix-archive-drift/plan/fix-archive-drift-plan-00.md
+  - working/20260513-01-fix-archive-drift/summary/fix-archive-drift-summary-00.md
+---
+
+---
+id: dr-20260513-06-cascade-diff-conflict-line-relpath-last
+date: 2026-05-13
+sprint: 20260513-01-fix-archive-drift
+stage: plan-build
+title: cascade-diff manifest CONFLICT line places relpath last so embedded spaces survive parsing
+decision: `chester-cascade-diff` emits CONFLICT entries as `CONFLICT <working-hash> <plans-hash> <relpath>` with the relative path as the trailing field, and consumers parse via `read -r tag wh ph relpath <<< "$line"` (the final read variable absorbs the line remainder including any spaces); the tag-then-fixed-width-fields-then-trailing-relpath shape is normative for any future manifest emitter in this family.
+rationale: The first draft of the script placed `<relpath>` second (`CONFLICT <relpath> <wh> <ph>`), which silently truncated filenames at the first space when parsed with `awk '{print $2}'` — and 14 of 19 ADR files in the active master plan contain spaces in their names, so the truncation would have fired immediately on the gate's first real exercise. Plan-attack caught this as CRITICAL before any code shipped. The shape generalizes: any manifest line with a path field should put the path last and parse with `read` (not `awk` or array-indexing) so that path-with-spaces is the default-correct case, not a special case requiring quoting. Future Chester scripts emitting categorized file manifests (e.g. a future living-document-drift detector, a per-sprint integrity scanner) should follow the same convention.
+alternatives:
+  - Keep `<relpath>` in field-position 2 and require consumers to quote-and-shell-escape — rejected because the convention burden falls on every consumer and fails-silent when forgotten; embedded-space filenames are common enough in Chester cascade docs (14/19 ADRs) that the default-correct shape is the only safe choice.
+  - Use a non-space delimiter (tab, NUL, or `|`) between fields — rejected because the existing test infrastructure and the broader Chester tooling assume whitespace-separated line-oriented output; introducing a private delimiter would surprise grep/awk-based downstream consumers without solving the asymmetry that relpath-last already solves.
+tags: [convention, format]
+supersedes: null
+artifact_refs:
+  - working/20260513-01-fix-archive-drift/plan/fix-archive-drift-plan-00.md
+  - working/20260513-01-fix-archive-drift/plan/fix-archive-drift-plan-threat-report-00.md
+---
