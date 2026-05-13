@@ -23,7 +23,7 @@ describe('Cross-cutting properties', () => {
     expect(e.query(['p', [V('X')]])).toEqual([{ X: 'a' }]);
   });
 
-  it('termination: 100-element transitive closure terminates within bounded time', { timeout: 20000 }, () => {
+  it('termination: 100-element transitive closure terminates within bounded time', { timeout: 5000 }, () => {
     const e = new Engine();
     for (let i = 0; i < 100; i++) e.assertFact('parent', [`n${i}`, `n${i + 1}`]);
     e.defineRule({
@@ -43,10 +43,6 @@ describe('Cross-cutting properties', () => {
     const count = e.count(['ancestor', [V('X'), V('Y')]]);
     const elapsed = Date.now() - start;
     expect(count).toBe(100 * 101 / 2); // n*(n+1)/2 = 5050
-    // 15s bound while the Evaluator's IDB lacks a per-position index. The recursive
-    // ancestor(Z, Y) join scans the full IDB filtered only by predicate, yielding
-    // O(N^3) on an N-element chain. Closure of D5 (per-position IDB index) is
-    // expected to drop this well under 1s. See plan/sprint-01-proof-backend-deferred-00.md.
-    expect(elapsed).toBeLessThan(15000);
+    expect(elapsed).toBeLessThan(5000);
   });
 });

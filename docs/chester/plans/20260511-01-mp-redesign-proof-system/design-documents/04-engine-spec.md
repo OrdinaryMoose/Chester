@@ -2,7 +2,7 @@
 status: Draft
 last_reviewed: 2026-05-10
 related_docs: [03-architecture, 05-domain-spec]
-related_adrs: [0002, 0007, 0009, 0013, 0014]
+related_adrs: [0002, 0007, 0009, 0013, 0014, 0015, 0016, 0017, 0018, 0019]
 ---
 
 # Engine Specification
@@ -159,6 +159,7 @@ The specification names the structures conceptually; the implementation may opti
 
 ### 5.3 Derived set (IDB)
 - Same shape as fact store but for facts produced by rule firing
+- Carries per-position lookup tables of the same shape as §5.1's positional indexes; these are constructed within each `derive()` call, live for the duration of that call, and are never persisted across calls. (See ADR-0019.)
 - Cleared and rebuilt by each `derive()` call
 - Per-fact provenance tag (which rule + which body bindings produced this), used by `explain`
 

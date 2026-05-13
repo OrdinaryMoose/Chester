@@ -59,5 +59,5 @@ Introduction of universal quantification or complex negation patterns (e.g., neg
 - `04-engine-spec.md §2.1 Inclusions` — stratified negation entry (post-pass-2 amended text)
 - `04-engine-spec.md §9.1` — negation-with-retraction test obligation (post-pass-2 amended text)
 - Sprint-01 deferment doc: D3 entry at `docs/chester/plans/20260511-01-mp-redesign-proof-system/sprint-01-proof-backend/plan/sprint-01-proof-backend-deferred-00.md`
-- Code: `Evaluator.js:23-43` (the negation branch in `matchBodyAtom`)
+- Code: `Evaluator.js:153-167` (the negation branch in `matchBodyAtom`)
 - Related: ADR-0016 (canonical rule-safety check; the safety property that complements this semantic choice)
