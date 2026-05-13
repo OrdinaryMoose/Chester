@@ -33,7 +33,7 @@ When multiple skills could apply, use this order:
 ### Finish Skills (close out a sprint)
 
 - `finish-write-records` — Session summary, reasoning audit, cache analysis (also handles refactor summaries)
-- `finish-archive-artifacts` — Copy working dir artifacts to tracked plans dir and commit
+- `finish-archive-artifacts` — Copy working-dir artifacts to tracked plans dir and commit. Under Master Plan Mode, runs a tiered cascade-document divergence gate before the copy to prevent silent reversion of sub-sprint cascade edits.
 - `finish-close-worktree` — Branch integration (merge/PR/keep/discard) and worktree cleanup
 
 ### Review Skills (harden and validate)
