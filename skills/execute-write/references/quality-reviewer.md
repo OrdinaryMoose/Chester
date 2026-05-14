@@ -23,6 +23,7 @@ Task tool (chester:execute-write-quality-reviewer):
 - Are units decomposed so they can be understood and tested independently?
 - Is the implementation following the file structure from the plan?
 - Did this implementation create new files that are already large, or significantly grow existing files? (Don't flag pre-existing file sizes — focus on what this change contributed.)
+- If the diff touches a module that imports from another layer/package, does the test directory contain at least one test that imports the real upstream module (not a mock or fake under `__mocks__/` or `_fixtures/`) and exercises one operation through the consumer's entry point? Absence is **Critical** — silent integration failures are the bug class this check exists to prevent.
 
 **Confidence scoring:** The code reviewer scores every issue 0–100 for confidence and only reports issues scoring ≥ 80. This filters false positives and nitpicks — fewer high-confidence findings are more actionable than a long list of maybes. Each reported issue includes its confidence score alongside the severity level.
 

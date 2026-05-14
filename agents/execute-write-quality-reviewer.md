@@ -36,6 +36,7 @@ You receive:
 - Edge cases covered?
 - Integration tests where needed?
 - All tests passing?
+- **Cross-layer real-import check:** If the diff touches a module that imports from another layer/package, does the test directory contain at least one test that imports the real upstream module (not a mock or fake under `__mocks__/` or `_fixtures/`) and exercises one operation through the consumer's entry point? Absence is **Critical** — this is the cheapest defense against silent integration failures (e.g., the Engine↔Domain port-shape divergence of 2026-05-14).
 
 **Requirements:**
 - All plan requirements met (sanity check, primary check is spec-reviewer's)?

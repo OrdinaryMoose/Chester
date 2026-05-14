@@ -101,6 +101,7 @@ Task tool (general-purpose):
     - Do tests actually verify behavior (not just mock behavior)?
     - Did I follow TDD if required?
     - Are tests comprehensive?
+    - If my module imports from another layer/package, did I include at least one test that imports the real upstream module (no mocks or fakes) and exercises one operation through my module's entry point? Cross-layer wiring is the most common silent-integration-failure surface; the real-import test is the cheapest defense.
 
     **Commit integrity:**
     - Did I run `git status` after committing?
