@@ -1624,3 +1624,25 @@ artifact_refs:
   - working/20260511-01-mp-redesign-proof-system/sprint-02-proof-layer/plan/sprint-02-proof-layer-deferred-00.md
   - working/20260511-01-mp-redesign-proof-system/sprint-02-proof-layer/summary/sprint-02-proof-layer-summary-00.md
 ---
+
+---
+id: dr-20260514-06-cross-layer-real-import-test-compliance-check
+date: 2026-05-14
+sprint: 20260514-01-create-integration-smoke-probe
+stage: execute-write
+title: Cross-layer real-import test as compliance check in execute-write
+decision: Any module that imports from another layer or package must have at least one test in its test directory that imports the real upstream module (not a mock or fake under `__mocks__/` or `_fixtures/`) and exercises one operation through the consumer's entry point; the implementer self-review prompt and the quality-reviewer subagent both check for this, with absence flagged as Critical by quality review.
+rationale: The 2026-05-14 calculator stress test surfaced an Engine↔Domain port-shape divergence that shipped through sprint-02 undetected because every Domain test used an in-memory substrate fake authored alongside Domain itself — the test suite could only verify Domain matched what Domain expected, never what Engine actually exposed. Two layers were independently consistent and integration-broken. The cheapest defense is a single test per cross-layer-consuming module that imports the real upstream and runs one operation; that test would have crashed at the first dispatched task of sprint-02 with a clear shape-mismatch error. The two-prompt enforcement (implementer authors the test as part of TDD; quality-reviewer verifies presence and that the import path resolves to real source, not a mock) introduces no new dispatch slot, no new agent, no new spec section, and adds approximately one line to each of two existing prompt templates. The check defends one bug class — topology divergence at declared cross-layer seams — and does not claim general integration-test coverage; semantic bugs, render-purity violations, and undeclared-path bugs are still in scope for other defenses. Future cross-layer sub-sprints inherit this protection by default through the skill's prompt templates.
+alternatives:
+  - Add a dedicated probe gate slot in execute-write Section 2.1 between implementer and spec-reviewer — rejected because it adds a new dispatch step, new diagnostic surface, and new maintenance burden for marginal architectural separation; the two existing actors (implementer + quality-reviewer) already cover the concern within their existing mandates when given one prompt line each.
+  - Require a `## Seams` section in every spec with declared entry-point + minimum-viable-probe contract, propagated through plan-build as `seam:` task annotations — rejected because most of the elaborated ceremony defends against secondary failure modes (probe gaming, spec-time signature drift, plan-build mapping mismatches) that the minimum convention does not introduce because it does not add the surface area those modes exploit; the spec-section approach is ceremony tax for procedural floors a minimum two-line edit already establishes.
+  - Place the check in design-specify after spec write and before user review gate — rejected because at specify time the downstream consumer code does not exist on disk, so any probe can only inspect upstream shape in isolation (a signature check, not an integration check); the exact bug class that motivated this convention — topology divergence between consumer wiring and upstream surface — cannot manifest until consumer code is written, which only happens inside execute-write.
+  - Place the check inside spec compliance review only (not also in implementer self-review) — rejected because the implementer benefits from fast-feedback during their TDD loop and the quality-reviewer benefits from independent verification against the committed HEAD; placing the check in both gives cross-verification (implementer's working-tree run + reviewer's committed-state run) at the cost of one prompt line per actor.
+tags: [convention, testing, governance]
+supersedes: null
+artifact_refs:
+  - skills/execute-write/SKILL.md
+  - skills/execute-write/references/implementer.md
+  - skills/execute-write/references/quality-reviewer.md
+  - agents/execute-write-quality-reviewer.md
+---
