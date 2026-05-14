@@ -49,8 +49,12 @@ export function candidatesFor(atom, currentBindings, factStore, idbIndex, deltaF
       if (a.var in currentBindings) {
         boundPositions.push({ position: i, value: currentBindings[a.var] });
       }
-    } else {
-      boundPositions.push({ position: i, value: a }); // constant in pattern
+    } else if (a !== '_') {
+      // Wildcard '_' is match-anything (see Unifier.js:30) — it must NOT enter
+      // boundPositions, or the index lookup would demand the position equal the
+      // literal string '_' and zero candidates would be returned. Only real
+      // constants narrow the candidate set.
+      boundPositions.push({ position: i, value: a });
     }
   }
 
