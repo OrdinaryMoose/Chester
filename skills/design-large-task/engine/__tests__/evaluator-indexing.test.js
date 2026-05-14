@@ -4,7 +4,6 @@ import { Evaluator } from '../Evaluator.js';
 import { FactStore } from '../FactStore.js';
 import { RuleStore } from '../RuleStore.js';
 import { V } from '../Unifier.js';
-import { defineRuleObj } from './helpers/defineRuleObj.js';
 
 describe('Evaluator IDB indexing — named integration risks', () => {
 
@@ -38,11 +37,13 @@ describe('Evaluator IDB indexing — named integration risks', () => {
     factStore.assertFact('p', ['a']);
     factStore.assertFact('chain', ['a', 'b']);
     factStore.assertFact('chain', ['b', 'c']);
+    // RuleStore-level: object form intentional
     ruleStore.defineRule({
       ruleId: 'r1',
       head: { predicate: 'q', arity: 1, args: [V('X')] },
       body: [{ predicate: 'p', arity: 1, args: [V('X')], negated: false }]
     });
+    // RuleStore-level: object form intentional
     ruleStore.defineRule({
       ruleId: 'r3',
       head: { predicate: 'q', arity: 1, args: [V('Y')] },
@@ -51,6 +52,7 @@ describe('Evaluator IDB indexing — named integration risks', () => {
         { predicate: 'chain', arity: 2, args: [V('X'), V('Y')], negated: false }
       ]
     });
+    // RuleStore-level: object form intentional
     ruleStore.defineRule({
       ruleId: 'r2',
       head: { predicate: 's', arity: 1, args: [V('Z')] },
@@ -92,19 +94,16 @@ describe('Evaluator IDB indexing — named integration risks', () => {
     e.assertFact('node', ['a']);
     e.assertFact('node', ['c']);
     e.assertFact('parent', ['a', 'b']);
-    defineRuleObj(e, {
-      ruleId: 'anc',
-      head: { predicate: 'ancestor', arity: 2, args: [V('X'), V('Y')] },
-      body: [{ predicate: 'parent', arity: 2, args: [V('X'), V('Y')], negated: false }]
-    });
-    defineRuleObj(e, {
-      ruleId: 'leaf',
-      head: { predicate: 'leaf', arity: 1, args: [V('X')] },
-      body: [
-        { predicate: 'node', arity: 1, args: [V('X')], negated: false },
-        { predicate: 'ancestor', arity: 2, args: [V('X'), V('Y')], negated: true }
-      ]
-    });
+    e.defineRule('anc', ['ancestor', ['X', 'Y']], [['parent', ['X', 'Y']]], {});
+    e.defineRule(
+      'leaf',
+      ['leaf', ['X']],
+      [
+        ['node', ['X']],
+        ['not', ['ancestor', ['X', 'Y']]]
+      ],
+      {}
+    );
     e.derive();
     // a has an ancestor → leaf(a) NOT derived.
     expect(e.exists(['leaf', ['a']])).toBe(false);
@@ -119,11 +118,7 @@ describe('Evaluator IDB indexing — named integration risks', () => {
     e.assertFact('p', ['a', 'b']);
     e.assertFact('p', ['b', 'b']);
     e.assertFact('p', ['c', 'd']);
-    defineRuleObj(e, {
-      ruleId: 'r',
-      head: { predicate: 'same', arity: 1, args: [V('X')] },
-      body: [{ predicate: 'p', arity: 2, args: [V('X'), V('X')], negated: false }]
-    });
+    e.defineRule('r', ['same', ['X']], [['p', ['X', 'X']]], {});
     e.derive();
     expect(e.exists(['same', ['a']])).toBe(true);
     expect(e.exists(['same', ['b']])).toBe(true);

@@ -1,17 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { Engine } from '../Engine.js';
 import { V } from '../Unifier.js';
-import { defineRuleObj } from './helpers/defineRuleObj.js';
 
 describe('Engine lifecycle and serialization', () => {
   it('clear empties EDB and rule store', () => {
     const e = new Engine();
     e.assertFact('p', ['a']);
-    defineRuleObj(e, {
-      ruleId: 'r',
-      head: { predicate: 'q', arity: 1, args: [V('X')] },
-      body: [{ predicate: 'p', arity: 1, args: [V('X')], negated: false }]
-    });
+    e.defineRule('r', ['q', ['X']], [['p', ['X']]], {});
     e.clear();
     expect(e.factExists('p', ['a'])).toBe(false);
     expect(e.getRule('r')).toBeUndefined();
@@ -21,11 +16,7 @@ describe('Engine lifecycle and serialization', () => {
   it('serialize/loadFrom round-trip preserves observable state', () => {
     const e1 = new Engine();
     e1.assertFact('p', ['a']);
-    defineRuleObj(e1, {
-      ruleId: 'r',
-      head: { predicate: 'q', arity: 1, args: [V('X')] },
-      body: [{ predicate: 'p', arity: 1, args: [V('X')], negated: false }]
-    });
+    e1.defineRule('r', ['q', ['X']], [['p', ['X']]], {});
     const s = e1.serialize();
     const json = JSON.stringify(s);
     const reloaded = JSON.parse(json);
@@ -38,11 +29,7 @@ describe('Engine lifecycle and serialization', () => {
   it('serialize excludes derived facts (IDB recomputes on load)', () => {
     const e = new Engine();
     e.assertFact('p', ['a']);
-    defineRuleObj(e, {
-      ruleId: 'r',
-      head: { predicate: 'q', arity: 1, args: [V('X')] },
-      body: [{ predicate: 'p', arity: 1, args: [V('X')], negated: false }]
-    });
+    e.defineRule('r', ['q', ['X']], [['p', ['X']]], {});
     e.derive();
     const s = e.serialize();
     expect(s.idb).toBeUndefined();
@@ -73,11 +60,7 @@ describe('Engine lifecycle and serialization', () => {
   it('loadFrom is atomic on mid-replay failure — prior state preserved (AC-7.3)', () => {
     const e = new Engine();
     e.assertFact('p', ['a']);
-    defineRuleObj(e, {
-      ruleId: 'r',
-      head: { predicate: 'q', arity: 1, args: [V('X')] },
-      body: [{ predicate: 'p', arity: 1, args: [V('X')], negated: false }]
-    });
+    e.defineRule('r', ['q', ['X']], [['p', ['X']]], {});
     // Tampered payload that passes shallow schema validation but trips
     // a deeper engine constraint during replay: NaN trips FactStore TYPE_ERROR.
     const tampered = {

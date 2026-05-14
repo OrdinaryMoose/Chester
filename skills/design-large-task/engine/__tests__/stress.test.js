@@ -1,17 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { Engine } from '../Engine.js';
 import { V } from '../Unifier.js';
-import { defineRuleObj } from './helpers/defineRuleObj.js';
 
 describe('Stress tests', () => {
   it('AC-11.1: 10k facts with query workload completes within budget', () => {
     const e = new Engine();
     for (let i = 0; i < 10000; i++) e.assertFact('p', [`v${i}`, i % 100]);
-    defineRuleObj(e, {
-      ruleId: 'r',
-      head: { predicate: 'q', arity: 1, args: [V('X')] },
-      body: [{ predicate: 'p', arity: 2, args: [V('X'), V('K')], negated: false }]
-    });
+    e.defineRule('r', ['q', ['X']], [['p', ['X', 'K']]], {});
     const t0 = Date.now();
     e.derive();
     const deriveMs = Date.now() - t0;
@@ -26,19 +21,16 @@ describe('Stress tests', () => {
   it('AC-11.2: 1000-element transitive closure terminates with correct count', () => {
     const e = new Engine();
     for (let i = 0; i < 1000; i++) e.assertFact('parent', [`n${i}`, `n${i + 1}`]);
-    defineRuleObj(e, {
-      ruleId: 'anc1',
-      head: { predicate: 'ancestor', arity: 2, args: [V('X'), V('Y')] },
-      body: [{ predicate: 'parent', arity: 2, args: [V('X'), V('Y')], negated: false }]
-    });
-    defineRuleObj(e, {
-      ruleId: 'anc2',
-      head: { predicate: 'ancestor', arity: 2, args: [V('X'), V('Y')] },
-      body: [
-        { predicate: 'parent', arity: 2, args: [V('X'), V('Z')], negated: false },
-        { predicate: 'ancestor', arity: 2, args: [V('Z'), V('Y')], negated: false }
-      ]
-    });
+    e.defineRule('anc1', ['ancestor', ['X', 'Y']], [['parent', ['X', 'Y']]], {});
+    e.defineRule(
+      'anc2',
+      ['ancestor', ['X', 'Y']],
+      [
+        ['parent', ['X', 'Z']],
+        ['ancestor', ['Z', 'Y']]
+      ],
+      {}
+    );
     const c = e.count(['ancestor', [V('X'), V('Y')]]);
     expect(c).toBe(1000 * 1001 / 2);
   }, 5000);
@@ -48,14 +40,15 @@ describe('Stress tests', () => {
     e.assertFact('p', ['a']);
     e.assertFact('s', ['a']);
     for (let i = 0; i < 100; i++) {
-      defineRuleObj(e, {
-        ruleId: `r${i}`,
-        head: { predicate: `q${i}`, arity: 1, args: [V('X')] },
-        body: [
-          { predicate: 'p', arity: 1, args: [V('X')], negated: false },
-          { predicate: 's', arity: 1, args: [V('X')], negated: false }
-        ]
-      });
+      e.defineRule(
+        `r${i}`,
+        [`q${i}`, ['X']],
+        [
+          ['p', ['X']],
+          ['s', ['X']]
+        ],
+        {}
+      );
     }
     e.derive();
     // All q_i should derive

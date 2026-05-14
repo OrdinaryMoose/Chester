@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { Engine } from '../Engine.js';
 import { V } from '../Unifier.js';
-import { defineRuleObj } from './helpers/defineRuleObj.js';
 
 describe('Engine transactions', () => {
   it('begin/commit applies buffered mutations atomically', () => {
@@ -28,11 +27,7 @@ describe('Engine transactions', () => {
     const e = new Engine();
     e.assertFact('p', ['a']);
     const h = e.begin();
-    defineRuleObj(e, {
-      ruleId: 'r',
-      head: { predicate: 'q', arity: 1, args: [V('X')] },
-      body: [{ predicate: 'p', arity: 1, args: [V('X')], negated: false }]
-    });
+    e.defineRule('r', ['q', ['X']], [['p', ['X']]], {});
     expect(e.query(['q', [V('X')]])).toEqual([{ X: 'a' }]); // in-tx query sees buffered rule
     e.rollback(h);
     expect(e.getRule('r')).toBeUndefined(); // post-rollback rule is gone
@@ -70,22 +65,26 @@ describe('Engine transaction edge cases', () => {
   it('cyclic-negation rule inside tx is rejected at defineRule, tx remains usable', () => {
     const e = new Engine();
     const h = e.begin();
-    defineRuleObj(e, {
-      ruleId: 'r1',
-      head: { predicate: 'p', arity: 1, args: [V('X')] },
-      body: [
-        { predicate: 'base', arity: 1, args: [V('X')], negated: false },
-        { predicate: 'q', arity: 1, args: [V('X')], negated: true }
-      ]
-    });
-    expect(() => defineRuleObj(e, {
-      ruleId: 'r2',
-      head: { predicate: 'q', arity: 1, args: [V('X')] },
-      body: [
-        { predicate: 'base', arity: 1, args: [V('X')], negated: false },
-        { predicate: 'p', arity: 1, args: [V('X')], negated: true }
-      ]
-    })).toThrow(expect.objectContaining({ code: 'CYCLIC_NEGATION' }));
+    e.defineRule(
+      'r1',
+      ['p', ['X']],
+      [
+        ['base', ['X']],
+        ['not', ['q', ['X']]]
+      ],
+      {}
+    );
+    expect(() =>
+      e.defineRule(
+        'r2',
+        ['q', ['X']],
+        [
+          ['base', ['X']],
+          ['not', ['p', ['X']]]
+        ],
+        {}
+      )
+    ).toThrow(expect.objectContaining({ code: 'CYCLIC_NEGATION' }));
     expect(e.getRule('r1')).toBeDefined();
     expect(e.getRule('r2')).toBeUndefined();
     e.commit(h);
@@ -105,6 +104,7 @@ describe('Engine transaction edge cases', () => {
     const e = new Engine();
     e.assertFact('p', ['a']);
     const h = e.begin();
+    // version: 1 intentional — NESTED_TRANSACTION_OP_REFUSED fires before the Serializer version check
     expect(() => e.loadFrom({ version: 1, facts: [], rules: [] })).toThrow(
       expect.objectContaining({ code: 'NESTED_TRANSACTION_OP_REFUSED' })
     );

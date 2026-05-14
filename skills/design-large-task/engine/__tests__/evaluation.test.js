@@ -4,7 +4,6 @@ import { RuleStore } from '../RuleStore.js';
 import { Evaluator } from '../Evaluator.js';
 import { Engine } from '../Engine.js';
 import { V } from '../Unifier.js';
-import { defineRuleObj } from './helpers/defineRuleObj.js';
 
 describe('Evaluator — fixed-point semantics', () => {
   it('computes transitive closure correctly', () => {
@@ -148,31 +147,29 @@ describe('Canonical Datalog programs', () => {
     e.assertFact('parent', ['b', 'd']);
     e.assertFact('parent', ['c', 'e']);
 
-    defineRuleObj(e, {
-      ruleId: 'anc1',
-      head: { predicate: 'ancestor', arity: 2, args: [V('X'), V('Y')] },
-      body: [{ predicate: 'parent', arity: 2, args: [V('X'), V('Y')], negated: false }]
-    });
-    defineRuleObj(e, {
-      ruleId: 'anc2',
-      head: { predicate: 'ancestor', arity: 2, args: [V('X'), V('Y')] },
-      body: [
-        { predicate: 'parent', arity: 2, args: [V('X'), V('Z')], negated: false },
-        { predicate: 'ancestor', arity: 2, args: [V('Z'), V('Y')], negated: false }
-      ]
-    });
+    e.defineRule('anc1', ['ancestor', ['X', 'Y']], [['parent', ['X', 'Y']]], {});
+    e.defineRule(
+      'anc2',
+      ['ancestor', ['X', 'Y']],
+      [
+        ['parent', ['X', 'Z']],
+        ['ancestor', ['Z', 'Y']]
+      ],
+      {}
+    );
     // same_gen(X, Y) :- ancestor(Z, X), ancestor(Z, Y), ¬ancestor(X, Y), ¬ancestor(Y, X)
     // Tests two-sided mutual-exclusion negation per spec AC-9.1.
-    defineRuleObj(e, {
-      ruleId: 'same_gen',
-      head: { predicate: 'same_gen', arity: 2, args: [V('X'), V('Y')] },
-      body: [
-        { predicate: 'ancestor', arity: 2, args: [V('Z'), V('X')], negated: false },
-        { predicate: 'ancestor', arity: 2, args: [V('Z'), V('Y')], negated: false },
-        { predicate: 'ancestor', arity: 2, args: [V('X'), V('Y')], negated: true },
-        { predicate: 'ancestor', arity: 2, args: [V('Y'), V('X')], negated: true }
-      ]
-    });
+    e.defineRule(
+      'same_gen',
+      ['same_gen', ['X', 'Y']],
+      [
+        ['ancestor', ['Z', 'X']],
+        ['ancestor', ['Z', 'Y']],
+        ['not', ['ancestor', ['X', 'Y']]],
+        ['not', ['ancestor', ['Y', 'X']]]
+      ],
+      {}
+    );
 
     const pairs = e.query(['same_gen', [V('X'), V('Y')]])
       .map(b => [b.X, b.Y].sort().join('-'))
@@ -187,11 +184,7 @@ describe('Canonical Datalog programs', () => {
     const program = (engine) => {
       engine.assertFact('p', ['a']);
       engine.assertFact('p', ['b']);
-      defineRuleObj(engine, {
-        ruleId: 'r',
-        head: { predicate: 'q', arity: 1, args: [V('X')] },
-        body: [{ predicate: 'p', arity: 1, args: [V('X')], negated: false }]
-      });
+      engine.defineRule('r', ['q', ['X']], [['p', ['X']]], {});
     };
     const e1 = new Engine(); program(e1);
     const e2 = new Engine(); program(e2);
@@ -205,12 +198,8 @@ describe('Canonical Datalog programs', () => {
     e1.assertFact('p', ['b']);
     e2.assertFact('p', ['b']);
     e2.assertFact('p', ['a']);
-    const r = {
-      ruleId: 'r',
-      head: { predicate: 'q', arity: 1, args: [V('X')] },
-      body: [{ predicate: 'p', arity: 1, args: [V('X')], negated: false }]
-    };
-    defineRuleObj(e1, r); defineRuleObj(e2, r);
+    const applyRule = (engine) => engine.defineRule('r', ['q', ['X']], [['p', ['X']]], {});
+    applyRule(e1); applyRule(e2);
     const result1 = e1.query(['q', [V('X')]]).map(b => b.X).sort();
     const result2 = e2.query(['q', [V('X')]]).map(b => b.X).sort();
     expect(result1).toEqual(result2);
@@ -221,19 +210,16 @@ describe('Canonical Datalog programs', () => {
     e.assertFact('parent', ['a', 'b']);
     e.assertFact('node', ['a']);
     e.assertFact('node', ['b']);
-    defineRuleObj(e, {
-      ruleId: 'anc1',
-      head: { predicate: 'ancestor', arity: 2, args: [V('X'), V('Y')] },
-      body: [{ predicate: 'parent', arity: 2, args: [V('X'), V('Y')], negated: false }]
-    });
-    defineRuleObj(e, {
-      ruleId: 'leaf',
-      head: { predicate: 'leaf', arity: 1, args: [V('X')] },
-      body: [
-        { predicate: 'node', arity: 1, args: [V('X')], negated: false },
-        { predicate: 'ancestor', arity: 2, args: [V('X'), V('Y')], negated: true }
-      ]
-    });
+    e.defineRule('anc1', ['ancestor', ['X', 'Y']], [['parent', ['X', 'Y']]], {});
+    e.defineRule(
+      'leaf',
+      ['leaf', ['X']],
+      [
+        ['node', ['X']],
+        ['not', ['ancestor', ['X', 'Y']]]
+      ],
+      {}
+    );
     expect(e.query(['leaf', [V('X')]]).map(b => b.X).sort()).toEqual(['b']);
     e.retractFact('parent', ['a', 'b']);
     expect(e.query(['leaf', [V('X')]]).map(b => b.X).sort()).toEqual(['a', 'b']);

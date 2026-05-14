@@ -1,26 +1,21 @@
 import { describe, it, expect } from 'vitest';
 import { Engine } from '../Engine.js';
-import { V } from '../Unifier.js';
-import { defineRuleObj } from './helpers/defineRuleObj.js';
 
 describe('Engine.explain', () => {
   function buildAncestor() {
     const e = new Engine();
     e.assertFact('parent', ['a', 'b']);
     e.assertFact('parent', ['b', 'c']);
-    defineRuleObj(e, {
-      ruleId: 'anc1',
-      head: { predicate: 'ancestor', arity: 2, args: [V('X'), V('Y')] },
-      body: [{ predicate: 'parent', arity: 2, args: [V('X'), V('Y')], negated: false }]
-    });
-    defineRuleObj(e, {
-      ruleId: 'anc2',
-      head: { predicate: 'ancestor', arity: 2, args: [V('X'), V('Y')] },
-      body: [
-        { predicate: 'parent', arity: 2, args: [V('X'), V('Z')], negated: false },
-        { predicate: 'ancestor', arity: 2, args: [V('Z'), V('Y')], negated: false }
-      ]
-    });
+    e.defineRule('anc1', ['ancestor', ['X', 'Y']], [['parent', ['X', 'Y']]], {});
+    e.defineRule(
+      'anc2',
+      ['ancestor', ['X', 'Y']],
+      [
+        ['parent', ['X', 'Z']],
+        ['ancestor', ['Z', 'Y']]
+      ],
+      {}
+    );
     e.derive();
     return e;
   }

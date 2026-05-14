@@ -1,4 +1,6 @@
 import { describe, it, expect } from 'vitest';
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { Engine } from '../Engine.js';
 
 describe('Engine public API — new signatures', () => {
@@ -27,5 +29,12 @@ describe('Engine public API — new signatures', () => {
   it('explain returns null for absent facts', () => {
     const e = new Engine();
     expect(e.explain(['nope', ['x', 'y']])).toBeNull();
+  });
+});
+
+describe('AC-8.2 helper cleanup', () => {
+  it('helper file is deleted', () => {
+    const helperPath = resolve(import.meta.dirname, 'helpers/defineRuleObj.js');
+    expect(existsSync(helperPath)).toBe(false);
   });
 });
