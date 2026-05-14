@@ -4,6 +4,7 @@ import { RuleStore } from '../RuleStore.js';
 import { Evaluator } from '../Evaluator.js';
 import { Engine } from '../Engine.js';
 import { V } from '../Unifier.js';
+import { defineRuleObj } from './helpers/defineRuleObj.js';
 
 describe('Evaluator — fixed-point semantics', () => {
   it('computes transitive closure correctly', () => {
@@ -13,11 +14,13 @@ describe('Evaluator — fixed-point semantics', () => {
     fs.assertFact('parent', ['c', 'd']);
 
     const rs = new RuleStore();
+    // RuleStore-level: object form intentional
     rs.defineRule({
       ruleId: 'anc1',
       head: { predicate: 'ancestor', arity: 2, args: [V('X'), V('Y')] },
       body: [{ predicate: 'parent', arity: 2, args: [V('X'), V('Y')], negated: false }]
     });
+    // RuleStore-level: object form intentional
     rs.defineRule({
       ruleId: 'anc2',
       head: { predicate: 'ancestor', arity: 2, args: [V('X'), V('Y')] },
@@ -37,6 +40,7 @@ describe('Evaluator — fixed-point semantics', () => {
     const fs = new FactStore();
     fs.assertFact('p', ['a']);
     const rs = new RuleStore();
+    // RuleStore-level: object form intentional
     rs.defineRule({
       ruleId: 'r',
       head: { predicate: 'q', arity: 1, args: [V('X')] },
@@ -54,11 +58,13 @@ describe('Evaluator — fixed-point semantics', () => {
     fs.assertFact('edge', ['b', 'a']);
 
     const rs = new RuleStore();
+    // RuleStore-level: object form intentional
     rs.defineRule({
       ruleId: 'reach1',
       head: { predicate: 'reach', arity: 2, args: [V('X'), V('Y')] },
       body: [{ predicate: 'edge', arity: 2, args: [V('X'), V('Y')], negated: false }]
     });
+    // RuleStore-level: object form intentional
     rs.defineRule({
       ruleId: 'reach2',
       head: { predicate: 'reach', arity: 2, args: [V('X'), V('Y')] },
@@ -77,6 +83,7 @@ describe('Evaluator — fixed-point semantics', () => {
     const fs = new FactStore();
     fs.assertFact('p', ['a']);
     const rs = new RuleStore();
+    // RuleStore-level: object form intentional
     rs.defineRule({
       ruleId: 'r',
       head: { predicate: 'q', arity: 1, args: [V('X')] },
@@ -98,11 +105,13 @@ describe('Evaluator — fixed-point semantics', () => {
     fs.assertFact('parent', ['c', 'd']);
 
     const rs = new RuleStore();
+    // RuleStore-level: object form intentional
     rs.defineRule({
       ruleId: 'anc1',
       head: { predicate: 'ancestor', arity: 2, args: [V('X'), V('Y')] },
       body: [{ predicate: 'parent', arity: 2, args: [V('X'), V('Y')], negated: false }]
     });
+    // RuleStore-level: object form intentional
     rs.defineRule({
       ruleId: 'anc2',
       head: { predicate: 'ancestor', arity: 2, args: [V('X'), V('Y')] },
@@ -139,12 +148,12 @@ describe('Canonical Datalog programs', () => {
     e.assertFact('parent', ['b', 'd']);
     e.assertFact('parent', ['c', 'e']);
 
-    e.defineRule({
+    defineRuleObj(e, {
       ruleId: 'anc1',
       head: { predicate: 'ancestor', arity: 2, args: [V('X'), V('Y')] },
       body: [{ predicate: 'parent', arity: 2, args: [V('X'), V('Y')], negated: false }]
     });
-    e.defineRule({
+    defineRuleObj(e, {
       ruleId: 'anc2',
       head: { predicate: 'ancestor', arity: 2, args: [V('X'), V('Y')] },
       body: [
@@ -154,7 +163,7 @@ describe('Canonical Datalog programs', () => {
     });
     // same_gen(X, Y) :- ancestor(Z, X), ancestor(Z, Y), ¬ancestor(X, Y), ¬ancestor(Y, X)
     // Tests two-sided mutual-exclusion negation per spec AC-9.1.
-    e.defineRule({
+    defineRuleObj(e, {
       ruleId: 'same_gen',
       head: { predicate: 'same_gen', arity: 2, args: [V('X'), V('Y')] },
       body: [
@@ -178,7 +187,7 @@ describe('Canonical Datalog programs', () => {
     const program = (engine) => {
       engine.assertFact('p', ['a']);
       engine.assertFact('p', ['b']);
-      engine.defineRule({
+      defineRuleObj(engine, {
         ruleId: 'r',
         head: { predicate: 'q', arity: 1, args: [V('X')] },
         body: [{ predicate: 'p', arity: 1, args: [V('X')], negated: false }]
@@ -201,7 +210,7 @@ describe('Canonical Datalog programs', () => {
       head: { predicate: 'q', arity: 1, args: [V('X')] },
       body: [{ predicate: 'p', arity: 1, args: [V('X')], negated: false }]
     };
-    e1.defineRule(r); e2.defineRule(r);
+    defineRuleObj(e1, r); defineRuleObj(e2, r);
     const result1 = e1.query(['q', [V('X')]]).map(b => b.X).sort();
     const result2 = e2.query(['q', [V('X')]]).map(b => b.X).sort();
     expect(result1).toEqual(result2);
@@ -212,12 +221,12 @@ describe('Canonical Datalog programs', () => {
     e.assertFact('parent', ['a', 'b']);
     e.assertFact('node', ['a']);
     e.assertFact('node', ['b']);
-    e.defineRule({
+    defineRuleObj(e, {
       ruleId: 'anc1',
       head: { predicate: 'ancestor', arity: 2, args: [V('X'), V('Y')] },
       body: [{ predicate: 'parent', arity: 2, args: [V('X'), V('Y')], negated: false }]
     });
-    e.defineRule({
+    defineRuleObj(e, {
       ruleId: 'leaf',
       head: { predicate: 'leaf', arity: 1, args: [V('X')] },
       body: [
