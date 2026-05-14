@@ -47,11 +47,7 @@ describe('Engine — facade & auto-derive', () => {
   it('query auto-derives when state is non-derived', () => {
     const e = new Engine();
     e.assertFact('p', ['a']);
-    e.defineRule({
-      ruleId: 'r',
-      head: { predicate: 'q', arity: 1, args: [V('X')] },
-      body: [{ predicate: 'p', arity: 1, args: [V('X')], negated: false }]
-    });
+    e.defineRule('r', ['q', ['X']], [['p', ['X']]], {});
     // No explicit derive() — query should trigger it.
     const result = e.query(['q', [V('X')]]);
     expect(result).toEqual([{ X: 'a' }]);
@@ -70,11 +66,7 @@ describe('Engine — facade & auto-derive', () => {
   it('retracting a base fact cascades — derived dependent disappears after next derive', () => {
     const e = new Engine();
     e.assertFact('p', ['a']);
-    e.defineRule({
-      ruleId: 'r',
-      head: { predicate: 'q', arity: 1, args: [V('X')] },
-      body: [{ predicate: 'p', arity: 1, args: [V('X')], negated: false }]
-    });
+    e.defineRule('r', ['q', ['X']], [['p', ['X']]], {});
     expect(e.query(['q', [V('X')]])).toEqual([{ X: 'a' }]);
     e.retractFact('p', ['a']);
     expect(e.query(['q', [V('X')]])).toEqual([]);
@@ -83,11 +75,7 @@ describe('Engine — facade & auto-derive', () => {
   it('undefineRule cascades — facts derived only by that rule disappear', () => {
     const e = new Engine();
     e.assertFact('p', ['a']);
-    e.defineRule({
-      ruleId: 'r',
-      head: { predicate: 'q', arity: 1, args: [V('X')] },
-      body: [{ predicate: 'p', arity: 1, args: [V('X')], negated: false }]
-    });
+    e.defineRule('r', ['q', ['X']], [['p', ['X']]], {});
     expect(e.query(['q', [V('X')]])).toHaveLength(1);
     e.undefineRule('r');
     expect(e.query(['q', [V('X')]])).toEqual([]);

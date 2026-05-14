@@ -6,11 +6,7 @@ describe('Engine.snapshot / restore', () => {
   it('round-trip preserves all observable state', () => {
     const e = new Engine();
     e.assertFact('p', ['a']);
-    e.defineRule({
-      ruleId: 'r',
-      head: { predicate: 'q', arity: 1, args: [V('X')] },
-      body: [{ predicate: 'p', arity: 1, args: [V('X')], negated: false }]
-    });
+    e.defineRule('r', ['q', ['X']], [['p', ['X']]], {});
     e.derive();
     const snap = e.snapshot();
 
