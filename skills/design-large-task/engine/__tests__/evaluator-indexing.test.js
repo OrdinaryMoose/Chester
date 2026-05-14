@@ -4,6 +4,7 @@ import { Evaluator } from '../Evaluator.js';
 import { FactStore } from '../FactStore.js';
 import { RuleStore } from '../RuleStore.js';
 import { V } from '../Unifier.js';
+import { defineRuleObj } from './helpers/defineRuleObj.js';
 
 describe('Evaluator IDB indexing — named integration risks', () => {
 
@@ -91,12 +92,12 @@ describe('Evaluator IDB indexing — named integration risks', () => {
     e.assertFact('node', ['a']);
     e.assertFact('node', ['c']);
     e.assertFact('parent', ['a', 'b']);
-    e.defineRule({
+    defineRuleObj(e, {
       ruleId: 'anc',
       head: { predicate: 'ancestor', arity: 2, args: [V('X'), V('Y')] },
       body: [{ predicate: 'parent', arity: 2, args: [V('X'), V('Y')], negated: false }]
     });
-    e.defineRule({
+    defineRuleObj(e, {
       ruleId: 'leaf',
       head: { predicate: 'leaf', arity: 1, args: [V('X')] },
       body: [
@@ -118,7 +119,7 @@ describe('Evaluator IDB indexing — named integration risks', () => {
     e.assertFact('p', ['a', 'b']);
     e.assertFact('p', ['b', 'b']);
     e.assertFact('p', ['c', 'd']);
-    e.defineRule({
+    defineRuleObj(e, {
       ruleId: 'r',
       head: { predicate: 'same', arity: 1, args: [V('X')] },
       body: [{ predicate: 'p', arity: 2, args: [V('X'), V('X')], negated: false }]
