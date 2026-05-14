@@ -17,6 +17,21 @@ describe('Serializer schema version 2', () => {
     );
   });
 
+  it('loadFrom rejects real v1 blob (non-empty rules in old head/body shape) with actualVersion payload', () => {
+    // Realistic pass-3 v1 data: rules use internal-object head/body field names.
+    // Version check must run before the shape check so callers always get the
+    // structured actualVersion for any non-v2 input (AC-5.3).
+    const e = new Engine();
+    const realV1Blob = {
+      version: 1,
+      facts: [{ predicate: 'q', args: ['a'] }],
+      rules: [{ ruleId: 'r1', head: { predicate: 'p', arity: 1, args: [{ var: 'X' }] }, body: [{ predicate: 'q', arity: 1, args: [{ var: 'X' }], negated: false }] }],
+    };
+    expect(() => e.loadFrom(realV1Blob)).toThrow(
+      expect.objectContaining({ code: 'MALFORMED_SERIALIZED_INPUT', actualVersion: 1 })
+    );
+  });
+
   it('serialized rules contain tuple-form atoms with ["not"] wrapper', () => {
     const e = new Engine();
     e.defineRule('r1', ['p', ['X']], [['q', ['X']], ['not', ['r', ['X']]]], {});

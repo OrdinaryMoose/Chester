@@ -38,15 +38,18 @@ function isValidSerialized(s) {
 }
 
 export function loadEngineFrom(engine, serialized) {
-  if (!isValidSerialized(serialized)) {
-    throw { code: 'MALFORMED_SERIALIZED_INPUT', message: 'serialized form failed schema validation' };
-  }
-  if (serialized.version !== 2) {
+  // Version check runs before shape validation so any non-v2 blob (including
+  // real v1 data with old head/body field names) gets a structured
+  // `actualVersion` payload per AC-5.3, not a generic shape-failure error.
+  if (serialized && typeof serialized === 'object' && serialized.version !== 2) {
     throw {
       code: 'MALFORMED_SERIALIZED_INPUT',
       message: `unsupported schema version: ${serialized.version}; expected 2`,
       actualVersion: serialized.version,
     };
+  }
+  if (!isValidSerialized(serialized)) {
+    throw { code: 'MALFORMED_SERIALIZED_INPUT', message: 'serialized form failed schema validation' };
   }
   // Atomic-load contract (spec AC-7.3): if any replay step throws (TYPE_ERROR on
   // an invalid fact arg, MALFORMED_RULE / DUPLICATE_RULE_ID / CYCLIC_NEGATION /
