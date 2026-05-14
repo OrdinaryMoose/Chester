@@ -205,6 +205,40 @@ describe('Canonical Datalog programs', () => {
     expect(result1).toEqual(result2);
   });
 
+  // End-to-end regression for the wildcard-in-body-atom bug surfaced by the
+  // calculator stress test (2026-05-14). Pre-fix, any rule whose body contained
+  // a '_' wildcard fired zero times because candidatesFor treated '_' as a
+  // literal-string constant for index lookup. This silently defeated every
+  // closure-policy and friction-policy rule in the Domain layer.
+  it('rule body atoms with wildcards derive correctly against facts that have arbitrary values in those positions', () => {
+    const e = new Engine();
+    e.assertFact('risk', ['risk_1', 'a', 'low']);
+    e.assertFact('risk', ['risk_2', 'b', 'low']);
+    e.defineRule('r', ['r', ['C']], [['risk', ['C', '_', '_']]], {});
+    const got = e.query(['r', [V('X')]]).map(b => b.X).sort();
+    expect(got).toEqual(['risk_1', 'risk_2']);
+  });
+
+  it('rule body with negated atom containing wildcard correctly identifies the unrelated subset', () => {
+    // This is the exact failure mode from the calculator stress test: the
+    // closure-policy unaddressed_concern rule.
+    const e = new Engine();
+    e.assertFact('risk', ['risk_1', 'a', 'low']);
+    e.assertFact('risk', ['risk_2', 'b', 'low']);
+    e.assertFact('addresses', ['res_1', 'risk_1']);
+    e.defineRule(
+      'unaddressed_concern',
+      ['unaddressed_concern', ['C']],
+      [
+        ['risk', ['C', '_', '_']],
+        ['not', ['addresses', ['_', 'C']]],
+      ],
+      {}
+    );
+    const got = e.query(['unaddressed_concern', [V('C')]]).map(b => b.C).sort();
+    expect(got).toEqual(['risk_2']);
+  });
+
   it('negation interacting with retraction (AC-9.4)', () => {
     const e = new Engine();
     e.assertFact('parent', ['a', 'b']);

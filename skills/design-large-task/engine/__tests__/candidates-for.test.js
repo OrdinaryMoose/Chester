@@ -59,6 +59,36 @@ describe('candidatesFor', () => {
     expect(out.map(c => c.args)).toEqual([['a', 'x']]);
   });
 
+  // Wildcard handling — the '_' wildcard must be treated as "match anything" by the
+  // index layer, identical to its treatment in Unifier (Unifier.js:30). Without this,
+  // any rule body atom containing a wildcard produces zero candidates because the
+  // index lookup demands the position equal the literal string '_'. This was the
+  // root cause of the calculator stress-test closure-gate false positive — every
+  // closure-policy / friction-policy rule uses wildcards in body atoms and was
+  // silently firing zero times.
+  it('with a wildcard in one position, treats wildcard as match-anything (not as a literal constant)', () => {
+    const atom = { predicate: 'p', arity: 3, args: [V('X'), '_', '_'], negated: false };
+    const fs = setupBase(['p', ['a', 'b', 'c']], ['p', ['d', 'e', 'f']]);
+    const idx = new DerivedPositionalIndex();
+    const derivedMap = new Map();
+    const out = candidatesFor(atom, {}, fs, idx, null, derivedMap);
+    // Pre-fix: would return []. Post-fix: returns both facts.
+    expect(out.map(c => c.args)).toEqual(expect.arrayContaining([['a', 'b', 'c'], ['d', 'e', 'f']]));
+    expect(out.length).toBe(2);
+  });
+
+  it('with a wildcard mixed with a real constant, narrows by the constant and ignores the wildcard', () => {
+    const atom = { predicate: 'p', arity: 3, args: [V('X'), 'b', '_'], negated: false };
+    const fs = setupBase(['p', ['a', 'b', 'c']], ['p', ['d', 'b', 'e']], ['p', ['f', 'g', 'h']]);
+    const idx = new DerivedPositionalIndex();
+    const derivedMap = new Map();
+    const out = candidatesFor(atom, {}, fs, idx, null, derivedMap);
+    // Both facts with 'b' in position 1 should be candidates; the wildcard in pos 2
+    // must not filter anything out.
+    expect(out.map(c => c.args)).toEqual(expect.arrayContaining([['a', 'b', 'c'], ['d', 'b', 'e']]));
+    expect(out.length).toBe(2);
+  });
+
   // Multiple bound positions → intersection.
   it('with two bound positions, intersects across positions', () => {
     const atom = { predicate: 'p', arity: 2, args: ['a', 'x'], negated: false };
