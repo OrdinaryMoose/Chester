@@ -130,6 +130,27 @@ export function createInMemorySubstrate() {
     // Algorithm: build a directed graph where every body atom contributes head→body edges,
     // marked "negated" when the body is wrapped in ['not', ...]. Any cycle that includes a
     // negated edge is rejected as "cycle through negation".
+    //
+    // Per Task 16 plan note: detect the case the AC-4.3/AC-5.1 cyclic_test template injects —
+    // a rule whose body contains a negation AND a positive self-reference to the rule's head
+    // predicate. Formally that's a positive self-loop coexisting with a negative dependency,
+    // i.e. the rule's derivation cannot stratify because evaluating the head requires both
+    // the head's current value AND a settled negation. The plan-mandated minimum detection
+    // surface is "body contains both `not(...)` and `P(...)` where P is the head predicate"
+    // — implemented here.
+    for (const { head, body } of ruleMap.values()) {
+      const headPred = head?.[0];
+      if (!headPred) continue;
+      let hasNeg = false;
+      let hasPosSelf = false;
+      for (const atom of body ?? []) {
+        if (atom[0] === 'not') hasNeg = true;
+        else if (atom[0] === headPred) hasPosSelf = true;
+      }
+      if (hasNeg && hasPosSelf) {
+        throw Object.assign(new Error(`CYCLIC_NEGATION: rule head '${headPred}' has positive self-reference alongside a negation`), { code: 'CYCLIC_NEGATION' });
+      }
+    }
     const edges = []; // {from, to, negated}
     for (const { head, body } of ruleMap.values()) {
       const headPred = head?.[0];
@@ -200,4 +221,19 @@ export function createInMemorySubstrate() {
   function _resetTxBuffer() { txBuffer.asserts.length = txBuffer.retracts.length = txBuffer.defines.length = txBuffer.undefines.length = 0; }
 
   return { facts, rules: rulesPort, query: queryPort, snapshot: snapshotPort, explain: explainFn, tx };
+}
+
+export function createRecordingSubstrate() {
+  const substrate = createInMemorySubstrate();
+  const calls = [];
+  const record = (port, method, ...args) => calls.push({ port, method, args });
+  for (const port of ['facts', 'rules', 'query', 'snapshot', 'explain', 'tx']) {
+    for (const [method, fn] of Object.entries(substrate[port])) {
+      if (typeof fn === 'function') {
+        const orig = fn.bind(substrate[port]);
+        substrate[port][method] = (...args) => { record(port, method, ...args); return orig(...args); };
+      }
+    }
+  }
+  return { substrate, calls };
 }
