@@ -145,8 +145,9 @@ export function instantiateTemplate(idShape, newId, rulePorts) {
 const EDB_PREDICATES = Object.freeze(new Set([
   'evidence', 'rule_decl', 'permission_decl', 'proposition_decl', 'grounding',
   'collapse_test', 'risk', 'resolution_decl', 'addresses', 'friction',
-  'definition_decl', 'approved', 'two_yes', 'closure_committed', 'closure_pending',
-  'phase', 'round', 'created_at', 'withdrew', 'superseded',
+  'friction_disposition', 'definition_decl', 'approved', 'two_yes',
+  'closure_committed', 'closure_pending', 'phase', 'round', 'created_at',
+  'withdrew', 'superseded',
 ]));
 
 export function getDeclaredEDBPredicates() {

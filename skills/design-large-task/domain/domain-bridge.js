@@ -89,7 +89,7 @@ export function createDomainBridge({ engine, clock, idAllocator, consentVerifica
     /** @param {object} args @param {object} consent @throws {DomainError} @returns {object} */
     deprecateDefinition: (args, consent) => runOperation('withdraw', { ...args, idShape: tags.ELEMENT_CATEGORIES.DEFINITION }, consent, fullPorts),
     /** @param {object} args @throws {DomainError} @returns {Array<object>} */
-    queryOverlap: (args) => render.queryProof({ pattern: ['overlap_detected', ['T1', 'T2']] }, readPorts),
+    queryOverlap: (args) => render.queryProof({ pattern: ['overlap_detected', [{ var: 'T1' }, { var: 'T2' }]] }, readPorts),
     // IClosureSurface
     /** @param {object} args @param {object} consent @throws {DomainError} @returns {object} */
     presentClosingArgument: (args, consent) => runOperation('present_closing_argument', args, consent, fullPorts),

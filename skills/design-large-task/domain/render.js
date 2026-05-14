@@ -61,7 +61,8 @@ export function renderDatalogProjection(args, readPorts) {
   // in positional order to reconstruct the fact tuple.
   const PROJECTION_ARITIES = {
     evidence: 3, rule_decl: 2, permission_decl: 2, proposition_decl: 3,
-    resolution_decl: 2, definition_decl: 3, risk: 2, friction: 4, approved: 3,
+    resolution_decl: 2, definition_decl: 3, risk: 2, friction: 4,
+    friction_disposition: 2, approved: 3,
   };
   const facts = [];
   for (const [pred, arity] of Object.entries(PROJECTION_ARITIES)) {
