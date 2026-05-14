@@ -1,12 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { Engine } from '../Engine.js';
 import { V } from '../Unifier.js';
+import { defineRuleObj } from './helpers/defineRuleObj.js';
 
 describe('Engine.snapshot / restore', () => {
   it('round-trip preserves all observable state', () => {
     const e = new Engine();
     e.assertFact('p', ['a']);
-    e.defineRule({
+    defineRuleObj(e, {
       ruleId: 'r',
       head: { predicate: 'q', arity: 1, args: [V('X')] },
       body: [{ predicate: 'p', arity: 1, args: [V('X')], negated: false }]
