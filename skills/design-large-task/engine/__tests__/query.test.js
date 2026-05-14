@@ -32,6 +32,7 @@ describe('Unifier.unify', () => {
 });
 
 import { Engine } from '../Engine.js';
+import { defineRuleObj } from './helpers/defineRuleObj.js';
 
 describe('Engine — facade & auto-derive', () => {
   it('isDerived transitions correctly', () => {
@@ -47,7 +48,7 @@ describe('Engine — facade & auto-derive', () => {
   it('query auto-derives when state is non-derived', () => {
     const e = new Engine();
     e.assertFact('p', ['a']);
-    e.defineRule({
+    defineRuleObj(e, {
       ruleId: 'r',
       head: { predicate: 'q', arity: 1, args: [V('X')] },
       body: [{ predicate: 'p', arity: 1, args: [V('X')], negated: false }]
@@ -70,7 +71,7 @@ describe('Engine — facade & auto-derive', () => {
   it('retracting a base fact cascades — derived dependent disappears after next derive', () => {
     const e = new Engine();
     e.assertFact('p', ['a']);
-    e.defineRule({
+    defineRuleObj(e, {
       ruleId: 'r',
       head: { predicate: 'q', arity: 1, args: [V('X')] },
       body: [{ predicate: 'p', arity: 1, args: [V('X')], negated: false }]
@@ -83,7 +84,7 @@ describe('Engine — facade & auto-derive', () => {
   it('undefineRule cascades — facts derived only by that rule disappear', () => {
     const e = new Engine();
     e.assertFact('p', ['a']);
-    e.defineRule({
+    defineRuleObj(e, {
       ruleId: 'r',
       head: { predicate: 'q', arity: 1, args: [V('X')] },
       body: [{ predicate: 'p', arity: 1, args: [V('X')], negated: false }]
