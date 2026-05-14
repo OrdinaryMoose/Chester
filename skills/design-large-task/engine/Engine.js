@@ -11,6 +11,7 @@ import { factKey } from './utils.js';
 import { explainFact } from './Explain.js';
 import { captureSnapshot, restoreSnapshot } from './Snapshot.js';
 import { serializeEngine, loadEngineFrom } from './Serializer.js';
+import { tupleRuleToInternal } from './RuleAtomTranslator.js';
 
 export class Engine {
   constructor() {
@@ -28,8 +29,12 @@ export class Engine {
   retractFact(predicate, args) { this._facts.retractFact(predicate, args); this._markDirty(); }
   factExists(predicate, args) { return this._facts.factExists(predicate, args); }
 
-  // §4.2 rule ops
-  defineRule(rule) { this._rules.defineRule(rule); this._markDirty(); }
+  // §4.2 rule ops — public surface accepts tuple-format atoms (04-engine-spec.md §4.2 + §6.2)
+  defineRule(ruleId, headAtom, bodyAtoms, metadata) {
+    const internalRule = tupleRuleToInternal(ruleId, headAtom, bodyAtoms, metadata);
+    this._rules.defineRule(internalRule);
+    this._markDirty();
+  }
   undefineRule(ruleId) { this._rules.undefineRule(ruleId); this._markDirty(); }
   getRule(ruleId) { return this._rules.getRule(ruleId); }
 
@@ -42,8 +47,11 @@ export class Engine {
   }
   isDerived() { return this._isDerived; }
 
-  explain(predicate, args) {
+  // §4.5 explain — public surface accepts [predicate, args] tuple (04-engine-spec.md §4.5)
+  explain(fact) {
     this._ensureDerived();
+    if (!Array.isArray(fact) || fact.length !== 2) return null;
+    const [predicate, args] = fact;
     return explainFact(predicate, args, this._derived, this._rules, this._facts);
   }
 
