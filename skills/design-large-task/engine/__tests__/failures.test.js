@@ -1,44 +1,35 @@
 import { describe, it, expect } from 'vitest';
 import { Engine } from '../Engine.js';
-import { V } from '../Unifier.js';
 
 describe('Failure modes — all nine error codes', () => {
   it('MALFORMED_RULE — defineRule with non-atom head', () => {
     const e = new Engine();
-    expect(() => e.defineRule({ ruleId: 'r', head: 'bad', body: [] })).toThrow(
+    expect(() => e.defineRule('r', 'bad', [], {})).toThrow(
       expect.objectContaining({ code: 'MALFORMED_RULE' })
     );
   });
 
   it('CYCLIC_NEGATION — defineRule introducing cycle', () => {
     const e = new Engine();
-    e.defineRule({
-      ruleId: 'r1',
-      head: { predicate: 'p', arity: 1, args: [V('X')] },
-      body: [
-        { predicate: 'base', arity: 1, args: [V('X')], negated: false },
-        { predicate: 'q', arity: 1, args: [V('X')], negated: true }
-      ]
-    });
-    expect(() => e.defineRule({
-      ruleId: 'r2',
-      head: { predicate: 'q', arity: 1, args: [V('X')] },
-      body: [
-        { predicate: 'base', arity: 1, args: [V('X')], negated: false },
-        { predicate: 'p', arity: 1, args: [V('X')], negated: true }
-      ]
-    })).toThrow(expect.objectContaining({ code: 'CYCLIC_NEGATION' }));
+    e.defineRule(
+      'r1',
+      ['p', ['X']],
+      [['base', ['X']], ['not', ['q', ['X']]]],
+      {}
+    );
+    expect(() => e.defineRule(
+      'r2',
+      ['q', ['X']],
+      [['base', ['X']], ['not', ['p', ['X']]]],
+      {}
+    )).toThrow(expect.objectContaining({ code: 'CYCLIC_NEGATION' }));
   });
 
   it('DUPLICATE_RULE_ID', () => {
     const e = new Engine();
-    const r = {
-      ruleId: 'r',
-      head: { predicate: 'p', arity: 1, args: [V('X')] },
-      body: [{ predicate: 'q', arity: 1, args: [V('X')], negated: false }]
-    };
-    e.defineRule(r);
-    expect(() => e.defineRule(r)).toThrow(expect.objectContaining({ code: 'DUPLICATE_RULE_ID' }));
+    const r = ['r', ['p', ['X']], [['q', ['X']]], {}];
+    e.defineRule(...r);
+    expect(() => e.defineRule(...r)).toThrow(expect.objectContaining({ code: 'DUPLICATE_RULE_ID' }));
   });
 
   it('TYPE_ERROR on non-constant fact arg', () => {
@@ -74,11 +65,12 @@ describe('Failure modes — all nine error codes', () => {
 
   it('UNSAFE_RULE — defineRule rejects rule with unbound head variable', () => {
     const e = new Engine();
-    expect(() => e.defineRule({
-      ruleId: 'unsafe1',
-      head: { predicate: 'q', arity: 2, args: [{ var: 'X' }, { var: 'Y' }] },
-      body: [{ predicate: 'p', arity: 1, args: [{ var: 'X' }], negated: false }]
-    })).toThrow(expect.objectContaining({ code: 'UNSAFE_RULE', ruleId: 'unsafe1' }));
+    expect(() => e.defineRule(
+      'unsafe1',
+      ['q', ['X', 'Y']],
+      [['p', ['X']]],
+      {}
+    )).toThrow(expect.objectContaining({ code: 'UNSAFE_RULE', ruleId: 'unsafe1' }));
   });
 
   // MEMORY_BUDGET_EXCEEDED is a defensive guard: Evaluator.derive sets a 10000-iteration cap.
