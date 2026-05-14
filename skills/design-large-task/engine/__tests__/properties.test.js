@@ -1,12 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { Engine } from '../Engine.js';
 import { V } from '../Unifier.js';
+import { defineRuleObj } from './helpers/defineRuleObj.js';
 
 describe('Cross-cutting properties', () => {
   it('monotonicity: adding facts never reduces IDB', () => {
     const e = new Engine();
     e.assertFact('p', ['a']);
-    e.defineRule({
+    defineRuleObj(e, {
       ruleId: 'r',
       head: { predicate: 'q', arity: 1, args: [V('X')] },
       body: [{ predicate: 'p', arity: 1, args: [V('X')], negated: false }]
@@ -26,12 +27,12 @@ describe('Cross-cutting properties', () => {
   it('termination: 100-element transitive closure terminates within bounded time', { timeout: 5000 }, () => {
     const e = new Engine();
     for (let i = 0; i < 100; i++) e.assertFact('parent', [`n${i}`, `n${i + 1}`]);
-    e.defineRule({
+    defineRuleObj(e, {
       ruleId: 'anc1',
       head: { predicate: 'ancestor', arity: 2, args: [V('X'), V('Y')] },
       body: [{ predicate: 'parent', arity: 2, args: [V('X'), V('Y')], negated: false }]
     });
-    e.defineRule({
+    defineRuleObj(e, {
       ruleId: 'anc2',
       head: { predicate: 'ancestor', arity: 2, args: [V('X'), V('Y')] },
       body: [
