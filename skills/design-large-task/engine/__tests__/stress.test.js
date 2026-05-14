@@ -1,12 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { Engine } from '../Engine.js';
 import { V } from '../Unifier.js';
+import { defineRuleObj } from './helpers/defineRuleObj.js';
 
 describe('Stress tests', () => {
   it('AC-11.1: 10k facts with query workload completes within budget', () => {
     const e = new Engine();
     for (let i = 0; i < 10000; i++) e.assertFact('p', [`v${i}`, i % 100]);
-    e.defineRule({
+    defineRuleObj(e, {
       ruleId: 'r',
       head: { predicate: 'q', arity: 1, args: [V('X')] },
       body: [{ predicate: 'p', arity: 2, args: [V('X'), V('K')], negated: false }]
@@ -25,12 +26,12 @@ describe('Stress tests', () => {
   it('AC-11.2: 1000-element transitive closure terminates with correct count', () => {
     const e = new Engine();
     for (let i = 0; i < 1000; i++) e.assertFact('parent', [`n${i}`, `n${i + 1}`]);
-    e.defineRule({
+    defineRuleObj(e, {
       ruleId: 'anc1',
       head: { predicate: 'ancestor', arity: 2, args: [V('X'), V('Y')] },
       body: [{ predicate: 'parent', arity: 2, args: [V('X'), V('Y')], negated: false }]
     });
-    e.defineRule({
+    defineRuleObj(e, {
       ruleId: 'anc2',
       head: { predicate: 'ancestor', arity: 2, args: [V('X'), V('Y')] },
       body: [
@@ -47,7 +48,7 @@ describe('Stress tests', () => {
     e.assertFact('p', ['a']);
     e.assertFact('s', ['a']);
     for (let i = 0; i < 100; i++) {
-      e.defineRule({
+      defineRuleObj(e, {
         ruleId: `r${i}`,
         head: { predicate: `q${i}`, arity: 1, args: [V('X')] },
         body: [
