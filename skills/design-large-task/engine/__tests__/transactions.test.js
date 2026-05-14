@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { Engine } from '../Engine.js';
 import { V } from '../Unifier.js';
+import { defineRuleObj } from './helpers/defineRuleObj.js';
 
 describe('Engine transactions', () => {
   it('begin/commit applies buffered mutations atomically', () => {
@@ -27,7 +28,7 @@ describe('Engine transactions', () => {
     const e = new Engine();
     e.assertFact('p', ['a']);
     const h = e.begin();
-    e.defineRule({
+    defineRuleObj(e, {
       ruleId: 'r',
       head: { predicate: 'q', arity: 1, args: [V('X')] },
       body: [{ predicate: 'p', arity: 1, args: [V('X')], negated: false }]
@@ -69,7 +70,7 @@ describe('Engine transaction edge cases', () => {
   it('cyclic-negation rule inside tx is rejected at defineRule, tx remains usable', () => {
     const e = new Engine();
     const h = e.begin();
-    e.defineRule({
+    defineRuleObj(e, {
       ruleId: 'r1',
       head: { predicate: 'p', arity: 1, args: [V('X')] },
       body: [
@@ -77,7 +78,7 @@ describe('Engine transaction edge cases', () => {
         { predicate: 'q', arity: 1, args: [V('X')], negated: true }
       ]
     });
-    expect(() => e.defineRule({
+    expect(() => defineRuleObj(e, {
       ruleId: 'r2',
       head: { predicate: 'q', arity: 1, args: [V('X')] },
       body: [
@@ -162,7 +163,7 @@ describe('Engine transaction edge cases', () => {
 
     // Post-commit state must match pre-begin + the buffered mutations exactly — no half-applied state.
     const expectedPostCommit = new Engine();
-    expectedPostCommit.loadFrom({ version: 1, facts: [
+    expectedPostCommit.loadFrom({ version: 2, facts: [
       { predicate: 'p', args: ['a'] },
       { predicate: 'p', args: ['b'] },
       { predicate: 'p', args: ['c'] }
