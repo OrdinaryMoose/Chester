@@ -10,12 +10,16 @@ import * as render from './render.js';
 import * as counterfactual from './counterfactual.js';
 import * as tags from './tags.js';
 import { validateOperationSpecs, validateCategoryRegistry, validateRuleTemplates, DomainBootError } from './boot-validators.js';
+import { normalizeEngine } from './engine-port-adapter.js';
 
 /**
  * @param {{engine: object, clock: object, idAllocator: object, consentVerification: object, persistenceRepo: object}} deps
  * @returns {Readonly<object>} frozen facade
  */
-export function createDomainBridge({ engine, clock, idAllocator, consentVerification, persistenceRepo }) {
+export function createDomainBridge({ engine: rawEngine, clock, idAllocator, consentVerification, persistenceRepo }) {
+  // Step 1: normalize engine shape — accept either port-bundled (substrate fake)
+  // or flat-API (real sprint-01 Engine). See engine-port-adapter.js for detection.
+  const engine = normalizeEngine(rawEngine);
   // Step 2: construct four frozen port bundles
   const readPorts = Object.freeze({ query: engine.query, explain: engine.explain });
   const writePorts = Object.freeze({ facts: engine.facts, rules: engine.rules, query: engine.query, explain: engine.explain, tx: engine.tx });
@@ -132,7 +136,8 @@ export function createDomainBridgeWith(deps, overrides = {}) {
   // Bridge construction re-runs against the override registries. Implementation mirrors
   // createDomainBridge step-for-step but reads `specs`, `registry`, `templates` instead
   // of the module-level constants.
-  const { engine, clock, idAllocator, consentVerification, persistenceRepo } = deps;
+  const { engine: rawEngine, clock, idAllocator, consentVerification, persistenceRepo } = deps;
+  const engine = normalizeEngine(rawEngine);
   const readPorts = Object.freeze({ query: engine.query, explain: engine.explain });
   const writePorts = Object.freeze({ facts: engine.facts, rules: engine.rules, query: engine.query, explain: engine.explain, tx: engine.tx });
   const probePorts = Object.freeze({ query: engine.query, explain: engine.explain, snapshot: engine.snapshot, facts: engine.facts });

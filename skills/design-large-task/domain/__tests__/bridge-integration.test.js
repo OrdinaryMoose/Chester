@@ -23,6 +23,46 @@ function makeAdapters({ failSaveOnce = false } = {}) {
   };
 }
 
+describe('bridge-integration — engine-shape adapter', () => {
+  // Engine↔Domain port-shape normalization (added 2026-05-14 alongside the
+  // wildcard-in-rule-body fix). The Domain bridge accepts either a port-bundled
+  // engine (the substrate fake) or a flat-API Engine instance (sprint-01 Engine).
+  it('createDomainBridge accepts a flat-API Engine instance and normalizes it to port bundles', async () => {
+    const { Engine } = await import('../../engine/Engine.js');
+    const realEngine = new Engine();
+    expect(() => createDomainBridge({ engine: realEngine, ...makeAdapters() })).not.toThrow();
+  });
+
+  it('createDomainBridge end-to-end against real Engine: boot, addElement, ratify, query, closure', async () => {
+    const { Engine } = await import('../../engine/Engine.js');
+    const bridge = createDomainBridge({ engine: new Engine(), ...makeAdapters() });
+    const consent = { source: CONSENT_SOURCES.DESIGNER };
+
+    // Add evidence + risk + resolution; ratify; closure should permit.
+    bridge.addElement({ idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'design', claim: 'baseline' }, consent);
+    const risk = bridge.addElement({ idShape: ELEMENT_CATEGORIES.RISK, statement: 'div-by-zero' }, consent);
+    const res = bridge.addElement({
+      idShape: ELEMENT_CATEGORIES.RESOLUTION,
+      statement: 'return Error',
+      addresses: risk.id,
+    }, consent);
+    bridge.ratifyElement({ elementId: risk.id, source: 'designer', source_field: 'designer', claim: 'r' }, consent);
+    bridge.ratifyElement({ elementId: res.id, source: 'designer', source_field: 'designer', claim: 'r' }, consent);
+
+    // After fixing the wildcard bug, unaddressed_concern should be empty here.
+    const unaddressed = bridge.queryProof({ pattern: ['unaddressed_concern', [{ var: 'C' }]] });
+    expect(unaddressed).toEqual([]);
+    const permitted = bridge.queryProof({ pattern: ['closure_permitted', []] });
+    expect(permitted.length).toBe(1);
+    expect(() => bridge.presentClosingArgument({ source: 'designer', claim: 'c' }, consent)).not.toThrow();
+  });
+
+  it('createDomainBridge throws a clear error on an engine shape that is neither port-bundled nor flat', () => {
+    expect(() => createDomainBridge({ engine: { weird: () => {} }, ...makeAdapters() }))
+      .toThrow(/normalizeEngine: engine is neither port-bundled .* nor a flat-API Engine/);
+  });
+});
+
 describe('bridge-integration', () => {
   it('AC-3.4 — runOperation port-call ordering for each of the eight verbs matches §6.1', async () => {
     // Spec AC-3.4 observable boundary: a bridge-integration test invokes EACH of the eight
