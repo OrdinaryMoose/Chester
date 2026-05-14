@@ -1442,3 +1442,93 @@ artifact_refs:
   - working/20260513-01-fix-archive-drift/plan/fix-archive-drift-plan-00.md
   - working/20260513-01-fix-archive-drift/plan/fix-archive-drift-plan-threat-report-00.md
 ---
+
+---
+id: dr-20260513-07-translator-at-boundary-keeps-internals-untouched
+date: 2026-05-13
+sprint: 20260511-01-mp-redesign-proof-system/sprint-01-proof-backend-pass-4
+stage: plan-build
+title: Boundary-only tuple/object translator keeps engine internals unchanged across public-API form flips
+decision: Engine public-API surface form changes are absorbed by a single boundary translator module (`RuleAtomTranslator`) that owns tuple↔internal-object conversion, while every internal engine module (RuleStore, Unifier, Stratifier, Evaluator, Explain, Snapshot, FactStore) continues to operate exclusively on the internal object form and is forbidden from changing as part of the surface flip.
+rationale: Pass-4 flipped the public `defineRule` and `explain` signatures and the on-disk serialization schema, but AC-10.1 required the seven internal engine modules to show zero diff lines vs main — and the final review verified this property held exactly. Localizing all form-conversion at the boundary means future surface evolutions (new positional encodings, alternate wire forms, additional serialization versions) can ship as translator-only changes without re-touching evaluation, unification, or storage code, and reviewers gain a single point to audit when validating any future public-form change. The translator also becomes the single validation point: malformed-input throws originate there, so downstream modules can assume well-formed input and stay simpler. This is the architectural commitment that made the strangler-fig migration in this sprint viable, and it is the precedent for any future Chester engine surface change.
+alternatives:
+  - Push tuple-awareness into each internal module so every consumer accepts both forms — rejected because it doubles the input-shape surface in every module, blurs the validation boundary, and forecloses the AC-10.1 "internals unchanged" property that lets future surface flips ship without re-reviewing the whole engine.
+  - Convert at every public entry point with inline conversion code (no shared translator) — rejected because the conversion logic and malformed-input error semantics would drift across entry points, violating the single-validation-point property and creating multiple places to update on the next form change.
+tags: [architecture, convention]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-01-proof-backend-pass-4/plan/sprint-01-proof-backend-pass-4-plan-00.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-01-proof-backend-pass-4/spec/sprint-01-proof-backend-pass-4-spec-01.md
+---
+
+---
+id: dr-20260513-08-strangler-fig-with-temporary-test-helper
+date: 2026-05-13
+sprint: 20260511-01-mp-redesign-proof-system/sprint-01-proof-backend-pass-4
+stage: plan-build
+title: Public-API form flip uses a temporary in-test helper as scaffold and deletes it in the final task
+decision: When flipping a public API form that has many test callsites, the migration pattern is: (1) flip the public surface in one commit and accept an intentionally-red suite, (2) introduce a temporary in-test helper (e.g. `defineRuleObj`) that wraps the new form in the old shape, (3) migrate well-formed-input tests one file per commit through the helper, leaving failure-mode tests to migrate directly because the helper would mask the failure path, (4) delete the helper and convert remaining helper-wrapped callsites to direct new-form calls in a final cleanup commit.
+rationale: Pass-4 executed exactly this pattern across 14 commits (6 tasks plus one amendment) and every per-file commit produced a fully-green suite at its boundary while the public surface stayed flipped throughout — meaning every intermediate commit is bisectable and the test scaffold never lived past the sprint that introduced it. The failure-mode asymmetry (helper bypassed for `failures.test.js`) is load-bearing: a helper that runs translator logic before reaching the boundary would crash on intentionally-malformed input rather than letting the public API throw the expected error code, which would corrupt the migrated test's contract. Future Chester engine surface-form migrations with similar callsite-count pressure should reuse this pattern rather than attempting either a single-commit big-bang rewrite or a long-lived dual-form helper.
+alternatives:
+  - Single-commit big-bang test rewrite — rejected because every test file migrating in one commit forfeits bisectability, makes review impossibly large, and offers no rollback granularity if one test file's migration uncovers an unanticipated semantic shift.
+  - Permanent dual-form helper kept in test-utils — rejected because the helper becomes a second public surface that future contributors will reach for instead of the real API, defeating the purpose of the flip; the temporary-then-deleted lifecycle is what enforces "the new form is the only form" after sprint close.
+  - Migrate failure-mode tests through the helper too — rejected because the helper's pre-translator path would consume malformed input before it reached the public surface, producing wrong-layer error codes and breaking the AC contract for failure-mode tests.
+tags: [convention, process]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-01-proof-backend-pass-4/plan/sprint-01-proof-backend-pass-4-plan-00.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-01-proof-backend-pass-4/spec/sprint-01-proof-backend-pass-4-spec-01.md
+---
+
+---
+id: dr-20260513-09-engine-schema-version-hard-break-with-actualversion-payload
+date: 2026-05-13
+sprint: 20260511-01-mp-redesign-proof-system/sprint-01-proof-backend-pass-4
+stage: plan-build
+title: Engine serialization schema bumps are hard breaks rejecting prior versions with actualVersion payload
+decision: When the engine's on-disk serialization schema changes, `Serializer.loadEngineFrom` rejects any blob whose `version` field does not equal the current schema version by throwing `MALFORMED_SERIALIZED_INPUT` with an `actualVersion` payload field carrying the rejected blob's version; there is no in-engine backward-compat shim and no on-the-fly upgrade path — downstream consumers must re-serialize through the new engine before their stored blobs can be loaded.
+rationale: Pass-4 bumped the schema from v1 to v2 to carry tuple-form rules and adopted this hard-break rejection contract explicitly; the `actualVersion` payload lets callers programmatically distinguish version-mismatch from other malformed-input failures and route to migration tooling rather than treating it as data corruption. The hard break (rather than a compat shim) keeps the engine's serialization code at exactly one schema's worth of complexity — every supported wire shape lives in one version of the code, with prior shapes living only in prior engine versions. Future Chester engine schema bumps should follow this pattern: bump version, reject prior versions structurally with `actualVersion`, leave migration to external tooling or to a stand-alone migration utility outside the engine core.
+alternatives:
+  - Carry an in-engine version-N-to-current upgrade shim — rejected because each shim accretes permanently into the engine, grows quadratically with version count, and ties new-feature work to maintaining all historical conversion paths; the hard-break contract pushes that cost out to a tooling boundary where it belongs.
+  - Reject with a generic `MALFORMED_SERIALIZED_INPUT` and no `actualVersion` field — rejected because callers cannot distinguish version-mismatch from genuine corruption, forcing them to parse the blob themselves to decide whether to invoke migration tooling.
+tags: [architecture, format]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-01-proof-backend-pass-4/plan/sprint-01-proof-backend-pass-4-plan-00.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-01-proof-backend-pass-4/spec/sprint-01-proof-backend-pass-4-spec-01.md
+---
+
+---
+id: dr-20260513-10-version-check-precedes-shape-check-in-serialized-input-validation
+date: 2026-05-13
+sprint: 20260511-01-mp-redesign-proof-system/sprint-01-proof-backend-pass-4
+stage: execute-write
+title: Serializer version check runs before shape-validity check so callers always get actualVersion on version mismatch
+decision: Inside `Serializer.loadEngineFrom`, the `version !== currentSchemaVersion` check executes strictly before the `isValidSerialized` shape check, so any blob whose `version` field is wrong is rejected with `MALFORMED_SERIALIZED_INPUT` carrying `actualVersion` regardless of whether the blob's other fields match the current schema's shape; shape-check rejection (without `actualVersion`) is reserved for blobs that already pass version check.
+rationale: The original plan placed the version check after `isValidSerialized`, which the execute-write quality reviewer caught as a contract violation: a real v1 blob carries old field names (`head`/`body`) that fail v2's shape check first, so the caller receives a generic `MALFORMED_SERIALIZED_INPUT` without `actualVersion` and cannot route the failure to migration tooling — defeating the whole point of the hard-break-with-payload contract. The amendment moved the version check earlier and added a regression test for the v1-with-rules case to lock the precedence. This precedence rule generalizes: whenever a validator has both a structural-shape check and a metadata check (version, format-id, schema-id), the metadata check runs first so that "I cannot interpret this at all" is distinguishable from "this is interpretable but malformed" in the error payload. Future Chester engine validators with version-and-shape pairs must order checks this way.
+alternatives:
+  - Keep the plan's original shape-then-version order — rejected because it silently strips the `actualVersion` payload from the realistic v1-with-rules migration case, breaking AC-5.3 and defeating the hard-break-with-payload contract.
+  - Run both checks and merge their results into a richer error — rejected because it complicates the error shape, multiplies the number of failure-mode test cases, and offers no benefit over a strict precedence: once version is wrong, shape-conformance to the new schema is irrelevant.
+tags: [convention, governance]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-01-proof-backend-pass-4/plan/sprint-01-proof-backend-pass-4-plan-00.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-01-proof-backend-pass-4/spec/sprint-01-proof-backend-pass-4-spec-01.md
+---
+
+---
+id: dr-20260513-11-per-file-commit-boundaries-required-during-test-migration
+date: 2026-05-13
+sprint: 20260511-01-mp-redesign-proof-system/sprint-01-proof-backend-pass-4
+stage: plan-build
+title: Each test file's migration during a public-API flip lands as its own commit producing a fully-green suite
+decision: During a strangler-fig public-API migration, every test file's migration commits separately and the full suite must run fully green at each commit boundary; the migration plan lists per-file commit messages in advance and the executor produces them one-for-one, even when this means many small commits in a single task.
+rationale: Pass-4's Task 5 migrated nine test files across nine commits, each green at its boundary, and the execute-write summary confirmed this is what made the migration bisectable — if a future regression surfaces in any post-migration commit, `git bisect` lands precisely on the file that introduced the form change rather than on a multi-file batch. Bundling several files into one commit forfeits this property irreversibly, and the cost saving is trivial: each per-file commit takes one `git commit` invocation. The constraint also forces the executor to verify the suite green at each step, catching a per-file regression while only one file's worth of changes is in flight rather than discovering it under nine files of pending diff. Future Chester test-suite migrations under a strangler-fig public surface change should follow the per-file-commit rule.
+alternatives:
+  - Bundle all migrated test files into one commit per task — rejected because a regression anywhere in the bundle requires re-bisecting at the line-diff level within the commit, removing the file-level bisect granularity the per-file pattern preserves at near-zero cost.
+  - Bundle by directory or by feature cluster — rejected because the natural unit of "what changed shape" is the test file (each file targets a specific surface area), and any coarser grouping mixes regressions from independent surfaces.
+tags: [convention, process]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-01-proof-backend-pass-4/plan/sprint-01-proof-backend-pass-4-plan-00.md
+---
