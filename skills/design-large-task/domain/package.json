@@ -1,0 +1,14 @@
+{
+  "name": "chester-proof-domain",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Domain layer for the Chester proof system (sprint-02-proof-layer)",
+  "main": "domain-bridge.js",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "vitest": "^3.1.1"
+  }
+}

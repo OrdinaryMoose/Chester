@@ -1532,3 +1532,95 @@ supersedes: null
 artifact_refs:
   - working/20260511-01-mp-redesign-proof-system/sprint-01-proof-backend-pass-4/plan/sprint-01-proof-backend-pass-4-plan-00.md
 ---
+
+---
+id: dr-20260514-01-spec-revision-via-nn-versioned-sibling
+date: 2026-05-14
+sprint: 20260511-01-mp-redesign-proof-system/sprint-02-proof-layer
+stage: design-specify
+title: Spec corrections against merged upstream API land as a new NN-versioned spec, not an in-place edit
+decision: When an existing sprint spec is found to reference an upstream API that has since merged in an altered form, the corrective pass produces a new `<sprint>-spec-NN.md` sibling (copy-then-patch) rather than mutating the prior spec; the prior spec is frozen as the audit trail of what was assumed before the merge, and the new spec carries a top-of-file revision note enumerating what changed and why.
+rationale: Sprint-02 was paused while sprint-01 went through four passes, and the merged Engine API ended up differing from the API spec-01 had been written against (4-arg `defineRule`, 1-arg `explain`, wildcard-rejecting `retractFact`). The corrective pass produced spec-02 as a sibling rather than rewriting spec-01 in place, which preserves the diff spec-01 → spec-02 as direct evidence of which acceptance criteria moved and which assumptions the original plan-00 was built against. Future plan-builders re-running against the new spec can read both versions to understand the delta without archaeology through git history. The same NN-versioned-revision pattern is what `util-artifact-schema` already supports for plans; this record extends the same discipline to specs whenever upstream API drift is the trigger.
+alternatives:
+  - Edit spec-01 in place — rejected because it destroys the audit trail of pre-merge assumptions and forces reviewers to use git blame to reconstruct which acceptance criteria were originally written against the un-merged API; the NN-versioned-sibling pattern preserves that evidence at near-zero cost.
+  - Regenerate the spec from scratch through design-specify — rejected because most of spec-01 was correct (substrate ports, ADR-0013 Parts 2 and 3, snapshot/restore, transaction lifecycle, query surfaces all checked out against the merged Engine); only three targeted patches were needed, and full regeneration would discard the unchanged 95% and re-derive identical content.
+tags: [convention, process]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-proof-layer/spec/sprint-02-proof-layer-spec-01.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-proof-layer/spec/sprint-02-proof-layer-spec-02.md
+---
+
+---
+id: dr-20260514-02-plan-revision-as-delta-not-regenerate
+date: 2026-05-14
+sprint: 20260511-01-mp-redesign-proof-system/sprint-02-proof-layer
+stage: plan-build
+title: Plan revision after spec correction produces an NN-versioned delta plan, not a full regenerate
+decision: When a sprint spec is corrected and an existing plan was built against the prior spec, plan-build produces a new `<sprint>-plan-NN.md` by copy-and-patch from the prior plan rather than running the full multi-phase plan-build pipeline cold; the prior plan is preserved as audit trail, and a fresh plan-threat-report is generated against the new plan revision so the hardening gate still runs.
+rationale: Plan-00 against spec-01 was 2,756 lines / 16 tasks and structurally aligned with spec-02 (same target directory, same vitest stack, same task shape) — only three spec-02 patches plus a handful of plan-reviewer-loop refinements needed to land. Running plan-build cold would have regenerated ~95% identical content for hours of wall time, then required re-review and re-attack against a plan that was already close to right; the delta path produced plan-01 in a fraction of the time while still running the full plan-attack + plan-smell hardening against the new revision. The discipline is: skip regeneration only when the prior plan is structurally aligned with the new spec (same files, same task decomposition); if structural changes are needed, regenerate. The threat-report sibling is non-negotiable — every plan revision gets a fresh hardening pass even when the source plan was already hardened, because the patches themselves can introduce new risks (and in this sprint, they did: three of the four Critical findings were exposed by the reviewer-loop patches).
+alternatives:
+  - Run plan-build cold against spec-02 to produce plan-00-of-the-new-spec — rejected because it regenerates ~95% identical content, discards the audit trail showing which plan tasks were affected by the spec correction, and produces no quality gain over the patched plan that still passes the full hardening gate.
+  - Edit plan-00 in place — rejected because it destroys the audit trail of which plan tasks the spec correction touched, and conflates two distinct change drivers (spec-02 patches and plan-reviewer-loop refinements) into a single untraceable diff.
+tags: [convention, process]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-proof-layer/plan/sprint-02-proof-layer-plan-00.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-proof-layer/plan/sprint-02-proof-layer-plan-01.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-proof-layer/plan/sprint-02-proof-layer-plan-threat-report-01.md
+---
+
+---
+id: dr-20260514-03-engine-wire-format-asymmetry-is-normative
+date: 2026-05-14
+sprint: 20260511-01-mp-redesign-proof-system/sprint-02-proof-layer
+stage: plan-build
+title: Engine wire-format asymmetry between rule bodies and query patterns is the normative Domain-layer convention
+decision: Domain-layer code calling the Engine adopts the Engine's asymmetric wire-format as a normative convention: rule heads and rule bodies passed to `defineRule` use bare uppercase strings as logical variables (e.g. `['proposition_decl', ['P', '_', '_']]`), while query patterns passed to `query` use `{var: 'X'}` objects for variables (e.g. `query(['ungrounded_proposition', [{var: 'P'}]])`). Constants are bare lowercase strings on both sides; wildcards are the literal `'_'` string. The asymmetry is intentional and load-bearing — the Engine's `Unifier` rejects bare uppercase strings in query position as constants, and rejects `{var: …}` objects in rule-body position.
+rationale: This sprint's plan-hardening surfaced the asymmetry as a recurring failure mode: the substrate fake accepted bare uppercase variables in both positions (it had its own uppercase-var regex on both sides), masking the divergence from the real Engine and letting `render.js` ship with bare-uppercase query patterns that the real Engine's `Unifier` would silently fail to bind. The same trap then bit the sprint a second time in the cumulative review (`queryOverlap` passed bare `'T1','T2'` as constants and always returned empty), confirming the convention has to be documented at records-altitude rather than learned per-sprint. The decision to honor the asymmetry rather than smooth it out at a Domain helper is deliberate: every Domain query that touches the Engine must use the same convention the Engine enforces, so future drift between Domain code and Engine semantics is impossible by construction. Future Chester layers above the Engine must follow this wire-format rule, and any in-memory substrate fake used for testing must enforce the same asymmetry (the sprint-02 fake was patched to do so as CR-1 / IM-1 in plan-01).
+alternatives:
+  - Wrap the Engine in a Domain-layer helper that accepts bare uppercase variables everywhere and lowers them to `{var: …}` for queries — rejected because the helper becomes a second public surface that drifts from the Engine's actual contract, and any Domain code that bypasses the helper (e.g. a future direct query for performance or for new Engine features) hits the asymmetry uncushioned; honoring the asymmetry directly is more painful per-call but eliminates a category of latent bug.
+  - Push the lowering into the Engine itself so both rule bodies and query patterns accept either form — rejected because it changes Engine pass-4's public contract that just stabilized in sprint-01, doubles the input-shape surface in `Unifier`, and re-opens the AC-10.1 "internals unchanged" property the pass-4 strangler-fig depended on.
+tags: [architecture, convention]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-proof-layer/plan/sprint-02-proof-layer-plan-01.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-proof-layer/plan/sprint-02-proof-layer-plan-threat-report-01.md
+---
+
+---
+id: dr-20260514-04-test-only-factory-throws-on-success-path
+date: 2026-05-14
+sprint: 20260511-01-mp-redesign-proof-system/sprint-02-proof-layer
+stage: plan-build
+title: Test-only factory stubs that share a facade with a production factory must throw on success path, not return an empty facade
+decision: When a test-only factory (e.g. `createDomainBridgeWith`) shares its post-validation facade shape with a production factory (`createDomainBridge`) but is implemented as a stub pending a shared-helper refactor, the stub's success path must `throw new Error(...)` with a message naming the missing refactor — it must not return `Object.freeze({})` or any other empty/partial facade. The throw is the safety contract: callers who reach the success path without first copying the facade (or extracting the shared helper) are forced to fail loudly rather than silently see `undefined` methods.
+rationale: Plan-01's Task 14 originally specified `createDomainBridgeWith` as `return Object.freeze({}); // TODO: copy from createDomainBridge`, which would have let every AC-4.x bridge-integration success-path test type-check and run while every method invocation on the returned facade returned `undefined` — masking failure as a different failure (missing-method TypeError, far from the real cause). The plan-hardening pass replaced the empty-facade with an explicit throw whose message names the required refactor (`_buildBootedBridge` helper extraction), and the deferment was logged in plan-01's "Deferred from threat report" section as IM-5. The throw-on-success pattern generalizes: any test-only factory that shares a facade contract with a production factory and is deliberately left as a stub pending refactor should throw, not return-empty, so that the failure mode is loud and the deferred work is visible at every test run rather than only when the facade is exercised.
+alternatives:
+  - Return `Object.freeze({})` with a TODO comment — rejected because every method call on the returned facade returns `undefined`, producing TypeError far from the real cause and letting the test suite drift past the missing implementation; the loud-throw contract makes the stub's incompleteness undeniable on first invocation.
+  - Implement the facade by copy-pasting from `createDomainBridge` immediately — rejected for this sprint because the clone-and-divergence smell (plan-smell finding F3) was explicitly deferred to a future refactor that extracts a `_buildBootedBridge` helper; copying now would entrench the duplication and lose the deferment's signal value.
+tags: [convention, governance]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-proof-layer/plan/sprint-02-proof-layer-plan-01.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-proof-layer/plan/sprint-02-proof-layer-deferred-00.md
+---
+
+---
+id: dr-20260514-05-cumulative-review-compensates-for-skipped-per-task-reviews
+date: 2026-05-14
+sprint: 20260511-01-mp-redesign-proof-system/sprint-02-proof-layer
+stage: execute-write
+title: A single cumulative code review compensates when per-task spec/quality reviews are skipped under context rot
+decision: When per-task spec-reviewer and quality-reviewer dispatches are skipped during execute-write — for example to recover from context-rot mid-sprint — the compensating control is a single cumulative code review dispatched after the last implementation task lands but before the execute-verify-complete checkpoint; its findings are committed as one cumulative-review fix commit on the sub-sprint branch, with any deferred findings logged to a per-sprint `<sprint>-deferred-NN.md` file.
+rationale: Sprint-02's tasks T14/T15/T16 had their per-task spec/quality reviews skipped during a context-rot recovery, and the implementer self-reports surfaced four plan defects but no production-code review. The compensating cumulative review caught two Critical bugs (`queryOverlap` constant-vs-variable wire-format trap, missing `friction_disposition` EDB declaration) that per-task quality review would have flagged at task boundaries; without the cumulative pass, both would have shipped silently because all 81 tests passed without them. The pattern generalizes: skipping per-task reviews is a defensible response to context rot or other execution pressure, but the implicit quality-gate that those reviews represent cannot be skipped without replacement — the cumulative review is the explicit replacement, and the per-sprint deferred-NN file is the explicit record of which findings did not land in the same commit. Future Chester sprints that skip per-task reviews for any reason must dispatch a cumulative review before execute-verify-complete.
+alternatives:
+  - Skip per-task reviews without a cumulative replacement — rejected because the quality gate vanishes silently and bugs that per-task review would have caught ship under a green-tests signal; sprint-02's two Critical findings would both have escaped detection.
+  - Re-run all skipped per-task reviews retroactively, one per task — rejected because the per-task review's value comes from running at the task boundary (small diff, fresh context, narrow scope); retroactive per-task review against a mature multi-task tree loses that scoping benefit, costs more total review time, and produces overlapping findings that need de-duplication anyway.
+  - Defer the review to a follow-up sprint — rejected because un-reviewed code crossing the sub-sprint merge boundary contaminates main with un-vetted commits and makes the next sprint's first task "review the previous sprint" before its real work, which delays unrelated work and conflates sprint scopes.
+tags: [process, governance]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-proof-layer/plan/sprint-02-proof-layer-deferred-00.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-proof-layer/summary/sprint-02-proof-layer-summary-00.md
+---
