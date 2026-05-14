@@ -1,0 +1,154 @@
+import { ELEMENT_CATEGORIES } from './tags.js';
+
+// Translators — one per element category. Each returns {baseFacts, rules, metaFacts}.
+// baseFacts: Array<[predicate, args]> — assertFact inputs.
+// rules:     Array<{ruleId, headAtom, bodyAtoms, metadata}> — defineRule inputs (parameterized).
+//            Field names align with Engine public surface per spec-02 §"Engine public-surface signatures";
+//            headAtom is `[predicate, [...args]]`, bodyAtoms is an array of `[predicate, [...args]]`.
+// metaFacts: Array<[predicate, args]> — provenance / lineage / created_at metadata.
+//
+// Cascade reference: 05-domain-spec.md §2 (translation table), §3.x (per-category schemas), ADR-0003 (approval-as-body-literal).
+
+const TRANSLATORS = Object.freeze({
+  [ELEMENT_CATEGORIES.EVIDENCE]: (args, id, ts) => ({
+    baseFacts: [['evidence', [id, args.source, args.claim]]],
+    rules: [],
+    metaFacts: [['created_at', [id, ts]]],
+  }),
+  [ELEMENT_CATEGORIES.RULE]: (args, id, ts) => ({
+    baseFacts: [['rule_decl', [id, args.statement]]],
+    rules: [],
+    metaFacts: [['created_at', [id, ts]]],
+  }),
+  [ELEMENT_CATEGORIES.PERMISSION]: (args, id, ts) => ({
+    baseFacts: [['permission_decl', [id, args.statement]]],
+    rules: [],
+    metaFacts: [['created_at', [id, ts]]],
+  }),
+  [ELEMENT_CATEGORIES.PROPOSITION]: (args, id, ts) => ({
+    baseFacts: [
+      ['proposition_decl', [id, args.statement, args.inference_pattern]],
+      ['grounding', [id, args.grounding]],
+      ['collapse_test', [id, args.collapse_test]],
+    ],
+    rules: [], // The approval-gated rule lives in RULE_TEMPLATES (Phase B); per-element instantiation happens in Phase C via instantiateTemplate.
+    metaFacts: [['created_at', [id, ts]]],
+  }),
+  [ELEMENT_CATEGORIES.RISK]: (args, id, ts) => ({
+    baseFacts: [['risk', [id, args.statement, args.severity ?? 'unspecified']]],
+    rules: [],
+    metaFacts: [['created_at', [id, ts]]],
+  }),
+  [ELEMENT_CATEGORIES.RESOLUTION]: (args, id, ts) => ({
+    baseFacts: [
+      ['resolution_decl', [id, args.statement]],
+      ...(Array.isArray(args.addresses) ? args.addresses.map(rid => ['addresses', [id, rid]]) : [['addresses', [id, args.addresses]]]),
+    ],
+    rules: [],
+    metaFacts: [['created_at', [id, ts]]],
+  }),
+  [ELEMENT_CATEGORIES.FRICTION]: (args, id, ts) => ({
+    baseFacts: [['friction', [id, args.shape, args.description, args.disposition ?? 'unset']]],
+    rules: [],
+    metaFacts: [['created_at', [id, ts]]],
+  }),
+  [ELEMENT_CATEGORIES.DEFINITION]: (args, id, ts) => ({
+    baseFacts: [['definition_decl', [id, args.term, args.definition]]],
+    rules: [],
+    metaFacts: [['created_at', [id, ts]]],
+  }),
+});
+
+export function translate(category, args, id, ts) {
+  const t = TRANSLATORS[category];
+  if (!t) throw Object.assign(new Error(`UNKNOWN_CATEGORY: ${category}`), { code: 'UNKNOWN_CATEGORY' });
+  return t(args, id, ts);
+}
+
+// RULE_TEMPLATES — parameterized rule shapes for approval-gated categories.
+// Each template, when instantiated with an element id, produces a defineRule call
+// whose body literal includes ['approved', [id, ...]] per ADR-0003.
+
+export const RULE_TEMPLATES = Object.freeze({
+  [ELEMENT_CATEGORIES.PROPOSITION]: Object.freeze({
+    elementCategory: ELEMENT_CATEGORIES.PROPOSITION,
+    build: (elementId) => ({
+      ruleId: `${elementId}_approved_implies_proposition`,
+      headAtom: ['proposition', [elementId, 'S']],
+      bodyAtoms: [
+        ['proposition_decl', [elementId, 'S', '_']],
+        ['approved', [elementId, '_', '_']],
+      ],
+      metadata: { domain_concept: 'necessary_condition', element: elementId },
+    }),
+  }),
+  [ELEMENT_CATEGORIES.RESOLUTION]: Object.freeze({
+    elementCategory: ELEMENT_CATEGORIES.RESOLUTION,
+    build: (elementId) => ({
+      ruleId: `${elementId}_approved_implies_resolution`,
+      headAtom: ['resolution', [elementId, 'S']],
+      bodyAtoms: [
+        ['resolution_decl', [elementId, 'S']],
+        ['approved', [elementId, '_', '_']],
+      ],
+      metadata: { domain_concept: 'resolution', element: elementId },
+    }),
+  }),
+  [ELEMENT_CATEGORIES.DEFINITION]: Object.freeze({
+    elementCategory: ELEMENT_CATEGORIES.DEFINITION,
+    build: (elementId) => ({
+      ruleId: `${elementId}_approved_implies_definition`,
+      headAtom: ['definition', [elementId, 'T', 'D']],
+      bodyAtoms: [
+        ['definition_decl', [elementId, 'T', 'D']],
+        ['approved', [elementId, '_', '_']],
+      ],
+      metadata: { domain_concept: 'definition', element: elementId },
+    }),
+  }),
+});
+
+export function registerRuleTemplates(rulePorts) {
+  // Phase B: install one anchor rule per approval-gated category using a sentinel
+  // placeholder id. Per-element rules are installed at Phase C via instantiateTemplate.
+  // The anchor rule's purpose is to surface stratification failures at boot.
+  //
+  // Per-template try/catch annotates the throw with `templateId` and `ruleId` so the
+  // domain-bridge outer catch can populate DomainBootError({recordId: templateId, ...})
+  // — spec AC-4.3 and AC-5.1 require the error payload to carry the failing template id.
+  for (const [cat, template] of Object.entries(RULE_TEMPLATES)) {
+    const placeholder = `__template_anchor__${cat}`;
+    const r = template.build(placeholder);
+    try {
+      rulePorts.defineRule(r.ruleId, r.headAtom, r.bodyAtoms, { ...r.metadata, isTemplateAnchor: true });
+    } catch (innerErr) {
+      const err = new Error(`Phase B defineRule failed for template '${cat}' (ruleId='${r.ruleId}'): ${innerErr.message}`);
+      err.templateId = cat;
+      err.ruleId = r.ruleId;
+      err.cause = innerErr;
+      throw err;
+    }
+  }
+}
+
+export function instantiateTemplate(idShape, newId, rulePorts) {
+  const template = RULE_TEMPLATES[idShape];
+  if (!template) return; // Non-approval-gated category — no per-element rule.
+  const r = template.build(newId);
+  rulePorts.defineRule(r.ruleId, r.headAtom, r.bodyAtoms, r.metadata);
+}
+
+// EDB-predicate declaration. Returns the set of base-fact predicate names this module
+// emits. Used by boot-validators to construct validPredicates (Phase-A rule heads ∪
+// EDB base-fact predicates). Per the spec's Data Flow §"Session boot" step 5.
+
+const EDB_PREDICATES = Object.freeze(new Set([
+  'evidence', 'rule_decl', 'permission_decl', 'proposition_decl', 'grounding',
+  'collapse_test', 'risk', 'resolution_decl', 'addresses', 'friction',
+  'definition_decl', 'approved', 'two_yes', 'closure_committed', 'closure_pending',
+  'phase', 'round', 'created_at', 'withdrew', 'superseded',
+]));
+
+export function getDeclaredEDBPredicates() {
+  return new Set(EDB_PREDICATES);
+}
