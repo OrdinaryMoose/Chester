@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { ELEMENT_CATEGORIES, CONSENT_SOURCES, RENDER_SECTIONS, assertExhaustive } from '../tags.js';
 import { CATEGORY_REGISTRY, verifyArgsShape } from '../schema.js';
 import { translate, RULE_TEMPLATES, getDeclaredEDBPredicates, instantiateTemplate } from '../translation.js';
+import { registerStatic as registerClosurePolicy } from '../closure-policy.js';
 
 describe('CONCERN — tags', () => {
   it('AC-1.1: ELEMENT_CATEGORIES contains CONCERN with value "concern"', () => {
@@ -102,5 +103,73 @@ describe('CONCERN — Phase-C instantiation', () => {
     expect(calls).toHaveLength(1);
     expect(calls[0].ruleId).toBe('concern_42_approved_implies_concern_status_ratified');
     expect(calls[0].headAtom).toEqual(['concern_status', ['concern_42', 'ratified']]);
+  });
+});
+
+// Helper: boot a real Engine + closure-policy rules in isolation for derivation tests.
+// The substrate fake's _runFixedPoint is a no-op stub (see _fixtures/inMemorySubstrate.js:126),
+// so closure-policy rule firing must be verified against the real Engine. Dynamic import
+// mirrors the pattern at bridge-integration.test.js:31, 37.
+// The real Engine has a flat API: defineRule/assertFact/exists are instance methods.
+async function makeRealEngineWithClosurePolicy() {
+  const { Engine } = await import('../../engine/Engine.js');
+  const engine = new Engine();
+  // closure-policy.registerStatic expects rulePorts with {defineRule, undefineRule, getRule}.
+  // The Engine instance exposes those methods directly.
+  registerClosurePolicy(engine);
+  return engine;
+}
+
+describe('CONCERN — closure-policy rules', () => {
+  it('AC-4.3: covered(C) derives when concern_status(C, ratified) + addresses(R, C) + approved(R, _, _)', async () => {
+    const engine = await makeRealEngineWithClosurePolicy();
+    engine.assertFact('concern', ['concern_1', 'L1', 'D1']);
+    engine.assertFact('concern_status', ['concern_1', 'ratified']);
+    engine.assertFact('resolution_decl', ['resn_1', 'R1-statement']);
+    engine.assertFact('addresses', ['resn_1', 'concern_1']);
+    engine.assertFact('approved', ['resn_1', 'designer', 1700000000]);
+    expect(engine.exists(['covered', ['concern_1']])).toBe(true);
+  });
+
+  it('AC-4.3: covered(C) does NOT derive when addressing Resolution is unapproved', async () => {
+    const engine = await makeRealEngineWithClosurePolicy();
+    engine.assertFact('concern_status', ['concern_1', 'ratified']);
+    engine.assertFact('addresses', ['resn_1', 'concern_1']);
+    // no approved(resn_1, _, _) fact
+    expect(engine.exists(['covered', ['concern_1']])).toBe(false);
+  });
+
+  it('AC-4.1: unaddressed_concern(C) derives when ratified Concern has no covering Resolution', async () => {
+    const engine = await makeRealEngineWithClosurePolicy();
+    engine.assertFact('concern_status', ['concern_1', 'ratified']);
+    expect(engine.exists(['unaddressed_concern', ['concern_1']])).toBe(true);
+  });
+
+  it('AC-4.1: unaddressed_concern(C) does NOT derive when Concern is covered', async () => {
+    const engine = await makeRealEngineWithClosurePolicy();
+    engine.assertFact('concern_status', ['concern_1', 'ratified']);
+    engine.assertFact('addresses', ['resn_1', 'concern_1']);
+    engine.assertFact('approved', ['resn_1', 'designer', 1700000000]);
+    expect(engine.exists(['unaddressed_concern', ['concern_1']])).toBe(false);
+  });
+
+  it('AC-4.1: unaddressed_concern(C) does NOT derive when Concern is draft', async () => {
+    const engine = await makeRealEngineWithClosurePolicy();
+    engine.assertFact('concern_status', ['concern_1', 'draft']);
+    expect(engine.exists(['unaddressed_concern', ['concern_1']])).toBe(false);
+  });
+
+  it('AC-4.2: closure_permitted is blocked when an unaddressed ratified Concern exists', async () => {
+    const engine = await makeRealEngineWithClosurePolicy();
+    engine.assertFact('concern_status', ['concern_1', 'ratified']);
+    expect(engine.exists(['closure_permitted', []])).toBe(false);
+  });
+
+  it('AC-4.2: closure_permitted derives when every ratified Concern is covered', async () => {
+    const engine = await makeRealEngineWithClosurePolicy();
+    engine.assertFact('concern_status', ['concern_1', 'ratified']);
+    engine.assertFact('addresses', ['resn_1', 'concern_1']);
+    engine.assertFact('approved', ['resn_1', 'designer', 1700000000]);
+    expect(engine.exists(['closure_permitted', []])).toBe(true);
   });
 });
