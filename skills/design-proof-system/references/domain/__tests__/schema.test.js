@@ -3,7 +3,7 @@ import { CATEGORY_REGISTRY, verifyArgsShape } from '../schema.js';
 import { ELEMENT_CATEGORIES } from '../tags.js';
 
 describe('schema', () => {
-  it('CATEGORY_REGISTRY has eight descriptors keyed by ELEMENT_CATEGORIES', () => {
+  it('CATEGORY_REGISTRY has nine descriptors keyed by ELEMENT_CATEGORIES', () => {
     expect(Object.keys(CATEGORY_REGISTRY).sort()).toEqual(Object.values(ELEMENT_CATEGORIES).sort());
   });
 

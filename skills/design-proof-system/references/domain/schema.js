@@ -64,6 +64,15 @@ export const CATEGORY_REGISTRY = Object.freeze({
     closedEnumFields: { shape: FRICTION_SHAPES, disposition: FRICTION_DISPOSITIONS },
     authority: { add: [CONSENT_SOURCES.SYSTEM, CONSENT_SOURCES.DESIGNER], revise: [CONSENT_SOURCES.DESIGNER], withdraw: [CONSENT_SOURCES.DESIGNER], ratify: [CONSENT_SOURCES.DESIGNER] },
   }),
+  [ELEMENT_CATEGORIES.CONCERN]: Object.freeze({
+    requiredFields: ['label'],
+    optionalFields: ['description'],
+    sourceConstraint: CONSENT_SOURCES.DESIGNER,
+    idShape: ELEMENT_CATEGORIES.CONCERN,
+    renderSection: RENDER_SECTIONS.PROBLEM,
+    closedEnumFields: {},
+    authority: { add: [CONSENT_SOURCES.DESIGNER], revise: [CONSENT_SOURCES.DESIGNER], withdraw: [CONSENT_SOURCES.DESIGNER], ratify: [CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER] },
+  }),
   [ELEMENT_CATEGORIES.DEFINITION]: Object.freeze({
     requiredFields: ['term', 'definition'],
     optionalFields: ['scope'],
