@@ -1646,3 +1646,96 @@ artifact_refs:
   - skills/execute-write/references/quality-reviewer.md
   - agents/execute-write-quality-reviewer.md
 ---
+
+---
+id: dr-20260515-01-sub-sprint-stays-within-one-proof-system
+date: 2026-05-15
+sprint: 20260511-01-mp-redesign-proof-system/sprint-02-proof-layer-pass-2
+stage: design-specify
+title: Sub-sprint stays within one proof-system boundary
+decision: The Chester repo contains two independently-evolving proof systems — the Domain+Engine system at `skills/design-proof-system/references/` (Datalog cascade + engine + domain bridge) and the older proof-MCP system at `skills/design-large-task/proof-mcp/` — and a single sub-sprint must stay within one system boundary; cross-system parity work requires a dedicated sub-sprint that names both systems in its scope.
+rationale: Sprint-02-pass-2 added the missing `CONCERN` element category to the Domain+Engine system after pass-1 shipped without it. During spec authoring, the proof-MCP system surfaced as an alternative integration target because its older Concern partition (dr-20260504-05) already exists; spec ground-truth review flagged the cross-system slip and the scope was held to the Domain+Engine cascade. The two systems share vocabulary (`concern`, `addresses`, `covered`) but not state schemas, state lifecycles, or APIs — any sub-sprint that edits both in one pass risks silent semantic drift because the cascade documents are not shared and divergence has no automated detector. Future Concern-related work, and any future element-category work, must declare which system it modifies in the spec's first paragraph and route any cross-system parity question to a separate sub-sprint.
+alternatives:
+  - Treat the two systems as one and let any Concern-related sub-sprint touch whichever it needs — rejected because the two state schemas (Engine EDB tuples vs proof-MCP `state.concerns` slot) diverge at every operation and a single sub-sprint cannot hold both invariants without doubling the spec surface; the systems' independent evolution is the source of their separate cascade docs.
+  - Merge the two systems into one canonical proof system before any further element-category work — rejected for this sprint because the merge is itself a master-plan-scale effort (changes both cascades, both APIs, both test suites) that cannot be justified by the narrow "add CONCERN" goal; the boundary declaration buys time to decide whether the merge ever happens.
+tags: [architecture, governance]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-proof-layer-pass-2/spec/sprint-02-proof-layer-pass-2-spec-03.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-proof-layer-pass-2/spec/sprint-02-proof-layer-pass-2-spec-ground-truth-report-01.md
+---
+
+---
+id: dr-20260515-02-covered-addresses-arity-narrowing
+date: 2026-05-15
+sprint: 20260511-01-mp-redesign-proof-system/sprint-02-proof-layer-pass-2
+stage: design-specify
+title: covered(C) uses addresses/2 plus approved/3 over cascade's addresses/3
+decision: When the cascade document and the implemented code disagree on a predicate's arity, the spec adopts the code's arity as the authoritative shape and recovers the cascade's intended semantics by composing additional predicates rather than rewriting the cascade or the code; concretely, `covered(C) :- addresses(R, C), approved(R, _, _)` was adopted in place of cascade §7.2's `covered(C) :- addresses(R, C, _)` because the existing `addresses/2` EDB writer in `domain/writers.js` predates this sprint and `approved/3` already carries the "ratified Resolution" semantic the cascade's third argument was meant to express.
+rationale: Spec ground-truth review (ground-truth-report-01) surfaced the arity mismatch as a CRITICAL ambiguity that would have produced a different bug class depending on which side the implementer matched — changing `addresses/2` to `addresses/3` would have broken every existing Resolution-writer call site, and changing `covered/1` to `addresses(R, C, _)` would have silently dropped the ratification check the cascade prose intended. The composed form `addresses(R, C), approved(R, _, _)` preserves the cascade's intended semantics (a Concern is covered only when at least one ratified Resolution addresses it) while honoring the code's pre-existing wire shape, and lets the cascade document be patched independently in a future sub-sprint without touching this sprint's implementation. The general convention is: in a sub-sprint scoped to add or fix a single capability, prefer composition of existing predicates over arity-changing rewrites; flag the cascade-vs-code divergence in the spec for separate resolution but do not block the current sub-sprint on it. Future sub-sprints that find cascade-vs-code arity mismatches should follow this composition-first pattern.
+alternatives:
+  - Migrate `addresses/2` to `addresses/3` codebase-wide to match cascade §7.2 — rejected because the migration touches every existing Resolution writer, every test that constructs Resolutions, and the wire format between Domain and Engine in a sub-sprint scoped to adding CONCERN — out-of-scope cost for an unrelated cascade-doc cleanup.
+  - Adopt cascade's `addresses(R, C, _)` form for `covered/1` and silently drop the ratification check — rejected because the cascade prose explicitly says "Concerns are covered when a ratified Resolution addresses them" and the third argument's intent was the ratification flag; dropping the check would let unratified Resolutions satisfy `covered/1` and produce false-positive proof-closure signals.
+  - Defer the entire `covered/1` rule to a follow-up sub-sprint and ship CONCERN without a coverage predicate — rejected because CONCERN's primary downstream consumer is closure-gate evaluation, which requires `covered/1` to be derivable; shipping CONCERN without `covered/1` would deliver an unusable element category.
+tags: [convention, architecture, governance]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-proof-layer-pass-2/spec/sprint-02-proof-layer-pass-2-spec-03.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-proof-layer-pass-2/spec/sprint-02-proof-layer-pass-2-spec-ground-truth-report-01.md
+---
+
+---
+id: dr-20260515-03-canary-test-for-known-latent-bug
+date: 2026-05-15
+sprint: 20260511-01-mp-redesign-proof-system/sprint-02-proof-layer-pass-2
+stage: execute-write
+title: Canary tests pin known-broken behavior for pre-existing latent bugs touching the sub-sprint surface
+decision: When a sub-sprint's implementation surface touches a pre-existing latent bug that the sub-sprint will not fix (e.g. an unrelated `SHAPE_INVALID` throw path triggered by `ratifyConcern` due to a stale validator in a sibling module), the implementer writes a canary test that asserts the current broken behavior (the throw, the wrong return, etc.) with an in-test comment naming the bug, the expected correct behavior, and the future sub-sprint that should flip the assertion; the canary documents the broken state at records-altitude and converts to a normal regression test in the fix sub-sprint by inverting one assertion.
+rationale: Sprint-02-pass-2's `ratifyConcern` implementation surfaced a `SHAPE_INVALID` throw originating in a sibling validator that pass-2's scope did not include — the bug is real, the throw is wrong, and a fix would expand scope into validator-rewriting territory unrelated to adding CONCERN. Skipping the test entirely would let future agents assume the throw was intentional; writing a "this should work" test that's expected to fail would leave the suite red; silently catching the throw would erase the signal. The canary pattern threads the needle: the test passes today on `expect(...).toThrow('SHAPE_INVALID')`, the comment block explains the throw is incorrect and names the responsible sub-sprint to fix it, and the future fix flips `.toThrow(...)` to a normal positive assertion in one line. The pattern generalizes to any pre-existing-bug-touches-current-surface situation: pin the broken state with a comment-named owner, defer the fix to a named follow-up sub-sprint, and the canary itself becomes the regression test once the fix lands.
+alternatives:
+  - Skip the test entirely and document the bug only in the sprint deferred file — rejected because the test suite then contains no executable signal that the bug exists; deferred-file entries are read-on-demand, canary tests are run on every CI cycle and surface in coverage maps.
+  - Write a `.skip`'d or `.todo`'d test with the correct assertion — rejected because skip/todo tests do not exercise the code path and produce no signal when the bug is fixed; the suite shows green whether the bug is present or absent.
+  - Expand sub-sprint scope to fix the latent bug — rejected because scope expansion violates the sub-sprint's narrow charter (add CONCERN) and the fix requires changes in a sibling validator module that has its own pending design work; pinning with a canary preserves scope discipline.
+tags: [convention, testing, governance]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-proof-layer-pass-2/plan/sprint-02-proof-layer-pass-2-plan-01.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-proof-layer-pass-2/summary/sprint-02-proof-layer-pass-2-summary-00.md
+---
+
+---
+id: dr-20260515-04-element-id-long-form-over-shorthand
+date: 2026-05-15
+sprint: 20260511-01-mp-redesign-proof-system/sprint-02-proof-layer-pass-2
+stage: design-specify
+title: Element ids use the long-form category name with N suffix
+decision: New element categories use the long-form `${category}_${n}` id shape (e.g. `concern_1`, `concern_2`) emitted by the existing allocator in `domain/ids.js`, not a shorthand abbreviation; when a cascade document specifies a shorthand id (e.g. cascade §3.8's `cern_N`), the spec adopts the long-form to match the allocator and flags the cascade for documentation cleanup rather than introducing a per-category shorthand exception in the allocator.
+rationale: The existing id allocator emits `${idShape}_${n}` where `idShape` is the lowercased category name; every existing element category (`necessary_1`, `resolve_1`, etc.) follows this pattern. Cascade §3.8 specified `cern_N` for Concerns as a shorthand, but adopting the shorthand would require either a special-case branch in the allocator (adds complexity for one category) or a per-category shorthand-map (adds a new vocabulary surface that future categories would have to opt into individually). The long-form pattern is the natural extension of the existing convention, costs zero allocator code, and makes the cascade-vs-code divergence a doc-only cleanup. The general convention: when a cascade document specifies a naming shorthand that conflicts with a uniform allocator pattern already in use, adopt the uniform pattern in code and flag the cascade for doc cleanup; this preserves the allocator's "one rule for all categories" property and avoids drift across future categories.
+alternatives:
+  - Add a per-category shorthand branch in the allocator so `concern` emits `cern_N` — rejected because it special-cases one category, opens the door to per-category shorthand exceptions for every future element type, and replaces a single uniform rule with an open-ended shorthand map.
+  - Adopt `cern_N` everywhere by renaming the allocator's `${idShape}` derivation to consult a shorthand map — rejected because retrofitting requires touching every existing element category's id allocation site and breaks every existing test fixture and stored proof state; cost is disproportionate to the cascade-doc fidelity benefit.
+  - Defer the id choice to a follow-up sub-sprint and ship CONCERN without an id pattern — rejected because the allocator is invoked at element creation time; CONCERN cannot be created without committing to an id shape.
+tags: [convention]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-proof-layer-pass-2/spec/sprint-02-proof-layer-pass-2-spec-03.md
+---
+
+---
+id: dr-20260515-05-derivation-tests-use-real-engine-not-substrate-stub
+date: 2026-05-15
+sprint: 20260511-01-mp-redesign-proof-system/sprint-02-proof-layer-pass-2
+stage: execute-write
+title: Derivation tests use real Engine via dynamic import, not substrate's no-op fixed-point
+decision: Tests that exercise a Datalog derivation rule (e.g. `covered/1`, `approved/3`) must dispatch the rule through the real Engine via the dynamic-import pattern `import('../../engine/Engine.js')` established in `bridge-integration.test.js:37`, not through the in-memory substrate fake whose `_runFixedPoint` is a no-op stub that silently returns the input EDB unchanged; substrate fakes are reserved for tests that exercise Domain-layer state transitions without semantic derivation.
+rationale: The substrate fake under `domain/__mocks__/substrate.js` was authored for fast Domain-layer state-transition tests and its `_runFixedPoint` is documented as a no-op — it does not evaluate any rule and returns the EDB unchanged. Tests that exercise derivation rules through the substrate therefore always pass regardless of whether the rule is correctly defined, broken, or absent, producing a green test suite with zero derivation coverage. The real-Engine pattern in `bridge-integration.test.js` dynamically imports the production Engine and runs the actual fixed-point, which catches rule definition errors, predicate arity mismatches, and binding failures at test time. This is a narrower companion to dr-20260514-06's cross-layer real-import convention: that convention requires one real-import test per cross-layer-consuming module to catch topology divergence; this convention adds that any derivation-rule test specifically must use the real Engine because the substrate stub cannot execute derivation. Future sub-sprints that add new Datalog rules or modify existing ones must include at least one real-Engine derivation test per rule; pure state-transition tests may continue using the substrate fake.
+alternatives:
+  - Implement `_runFixedPoint` in the substrate fake to evaluate rules in memory — rejected because it duplicates the Engine's evaluation logic in a test-only fake, creates a second derivation surface that can drift from the real Engine (the exact bug class dr-20260514-06 was created to prevent), and any divergence between the two evaluators produces ghost failures that pass in one and fail in the other.
+  - Mark derivation-rule tests as `.skip` until the substrate gains a real evaluator — rejected because skipped tests provide no signal and the substrate-evaluator implementation is not on any current sub-sprint's roadmap; skipping pushes the coverage gap forward indefinitely.
+  - Require all Domain tests to use the real Engine — rejected because pure state-transition tests (e.g. partition-routing, id-allocation, error-path handling) do not exercise derivation and gain no signal from real-Engine dispatch; the dispatch cost is multiplied by every state-transition test for zero added coverage.
+tags: [convention, testing, architecture]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-proof-layer-pass-2/plan/sprint-02-proof-layer-pass-2-plan-01.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-proof-layer-pass-2/summary/sprint-02-proof-layer-pass-2-summary-00.md
+---
