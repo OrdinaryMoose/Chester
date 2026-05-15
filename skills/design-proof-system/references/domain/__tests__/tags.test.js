@@ -13,9 +13,9 @@ describe('tags', () => {
     }
   });
 
-  it('ELEMENT_CATEGORIES has eight known values', () => {
+  it('ELEMENT_CATEGORIES has nine known values', () => {
     expect(new Set(Object.values(tags.ELEMENT_CATEGORIES))).toEqual(
-      new Set(['evidence', 'rule', 'permission', 'proposition', 'risk', 'resolution', 'friction', 'definition'])
+      new Set(['evidence', 'rule', 'permission', 'proposition', 'risk', 'resolution', 'friction', 'concern', 'definition'])
     );
   });
 
