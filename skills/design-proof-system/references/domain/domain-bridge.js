@@ -44,7 +44,7 @@ export function createDomainBridge({ engine: rawEngine, clock, idAllocator, cons
   // Step 5: assemble validPredicates = Phase-A rule heads ∪ EDB predicates
   const validPredicates = getDeclaredEDBPredicates();
   // For sprint-02's scope, Phase-A rule head predicates are added by reading the rule store, OR statically named here.
-  for (const p of ['closure_permitted', 'unresolved_friction', 'unaddressed_concern', 'ungrounded_proposition', 'coverage_gap_detected', 'overlap_detected', 'conflict_detected', 'proposition', 'resolution', 'definition']) validPredicates.add(p);
+  for (const p of ['closure_permitted', 'unresolved_friction', 'unaddressed_concern', 'covered', 'ungrounded_proposition', 'coverage_gap_detected', 'overlap_detected', 'conflict_detected', 'proposition', 'resolution', 'definition', 'concern', 'concern_status']) validPredicates.add(p);
 
   // Step 6: validate OPERATION_SPECS
   validateOperationSpecs(OPERATION_SPECS, tags, validPredicates);
@@ -92,6 +92,14 @@ export function createDomainBridge({ engine: rawEngine, clock, idAllocator, cons
     ratifyDefinition: (args, consent) => runOperation('ratify', { ...args, idShape: tags.ELEMENT_CATEGORIES.DEFINITION }, consent, fullPorts),
     /** @param {object} args @param {object} consent @throws {DomainError} @returns {object} */
     deprecateDefinition: (args, consent) => runOperation('withdraw', { ...args, idShape: tags.ELEMENT_CATEGORIES.DEFINITION }, consent, fullPorts),
+    /** @param {object} args @param {object} consent @throws {DomainError} @returns {object} */
+    addConcern: (args, consent) => runOperation('add', { ...args, idShape: tags.ELEMENT_CATEGORIES.CONCERN }, consent, fullPorts),
+    /** @param {object} args @param {object} consent @throws {DomainError} @returns {object} */
+    reviseConcern: (args, consent) => runOperation('revise', { ...args, idShape: tags.ELEMENT_CATEGORIES.CONCERN }, consent, fullPorts),
+    /** @param {object} args @param {object} consent @throws {DomainError} @returns {object} */
+    ratifyConcern: (args, consent) => runOperation('ratify', { ...args, idShape: tags.ELEMENT_CATEGORIES.CONCERN }, consent, fullPorts),
+    /** @param {object} args @param {object} consent @throws {DomainError} @returns {object} */
+    withdrawConcern: (args, consent) => runOperation('withdraw', { ...args, idShape: tags.ELEMENT_CATEGORIES.CONCERN }, consent, fullPorts),
     /** @param {object} args @throws {DomainError} @returns {Array<object>} */
     queryOverlap: (args) => render.queryProof({ pattern: ['overlap_detected', [{ var: 'T1' }, { var: 'T2' }]] }, readPorts),
     // IClosureSurface
@@ -152,7 +160,7 @@ export function createDomainBridgeWith(deps, overrides = {}) {
   }
 
   const validPredicates = getDeclaredEDBPredicates();
-  for (const p of ['closure_permitted', 'unresolved_friction', 'unaddressed_concern', 'ungrounded_proposition', 'coverage_gap_detected', 'overlap_detected', 'conflict_detected', 'proposition', 'resolution', 'definition']) validPredicates.add(p);
+  for (const p of ['closure_permitted', 'unresolved_friction', 'unaddressed_concern', 'covered', 'ungrounded_proposition', 'coverage_gap_detected', 'overlap_detected', 'conflict_detected', 'proposition', 'resolution', 'definition', 'concern', 'concern_status']) validPredicates.add(p);
 
   validateOperationSpecs(specs, tags, validPredicates);
   validateRuleTemplates(templates, registry);

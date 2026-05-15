@@ -5,7 +5,7 @@
 export const ELEMENT_CATEGORIES = Object.freeze({
   EVIDENCE: 'evidence', RULE: 'rule', PERMISSION: 'permission',
   PROPOSITION: 'proposition', RISK: 'risk', RESOLUTION: 'resolution',
-  FRICTION: 'friction', DEFINITION: 'definition',
+  FRICTION: 'friction', CONCERN: 'concern', DEFINITION: 'definition',
 });
 
 export const PHASES = Object.freeze({

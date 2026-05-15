@@ -52,6 +52,14 @@ const TRANSLATORS = Object.freeze({
     rules: [],
     metaFacts: [['created_at', [id, ts]]],
   }),
+  [ELEMENT_CATEGORIES.CONCERN]: (args, id, ts) => ({
+    baseFacts: [
+      ['concern', [id, args.label, args.description ?? '']],
+      ['concern_status', [id, 'draft']],
+    ],
+    rules: [],
+    metaFacts: [['created_at', [id, ts]]],
+  }),
   [ELEMENT_CATEGORIES.DEFINITION]: (args, id, ts) => ({
     baseFacts: [['definition_decl', [id, args.term, args.definition]]],
     rules: [],
@@ -106,6 +114,18 @@ export const RULE_TEMPLATES = Object.freeze({
       metadata: { domain_concept: 'definition', element: elementId },
     }),
   }),
+  [ELEMENT_CATEGORIES.CONCERN]: Object.freeze({
+    elementCategory: ELEMENT_CATEGORIES.CONCERN,
+    build: (elementId) => ({
+      ruleId: `${elementId}_approved_implies_concern_status_ratified`,
+      headAtom: ['concern_status', [elementId, 'ratified']],
+      bodyAtoms: [
+        ['concern', [elementId, '_', '_']],
+        ['approved', [elementId, '_', '_']],
+      ],
+      metadata: { domain_concept: 'concern_status_ratified', element: elementId },
+    }),
+  }),
 });
 
 export function registerRuleTemplates(rulePorts) {
@@ -145,7 +165,8 @@ export function instantiateTemplate(idShape, newId, rulePorts) {
 const EDB_PREDICATES = Object.freeze(new Set([
   'evidence', 'rule_decl', 'permission_decl', 'proposition_decl', 'grounding',
   'collapse_test', 'risk', 'resolution_decl', 'addresses', 'friction',
-  'friction_disposition', 'definition_decl', 'approved', 'two_yes',
+  'friction_disposition', 'definition_decl', 'concern', 'concern_status',
+  'approved', 'two_yes',
   'closure_committed', 'closure_pending', 'phase', 'round', 'created_at',
   'withdrew', 'superseded',
 ]));

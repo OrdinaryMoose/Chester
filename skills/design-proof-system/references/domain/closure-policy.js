@@ -23,8 +23,18 @@ export function registerStatic(rulePorts) {
   rulePorts.defineRule(
     'unaddressed_concern_rule',
     ['unaddressed_concern', ['C']],
-    [['risk', ['C', '_', '_']], ['not', ['addresses', ['_', 'C']]]],
+    [['concern_status', ['C', 'ratified']], ['not', ['covered', ['C']]]],
     { domain_concept: 'unaddressed_concern', module: 'closure-policy' },
+  );
+  rulePorts.defineRule(
+    'covered_rule',
+    ['covered', ['C']],
+    [
+      ['concern_status', ['C', 'ratified']],
+      ['addresses', ['R', 'C']],
+      ['approved', ['R', '_', '_']],
+    ],
+    { domain_concept: 'covered', module: 'closure-policy' },
   );
   // Diagnostic rules — derive closure_failure_reason(Id) so triggerGate can list the
   // offending elements when the gate fails. Plan Background §7 names this predicate as

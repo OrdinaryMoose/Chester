@@ -130,7 +130,7 @@ export function runOperation(verbName, args, consent, ports) {
     for (const r of rules) ports.rules.defineRule(r.ruleId, r.headAtom, r.bodyAtoms, r.metadata);
     for (const [pred, a] of metaFacts) ports.facts.assertFact(pred, a);
     // Phase-C template instantiation for approval-gated categories.
-    if ([ELEMENT_CATEGORIES.PROPOSITION, ELEMENT_CATEGORIES.RESOLUTION, ELEMENT_CATEGORIES.DEFINITION].includes(targetShape) && verbName === ACTION_LABELS.ADD) {
+    if ([ELEMENT_CATEGORIES.PROPOSITION, ELEMENT_CATEGORIES.RESOLUTION, ELEMENT_CATEGORIES.DEFINITION, ELEMENT_CATEGORIES.CONCERN].includes(targetShape) && verbName === ACTION_LABELS.ADD) {
       instantiateTemplate(targetShape, id, ports.rules);
     }
 
