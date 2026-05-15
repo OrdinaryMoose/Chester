@@ -2,6 +2,19 @@
 
 This repo contains Chester — a skill-based development workflow framework for Claude Code, distributed as a plugin.
 
+## System Boundary (Hard Rule)
+
+**`skills/design-proof-system/` and `skills/design-large-task/proof-mcp/` are different systems. The systems do not cross.**
+
+- Do not conflate the systems.
+- Do not refer to them in the same prompt.
+- Do not ingest research information on one when researching the other.
+- Do not output any information that references both.
+
+This rule applies to the primary agent, all dispatched subagents (architects, reviewers, implementers), all artifacts (briefs, specs, plans, reports, summaries), and all conversational output. When working on one system, do not grep, read, or reference any file under the other. When framing scope or out-of-scope items, do not name the other system — say "outside this sub-sprint's scope" rather than naming `proof-mcp` or `design-proof-system` to explain what is not in scope.
+
+The two systems happen to have parallel data structures in places. That parallelism is the boundary doing its job, not a smell to surface. Cross-system unification, if it ever happens, is its own scope dispatched with this rule still in force.
+
 ## Repository Structure
 
 - `.claude-plugin/plugin.json` — Plugin manifest (name: `chester`).
