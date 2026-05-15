@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { ELEMENT_CATEGORIES, CONSENT_SOURCES, RENDER_SECTIONS, assertExhaustive } from '../tags.js';
 import { CATEGORY_REGISTRY, verifyArgsShape } from '../schema.js';
-import { translate, RULE_TEMPLATES, getDeclaredEDBPredicates } from '../translation.js';
+import { translate, RULE_TEMPLATES, getDeclaredEDBPredicates, instantiateTemplate } from '../translation.js';
 
 describe('CONCERN — tags', () => {
   it('AC-1.1: ELEMENT_CATEGORIES contains CONCERN with value "concern"', () => {
@@ -87,5 +87,20 @@ describe('CONCERN — translation', () => {
     ]);
     expect(built.metadata.domain_concept).toBe('concern_status_ratified');
     expect(built.metadata.element).toBe('concern_1');
+  });
+});
+
+describe('CONCERN — Phase-C instantiation', () => {
+  it('AC-2.3: instantiateTemplate(CONCERN, id) installs the per-element ratify-derives rule', () => {
+    const calls = [];
+    const fakeRulePorts = {
+      defineRule: (ruleId, headAtom, bodyAtoms, metadata) => {
+        calls.push({ ruleId, headAtom, bodyAtoms, metadata });
+      },
+    };
+    instantiateTemplate('concern', 'concern_42', fakeRulePorts);
+    expect(calls).toHaveLength(1);
+    expect(calls[0].ruleId).toBe('concern_42_approved_implies_concern_status_ratified');
+    expect(calls[0].headAtom).toEqual(['concern_status', ['concern_42', 'ratified']]);
   });
 });
