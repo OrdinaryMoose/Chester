@@ -70,6 +70,12 @@ const TRANSLATORS = Object.freeze({
       // defaults to 'global' — all unscoped definitions share scope, preserving the
       // pre-fix behavior for callers who don't think about scoping.
       ['definition_scope', [id, args.scope ?? 'global']],
+      // definition_self(id, id) is the Datalog-inequality trick: the overlap_rule
+      // body negates definition_self(T1, T2) to exclude reflexive matches (T1=T2).
+      // Pure Datalog has no inequality predicate, so we materialize self-reference
+      // as an EDB fact and negate it. For non-reflexive bindings (T1≠T2),
+      // definition_self(T1, T2) doesn't exist and the negation succeeds.
+      ['definition_self', [id, id]],
     ],
     rules: [],
     metaFacts: [['created_at', [id, ts]]],
@@ -174,7 +180,7 @@ export function instantiateTemplate(idShape, newId, rulePorts) {
 const EDB_PREDICATES = Object.freeze(new Set([
   'evidence', 'rule_decl', 'permission_decl', 'proposition_decl', 'grounding',
   'collapse_test', 'risk', 'resolution_decl', 'addresses', 'friction',
-  'friction_disposition', 'definition_decl', 'definition_scope',
+  'friction_disposition', 'definition_decl', 'definition_scope', 'definition_self',
   'concern', 'concern_status',
   'approved', 'two_yes',
   'closure_committed', 'closure_pending', 'phase', 'round', 'created_at',

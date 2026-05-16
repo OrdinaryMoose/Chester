@@ -53,14 +53,24 @@ export function registerStatic(rulePorts) {
     { domain_concept: 'effective_addresses', module: 'closure-policy' },
   );
 
-  // closure_permitted derives when all concerns are addressed AND no unresolved friction exists.
-  // The body uses negation-as-failure on unresolved_friction and unaddressed_concern.
+  // closure_permitted derives when no friction (operator-elevated or auto-detected),
+  // no unaddressed concern, and no structural-error detection is present. The first
+  // two clauses cover operator-managed state (frictions/concerns); the last three
+  // auto-escalate structural problems detected by friction-policy — coverage gaps
+  // (risk without resolution), ungrounded propositions (proposition with no live
+  // grounding), and overlaps (two definitions same term + scope). Per-detection
+  // closure_failure_reason rules below populate the per-id list that triggerGate
+  // surfaces. Operators who want to tolerate a detected structural problem must
+  // explicitly elevate it to a FRICTION element and disposition it.
   rulePorts.defineRule(
     'closure_permitted_rule',
     ['closure_permitted', []],
     [
       ['not', ['unresolved_friction', ['_']]],
       ['not', ['unaddressed_concern', ['_']]],
+      ['not', ['coverage_gap_detected', ['_']]],
+      ['not', ['ungrounded_proposition', ['_']]],
+      ['not', ['overlap_detected', ['_', '_']]],
     ],
     { domain_concept: 'closure_permitted', module: 'closure-policy' },
   );
@@ -116,6 +126,30 @@ export function registerStatic(rulePorts) {
     ['closure_failure_reason', ['C']],
     [['unaddressed_concern', ['C']]],
     { domain_concept: 'closure_failure_reason', source: 'unaddressed_concern', module: 'closure-policy' },
+  );
+  // Auto-escalation diagnostic rules — mirror the friction/concern reason rules for
+  // the three structural-error detections now blocking closure. Each emits the
+  // offending element id(s) into closure_failure_reason so triggerGate's message
+  // can name what's blocking.
+  rulePorts.defineRule(
+    'closure_failure_reason_from_coverage_gap_rule',
+    ['closure_failure_reason', ['C']],
+    [['coverage_gap_detected', ['C']]],
+    { domain_concept: 'closure_failure_reason', source: 'coverage_gap_detected', module: 'closure-policy' },
+  );
+  rulePorts.defineRule(
+    'closure_failure_reason_from_ungrounded_proposition_rule',
+    ['closure_failure_reason', ['P']],
+    [['ungrounded_proposition', ['P']]],
+    { domain_concept: 'closure_failure_reason', source: 'ungrounded_proposition', module: 'closure-policy' },
+  );
+  // overlap_detected has arity 2 — fires for both (A,B) and (B,A) bindings, so taking
+  // T1 alone still surfaces both ids in the failure list (via the two orderings).
+  rulePorts.defineRule(
+    'closure_failure_reason_from_overlap_detected_rule',
+    ['closure_failure_reason', ['T1']],
+    [['overlap_detected', ['T1', '_']]],
+    { domain_concept: 'closure_failure_reason', source: 'overlap_detected', module: 'closure-policy' },
   );
 }
 

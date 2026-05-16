@@ -28,11 +28,12 @@ export function registerStatic(rulePorts) {
     ['coverage_gap_detected', ['C']],
     [['risk', ['C', '_', '_']], ['not', ['effective_addresses', ['_', 'C']]], ['not', ['withdrew', ['C']]]],
     { domain_concept: FRICTION_SHAPES.COVERAGE_GAP, module: 'friction-policy' });
-  // overlap_detected fires only when two definitions share BOTH the term AND the scope.
-  // Same term + different scope is treated as intentional dual-use (e.g., Session in a
-  // web context vs Session in an OS context) — not an overlap. The DEFINITION translator
-  // writes definition_scope(id, scope ?? 'global') so unscoped definitions all share the
-  // 'global' default and behave as they did pre-scope-discrimination.
+  // overlap_detected fires only when two distinct definitions share BOTH the term AND
+  // the scope. Same term + different scope is treated as intentional dual-use; same id
+  // (reflexive match) is filtered via not definition_self(T1, T2) — the Datalog-
+  // inequality trick (DEFINITION translator emits definition_self(id, id) at add time;
+  // the negation excludes T1=T2 bindings since they're the only ones for which a
+  // matching self-fact exists).
   rulePorts.defineRule('overlap_rule',
     ['overlap_detected', ['T1', 'T2']],
     [
@@ -40,6 +41,7 @@ export function registerStatic(rulePorts) {
       ['definition_decl', ['T2', 'TERM', '_']],
       ['definition_scope', ['T1', 'SCOPE']],
       ['definition_scope', ['T2', 'SCOPE']],
+      ['not', ['definition_self', ['T1', 'T2']]],
     ],
     { domain_concept: FRICTION_SHAPES.OVERLAP, module: 'friction-policy' });
   // conflict_rule body requires an explicit `conflict_decl(R1, R2)` base fact rather than
