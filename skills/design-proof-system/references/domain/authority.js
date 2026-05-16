@@ -2,16 +2,18 @@ import { CONSENT_SOURCES, ACTION_LABELS, assertExhaustive } from './tags.js';
 import { CATEGORY_REGISTRY } from './schema.js';
 
 /**
- * @param {string} consentCategory — value from tags.CONSENT_SOURCES
+ * @param {string|string[]} allowedSources — single CONSENT_SOURCES value or a list of them
  * @param {{source: string, token?: string}} consent — caller-supplied consent
  * @param {{verify: (consent: any) => boolean}} consentPort — IConsentVerification
  */
-export function verifyConsent(consentCategory, consent, consentPort) {
+export function verifyConsent(allowedSources, consent, consentPort) {
+  const allowed = Array.isArray(allowedSources) ? allowedSources : [allowedSources];
   if (!consent || typeof consent !== 'object') {
     throw Object.assign(new Error('CONSENT_INVALID: missing consent'), { code: 'CONSENT_INVALID' });
   }
-  if (consent.source !== consentCategory) {
-    throw Object.assign(new Error(`CONSENT_INVALID: source ${consent.source} does not match required ${consentCategory}`), { code: 'CONSENT_INVALID' });
+  if (!allowed.includes(consent.source)) {
+    const expected = allowed.length === 1 ? allowed[0] : `one of [${allowed.join(', ')}]`;
+    throw Object.assign(new Error(`CONSENT_INVALID: source ${consent.source} does not match required ${expected}`), { code: 'CONSENT_INVALID' });
   }
   if (!consentPort.verify(consent)) {
     throw Object.assign(new Error('CONSENT_INVALID: port rejected'), { code: 'CONSENT_INVALID' });

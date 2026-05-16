@@ -1,7 +1,7 @@
-import { ACTION_LABELS, CONSENT_SOURCES, ELEMENT_CATEGORIES } from './tags.js';
+import { ACTION_LABELS, CONSENT_SOURCES, ELEMENT_CATEGORIES, FRICTION_DISPOSITIONS } from './tags.js';
 import { verifyArgsShape } from './schema.js';
 import { translate, instantiateTemplate } from './translation.js';
-import { verifyConsent } from './authority.js';
+import { verifyConsent, lookupAuthority } from './authority.js';
 import { advance } from './lifecycle.js';
 import { triggerGate as closureTriggerGate } from './closure-policy.js';
 
@@ -44,7 +44,19 @@ export const OPERATION_SPECS = Object.freeze({
     consentCategory: CONSENT_SOURCES.DESIGNER,
     preconditions: [],
     idShape: ELEMENT_CATEGORIES.EVIDENCE,
-    translate: (args, id, ts) => translate(args.idShape, args, id, ts),
+    // REVISE creates a NEW element (fresh id) and links it to the original via a
+    // `superseded(new_id, args.supersedes)` metaFact. The original element is left
+    // extant — operators who want to retire it should call withdrawElement separately.
+    // The per-category translator runs first to produce the new element's facts;
+    // we then append the supersession link.
+    translate: (args, id, ts) => {
+      const inner = translate(args.idShape, args, id, ts);
+      return {
+        baseFacts: inner.baseFacts,
+        rules: inner.rules,
+        metaFacts: [...inner.metaFacts, ['superseded', [id, args.supersedes]]],
+      };
+    },
     postconditions: [],
     clearsTwoYes: true,
     resultShape: { id: 'string' },
@@ -53,6 +65,18 @@ export const OPERATION_SPECS = Object.freeze({
     consentCategory: CONSENT_SOURCES.DESIGNER,
     preconditions: [],
     idShape: ELEMENT_CATEGORIES.EVIDENCE,
+    // The verb's args are operation-shaped — only `id` matters. argShape overrides the
+    // default idShape→CATEGORY_REGISTRY lookup in runOperation so verifyArgsShape checks
+    // the actual args the WITHDRAW translator consumes, not EVIDENCE's element shape.
+    // (Note: the per-category authority lookup in runOperation step 2 still defaults to
+    // EVIDENCE here. Today this is harmless because every category's authority.withdraw
+    // allowlist contains DESIGNER; a future category with a non-DESIGNER WITHDRAW source
+    // would need this verb to discover the target element's actual category at call time.)
+    argShape: {
+      label: 'withdraw',
+      requiredFields: ['id'],
+      closedEnumFields: {},
+    },
     translate: (args) => ({ baseFacts: [['withdrew', [args.id]]], rules: [], metaFacts: [] }),
     postconditions: [],
     clearsTwoYes: true,
@@ -62,7 +86,21 @@ export const OPERATION_SPECS = Object.freeze({
     consentCategory: CONSENT_SOURCES.DESIGNER, // Authorities for ratify are looked up per element category via authority.lookupAuthority.
     preconditions: [{ predicate: 'evidence', arity: 3 }], // weak: just confirms an element exists pre-derivation.
     idShape: ELEMENT_CATEGORIES.EVIDENCE,
-    translate: (args, _, ts) => ({ baseFacts: [['approved', [args.elementId, args.source ?? CONSENT_SOURCES.DESIGNER, ts]]], rules: [], metaFacts: [] }),
+    // Writes two facts: `approved` (consumed by per-element rule templates for derivation,
+    // existing semantics) and `two_yes` (purely observability — lets the two_yes_complete
+    // derived predicate detect when both DESIGNER and DESIGN_PARTNER have ratified an
+    // element, without altering existing single-source approval semantics).
+    translate: (args, _, ts) => {
+      const source = args.source ?? CONSENT_SOURCES.DESIGNER;
+      return {
+        baseFacts: [
+          ['approved', [args.elementId, source, ts]],
+          ['two_yes', [args.elementId, source]],
+        ],
+        rules: [],
+        metaFacts: [],
+      };
+    },
     postconditions: [],
     clearsTwoYes: true,
     resultShape: {},
@@ -71,6 +109,14 @@ export const OPERATION_SPECS = Object.freeze({
     consentCategory: CONSENT_SOURCES.DESIGNER,
     preconditions: [],
     idShape: ELEMENT_CATEGORIES.FRICTION,
+    // The verb's args are operation-shaped (frictionId, disposition), not element-shaped
+    // (shape, description). argShape overrides the default idShape→CATEGORY_REGISTRY lookup
+    // in runOperation so verifyArgsShape checks the actual args the translator consumes.
+    argShape: {
+      label: 'manage_friction',
+      requiredFields: ['frictionId', 'disposition'],
+      closedEnumFields: { disposition: FRICTION_DISPOSITIONS },
+    },
     translate: (args, id, ts) => ({ baseFacts: [['friction_disposition', [args.frictionId, args.disposition]]], rules: [], metaFacts: [] }),
     postconditions: [],
     customPostCheck: (args, readPorts) => null, // friction-policy.applyDisposition; placeholder returns null.
@@ -112,11 +158,44 @@ export function runOperation(verbName, args, consent, ports) {
   if (!spec) throw new DomainError({ code: 'UNKNOWN_VERB', verbName });
 
   // §6.1 step 2: verify consent
-  verifyConsent(spec.consentCategory, consent, ports.consent);
+  // For verbs whose target element category is determinable from args (ADD/REVISE/WITHDRAW),
+  // consult CATEGORY_REGISTRY[idShape].authority[action] — that's the authoritative per-category
+  // allowlist. It's how FRICTION admits SYSTEM-source consent for automated detection while
+  // keeping DESIGNER-only on most other categories. For verbs without per-action authority
+  // mapping (manage_friction, present_closing_argument, confirm_closure_go, open_proof) and
+  // for ratify (whose target category requires looking up the existing element — pre-existing
+  // TODO noted on the RATIFY spec), fall back to spec.consentCategory.
+  const targetShape = args.idShape ?? spec.idShape;
+  const perCategoryAuthority = (verbName === ACTION_LABELS.ADD || verbName === ACTION_LABELS.REVISE || verbName === ACTION_LABELS.WITHDRAW)
+    ? lookupAuthority(targetShape, verbName)
+    : [];
+  const allowedSources = perCategoryAuthority.length > 0 ? perCategoryAuthority : spec.consentCategory;
+  verifyConsent(allowedSources, consent, ports.consent);
+
+  // §6.1 step 2b: REVISE requires args.idShape so the per-category shape-check resolves
+  // to the correct schema. Without this guard, REVISE without idShape silently defaults
+  // to spec.idShape (EVIDENCE) and produces a misleading "missing source for evidence"
+  // error when the operator passed e.g. a proposition id. Run before step 3 so the
+  // shape-check sees a meaningful targetShape.
+  if (verbName === ACTION_LABELS.REVISE && !args.idShape) {
+    throw Object.assign(new Error('SHAPE_INVALID: REVISE requires args.idShape (one of ELEMENT_CATEGORIES) so the shape-check resolves to the correct per-category schema'), { code: 'SHAPE_INVALID', field: 'idShape' });
+  }
 
   // §6.1 step 3: verify shape
-  const targetShape = args.idShape ?? spec.idShape;
-  verifyArgsShape(args, targetShape);
+  // spec.argShape (when present) is an inline operation-arg descriptor used by verbs whose
+  // args don't match an element-category shape (e.g. MANAGE_FRICTION). When absent, fall back
+  // to the same targetShape (element-category shape) used for consent lookup.
+  const argShapeTarget = spec.argShape ?? targetShape;
+  verifyArgsShape(args, argShapeTarget);
+
+  // §6.1 step 3b: REVISE requires args.supersedes naming the prior element id. Validated
+  // here rather than in argShape because REVISE also needs the per-category fields (which
+  // argShape would short-circuit if it were the only descriptor used).
+  if (verbName === ACTION_LABELS.REVISE) {
+    if (typeof args.supersedes !== 'string' || args.supersedes.length === 0) {
+      throw Object.assign(new Error('SHAPE_INVALID: REVISE requires args.supersedes (string) naming the element being revised'), { code: 'SHAPE_INVALID', field: 'supersedes' });
+    }
+  }
 
   // §6.1 step 4: begin tx
   const tx = ports.tx.begin();
@@ -129,8 +208,11 @@ export function runOperation(verbName, args, consent, ports) {
     for (const [pred, a] of baseFacts) ports.facts.assertFact(pred, a);
     for (const r of rules) ports.rules.defineRule(r.ruleId, r.headAtom, r.bodyAtoms, r.metadata);
     for (const [pred, a] of metaFacts) ports.facts.assertFact(pred, a);
-    // Phase-C template instantiation for approval-gated categories.
-    if ([ELEMENT_CATEGORIES.PROPOSITION, ELEMENT_CATEGORIES.RESOLUTION, ELEMENT_CATEGORIES.DEFINITION, ELEMENT_CATEGORIES.CONCERN].includes(targetShape) && verbName === ACTION_LABELS.ADD) {
+    // Phase-C template instantiation for approval-gated categories. Fires for both ADD
+    // and REVISE: REVISE produces a new element with its own id, which needs its own
+    // per-element approval rule installed so that ratification can later derive the
+    // public predicate (proposition/resolution/definition/concern_status) for it.
+    if ([ELEMENT_CATEGORIES.PROPOSITION, ELEMENT_CATEGORIES.RESOLUTION, ELEMENT_CATEGORIES.DEFINITION, ELEMENT_CATEGORIES.CONCERN].includes(targetShape) && (verbName === ACTION_LABELS.ADD || verbName === ACTION_LABELS.REVISE)) {
       instantiateTemplate(targetShape, id, ports.rules);
     }
 

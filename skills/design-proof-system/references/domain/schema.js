@@ -84,13 +84,22 @@ export const CATEGORY_REGISTRY = Object.freeze({
   }),
 });
 
-export function verifyArgsShape(args, idShape) {
-  const desc = CATEGORY_REGISTRY[idShape];
-  if (!desc) throw Object.assign(new Error(`SHAPE_INVALID: unknown idShape ${idShape}`), { code: 'SHAPE_INVALID' });
-  for (const f of desc.requiredFields) {
-    if (!(f in args)) throw Object.assign(new Error(`SHAPE_INVALID: missing required field "${f}" for ${idShape}`), { code: 'SHAPE_INVALID', field: f });
+/**
+ * @param {object} args
+ * @param {string|{requiredFields?: string[], closedEnumFields?: object, label?: string}} shapeOrDescriptor
+ *   String → looked up in CATEGORY_REGISTRY (element-category shape, original behavior).
+ *   Object → inline descriptor, used by operations whose arg shape is not an element-category
+ *   shape (e.g. MANAGE_FRICTION takes {frictionId, disposition}, not the FRICTION element shape).
+ */
+export function verifyArgsShape(args, shapeOrDescriptor) {
+  const isInline = shapeOrDescriptor !== null && typeof shapeOrDescriptor === 'object';
+  const desc = isInline ? shapeOrDescriptor : CATEGORY_REGISTRY[shapeOrDescriptor];
+  const label = isInline ? (shapeOrDescriptor.label ?? '<inline>') : shapeOrDescriptor;
+  if (!desc) throw Object.assign(new Error(`SHAPE_INVALID: unknown idShape ${shapeOrDescriptor}`), { code: 'SHAPE_INVALID' });
+  for (const f of (desc.requiredFields ?? [])) {
+    if (!(f in args)) throw Object.assign(new Error(`SHAPE_INVALID: missing required field "${f}" for ${label}`), { code: 'SHAPE_INVALID', field: f });
   }
-  for (const [field, set] of Object.entries(desc.closedEnumFields)) {
+  for (const [field, set] of Object.entries(desc.closedEnumFields ?? {})) {
     if (field in args) {
       try {
         assertExhaustive(args[field], set, field);

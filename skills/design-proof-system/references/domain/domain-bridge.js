@@ -21,9 +21,12 @@ export function createDomainBridge({ engine: rawEngine, clock, idAllocator, cons
   // or flat-API (real sprint-01 Engine). See engine-port-adapter.js for detection.
   const engine = normalizeEngine(rawEngine);
   // Step 2: construct four frozen port bundles
-  const readPorts = Object.freeze({ query: engine.query, explain: engine.explain });
+  // readPorts gets `getAllRules` (a single function, not the full rules port bundle)
+  // so renderDatalogProjection can serialize the rule store. Exposing only the function
+  // keeps the read-side surface narrow — defineRule/undefineRule remain write-side only.
+  const readPorts = Object.freeze({ query: engine.query, explain: engine.explain, getAllRules: () => engine.rules.allRules() });
   const writePorts = Object.freeze({ facts: engine.facts, rules: engine.rules, query: engine.query, explain: engine.explain, tx: engine.tx });
-  const probePorts = Object.freeze({ query: engine.query, explain: engine.explain, snapshot: engine.snapshot, facts: engine.facts });
+  const probePorts = Object.freeze({ query: engine.query, explain: engine.explain, snapshot: engine.snapshot, facts: engine.facts, hasOpenTransaction: () => engine.tx?.hasOpenTransaction?.() ?? false });
   const fullPorts = Object.freeze({
     ...writePorts, ...probePorts,
     clock, ids: idAllocator, consent: consentVerification, persist: persistenceRepo,
@@ -44,7 +47,7 @@ export function createDomainBridge({ engine: rawEngine, clock, idAllocator, cons
   // Step 5: assemble validPredicates = Phase-A rule heads ∪ EDB predicates
   const validPredicates = getDeclaredEDBPredicates();
   // For sprint-02's scope, Phase-A rule head predicates are added by reading the rule store, OR statically named here.
-  for (const p of ['closure_permitted', 'unresolved_friction', 'unaddressed_concern', 'covered', 'ungrounded_proposition', 'coverage_gap_detected', 'overlap_detected', 'conflict_detected', 'proposition', 'resolution', 'definition', 'concern', 'concern_status']) validPredicates.add(p);
+  for (const p of ['closure_permitted', 'unresolved_friction', 'unaddressed_concern', 'covered', 'effective_addresses', 'ungrounded_proposition', 'effective_grounding', 'coverage_gap_detected', 'overlap_detected', 'conflict_detected', 'proposition', 'resolution', 'definition', 'concern', 'concern_status', 'phase', 'two_yes_complete']) validPredicates.add(p);
 
   // Step 6: validate OPERATION_SPECS
   validateOperationSpecs(OPERATION_SPECS, tags, validPredicates);
@@ -123,7 +126,29 @@ export function createDomainBridge({ engine: rawEngine, clock, idAllocator, cons
     getProofState: (args) => render.getProofState(args, readPorts),
     /** @param {{pattern: [string, any[]]}} args @throws {DomainError} @returns {Array<object>} */
     queryProof: (args) => render.queryProof(args, readPorts),
-    /** @param {{propId: string}} args @throws {DomainError} @returns {{stillCloses: boolean, failureReasons: string[]}} */
+    /**
+     * Aggregated friction-policy detections across all four detection shapes
+     * (UNGROUNDED, COVERAGE_GAP, OVERLAP, CONFLICT). Symmetric pair shapes
+     * (OVERLAP, CONFLICT) are canonicalized — one finding per distinct semantic
+     * pair, no reflexive matches, no symmetric duplicates. See friction-policy.js.
+     * @returns {Array<{shape: string, args: any[]}>}
+     */
+    detectFrictions: () => frictionPolicy.detectFrictions(readPorts),
+    /**
+     * Probe what closure looks like if a proposition's approval were retracted —
+     * implemented via a snapshot/restore bracket that leaves engine state bit-equal
+     * before and after.
+     *
+     * PRECONDITION: must NOT be called while an external transaction is open on the
+     * engine. The snapshot/restore bracket invalidates any in-flight transaction (see
+     * Engine.js `restore()` at line 94-96 — open txs are explicitly cleared during
+     * restore). Calling this with an open tx throws `COUNTERFACTUAL_REFUSED_DURING_TX`
+     * to prevent silent handle invalidation.
+     *
+     * @param {{propId: string}} args
+     * @throws {DomainError} `COUNTERFACTUAL_REFUSED_DURING_TX` if a tx is open
+     * @returns {{stillCloses: boolean, failureReasons: string[]}}
+     */
     runCounterfactual: (args) => counterfactual.collapseTest(args, probePorts),
   });
 }
@@ -146,9 +171,9 @@ export function createDomainBridgeWith(deps, overrides = {}) {
   // of the module-level constants.
   const { engine: rawEngine, clock, idAllocator, consentVerification, persistenceRepo } = deps;
   const engine = normalizeEngine(rawEngine);
-  const readPorts = Object.freeze({ query: engine.query, explain: engine.explain });
+  const readPorts = Object.freeze({ query: engine.query, explain: engine.explain, getAllRules: () => engine.rules.allRules() });
   const writePorts = Object.freeze({ facts: engine.facts, rules: engine.rules, query: engine.query, explain: engine.explain, tx: engine.tx });
-  const probePorts = Object.freeze({ query: engine.query, explain: engine.explain, snapshot: engine.snapshot, facts: engine.facts });
+  const probePorts = Object.freeze({ query: engine.query, explain: engine.explain, snapshot: engine.snapshot, facts: engine.facts, hasOpenTransaction: () => engine.tx?.hasOpenTransaction?.() ?? false });
   const fullPorts = Object.freeze({ ...writePorts, ...probePorts, clock, ids: idAllocator, consent: consentVerification, persist: persistenceRepo });
 
   try { validateCategoryRegistry(registry, tags); }
@@ -160,7 +185,7 @@ export function createDomainBridgeWith(deps, overrides = {}) {
   }
 
   const validPredicates = getDeclaredEDBPredicates();
-  for (const p of ['closure_permitted', 'unresolved_friction', 'unaddressed_concern', 'covered', 'ungrounded_proposition', 'coverage_gap_detected', 'overlap_detected', 'conflict_detected', 'proposition', 'resolution', 'definition', 'concern', 'concern_status']) validPredicates.add(p);
+  for (const p of ['closure_permitted', 'unresolved_friction', 'unaddressed_concern', 'covered', 'effective_addresses', 'ungrounded_proposition', 'effective_grounding', 'coverage_gap_detected', 'overlap_detected', 'conflict_detected', 'proposition', 'resolution', 'definition', 'concern', 'concern_status', 'phase', 'two_yes_complete']) validPredicates.add(p);
 
   validateOperationSpecs(specs, tags, validPredicates);
   validateRuleTemplates(templates, registry);
@@ -203,8 +228,8 @@ export function createDomainBridgeWith(deps, overrides = {}) {
  * Realizes Architecture §10 "Adversary integrates cleanly" payoff.
  */
 export function createReadOnlyAudit(engine) {
-  const readPorts = Object.freeze({ query: engine.query, explain: engine.explain });
-  const probePorts = Object.freeze({ query: engine.query, explain: engine.explain, snapshot: engine.snapshot, facts: engine.facts });
+  const readPorts = Object.freeze({ query: engine.query, explain: engine.explain, getAllRules: () => engine.rules.allRules() });
+  const probePorts = Object.freeze({ query: engine.query, explain: engine.explain, snapshot: engine.snapshot, facts: engine.facts, hasOpenTransaction: () => engine.tx?.hasOpenTransaction?.() ?? false });
   return Object.freeze({
     renderStructuredProof: (args) => render.renderStructuredProof(args, readPorts),
     renderElementDeep: (args) => render.renderElementDeep(args, readPorts),
@@ -213,6 +238,7 @@ export function createReadOnlyAudit(engine) {
     renderLaneSlice: (args) => render.renderLaneSlice(args, readPorts),
     getProofState: (args) => render.getProofState(args, readPorts),
     queryProof: (args) => render.queryProof(args, readPorts),
+    detectFrictions: () => frictionPolicy.detectFrictions(readPorts),
     runCounterfactual: (args) => counterfactual.collapseTest(args, probePorts),
   });
 }

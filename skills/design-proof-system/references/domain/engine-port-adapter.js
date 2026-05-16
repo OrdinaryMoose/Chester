@@ -40,6 +40,7 @@ export function normalizeEngine(engine) {
           engine.defineRule(ruleId, headAtom, bodyAtoms, metadata),
         undefineRule: (ruleId) => engine.undefineRule(ruleId),
         getRule: (ruleId) => engine.getRule(ruleId),
+        allRules: () => engine.allRules(),
       },
       query: {
         query: (pattern) => engine.query(pattern),
@@ -52,6 +53,7 @@ export function normalizeEngine(engine) {
         begin: () => engine.begin(),
         commit: (handle) => engine.commit(handle),
         rollback: (handle) => engine.rollback(handle),
+        hasOpenTransaction: () => engine.hasOpenTransaction(),
       },
       snapshot: {
         snapshot: () => engine.snapshot(),

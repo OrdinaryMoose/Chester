@@ -11,7 +11,7 @@ import { factKey } from './utils.js';
 import { explainFact } from './Explain.js';
 import { captureSnapshot, restoreSnapshot } from './Snapshot.js';
 import { serializeEngine, loadEngineFrom } from './Serializer.js';
-import { tupleRuleToInternal } from './RuleAtomTranslator.js';
+import { tupleRuleToInternal, internalRuleToTuple } from './RuleAtomTranslator.js';
 
 export class Engine {
   constructor() {
@@ -37,6 +37,10 @@ export class Engine {
   }
   undefineRule(ruleId) { this._rules.undefineRule(ruleId); this._markDirty(); }
   getRule(ruleId) { return this._rules.getRule(ruleId); }
+  // Enumerate all installed rules in tuple-format (the same shape defineRule consumes),
+  // so consumers like renderDatalogProjection can serialize the rule store for replay
+  // by a second engine. Returns Array<{ruleId, headAtom, bodyAtoms, metadata}>.
+  allRules() { return this._rules.allRules().map(internalRuleToTuple); }
 
   // §4.3 evaluation
   derive() {
@@ -109,6 +113,11 @@ export class Engine {
   // §4.8 transactions (snapshot-rollback strategy; mutations apply live, snapshot
   // taken at begin() is restored on rollback or discarded on commit).
   _assertNoTx() { if (this._tx) throw { code: 'NESTED_TRANSACTION', message: 'transaction already open' }; }
+  // Public introspection: true iff a transaction is currently open. Used by domain-layer
+  // probes (counterfactual.collapseTest, queryWith, queryWithout) to guard their
+  // snapshot/restore brackets — those brackets would silently invalidate any open tx
+  // via engine.restore() at line 94-96.
+  hasOpenTransaction() { return this._tx !== null; }
   _assertHandleValid(h) {
     if (!this._tx || this._tx.handle !== h) {
       throw { code: 'STALE_HANDLE', message: 'handle does not match active transaction' };
