@@ -5,6 +5,32 @@ import { verifyConsent, lookupAuthority } from './authority.js';
 import { advance } from './lifecycle.js';
 import { triggerGate as closureTriggerGate } from './closure-policy.js';
 
+// Each entry probes whether `id` belongs to that category by checking the EDB
+// representation predicate at its declared arity. Order matters only for ambiguity
+// (no element id should match multiple predicates by construction — id allocator
+// uses category as the prefix). Used by RATIFY to resolve the target element's
+// category at call time so per-category authority lookup can run.
+const _CATEGORY_PROBES = [
+  [ELEMENT_CATEGORIES.EVIDENCE,    'evidence',         3],
+  [ELEMENT_CATEGORIES.RULE,        'rule_decl',        2],
+  [ELEMENT_CATEGORIES.PERMISSION,  'permission_decl',  2],
+  [ELEMENT_CATEGORIES.PROPOSITION, 'proposition_decl', 3],
+  [ELEMENT_CATEGORIES.RISK,        'risk',             3],
+  [ELEMENT_CATEGORIES.RESOLUTION,  'resolution_decl',  2],
+  [ELEMENT_CATEGORIES.FRICTION,    'friction',         4],
+  [ELEMENT_CATEGORIES.CONCERN,     'concern',          3],
+  [ELEMENT_CATEGORIES.DEFINITION,  'definition_decl',  3],
+];
+
+function _resolveElementCategory(id, queryPort) {
+  if (typeof id !== 'string' || id.length === 0) return null;
+  for (const [category, pred, arity] of _CATEGORY_PROBES) {
+    const pattern = [id, ...Array(arity - 1).fill('_')];
+    if (queryPort.exists([pred, pattern])) return category;
+  }
+  return null;
+}
+
 export class DomainError extends Error {
   constructor(payload) {
     super(payload.message ?? payload.code);
@@ -161,14 +187,19 @@ export function runOperation(verbName, args, consent, ports) {
   // For verbs whose target element category is determinable from args (ADD/REVISE/WITHDRAW),
   // consult CATEGORY_REGISTRY[idShape].authority[action] — that's the authoritative per-category
   // allowlist. It's how FRICTION admits SYSTEM-source consent for automated detection while
-  // keeping DESIGNER-only on most other categories. For verbs without per-action authority
-  // mapping (manage_friction, present_closing_argument, confirm_closure_go, open_proof) and
-  // for ratify (whose target category requires looking up the existing element — pre-existing
-  // TODO noted on the RATIFY spec), fall back to spec.consentCategory.
+  // keeping DESIGNER-only on most other categories. RATIFY's target category is determined
+  // by looking up the existing element via _resolveElementCategory (the spec comment on the
+  // RATIFY OperationSpec records this design intent). For verbs without per-action authority
+  // mapping (manage_friction, present_closing_argument, confirm_closure_go, open_proof),
+  // fall back to spec.consentCategory.
   const targetShape = args.idShape ?? spec.idShape;
-  const perCategoryAuthority = (verbName === ACTION_LABELS.ADD || verbName === ACTION_LABELS.REVISE || verbName === ACTION_LABELS.WITHDRAW)
-    ? lookupAuthority(targetShape, verbName)
-    : [];
+  let perCategoryAuthority = [];
+  if (verbName === ACTION_LABELS.ADD || verbName === ACTION_LABELS.REVISE || verbName === ACTION_LABELS.WITHDRAW) {
+    perCategoryAuthority = lookupAuthority(targetShape, verbName);
+  } else if (verbName === ACTION_LABELS.RATIFY) {
+    const resolved = _resolveElementCategory(args.elementId, ports.query);
+    if (resolved) perCategoryAuthority = lookupAuthority(resolved, ACTION_LABELS.RATIFY);
+  }
   const allowedSources = perCategoryAuthority.length > 0 ? perCategoryAuthority : spec.consentCategory;
   verifyConsent(allowedSources, consent, ports.consent);
 
