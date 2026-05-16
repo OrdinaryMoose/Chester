@@ -93,7 +93,7 @@ export function renderDatalogProjection(args, readPorts) {
   const PROJECTION_ARITIES = {
     evidence: 3, rule_decl: 2, permission_decl: 2, proposition_decl: 3,
     grounding: 2, collapse_test: 2, risk: 2, resolution_decl: 2, addresses: 2,
-    friction: 4, friction_disposition: 2, definition_decl: 3,
+    friction: 4, friction_disposition: 2, definition_decl: 3, definition_scope: 2,
     concern: 3, concern_status: 2,
     approved: 3, two_yes: 2,
     closure_committed: 0, closure_pending: 0, round: 1,

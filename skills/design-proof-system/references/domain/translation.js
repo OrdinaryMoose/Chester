@@ -61,7 +61,16 @@ const TRANSLATORS = Object.freeze({
     metaFacts: [['created_at', [id, ts]]],
   }),
   [ELEMENT_CATEGORIES.DEFINITION]: (args, id, ts) => ({
-    baseFacts: [['definition_decl', [id, args.term, args.definition]]],
+    baseFacts: [
+      ['definition_decl', [id, args.term, args.definition]],
+      // definition_scope discriminates legitimate dual-use of a term from real overlaps.
+      // overlap_rule (friction-policy.js) requires same term AND same scope to fire, so
+      // operators with intentionally-distinct definitions of "Session" can pass
+      // scope:'web' vs scope:'os' and avoid the overlap detection. Unspecified scope
+      // defaults to 'global' — all unscoped definitions share scope, preserving the
+      // pre-fix behavior for callers who don't think about scoping.
+      ['definition_scope', [id, args.scope ?? 'global']],
+    ],
     rules: [],
     metaFacts: [['created_at', [id, ts]]],
   }),
@@ -165,7 +174,8 @@ export function instantiateTemplate(idShape, newId, rulePorts) {
 const EDB_PREDICATES = Object.freeze(new Set([
   'evidence', 'rule_decl', 'permission_decl', 'proposition_decl', 'grounding',
   'collapse_test', 'risk', 'resolution_decl', 'addresses', 'friction',
-  'friction_disposition', 'definition_decl', 'concern', 'concern_status',
+  'friction_disposition', 'definition_decl', 'definition_scope',
+  'concern', 'concern_status',
   'approved', 'two_yes',
   'closure_committed', 'closure_pending', 'phase', 'round', 'created_at',
   'withdrew', 'superseded',
