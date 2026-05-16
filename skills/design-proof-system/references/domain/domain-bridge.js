@@ -115,7 +115,16 @@ export function createDomainBridge({ engine: rawEngine, clock, idAllocator, cons
     renderStructuredProof: (args) => render.renderStructuredProof(args, readPorts),
     /** @param {{id: string}} args @throws {DomainError} @returns {object|null} */
     renderElementDeep: (args) => render.renderElementDeep(args, readPorts),
-    /** @param {object} args @throws {DomainError} @returns {object} */
+    /**
+     * Returns the closing-argument summary plus a `detectedFrictions` list of
+     * non-blocking-but-noteworthy structural findings. When `permitted: true`, the
+     * list typically contains DEFERred frictions and any detection categories not
+     * auto-escalated by closure_permitted_rule — operators should review them even
+     * when closure is permitted. When `permitted: false`, the detection list may
+     * overlap with closure_failure_reason.
+     * @param {object} args
+     * @returns {{permitted: boolean, asOf: number, detectedFrictions: Array<{shape: string, args: any[]}>}}
+     */
     renderClosingArgument: (args) => render.renderClosingArgument(args, readPorts),
     /** @param {object} args @throws {DomainError} @returns {{facts: Array, rules: Array}} */
     renderDatalogProjection: (args) => render.renderDatalogProjection(args, readPorts),

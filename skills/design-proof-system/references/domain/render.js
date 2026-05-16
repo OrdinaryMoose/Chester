@@ -63,7 +63,45 @@ export function renderElementDeep(args, readPorts) {
 
 export function renderClosingArgument(args, readPorts) {
   const permitted = readPorts.query.exists(['closure_permitted', []]);
-  return { permitted, asOf: Date.now() };
+  // detectedFrictions surfaces auto-detected structural findings at the rendering
+  // moment so operators see them right next to the permitted decision. With Option A
+  // auto-escalation in place, the closure gate already refuses on coverage_gap,
+  // ungrounded_proposition, and overlap_detected — those would block before this
+  // render is meaningful. The remaining detections this surfaces are:
+  //   - operator-elevated FRICTION elements that have been DEFERred (closure permits
+  //     them via the friction_disposition path, but the operator should still see them)
+  //   - any future detection categories that aren't yet auto-escalated
+  // Failure to compute the friction list never breaks the render — degrade gracefully.
+  let detectedFrictions = [];
+  try {
+    // friction-policy.detectFrictions lives in the domain layer; we re-implement the
+    // public-API summary here against readPorts to avoid circular imports. Each entry
+    // mirrors the {shape, args} shape detectFrictions returns.
+    const SHAPE_QUERIES = [
+      ['ungrounded', 'ungrounded_proposition', ['P']],
+      ['coverage_gap', 'coverage_gap_detected', ['C']],
+    ];
+    for (const [shape, pred, vars] of SHAPE_QUERIES) {
+      const pattern = [pred, vars.map(v => ({ var: v }))];
+      for (const row of readPorts.query.query(pattern)) {
+        detectedFrictions.push({ shape, args: vars.map(v => row[v]) });
+      }
+    }
+    // overlap_detected is symmetric pair-shape — canonicalize like detectFrictions does.
+    const overlapRows = readPorts.query.query(['overlap_detected', [{ var: 'T1' }, { var: 'T2' }]]);
+    const seen = new Set();
+    for (const row of overlapRows) {
+      if (row.T1 === row.T2) continue;
+      const [lo, hi] = row.T1 < row.T2 ? [row.T1, row.T2] : [row.T2, row.T1];
+      const key = `${lo}\x1f${hi}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      detectedFrictions.push({ shape: 'overlap', args: [lo, hi] });
+    }
+  } catch {
+    detectedFrictions = [];
+  }
+  return { permitted, asOf: Date.now(), detectedFrictions };
 }
 
 export function renderDatalogProjection(args, readPorts) {
