@@ -99,11 +99,11 @@ export class Engine {
   }
   serialize() { return serializeEngine(this); }
   loadFrom(serialized) {
-    if (this._tx) throw { code: 'NESTED_TRANSACTION_OP_REFUSED', op: 'loadFrom', message: 'cannot loadFrom during open transaction' };
+    if (this.hasOpenTransaction()) throw { code: 'NESTED_TRANSACTION_OP_REFUSED', op: 'loadFrom', message: 'cannot loadFrom during open transaction' };
     loadEngineFrom(this, serialized);
   }
   clear() {
-    if (this._tx) throw { code: 'NESTED_TRANSACTION_OP_REFUSED', op: 'clear', message: 'cannot clear during open transaction' };
+    if (this.hasOpenTransaction()) throw { code: 'NESTED_TRANSACTION_OP_REFUSED', op: 'clear', message: 'cannot clear during open transaction' };
     this._facts = new FactStore();
     this._rules = new RuleStore();
     this._derived = new Map();
