@@ -80,13 +80,16 @@ export function renderDatalogProjection(args, readPorts) {
   // facts the first engine had. The set below mirrors EDB_PREDICATES at the time of
   // writing; add to both when a new EDB predicate is introduced.
   //
-  // Note on `concern_status`: this predicate is mixed-source — the CONCERN translator
-  // writes (id, 'draft') as an EDB fact, while the CONCERN per-element rule template
-  // derives (id, 'ratified'). Projecting it includes both rows; on replay the second
-  // engine sees the derived row as if it were EDB. This is an idempotency edge —
-  // re-derivation produces the same fact, so replay is functionally correct, but the
-  // projection is not strictly EDB-only. Pure EDB-vs-derived separation would require
-  // an engine-side discriminator the current API doesn't expose.
+  // Note on `concern_status`: this predicate name is shared between EDB and derived
+  // sources — the CONCERN translator writes (id, 'draft') as EDB at addElement time,
+  // and the CONCERN per-element rule template derives (id, 'ratified') after approval.
+  // Per-instance overlap is resolved by the RATIFY translator's retraction of the
+  // 'draft' EDB row at ratify time (mutations.js — CONCERN ratification cleanup), so
+  // a given concern has exactly one concern_status row at any moment. The predicate
+  // name is still mixed-source though: post-ratify projections include the (id, 'ratified')
+  // row as if it were EDB. Replay by a second engine is idempotent — re-derivation
+  // produces the same fact — so replay correctness holds, but pure EDB-only projection
+  // would require an engine-side EDB/derived discriminator the current API doesn't expose.
   const PROJECTION_ARITIES = {
     evidence: 3, rule_decl: 2, permission_decl: 2, proposition_decl: 3,
     grounding: 2, collapse_test: 2, risk: 2, resolution_decl: 2, addresses: 2,

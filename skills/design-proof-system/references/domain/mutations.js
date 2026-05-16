@@ -247,6 +247,21 @@ export function runOperation(verbName, args, consent, ports) {
       instantiateTemplate(targetShape, id, ports.rules);
     }
 
+    // CONCERN ratification cleanup: addElement(CONCERN) writes concern_status(id, 'draft')
+    // as EDB; the CONCERN per-element rule template derives concern_status(id, 'ratified')
+    // once approved. Without retracting the 'draft' row at ratify time, both rows coexist
+    // — concern_status queries return mixed-state results and renderDatalogProjection
+    // includes the obsolete 'draft' row. Retract on ratify so concern_status reflects
+    // only the current lifecycle state. Safe on non-CONCERN ratifications: retractFact
+    // returns false on missing facts (no throw). Gated on the resolved category to keep
+    // intent explicit.
+    if (verbName === ACTION_LABELS.RATIFY) {
+      const ratifyTarget = _resolveElementCategory(args.elementId, ports.query);
+      if (ratifyTarget === ELEMENT_CATEGORIES.CONCERN) {
+        ports.facts.retractFact('concern_status', [args.elementId, 'draft']);
+      }
+    }
+
     // §6.1 step 6: derive (queries auto-trigger; explicit for clarity)
     ports.query.derive();
 
