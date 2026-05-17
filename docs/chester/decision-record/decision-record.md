@@ -1968,3 +1968,154 @@ artifact_refs:
   - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-02/design/sprint-02-bug-fix-02-design-00.md
   - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-02/spec/sprint-02-bug-fix-02-spec-00.md
 ---
+
+---
+id: dr-20260517-13-bundle-consolidation-shared-machinery
+date: 2026-05-17
+sprint: 20260511-01-mp-redesign-proof-system / sprint-02-bug-fix-0306
+stage: design-small-task
+title: Bundle-consolidation precedent for sub-sprints sharing file surface and machinery
+decision: When N planned sub-sprints share file surface (same descriptors, translators, render tables, test layout) and share already-landed enabling machinery (declarative directives, error codes, probe-schema tables), consolidate them into one sub-sprint with a single design brief, single threat report, and single execution loop rather than running them sequentially.
+rationale: Sprint-02-bug-fix-0306 collapsed four planned sub-sprints (originally sprints 03 through 06) into one execution because they all touched `schema.js` descriptors, `translation.js` translators, `render.js` arity tables, and `__tests__/<category>-schema.test.js` files, and all consumed bug-fix-02's `nonEmptyArrayFields` / `referenceFields` / `INVALID_REFERENCE` machinery without needing to extend it. Running them as four sprints would have produced four briefs, four threat reports, four execution loops, and four merges re-disturbing the same files. Consolidation also lets a single threat report cover the combined risk surface, which is exactly how the rule-body audit (dr-20260517-14) surfaced — adversarial review across the bundle saw the cross-bundle pattern that per-bundle review would have missed. Future sprints should apply this consolidation test: same file set + same already-landed enabling code → one sub-sprint.
+alternatives:
+  - Run four sequential sub-sprints — rejected because each merge re-disturbs the same files, duplicates adversarial-review territory, and prevents cross-bundle pattern-detection during plan-attack.
+  - Bundle only the structural fixes and run the deferred-item pickups separately — rejected because deferred items that fold naturally into an already-touched descriptor edit (e.g., DEF-1 RESOLUTION `referenceFields`) cost nothing extra inside the consolidated sprint and require a full sprint cycle if separated.
+tags: [process, governance, architecture]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-0306/design/sprint-02-bug-fix-0306-design-00.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-0306/summary/sprint-02-bug-fix-0306-summary-00.md
+---
+
+---
+id: dr-20260517-14-rule-body-audit-on-predicate-retirement
+date: 2026-05-17
+sprint: 20260511-01-mp-redesign-proof-system / sprint-02-bug-fix-0306
+stage: plan-build
+title: Rule-body audit required when retiring or reshaping a Datalog predicate
+decision: Any sprint that retires, renames, or arity-changes a Datalog predicate MUST audit downstream rule bodies for both arity references and value-literal references against the new schema; the audit is plan-time, surfaced via adversarial review, and produces explicit task-level mitigation steps before execution.
+rationale: Plan-smell and plan-attack jointly surfaced three rule-body consumers of retired/reshaped predicates in sprint-02-bug-fix-0306 that the spec's component inventory had missed — `effective_addresses_rule` (closure-policy.js:50-53) consumed the retired `addresses/2`, `effective_grounding_rule` (friction-policy.js:8-11) consumed the retired `grounding/2`, and `unresolved_friction_rule` (closure-policy.js:85-91) had an arity-4 pattern that would not match arity-5 facts. The closure gate would have broken silently in three places after the predicate changes landed, and existing closure tests used `engine.assertFact('addresses', ...)` directly — bypassing the bridge and producing false-green coverage that hid the breakage. The plan added M1/M2/M3 mitigations, but execute-write also surfaced a Critical follow-up: M3's arity bump kept the `'unset'` literal in the disposition slot, which is unreachable once `disposition` is required-and-closed-enum-constrained, so the rule body had to drop the value match entirely. Forward rule: every future sprint touching a Datalog predicate's shape must include a rule-body audit step that checks both arity and value literals; the audit cannot rely on the existing test suite because raw `assertFact` paths bypass the bridge and amplify false-green.
+alternatives:
+  - Rely on existing test suite to catch rule-body breaks — rejected because closure tests using direct `engine.assertFact` bypass the bridge and produce false-green coverage; the breakage is silent at the "Must remain green" gate.
+  - Audit rule bodies only for arity, not for literal values — rejected because M3's `'unset'` sentinel demonstrated that value literals can also become unreachable after a co-occurring schema change (required field + closed enum), requiring the rule body to drop the value match.
+  - Defer rule-body audits to execute-write code review — rejected because by then the implementer has already written code against the unaudited plan; surfacing the constraint at plan-build keeps the mitigation in the plan text and gives the implementer explicit task-level steps.
+tags: [governance, architecture, process]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-0306/plan/sprint-02-bug-fix-0306-plan-threat-report-00.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-0306/plan/sprint-02-bug-fix-0306-plan-01.md
+---
+
+---
+id: dr-20260517-15-inline-declarative-directive-reuse-over-extraction
+date: 2026-05-17
+sprint: 20260511-01-mp-redesign-proof-system / sprint-02-bug-fix-0306
+stage: design-specify
+title: Inline declarative-directive reuse over shared-module extraction
+decision: When a sprint reshapes multiple proof-element categories using already-landed declarative-directive machinery (`closedEnumFields`, `nonEmptyStringFields`, `nonEmptyArrayFields`, `referenceFields`, `_CATEGORY_PROBES_SCHEMA`, `_CATEGORY_PROBES`), reuse the directives inline at each descriptor site rather than extracting per-directive or per-table modules; defer module extraction (DEF-7) to its own design pass.
+rationale: Sprint-02-bug-fix-0306 reshaped five categories (EVIDENCE, PROPOSITION, RESOLUTION, FRICTION, DEFINITION) using the directive machinery bug-fix-02 had landed, plus parallel-table updates to `_CATEGORY_PROBES_SCHEMA` (schema.js) and `_CATEGORY_PROBES` (mutations.js). Extracting either parallel table to a shared module was considered (DEF-7 in bug-fix-02's deferred list) and explicitly rejected for this sprint because the extraction warrants its own design pass — module boundaries, export shape, and import sites need design work that doesn't fit inside a structural reshape sprint. The inline pattern scales to N categories at constant marginal cost per category because each descriptor block is self-contained: the cost of "five reshapes inline" equals five times the cost of "one reshape inline." Future sprints retiring or reshaping predicates with the existing directive machinery should follow the inline pattern; extraction is its own scope, dispatched only when a sprint dedicated to module-boundary design opens.
+alternatives:
+  - Extract `_CATEGORY_PROBES_SCHEMA` and `_CATEGORY_PROBES` to a shared module during this sprint — rejected because the extraction requires module-boundary decisions (export shape, import sites, structural test for sync) that warrant their own design pass; bundling extraction with reshape work would expand scope and risk architectural drift.
+  - Extract per-directive helpers (e.g., a `closedEnumFields` factory) — rejected because directives are read declaratively at descriptor sites; a factory adds indirection without changing the descriptor's readability or the verifier's behavior.
+  - Inline reshape with strengthened cross-reference comments instead of extraction — adopted as the AC-12.3 mitigation; the comment naming `_CATEGORY_PROBES` in mutations.js and the DEF-7 deferral is the lightweight substitute for the structural test that extraction would enable.
+tags: [architecture, convention]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-0306/spec/sprint-02-bug-fix-0306-spec-02.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-0306/summary/sprint-02-bug-fix-0306-summary-00.md
+---
+
+---
+id: dr-20260517-16-multi-edit-cascade-divergence-gate-exercise
+date: 2026-05-17
+sprint: 20260511-01-mp-redesign-proof-system / sprint-02-bug-fix-0306
+stage: design-specify
+title: Multi-edit cascade-document changes inside a single sub-sprint
+decision: A sub-sprint may make multiple cascade-document edits in `design-documents/cascade/05-domain-spec.md` provided each edit is named in the spec scope, each goes through the Cascade Divergence Gate at `finish-archive-artifacts`, and the cumulative cascade changes are auditable from the spec's Files Touched list.
+rationale: Sprint-02-bug-fix-0306 edited cascade §3.4 (inference_pattern hyphen-to-underscore normalization plus moving the field from "Optional but encouraged" to Required) AND §3.5 (risk arity correction — DEF-8 closure) in one sub-sprint, relaxing bug-fix-02's file-surface boundary that confined changes to `skills/design-proof-system/references/domain/`. The relaxation is justified because both cascade edits are tightly coupled to the domain-implementation changes already in scope: §3.4 mirrors the impl `INFERENCE_PATTERNS` enum normalization landed in `tags.js`, and §3.5 reflects the impl arity already locked in bug-fix-02. Pushing each cascade edit to its own dedicated sprint would have prevented impl-and-cascade convergence in one merge, leaving the cascade in a known-stale state between sprints. The Cascade Divergence Gate handles the reconciliation: working-side edits land in the archive via `finish-archive-artifacts`, and the Gate reports MATCH after the edits flow through. Future sprints can include multiple cascade edits when (a) each is named in the spec, (b) each is structurally coupled to in-scope domain changes, and (c) the Gate path runs at finish. Unbounded cascade-side rewrites still belong to a cascade-aligned sprint.
+alternatives:
+  - One cascade edit per sub-sprint — rejected because tightly-coupled cascade-impl pairs (e.g., enum normalization landing in `tags.js` and §3.4 simultaneously) would be artificially split, leaving the cascade in a known-stale state between sprints.
+  - No cascade edits in bug-fix sub-sprints — rejected because the DEF-8 risk-arity correction was already deferred from bug-fix-02; deferring it again would compound the cascade-vs-impl drift this sprint was chartered to close.
+  - Cascade-side rewrites without naming in the spec — rejected because un-named cascade edits bypass the Cascade Divergence Gate's audit trail and produce silent drift; every cascade touch must be enumerated in the spec scope.
+tags: [governance, process]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-0306/spec/sprint-02-bug-fix-0306-spec-02.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-0306/summary/sprint-02-bug-fix-0306-summary-00.md
+---
+
+---
+id: dr-20260517-17-inference-pattern-enum-underscore-form-impl-canonical
+date: 2026-05-17
+sprint: 20260511-01-mp-redesign-proof-system / sprint-02-bug-fix-0306
+stage: design-small-task
+title: inference_pattern enum normalized to underscore form with impl as canonical
+decision: The PROPOSITION `inference_pattern` enum is normalized to underscore-separated values (`grounds_imply_conclusion`, `rule_applies_to_case`, `permission_licenses_relaxation`, `definition_substitution`, `proposition_composition`); the cascade document at §3.4.1 adapts to the impl form, not the other way around.
+rationale: The cascade at §3.4.1 specified five hyphenated values (`grounds-imply-conclusion`, etc.); the impl had four underscore values (missing `proposition_composition` plus three legacy values that were not in the cascade). The direction decision — hyphen-to-impl-rewrite versus underscore-to-cascade-rewrite — favored underscores for two reasons: (a) JavaScript enum keys conventionally use underscore separators, and the values flow into descriptor literals, `closedEnumFields`, and test fixtures across multiple JS files; (b) the cascade is a single document, while the impl values are referenced from descriptors, translators, render outputs, and tests, so adapting the cascade to the impl form minimizes the touch surface. The cascade's hyphenated form was a documentation-side preference, not a substrate constraint. Future enum-normalization decisions in this codebase should default to JS-convention-canonical (underscore-separated) and adapt the cascade rather than the impl, unless the enum's only consumer is the cascade document itself.
+alternatives:
+  - Rewrite impl values to hyphenated form to match cascade §3.4.1 — rejected because the values are JavaScript enum keys flowing through multiple JS files; the touch surface for hyphen-rewriting impl exceeds the touch surface for underscore-rewriting cascade.
+  - Keep both forms with a translation layer — rejected because dual-vocabulary enums create silent-drop risk: a hyphenated submission could pass one validator and fail another, and the translation layer becomes a new source of bugs.
+  - Defer the direction decision to a formal ADR sprint — considered (D5 open-question in the design brief) but resolved inline once the touch-surface analysis made the direction obvious; preserved as a fallback option if the direction had cascading downstream consequences (it did not).
+tags: [convention, architecture]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-0306/design/sprint-02-bug-fix-0306-design-00.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-0306/spec/sprint-02-bug-fix-0306-spec-02.md
+---
+
+---
+id: dr-20260517-18-structural-reshape-without-enum-vocabulary-normalization
+date: 2026-05-17
+sprint: 20260511-01-mp-redesign-proof-system / sprint-02-bug-fix-0306
+stage: design-specify
+title: Structural reshape without enum-value vocabulary normalization
+decision: A sub-sprint may complete a category's structural reshape (field rename, arity change, new required fields, new reference fields) while explicitly leaving the category's enum-value vocabulary unaligned with the cascade; the enum-value normalization is deferred as a named Non-Goal to a future cascade-alignment sprint.
+rationale: Sprint-02-bug-fix-0306 completed the FRICTION structural reshape — `shape` → `friction_shape` rename, arity 4 → 5, addition of `anchor_a` and `anchor_b` reference fields — but explicitly deferred FRICTION enum-value normalization (cascade §3.7.1 friction shapes and §3.7.2 friction dispositions). The cascade values differ from impl in both vocabulary (e.g., `proposition-proposition-opposing-pull` vs `coverage_gap`) and count (cascade has 4 shapes / 5 dispositions; impl has 5 shapes / 4 dispositions), so enum alignment is a vocabulary-design problem of meaningful size, not a mechanical rename. Bundling enum-value normalization with structural reshape would have expanded scope unpredictably and risked the sprint missing its targeted probe-failure closure. Separating "structural shape" from "vocabulary content" lets each progress at its own pace: structural shape can be locked while vocabulary stays under negotiation, and the probe documents the residual enum-value failures (per AC-10.1) so the next sprint inherits a clear scope. Future sprints should apply this same separation when reshape work and vocabulary work are both pending on the same category.
+alternatives:
+  - Bundle enum-value normalization with the structural reshape — rejected because enum vocabulary alignment is a non-mechanical design problem (vocabulary plus count both differ) that would expand sprint scope and put the targeted probe-failure closure at risk.
+  - Block the structural reshape until enum-value normalization is also designed — rejected because the structural changes (arity, reference fields, required fields) close real engine-level failures and downstream rule-body breaks that should not wait on cascade-side vocabulary negotiation.
+  - Treat residual enum-value probe failures as a sprint failure — rejected because the spec's AC-10.1 explicitly allows documented residuals; classifying them as failure would force the bundling that this decision rejects.
+tags: [governance, architecture]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-0306/spec/sprint-02-bug-fix-0306-spec-02.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-0306/summary/sprint-02-bug-fix-0306-summary-00.md
+---
+
+---
+id: dr-20260517-19-test-scaffolding-template-in-plan-header
+date: 2026-05-17
+sprint: 20260511-01-mp-redesign-proof-system / sprint-02-bug-fix-0306
+stage: plan-build
+title: Test Scaffolding Template mandatory at plan top when new test files multiply
+decision: When a plan creates more than one new test file, the plan MUST include a "Test Scaffolding Template" section at the top of the document specifying the exact import preamble, factory pattern, and async setup that every new test file MUST start with; per-task code samples in the plan show only the body sections and inherit the preamble from the template.
+rationale: Sprint-02-bug-fix-0306's plan-00 included per-task test-code blocks that each repeated a simplified inline test setup, and adversarial review (pass 2) caught two structural bugs propagated across the samples — calls to `bridge.queryPort.query(...)` (which does not exist; the actual API is `bridge.queryProof({ pattern })`) and an import of `Engine` from `'../../engine/index.js'` (no barrel export at that path). Both errors would have replicated across all four new test files if the implementer had followed plan-00 verbatim. Plan-01 hoisted the test scaffolding into a mandatory top-of-document section copying the exact async pattern from `permission-schema.test.js:1-28` (which uses `await makeRealBridge()` correctly), and the implementer applied it cleanly across all four new test files (evidence, resolution, friction, definition). The general rule: when a plan introduces N>1 new test files, the test preamble must be hoisted to a single template section that supersedes any simplified per-task code; per-task samples show only what is distinct to the task. This keeps the preamble in one place where adversarial review can scrutinize it once, and removes the temptation to write simplified samples that diverge from the real pattern.
+alternatives:
+  - Repeat the full async preamble in every per-task code sample — rejected because the preamble drifts across samples (as plan-00 demonstrated), and adversarial review must catch the same bug N times instead of once.
+  - Omit the preamble from per-task samples and rely on the implementer to look up a reference file — rejected because plan-00 essentially did this implicitly, and the simplified samples it included read as authoritative, masking the lookup requirement and leading to incorrect API references.
+  - Add the preamble as a per-task references-block link — rejected because a link does not guarantee the implementer reads it before writing code; the plan must include the literal preamble text at a location adversarial review and the implementer both reach naturally.
+tags: [convention, governance, process]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-0306/plan/sprint-02-bug-fix-0306-plan-01.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-0306/plan/sprint-02-bug-fix-0306-plan-threat-report-00.md
+---
+
+---
+id: dr-20260517-20-critical-fix-via-inline-followup-in-execute-write
+date: 2026-05-17
+sprint: 20260511-01-mp-redesign-proof-system / sprint-02-bug-fix-0306
+stage: execute-write
+title: Critical findings in execute-write resolved via inline follow-up commit
+decision: When the quality reviewer flags a Critical finding during an execute-write task review that the original plan did not anticipate (e.g., a co-occurring schema constraint making a literal value unreachable), the implementer addresses it via an inline follow-up commit in the same task rather than pausing execution to re-dispatch a fresh implementer or amending the original task's commit.
+rationale: Sprint-02-bug-fix-0306 Task 4 (FRICTION arity 4 → 5) landed M3's rule-body update — bumping `unresolved_friction_rule`'s pattern arity from 4 to 5 — but kept the `'unset'` literal in the disposition slot. The reviewer flagged Critical (confidence 92) that disposition is now a required field AND a closed-enum-constrained field, so the `'unset'` literal value can never appear in a `friction/5` fact — the rule pattern would never match and `unresolved_friction` would never derive. The fix was a follow-up commit (`9445616`) dropping the disposition-value match entirely so the body reads `['friction', ['F', '_', '_', '_', '_']]`; the `not friction_disposition(F, _)` clause carries unresolved detection on its own. Following the inline-follow-up pattern preserved the original task's commit as the structural reshape record and made the corrective commit independently bisectable. Re-dispatching the implementer would have re-run the entire task; amending the original commit would have entangled the structural reshape with the closure-gate semantic correction. Future execute-write task reviews that surface Critical findings should default to inline follow-up commits on the same task branch, reserving re-dispatch for cases where the original implementer's work is structurally unsound rather than merely incomplete.
+alternatives:
+  - Amend the original task commit to absorb the follow-up fix — rejected because amend entangles two distinct concerns (structural reshape vs closure-gate semantic correction) in one commit and destroys bisect granularity.
+  - Pause execution and re-dispatch a fresh implementer with an updated plan — rejected because the Critical finding was a co-occurrence the original plan could not have anticipated (it required reading the M3 rule body against the post-Task-4 closed-enum constraint as a pair); re-dispatch would have re-executed correctly-implemented work.
+  - Defer the fix to a follow-up sprint — rejected because the broken rule body silently breaks the closure gate's friction-blocking arm; deferring would leave the system in a known-broken state across the merge boundary.
+tags: [process, governance]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-0306/summary/sprint-02-bug-fix-0306-summary-00.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-0306/plan/sprint-02-bug-fix-0306-plan-threat-report-00.md
+---
