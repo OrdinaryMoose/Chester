@@ -17,7 +17,7 @@ const _CATEGORY_PROBES = [
   [ELEMENT_CATEGORIES.PROPOSITION, 'proposition_decl', 3],
   [ELEMENT_CATEGORIES.RISK,        'risk',             3],
   [ELEMENT_CATEGORIES.RESOLUTION,  'resolution_decl',  2],
-  [ELEMENT_CATEGORIES.FRICTION,    'friction',         4],
+  [ELEMENT_CATEGORIES.FRICTION,    'friction',         5],
   [ELEMENT_CATEGORIES.CONCERN,     'concern',          3],
   [ELEMENT_CATEGORIES.DEFINITION,  'definition_decl',  3],
 ];

@@ -62,7 +62,7 @@ const TRANSLATORS = Object.freeze({
     metaFacts: [['created_at', [id, ts]]],
   }),
   [ELEMENT_CATEGORIES.FRICTION]: (args, id, ts) => ({
-    baseFacts: [['friction', [id, args.shape, args.description, args.disposition ?? 'unset']]],
+    baseFacts: [['friction', [id, args.friction_shape, args.anchor_a, args.anchor_b, args.disposition]]],
     rules: [],
     metaFacts: [['created_at', [id, ts]]],
   }),

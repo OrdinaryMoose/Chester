@@ -113,12 +113,14 @@ describe('bridge-integration', () => {
     // shape check still demands them). Required-field sources of truth:
     //   EVIDENCE  → ['source', 'statement']          (schema.js CATEGORY_REGISTRY)
     //   PROPOSITION → ['statement','grounding','collapse_test','inference_pattern','reasoning_chain']
-    //   FRICTION  → ['shape', 'description']
+    //   FRICTION  → ['friction_shape', 'anchor_a', 'anchor_b', 'disposition']
     const evidenceFill = { source: 'codebase', statement: 'x' };
-    // FRICTION's `shape` field is constrained to FRICTION_SHAPES (closed-enum check in
-    // verifyArgsShape). The plan listed 'concern' as a placeholder; corrected to a real
-    // FRICTION_SHAPES value so verifyArgsShape passes and tx.begin fires (§6.1 step 4).
-    const frictionFill = { shape: 'conflict', description: 'placeholder' };
+    // manage_friction's argShape (mutations.js) is the operation-shaped {frictionId, disposition}
+    // — NOT the FRICTION element descriptor. The spread below contributes inert extras the
+    // translator ignores; only `disposition` (overridden on line 140) is read. Kept aligned
+    // with the post-Task-4 FRICTION descriptor for clarity (`friction_shape` replaces `shape`,
+    // `description` is no longer a required field on the element).
+    const frictionFill = { friction_shape: 'conflict' };
     // NOTE: OPERATION_SPECS is keyed on ACTION_LABELS values (snake_case: 'open_proof', 'add',
     // 'revise', 'withdraw', 'ratify', 'manage_friction', 'present_closing_argument',
     // 'confirm_closure_go'). The plan listed camelCase facade-method names here; corrected to

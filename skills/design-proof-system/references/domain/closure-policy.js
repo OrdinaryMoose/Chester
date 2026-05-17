@@ -83,7 +83,7 @@ export function registerStatic(rulePorts) {
     'unresolved_friction_rule',
     ['unresolved_friction', ['F']],
     [
-      ['friction', ['F', '_', '_', 'unset']],
+      ['friction', ['F', '_', '_', '_', 'unset']],
       ['not', ['friction_disposition', ['F', '_']]],
       ['not', ['withdrew', ['F']]],
     ],

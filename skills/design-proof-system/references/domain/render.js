@@ -85,6 +85,18 @@ export function renderStructuredProof(args, readPorts) {
     }
     sections.push(lines.join('\n') + '\n');
   }
+  const frictions = live(readPorts.query.query(['friction', [{ var: 'I' }, { var: 'S' }, { var: 'A' }, { var: 'B' }, { var: 'D' }]]));
+  if (frictions.length) {
+    const lines = ['## Frictions'];
+    for (const f of frictions) {
+      lines.push(`- ${f.I}`);
+      lines.push(`  - Friction shape: ${f.S}`);
+      lines.push(`  - Anchor A: ${f.A}`);
+      lines.push(`  - Anchor B: ${f.B}`);
+      lines.push(`  - Disposition: ${f.D}`);
+    }
+    sections.push(lines.join('\n') + '\n');
+  }
   return sections.join('\n');
 }
 
@@ -98,7 +110,7 @@ const _ARITIES = Object.freeze({
   proposition_decl: 3,
   risk: 3,
   resolution_decl: 2,
-  friction: 4,
+  friction: 5,
   definition_decl: 3,
 });
 
@@ -191,7 +203,7 @@ export function renderDatalogProjection(args, readPorts) {
     proposition_grounding: 2, collapse_test: 2, reasoning_chain: 2, rejected_alternative: 3,
     risk: 3, risk_basis: 2,
     resolution_decl: 2, resolution_anchor: 2, resolution_grounding: 2,
-    friction: 4, friction_disposition: 2, definition_decl: 3, definition_scope: 2, definition_self: 2,
+    friction: 5, friction_disposition: 2, definition_decl: 3, definition_scope: 2, definition_self: 2,
     concern: 3, concern_status: 2,
     approved: 3, two_yes: 2,
     closure_committed: 0, closure_pending: 0, round: 1,
