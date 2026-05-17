@@ -13,6 +13,16 @@ const validProposition = Object.freeze({
   reasoning_chain: 'IF X THEN Y',
 });
 
+async function makeRealBridge() {
+  const { Engine } = await import('../../engine/Engine.js');
+  const idCounters = {};
+  const idAllocator = { next: (shape) => { idCounters[shape] = (idCounters[shape] || 0) + 1; return `${shape}_${idCounters[shape]}`; } };
+  const clock = { now: () => 1700000000 };
+  const consentVerification = { verify: () => true };
+  const persistenceRepo = { saveState: () => {} };
+  return createDomainBridge({ engine: new Engine(), clock, idAllocator, consentVerification, persistenceRepo });
+}
+
 describe('PROPOSITION — schema descriptor (AC-1.x)', () => {
   it('AC-1.1: requiredFields equals [statement, grounding, collapse_test, inference_pattern, reasoning_chain] in cascade order', () => {
     expect(CATEGORY_REGISTRY[ELEMENT_CATEGORIES.PROPOSITION].requiredFields).toEqual([
@@ -121,16 +131,6 @@ describe('PROPOSITION — translator (AC-3.x)', () => {
 });
 
 describe('PROPOSITION — ratify path (AC-6.1)', () => {
-  async function makeRealBridge() {
-    const { Engine } = await import('../../engine/Engine.js');
-    const idCounters = {};
-    const idAllocator = { next: (shape) => { idCounters[shape] = (idCounters[shape] || 0) + 1; return `${shape}_${idCounters[shape]}`; } };
-    const clock = { now: () => 1700000000 };
-    const consentVerification = { verify: () => true };
-    const persistenceRepo = { saveState: () => {} };
-    return createDomainBridge({ engine: new Engine(), clock, idAllocator, consentVerification, persistenceRepo });
-  }
-
   it('AC-6.1: ratifyElement({elementId, idShape:proposition}) does not throw SHAPE_INVALID', async () => {
     const bridge = await makeRealBridge();
     bridge.addElement({ idShape: 'evidence', source: 'design', claim: 'baseline' }, { source: CONSENT_SOURCES.DESIGNER });
@@ -147,5 +147,76 @@ describe('PROPOSITION — ratify path (AC-6.1)', () => {
       reasoning_chain: 'IF X THEN Y',
     }, { source: CONSENT_SOURCES.DESIGNER });
     expect(() => bridge.ratifyElement({ elementId: id, idShape: 'proposition', source: CONSENT_SOURCES.DESIGNER }, { source: CONSENT_SOURCES.DESIGNER })).not.toThrow();
+  });
+});
+
+describe('PROPOSITION — bridge integration (AC-4.x, AC-5.x)', () => {
+  it('AC-4.1: validPredicates admits reasoning_chain and rejected_alternative via getDeclaredEDBPredicates', () => {
+    const edb = getDeclaredEDBPredicates();
+    expect(edb.has('reasoning_chain')).toBe(true);
+    expect(edb.has('rejected_alternative')).toBe(true);
+  });
+
+  it('AC-5.1: bridge round-trip — addElement then query returns reasoning_chain and rejected_alternative facts', async () => {
+    const bridge = await makeRealBridge();
+    bridge.addElement({ idShape: 'evidence', source: 'design', claim: 'baseline' }, { source: CONSENT_SOURCES.DESIGNER });
+    const { id } = bridge.addElement({
+      idShape: 'proposition',
+      statement: 'S',
+      grounding: 'evidence_1', // string form — see Task 5 inline note about pre-existing array/engine gap
+      collapse_test: 'T',
+      inference_pattern: INFERENCE_PATTERNS.GROUNDS_IMPLY_CONCLUSION,
+      reasoning_chain: 'IF X THEN Y',
+      rejected_alternatives: [
+        { statement: 'A1', rejection_reason: 'R1' },
+        { statement: 'A2', rejection_reason: 'R2' },
+      ],
+    }, { source: CONSENT_SOURCES.DESIGNER });
+    const rc = bridge.queryProof({ pattern: ['reasoning_chain', [id, { var: 'T' }]] });
+    expect(rc.length).toBe(1);
+    expect(rc[0].T).toBe('IF X THEN Y');
+    const ra = bridge.queryProof({ pattern: ['rejected_alternative', [id, { var: 'S' }, { var: 'R' }]] });
+    expect(ra.length).toBe(2);
+    const altPairs = ra.map(r => [r.S, r.R]).sort();
+    expect(altPairs).toEqual([['A1', 'R1'], ['A2', 'R2']]);
+  });
+
+  it('AC-5.2: revise creates new element id; new facts under new id; old facts persist under prior id; superseded link present', async () => {
+    const bridge = await makeRealBridge();
+    bridge.addElement({ idShape: 'evidence', source: 'design', claim: 'baseline' }, { source: CONSENT_SOURCES.DESIGNER });
+    const { id: oldId } = bridge.addElement({
+      idShape: 'proposition',
+      statement: 'S',
+      grounding: 'evidence_1',
+      collapse_test: 'T',
+      inference_pattern: INFERENCE_PATTERNS.GROUNDS_IMPLY_CONCLUSION,
+      reasoning_chain: 'OLD',
+      rejected_alternatives: [{ statement: 'OLD_A', rejection_reason: 'OLD_R' }],
+    }, { source: CONSENT_SOURCES.DESIGNER });
+    const { id: newId } = bridge.reviseElement({
+      idShape: 'proposition',
+      supersedes: oldId,
+      statement: 'S',
+      grounding: 'evidence_1',
+      collapse_test: 'T',
+      inference_pattern: INFERENCE_PATTERNS.GROUNDS_IMPLY_CONCLUSION,
+      reasoning_chain: 'NEW',
+      rejected_alternatives: [{ statement: 'NEW_A', rejection_reason: 'NEW_R' }],
+    }, { source: CONSENT_SOURCES.DESIGNER });
+
+    expect(newId).not.toBe(oldId);
+
+    const newRC = bridge.queryProof({ pattern: ['reasoning_chain', [newId, { var: 'T' }]] });
+    expect(newRC).toEqual([{ T: 'NEW' }]);
+    const newRA = bridge.queryProof({ pattern: ['rejected_alternative', [newId, { var: 'S' }, { var: 'R' }]] });
+    expect(newRA).toEqual([{ S: 'NEW_A', R: 'NEW_R' }]);
+
+    const oldRC = bridge.queryProof({ pattern: ['reasoning_chain', [oldId, { var: 'T' }]] });
+    expect(oldRC).toEqual([{ T: 'OLD' }]);
+    const oldRA = bridge.queryProof({ pattern: ['rejected_alternative', [oldId, { var: 'S' }, { var: 'R' }]] });
+    expect(oldRA).toEqual([{ S: 'OLD_A', R: 'OLD_R' }]);
+
+    const sup = bridge.queryProof({ pattern: ['superseded', [newId, oldId]] });
+    expect(sup.length).toBeGreaterThan(0);
   });
 });
