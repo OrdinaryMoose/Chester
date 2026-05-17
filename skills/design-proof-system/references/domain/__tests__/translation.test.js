@@ -46,4 +46,23 @@ describe('translation', () => {
     expect(preds.has('evidence')).toBe(true);
     expect(preds.has('proposition_decl')).toBe(true);
   });
+
+  it('PERMISSION translator emits permission/3, permission_scope/2 (conditional), and permission_decl/2', () => {
+    const args = { statement: 'P statement', relieves: 'rule_1', scope_constraint: 'top-level only' };
+    const result = translate(ELEMENT_CATEGORIES.PERMISSION, args, 'perm_1', 1700000000);
+    const facts = result.baseFacts;
+    // permission_decl/2 preserved
+    expect(facts).toContainEqual(['permission_decl', ['perm_1', 'P statement']]);
+    // permission/3 new linkage fact
+    expect(facts).toContainEqual(['permission', ['perm_1', 'P statement', 'rule_1']]);
+    // permission_scope/2 conditional
+    expect(facts).toContainEqual(['permission_scope', ['perm_1', 'top-level only']]);
+  });
+
+  it('PERMISSION translator omits permission_scope when scope_constraint is absent', () => {
+    const args = { statement: 'P', relieves: 'rule_1' };
+    const result = translate(ELEMENT_CATEGORIES.PERMISSION, args, 'perm_2', 1700000000);
+    const scopes = result.baseFacts.filter(f => f[0] === 'permission_scope');
+    expect(scopes.length).toBe(0);
+  });
 });
