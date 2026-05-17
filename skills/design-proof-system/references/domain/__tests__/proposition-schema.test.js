@@ -5,6 +5,14 @@ import { translate, getDeclaredEDBPredicates } from '../translation.js';
 import { createDomainBridge } from '../domain-bridge.js';
 import { createInMemorySubstrate } from './_fixtures/inMemorySubstrate.js';
 
+// `grounding: ['evid_1']` (array) reflects the cascade spec (05-domain-spec.md §3.4)
+// and the AC-2.1 example. The PROPOSITION translator stores `args.grounding` as-is, so
+// when this fixture is asserted into the real Engine via `bridge.addElement` the engine's
+// FactStore rejects the array as a non-constant argument. Tests that spread this fixture
+// must therefore either (a) only call `translate()` / `verifyArgsShape` directly (no
+// engine assertion — AC-2.x and AC-3.x do this), or (b) override `grounding` with a
+// string value at the call site (AC-5.x, AC-6.1 do this). The cascade-vs-implementation
+// gap is a pre-existing translator/engine mismatch and is outside this sub-sprint's scope.
 const validProposition = Object.freeze({
   statement: 'S',
   grounding: ['evid_1'],
