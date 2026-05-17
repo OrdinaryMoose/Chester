@@ -25,7 +25,22 @@ export function renderStructuredProof(args, readPorts) {
   const evidences = live(readPorts.query.query(['evidence', [{ var: 'I' }, { var: 'S' }, { var: 'C' }]]));
   if (evidences.length) sections.push('## Givens (Evidence)\n' + evidences.map(b => `- ${b.I}: ${b.C}`).join('\n') + '\n');
   const propositions = live(readPorts.query.query(['proposition', [{ var: 'I' }, { var: 'S' }]]));
-  if (propositions.length) sections.push('## Lemmas (Propositions)\n' + propositions.map(b => `- ${b.I}: ${b.S}`).join('\n') + '\n');
+  if (propositions.length) {
+    const propBlocks = propositions.map(b => {
+      const lines = [`- ${b.I}: ${b.S}`];
+      const ct = readPorts.query.query(['collapse_test', [b.I, { var: 'T' }]]);
+      if (ct.length) lines.push(`  - Collapse test: ${ct[0].T}`);
+      const rc = readPorts.query.query(['reasoning_chain', [b.I, { var: 'T' }]]);
+      if (rc.length) lines.push(`  - Reasoning: ${rc[0].T}`);
+      const ra = readPorts.query.query(['rejected_alternative', [b.I, { var: 'A' }, { var: 'R' }]]);
+      if (ra.length) {
+        lines.push('  - Rejected alternatives:');
+        for (const row of ra) lines.push(`    - ${row.A} — ${row.R}`);
+      }
+      return lines.join('\n');
+    });
+    sections.push('## Lemmas (Propositions)\n' + propBlocks.join('\n') + '\n');
+  }
   const resolutions = live(readPorts.query.query(['resolution', [{ var: 'I' }, { var: 'S' }]]));
   if (resolutions.length) sections.push('## Theorems (Resolutions)\n' + resolutions.map(b => `- ${b.I}: ${b.S}`).join('\n') + '\n');
   return sections.join('\n');
@@ -130,7 +145,8 @@ export function renderDatalogProjection(args, readPorts) {
   // would require an engine-side EDB/derived discriminator the current API doesn't expose.
   const PROJECTION_ARITIES = {
     evidence: 3, rule_decl: 2, permission_decl: 2, proposition_decl: 3,
-    grounding: 2, collapse_test: 2, risk: 2, resolution_decl: 2, addresses: 2,
+    grounding: 2, collapse_test: 2, reasoning_chain: 2, rejected_alternative: 3,
+    risk: 2, resolution_decl: 2, addresses: 2,
     friction: 4, friction_disposition: 2, definition_decl: 3, definition_scope: 2, definition_self: 2,
     concern: 3, concern_status: 2,
     approved: 3, two_yes: 2,
