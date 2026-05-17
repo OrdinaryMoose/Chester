@@ -34,7 +34,7 @@ const TRANSLATORS = Object.freeze({
   [ELEMENT_CATEGORIES.PROPOSITION]: (args, id, ts) => ({
     baseFacts: [
       ['proposition_decl', [id, args.statement, args.inference_pattern]],
-      ['grounding', [id, args.grounding]],
+      ...args.grounding.map(eid => ['proposition_grounding', [id, eid]]),
       ['collapse_test', [id, args.collapse_test]],
       ['reasoning_chain', [id, args.reasoning_chain]],
       ...(Array.isArray(args.rejected_alternatives)
@@ -191,7 +191,7 @@ export function instantiateTemplate(idShape, newId, rulePorts) {
 // EDB base-fact predicates). Per the spec's Data Flow §"Session boot" step 5.
 
 const EDB_PREDICATES = Object.freeze(new Set([
-  'evidence', 'rule_decl', 'permission_decl', 'permission', 'permission_scope', 'proposition_decl', 'grounding',
+  'evidence', 'rule_decl', 'permission_decl', 'permission', 'permission_scope', 'proposition_decl', 'proposition_grounding',
   'collapse_test', 'reasoning_chain', 'rejected_alternative',
   'risk', 'risk_basis', 'resolution_decl', 'addresses', 'friction',
   'friction_disposition', 'definition_decl', 'definition_scope', 'definition_self',

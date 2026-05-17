@@ -56,6 +56,10 @@ export function renderStructuredProof(args, readPorts) {
   if (propositions.length) {
     const propBlocks = propositions.map(b => {
       const lines = [`- ${b.I}: ${b.S}`];
+      const declRows = readPorts.query.query(['proposition_decl', [b.I, { var: '_S' }, { var: 'P' }]]);
+      if (declRows.length) lines.push(`  - Inference pattern: ${declRows[0].P}`);
+      const groundingRows = readPorts.query.query(['proposition_grounding', [b.I, { var: 'E' }]]);
+      if (groundingRows.length) lines.push(`  - Grounding: ${groundingRows.map(r => r.E).join(', ')}`);
       const ct = readPorts.query.query(['collapse_test', [b.I, { var: 'T' }]]);
       if (ct.length) lines.push(`  - Collapse test: ${ct[0].T}`);
       const rc = readPorts.query.query(['reasoning_chain', [b.I, { var: 'T' }]]);
@@ -174,7 +178,7 @@ export function renderDatalogProjection(args, readPorts) {
   const PROJECTION_ARITIES = {
     evidence: 3, rule_decl: 2, permission_decl: 2, permission: 3, permission_scope: 2,
     proposition_decl: 3,
-    grounding: 2, collapse_test: 2, reasoning_chain: 2, rejected_alternative: 3,
+    proposition_grounding: 2, collapse_test: 2, reasoning_chain: 2, rejected_alternative: 3,
     risk: 3, risk_basis: 2,
     resolution_decl: 2, addresses: 2,
     friction: 4, friction_disposition: 2, definition_decl: 3, definition_scope: 2, definition_self: 2,
