@@ -114,10 +114,18 @@ describe('bridge-integration', () => {
     const verbCases = [
       { verb: 'open_proof', prep: () => {}, args: () => ({ ...evidenceFill }) },
       { verb: 'add', prep: () => {}, args: () => ({ idShape: ELEMENT_CATEGORIES.EVIDENCE, ...evidenceFill }) },
-      { verb: 'revise', prep: (b) => b.addElement({ idShape: ELEMENT_CATEGORIES.EVIDENCE, ...evidenceFill }, consent), args: () => ({ id: 'evidence_1', source: 'codebase', claim: 'y' }) },
+      // REVISE requires args.idShape (mutations.js guard at the REVISE-specific check before
+      // verifyArgsShape) AND args.supersedes (the prior element id; checked separately after
+      // verifyArgsShape). The verb-case was originally written before those guards landed and
+      // supplied a bare `id` field which the production runOperation rejected before tx.begin —
+      // causing the §6.1-ordering assertion to fail. Updated to the post-guard contract.
+      { verb: 'revise', prep: (b) => b.addElement({ idShape: ELEMENT_CATEGORIES.EVIDENCE, ...evidenceFill }, consent), args: () => ({ idShape: ELEMENT_CATEGORIES.EVIDENCE, supersedes: 'evidence_1', source: 'codebase', claim: 'y' }) },
       { verb: 'withdraw', prep: (b) => b.addElement({ idShape: ELEMENT_CATEGORIES.EVIDENCE, ...evidenceFill }, consent), args: () => ({ id: 'evidence_1', ...evidenceFill }) },
       { verb: 'ratify', prep: (b) => b.addElement({ idShape: ELEMENT_CATEGORIES.EVIDENCE, ...evidenceFill }, consent), args: () => ({ elementId: 'evidence_1', source: CONSENT_SOURCES.DESIGNER, ...evidenceFill }) },
-      { verb: 'manage_friction', prep: () => {}, args: () => ({ action: 'add', frictionId: 'f1', target: 'x', ...frictionFill }) },
+      // MANAGE_FRICTION's argShape (mutations.js) requires ['frictionId', 'disposition'] and
+      // closed-enum-checks `disposition` against FRICTION_DISPOSITIONS. The verb-case was
+      // missing `disposition`, causing verifyArgsShape to throw before tx.begin.
+      { verb: 'manage_friction', prep: () => {}, args: () => ({ action: 'add', frictionId: 'f1', target: 'x', disposition: 'defer', ...frictionFill }) },
       { verb: 'present_closing_argument', prep: () => {}, args: () => ({ ...evidenceFill }) },
       { verb: 'confirm_closure_go', prep: (b) => { try { b.presentClosingArgument({ ...evidenceFill }, consent); } catch {} }, args: () => ({ ...evidenceFill }) },
     ];

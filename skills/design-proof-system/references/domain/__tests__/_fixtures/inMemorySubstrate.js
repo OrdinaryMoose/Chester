@@ -38,6 +38,17 @@ export function createInMemorySubstrate() {
       else { rules.delete(ruleId); dirty = true; }
     },
     getRule(ruleId) { return rules.get(ruleId) ?? null; },
+    allRules() {
+      // Tuple shape matches the real Engine's allRules output (Engine.js:43 via
+      // internalRuleToTuple) and the contract renderDatalogProjection consumes
+      // (render.js: "Each rule is {ruleId, headAtom, bodyAtoms, metadata}").
+      return [...rules.entries()].map(([ruleId, r]) => ({
+        ruleId,
+        headAtom: r.head,
+        bodyAtoms: r.body,
+        metadata: r.metadata,
+      }));
+    },
   };
 
   const queryPort = {

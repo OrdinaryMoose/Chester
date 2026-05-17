@@ -123,6 +123,7 @@ export function createDomainBridge({ engine: rawEngine, clock, idAllocator, cons
      * when closure is permitted. When `permitted: false`, the detection list may
      * overlap with closure_failure_reason.
      * @param {object} args
+     * @throws {DomainError}
      * @returns {{permitted: boolean, asOf: number, detectedFrictions: Array<{shape: string, args: any[]}>}}
      */
     renderClosingArgument: (args) => render.renderClosingArgument(args, readPorts),
