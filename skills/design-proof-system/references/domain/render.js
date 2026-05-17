@@ -24,6 +24,34 @@ export function renderStructuredProof(args, readPorts) {
   sections.push('# Proof\n');
   const evidences = live(readPorts.query.query(['evidence', [{ var: 'I' }, { var: 'S' }, { var: 'C' }]]));
   if (evidences.length) sections.push('## Givens (Evidence)\n' + evidences.map(b => `- ${b.I}: ${b.C}`).join('\n') + '\n');
+  const risks = live(readPorts.query.query(['risk', [{ var: 'I' }, { var: 'S' }, { var: 'V' }]]));
+  if (risks.length) {
+    const lines = ['## Risks'];
+    for (const r of risks) {
+      lines.push(`- ${r.I}: ${r.S} (${r.V})`);
+      const basisRows = readPorts.query.query(['risk_basis', [r.I, { var: 'E' }]]);
+      if (basisRows.length) {
+        lines.push(`  - Basis: ${basisRows.map(b => b.E).join(', ')}`);
+      }
+    }
+    sections.push(lines.join('\n') + '\n');
+  }
+  const permissions = live(readPorts.query.query(['permission_decl', [{ var: 'I' }, { var: 'S' }]]));
+  if (permissions.length) {
+    const lines = ['## Permissions'];
+    for (const p of permissions) {
+      lines.push(`- ${p.I}: ${p.S}`);
+      const linkages = readPorts.query.query(['permission', [p.I, { var: 'S2' }, { var: 'R' }]]);
+      for (const l of linkages) {
+        lines.push(`  - Relieves: ${l.R}`);
+      }
+      const scopes = readPorts.query.query(['permission_scope', [p.I, { var: 'T' }]]);
+      for (const sc of scopes) {
+        lines.push(`  - Scope: ${sc.T}`);
+      }
+    }
+    sections.push(lines.join('\n') + '\n');
+  }
   const propositions = live(readPorts.query.query(['proposition', [{ var: 'I' }, { var: 'S' }]]));
   if (propositions.length) {
     const propBlocks = propositions.map(b => {
@@ -54,7 +82,7 @@ const _ARITIES = Object.freeze({
   rule_decl: 2,
   permission_decl: 2,
   proposition_decl: 3,
-  risk: 2,
+  risk: 3,
   resolution_decl: 2,
   friction: 4,
   definition_decl: 3,
@@ -144,9 +172,11 @@ export function renderDatalogProjection(args, readPorts) {
   // produces the same fact — so replay correctness holds, but pure EDB-only projection
   // would require an engine-side EDB/derived discriminator the current API doesn't expose.
   const PROJECTION_ARITIES = {
-    evidence: 3, rule_decl: 2, permission_decl: 2, proposition_decl: 3,
+    evidence: 3, rule_decl: 2, permission_decl: 2, permission: 3, permission_scope: 2,
+    proposition_decl: 3,
     grounding: 2, collapse_test: 2, reasoning_chain: 2, rejected_alternative: 3,
-    risk: 2, resolution_decl: 2, addresses: 2,
+    risk: 3, risk_basis: 2,
+    resolution_decl: 2, addresses: 2,
     friction: 4, friction_disposition: 2, definition_decl: 3, definition_scope: 2, definition_self: 2,
     concern: 3, concern_status: 2,
     approved: 3, two_yes: 2,
