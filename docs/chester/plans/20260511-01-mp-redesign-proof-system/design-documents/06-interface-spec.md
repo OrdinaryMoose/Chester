@@ -346,7 +346,7 @@ JSON document with the following top-level fields:
     "facts": [["predicate", [args...]], ...],
     "rules": [{"id": "...", "head": ..., "body": [...], "metadata": ...}, ...]
   },
-  "allocatorState": { "evid": 7, "prop": 12, "reso": 3, "cern": 4, ... },
+  "allocatorState": { "evid": 7, "prop": 12, "rsln": 3, "cern": 4, ... },
   "closingArgPresentedRound": null,
   "closingArgGoRound": null
 }

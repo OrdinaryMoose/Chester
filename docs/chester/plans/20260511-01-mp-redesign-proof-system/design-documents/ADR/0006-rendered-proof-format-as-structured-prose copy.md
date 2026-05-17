@@ -67,7 +67,7 @@ The geometric-proof framing (Vision §1) anchors the choice: the system claims t
 - ...
 
 # Theorems (Resolutions)
-- **{reso_1.statement}** addresses {concern_label} [ratified: {ratification_text}]
+- **{rsln_1.statement}** addresses {concern_label} [ratified: {ratification_text}]
   - Grounded in: {grounded_NCs}
 - ...
 

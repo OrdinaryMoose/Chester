@@ -7,6 +7,8 @@ related_adrs: [0007, 0009, 0011, 0012, 0013, 0014]
 
 # Glossary
 
+> **Superseded for current usage** by `skills/design-proof-system/references/domain/VOCABULARY.md`, which is derived from the running implementation. This glossary remains as the redesign-target reference for the proof-system redesign cascade; where it disagrees with `VOCABULARY.md`, that file wins.
+
 Single source of truth for the design language vocabulary. Every other document refers to terms defined here rather than redefining them. Capitalized terms are load-bearing concepts; lowercase terms are general usage. New terms are added here first, then referenced.
 
 ---

@@ -1,3 +1,4 @@
+// Per-category required fields, authority, render section. Canonical definitions: ./VOCABULARY.md.
 import { ELEMENT_CATEGORIES, CONSENT_SOURCES, RENDER_SECTIONS, INFERENCE_PATTERNS, FRICTION_SHAPES, FRICTION_DISPOSITIONS, assertExhaustive } from './tags.js';
 
 export const CATEGORY_REGISTRY = Object.freeze({

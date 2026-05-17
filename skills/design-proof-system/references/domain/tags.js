@@ -1,6 +1,6 @@
-// Closed-set enums per brief Key Decision 6 + RENDER_SECTIONS (spec amendment).
-// Every Domain module imports tag values from here; no module re-declares an enum.
-// See Architecture §11.11 (closed-set discipline) and the cascade docs cited per set.
+// Closed-set enums for the domain. Canonical definitions, wire values, and
+// naming rules: ./VOCABULARY.md. Every Domain module imports tag values from
+// here; no module re-declares an enum.
 
 export const ELEMENT_CATEGORIES = Object.freeze({
   EVIDENCE: 'evidence', RULE: 'rule', PERMISSION: 'permission',
