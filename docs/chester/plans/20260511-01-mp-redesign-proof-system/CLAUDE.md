@@ -2,11 +2,6 @@
 
 Read after the root `CLAUDE.md` and before any sub-sprint work.
 
-## Source of truth
-
-- **Design cascade lives in `design-documents/`.** All sub-sprints are normative against that cascade. No sub-sprint redefines design content; sub-sprints consume it.
-- **Latest design-tier state:** ADR-0013 (relocates `IMaterializer` to Domain; specifies transaction-visibility as read-own-writes; specifies stratification-check timing inside transactions).
-
 ## Sub-sprint locations
 
 - `sprint-01-proof-backend/` — Engine layer work.

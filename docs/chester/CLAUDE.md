@@ -5,7 +5,7 @@ Chester sprint work lives here. Two directories with different permanence and ro
 ## Structure
 
 - `working/` — **gitignored.** Single write target for all in-progress artifacts: designs, specs, plans, summaries, thinking state, proof state, audit logs. Mutable source of truth during a sprint.
-- `plans/` — **tracked in git.** Archive target. Under normal sprint operation, no skill writes here except `finish-archive-artifacts`. Under Master Plan Mode, sub-sprint execution may produce ADR-backed cascade-document edits committed directly to `plans/<master>/design-documents/` as part of the sub-sprint's normal commit flow — those edits are the authoritative cascade state at sub-sprint close, and `finish-archive-artifacts` reconciles `working/` to them at the archive boundary (see Cascade Divergence Gate below).
+- `plans/` — **tracked in git.** Archive target. No skill writes here except `finish-archive-artifacts`.
 
 ## working/ — Single Source During Sprints
 
@@ -33,27 +33,12 @@ Order is fixed. Each step gates the next.
 2. **`finish-write-records`** — writes `summary/<slug>-summary-NN.md` and `summary/<slug>-audit-NN.md` into `working/` sub-sprint dir. No commits.
 3. **`finish-archive-artifacts`** — runs inside the worktree on the sub-sprint branch:
    - Non-master mode: copies `working/<sprint-dir>/` (entire subtree) → `plans/<sprint-dir>/` in the worktree.
-   - Master Plan Mode: before the `cp -r`, runs the Cascade Divergence Gate against `working/<master>/design-documents/` and the worktree's `plans/<master>/design-documents/`. The gate has three tiers — MATCH (silent fast path), PLANS_ONLY-only (automatic working/ ← plans/ sync for new cascade files), and CONFLICT or WORKING_ONLY (halt with manifest; operator types `accept-plans`, `accept-working`, or `abort`). Resolution outcome is recorded in the archive commit body. After resolution, copies the entire master working tree (`working/<master-sprint>/*` including master-level files and all nested sub-sprint dirs) → `plans/<master-sprint>/` in the worktree. Each sub-sprint merge carries the latest accumulated master state.
+   - Master Plan Mode: copies the entire master working tree (`working/<master-sprint>/*` including master-level files and all nested sub-sprint dirs) → `plans/<master-sprint>/` in the worktree. Each sub-sprint merge carries the latest accumulated master state.
    - Stages and commits the archive: `docs: archive sprint artifacts for <sprint-name>`.
 4. **`finish-close-worktree`** — four-option menu: merge locally / create PR / keep worktree / discard.
    - On merge: `git checkout main && git merge --no-ff <branch>`. Archive commit lands on main; plans/ archive becomes part of main's history.
    - Worktree removed (options 1, 4); retained (options 2, 3).
    - Sub-sprint branch deleted (option 1).
-
-## Cascade Divergence Gate (Master Plan Mode)
-
-When `finish-archive-artifacts` runs under Master Plan Mode, it compares `working/<master>/design-documents/` against the worktree's `plans/<master>/design-documents/` before the `cp -r`. The comparison uses the `chester-cascade-diff` helper (SHA-256 per file; `shasum -a 256` macOS fallback) which emits one of four categories per file: `MATCH`, `CONFLICT`, `PLANS_ONLY`, `WORKING_ONLY`.
-
-Three tiers govern the response:
-
-- **MATCH only** — every file is identical on both sides. The skill proceeds silently to `cp -r` with the existing single-line commit message.
-- **PLANS_ONLY only** — sub-sprint added cascade files (e.g. new ADRs) absent from working/. The skill auto-syncs each `PLANS_ONLY` file from worktree-plans/ to working/ (so future sub-sprint worktrees see them) and appends `Cascade sync: PLANS_ONLY auto-synced: <file-list>` to the commit body.
-- **CONFLICT or WORKING_ONLY present** — content disagreement or sub-sprint-side deletion. The skill halts and surfaces a manifest listing every diverging file with both hashes (for CONFLICT) or the relative path (for WORKING_ONLY). The operator types one of:
-  - `accept-plans` — worktree-plans/ wins; working/ is reconciled to match before the copy. CONFLICT files are overwritten in working/ with plans/'s content. WORKING_ONLY files are **deleted** from working/ — they are absent in plans/, so reconciliation produces a removal in the gitignored working/ tree (non-recoverable since working/ is outside git). Commit body: `Cascade sync: accepted plans/ for: <file-list>`.
-  - `accept-working` — working/ wins; the subsequent `cp -r` overwrites worktree-plans/ with the (potentially pre-edit) working/ content. Commit body: `Cascade OVERWRITE: reverted plans/ to working/ state for: <file-list>`. The label announces destruction at the point of choice; there is no default.
-  - `abort` — no files copied, no commit; operator handles manually.
-
-The gate is skipped entirely outside Master Plan Mode (no `.active-master` breadcrumb). In that path, `finish-archive-artifacts` is bytewise-identical to its `v0002` behavior.
 
 ## Post-Merge State
 
@@ -64,7 +49,6 @@ The gate is skipped entirely outside Master Plan Mode (no `.active-master` bread
 ## Key Properties
 
 - **One-way flow:** working → plans at archive step. Never reverse.
-  - *Exception under Master Plan Mode:* when the Cascade Divergence Gate's `accept-plans` resolution (or its automatic PLANS_ONLY-only tier) fires, the archive step performs a targeted `working/<master>/design-documents/ ← worktree-plans/<master>/design-documents/` sync immediately before the `cp -r`. This is a pre-flight sync of the specific files the operator chose, not a structural reversal of the working→plans flow — the canonical archive direction remains working → plans.
 - **working/ mutable, plans/ immutable.** plans/ only grows via archive merges.
 - **Master Plan Mode changes archive payload, not mechanism.** Same `finish-archive-artifacts` skill runs; it copies more (whole master tree instead of single sprint). Earliest sub-sprint merge has smallest master archive; latest merge has most complete.
 - **gitignored working/ is what makes cross-worktree persistence possible.** Worktrees isolate code branches but share working/ because it's outside git entirely.

@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-# Self-resolving wrapper — added to PATH by the plugin system
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-CHESTER_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
-exec "$CHESTER_ROOT/chester-util-config/chester-cascade-diff.sh" "$@"
