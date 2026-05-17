@@ -227,8 +227,11 @@ export function runOperation(verbName, args, consent, ports) {
   // spec.argShape (when present) is an inline operation-arg descriptor used by verbs whose
   // args don't match an element-category shape (e.g. MANAGE_FRICTION). When absent, fall back
   // to the same targetShape (element-category shape) used for consent lookup.
+  // ADD/REVISE thread the query port through so the referenceFields directive can verify
+  // referenced ids exist in the EDB. Other verbs pass null — the loop short-circuits.
   const argShapeTarget = spec.argShape ?? targetShape;
-  verifyArgsShape(args, argShapeTarget);
+  const isAddOrRevise = verbName === ACTION_LABELS.ADD || verbName === ACTION_LABELS.REVISE;
+  verifyArgsShape(args, argShapeTarget, isAddOrRevise ? ports.query : null);
 
   // §6.1 step 3b: REVISE requires args.supersedes naming the prior element id. Validated
   // here rather than in argShape because REVISE also needs the per-category fields (which
