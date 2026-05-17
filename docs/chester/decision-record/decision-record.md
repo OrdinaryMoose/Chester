@@ -1834,3 +1834,137 @@ supersedes: null
 artifact_refs:
   - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-01/summary/sprint-02-bug-fix-01-summary-00.md
 ---
+
+---
+id: dr-20260517-06-reference-fields-declarative-directive
+date: 2026-05-17
+sprint: 20260511-01-mp-redesign-proof-system / sprint-02-bug-fix-02
+stage: design-specify
+title: Declarative `referenceFields` directive for cross-element reference validation
+decision: Schema-layer cross-element reference constraints (e.g. "this field's value must be the id of an already-asserted element of category X") are expressed as a declarative descriptor field — `referenceFields: { fieldName: 'CATEGORY' | '*' }` — on every category in `CATEGORY_REGISTRY`, evaluated by a generic loop inside `verifyArgsShape` that resolves the referent against the engine's fact store and throws `INVALID_REFERENCE` on miss, rather than as per-descriptor procedural lookup hooks.
+rationale: Sprint-02-bug-fix-02 needed RISK to validate its `addresses` field points at a real CONCERN and PERMISSION to validate its `grant` field points at a real definition; the available alternatives were inline per-descriptor lookups, a procedural `validateReferences(args, store)` callback, or a declarative directive extending the same shape established by dr-20260517-01's `nonEmptyStringFields`. The directive route preserves the uniform-validator-surface property — every category answers "which fields cross-reference other elements?" the same way and the engine resolves once — and the wildcard `'*'` admits "any category" references without forcing the directive to encode disjunction. Adding `referenceFields: {}` to the seven non-using descriptors keeps the directive self-documenting at every site. This extends rather than supersedes the dr-20260517-01 convention: future cross-element constraints follow the directive pattern; only fall back to procedural hooks when the constraint genuinely cannot be expressed as a per-field declaration.
+alternatives:
+  - Inline per-descriptor lookups invoking the engine fact store from inside each category body — rejected because it duplicates the reference-resolution and `INVALID_REFERENCE` throw shape at every site and forces each descriptor to take a fact-store handle, eroding the declarative property.
+  - Per-descriptor `validateReferences(args, store)` callback — rejected because it admits arbitrary code at the validation boundary (same erosion path as the rejected `validate(args)` callback in dr-20260517-01) and once one descriptor has procedural reference logic every reader must read all callbacks.
+  - Encode reference targets via a string DSL like `'addresses->CONCERN, ...'` — rejected because a string DSL trades the existing JS-object readability for a custom grammar future readers must learn; the object form `{ fieldName: 'CATEGORY' }` carries the same information with zero parsing cost.
+tags: [convention, architecture]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-02/design/sprint-02-bug-fix-02-design-00.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-02/spec/sprint-02-bug-fix-02-spec-00.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-02/plan/sprint-02-bug-fix-02-plan-00.md
+---
+
+---
+id: dr-20260517-07-non-empty-array-fields-declarative-directive
+date: 2026-05-17
+sprint: 20260511-01-mp-redesign-proof-system / sprint-02-bug-fix-02
+stage: design-specify
+title: Declarative `nonEmptyArrayFields` directive for required-array content-shape validation
+decision: Schema-layer required-array constraints (e.g. "this array field must contain at least one element") are expressed as a declarative descriptor field — `nonEmptyArrayFields: [...]` — on every category in `CATEGORY_REGISTRY`, evaluated by a generic loop inside `verifyArgsShape` that mirrors the `nonEmptyStringFields` loop, rather than as inline per-descriptor `.length === 0` checks.
+rationale: Sprint-02-bug-fix-02 needed RISK to reject empty `addresses` arrays at assertion time; the available alternatives mirrored those for `nonEmptyStringFields` (inline check, procedural hook, or declarative directive). Choosing the directive form extends the dr-20260517-01 convention to a second content-shape class (arrays) and keeps the validator surface answering the same uniform question per category: "which fields must be non-empty after trim?", "which arrays must contain at least one element?", "which fields cross-reference other elements?". Adding `nonEmptyArrayFields: []` to every descriptor maintains the self-documenting property the original directive established. This is a second extension of the same directive-pattern convention (alongside dr-20260517-06's `referenceFields`); future content-shape constraint classes should follow the same shape unless they cannot be expressed per-field.
+alternatives:
+  - Inline `.length === 0` check inside the RISK descriptor only — rejected because it institutionalizes per-descriptor procedural validation for the second time and abandons the directive convention dr-20260517-01 established for the first content-shape class.
+  - Reuse `nonEmptyStringFields` with a polymorphic check that handles both strings and arrays — rejected because it conflates two distinct content-shape constraints under one directive name and makes the "what does this directive enforce?" question ambiguous for future readers and reviewers.
+  - Defer until a second array field needs the constraint (YAGNI) — rejected for the same reason dr-20260517-01 rejected the YAGNI route: retrofitting the directive later across nine descriptors costs more than introducing it at first use.
+tags: [convention, architecture]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-02/design/sprint-02-bug-fix-02-design-00.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-02/spec/sprint-02-bug-fix-02-spec-00.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-02/plan/sprint-02-bug-fix-02-plan-00.md
+---
+
+---
+id: dr-20260517-08-invalid-reference-error-code-with-referenced-id
+date: 2026-05-17
+sprint: 20260511-01-mp-redesign-proof-system / sprint-02-bug-fix-02
+stage: plan-build
+title: `INVALID_REFERENCE` domain error code with `referencedId` property dimension
+decision: Cross-element reference failures (a field whose value names a non-existent or wrong-category element) throw a domain-layer error with `code: 'INVALID_REFERENCE'`, `field: <fieldName>`, and `referencedId: <value>` — adding `referencedId` as a new property dimension to the established `{code, field}` shape, attached via the canonical `Object.assign(new Error(msg), {...})` throw pattern.
+rationale: Sprint-02-bug-fix-02 introduced cross-element reference validation (RISK.addresses → CONCERN, PERMISSION.grant → DEFINITION) and needed a distinct error code that carriers downstream consumers could discriminate from `SHAPE_INVALID`, `MISSING_FIELD`, and the empty-content codes. `INVALID_REFERENCE` keeps the verb-noun naming pattern of the existing codes; adding `referencedId` exposes the offending value to error consumers without forcing them to reparse the message string — the same affordance `field` provides for the empty-content codes. The `referencedId` property is a precedent: future error codes whose failure semantics include a "this specific value caused the rejection" dimension should add a similarly-named property on the error object rather than embedding the value only in the message. This record is the carrier for the `referencedId` precedent; the broader throw-pattern convention is captured in dr-20260517-09.
+alternatives:
+  - Reuse `SHAPE_INVALID` for missing references — rejected because reference failures and shape failures have different remediation paths (one means "fix your data graph", the other means "fix your argument shape") and conflating them forces downstream code to inspect messages to discriminate.
+  - Embed the offending id only in the error message string — rejected because consumers must regex the message to recover the id, which couples them to message wording the engine is otherwise free to change.
+  - Use `value` as the property name instead of `referencedId` — rejected because `value` is too generic (it could mean the field's value, the failed assertion's value, or anything else); `referencedId` names the semantic role precisely.
+tags: [convention, architecture]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-02/spec/sprint-02-bug-fix-02-spec-00.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-02/plan/sprint-02-bug-fix-02-plan-00.md
+---
+
+---
+id: dr-20260517-09-domain-error-throw-pattern-object-assign
+date: 2026-05-17
+sprint: 20260511-01-mp-redesign-proof-system / sprint-02-bug-fix-02
+stage: plan-build
+title: Domain-layer error throws use `Object.assign(new Error(msg), {code, field, ...})`
+decision: Domain-layer code that throws a typed error uses the `Object.assign(new Error(msg), { code, field, ...extras })` pattern — a real `Error` instance carrying a `code` discriminator, a `field` locator, and any additional property dimensions the code-specific failure needs — rather than throwing a plain-object literal, a custom subclass, or a string.
+rationale: Sprint-02-bug-fix-02's plan-attack and plan-smell reviews independently surfaced the same observation: prior typed throws in the engine and schema layers use `Object.assign(new Error(msg), {code, field})`, and the new `INVALID_REFERENCE` throws (dr-20260517-08) followed the same shape without ceremony. Real `Error` instances preserve stack traces and match `instanceof Error` for any catch-all error handler upstream; plain-object literals break both. The `{code, field}` minimum and the extension to additional properties (e.g. `referencedId`) gives consumers a uniform discrimination surface without forcing a class hierarchy. The convergent finding from two independent reviews is what makes this a precedent rather than a one-sprint tactical choice — future domain throws should follow this shape, and reviewers should flag plain-object throws the same way they would flag a missing error code.
+alternatives:
+  - Custom `Error` subclasses per code (e.g. `class InvalidReferenceError extends Error`) — rejected because subclassing trades the lightweight property-attach pattern for class hierarchy maintenance; nine codes become nine classes to author, import, and keep in sync with the discrimination tag, and the existing `code` property already does the discrimination work.
+  - Plain-object throws (`throw { code, field, message }`) — rejected because the throw target is not an `Error` instance, breaks `instanceof Error` checks upstream, and drops the stack trace at the throw site.
+  - String throws (`throw 'INVALID_REFERENCE'`) — rejected for the same instance-loss reasons as plain-object throws plus the loss of structured field/value information.
+tags: [convention, architecture]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-02/plan/sprint-02-bug-fix-02-plan-00.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-02/plan/sprint-02-bug-fix-02-plan-threat-report-00.md
+---
+
+---
+id: dr-20260517-10-translator-emits-both-predicates-during-cascade-rename
+date: 2026-05-17
+sprint: 20260511-01-mp-redesign-proof-system / sprint-02-bug-fix-02
+stage: execute-write
+title: Translator emits both cascade-named and legacy declaration predicates when category probes reference the legacy name
+decision: When a translator gains a new cascade-named predicate (e.g. `permission/3` matching the current cascade) but the existing declaration-form predicate (e.g. `permission_decl/2`) is referenced by `_CATEGORY_PROBES` for the RATIFY path, the translator emits both predicates — the new one for the cascade-aligned linkage and the legacy one to preserve the probe's RATIFY discovery — until a future sub-sprint reconciles the probe to the new predicate name.
+rationale: Sprint-02-bug-fix-02 introduced PERMISSION's cascade-aligned `permission/3` linkage but discovered the existing `_CATEGORY_PROBES` machinery references `permission_decl/2` during the RATIFY discovery phase; replacing emit rather than dual-emit would have broken RATIFY for PERMISSION immediately. The chosen "emit both" pattern accepts a hygiene tax (two predicates per translator output where one would suffice) in exchange for preserving the working RATIFY path while landing the cascade-aligned predicate; this is the canonical strangler-fig analogue at the translator-output layer rather than the public-API layer (cf. dr-20260513-08). Recording this as DEF-9 in the sprint's deferments tracker; future sub-sprints that touch `_CATEGORY_PROBES` should reconcile to the new predicate name and remove the legacy emit in the same change. Generalizes: any translator landing a cascade-named predicate while a category-probe still references the legacy name dual-emits, marks the legacy emit with a deferment, and removes it when the probe is updated.
+alternatives:
+  - Replace the legacy predicate emit with the new one and update `_CATEGORY_PROBES` in the same sub-sprint — rejected because `_CATEGORY_PROBES` is shared infrastructure used by every category's RATIFY path; modifying it expands sub-sprint scope into probe-machinery territory that needs its own design pass.
+  - Add an alias inside `_CATEGORY_PROBES` mapping the legacy predicate to the new one — rejected because the alias shifts the dual-emit complexity from the translator output to the probe machinery without eliminating it, and aliases compound when multiple categories rename predicates.
+  - Block the cascade-aligned predicate landing until probe reconciliation is scoped — rejected because the cascade-text update is the sub-sprint's actual deliverable; gating it on infrastructure work the sub-sprint was not chartered to perform inverts the dependency.
+tags: [architecture, convention]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-02/plan/sprint-02-bug-fix-02-plan-00.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-02/summary/sprint-02-bug-fix-02-summary-00.md
+---
+
+---
+id: dr-20260517-11-chester-skills-root-env-for-probe-targeting
+date: 2026-05-17
+sprint: 20260511-01-mp-redesign-proof-system / sprint-02-bug-fix-02
+stage: execute-write
+title: `CHESTER_SKILLS_ROOT` env var for probe/stress-test skills-directory targeting
+decision: Probes and stress-tests that load skills/ content (e.g. category-probe registry, design-proof-system fixtures) honor a `CHESTER_SKILLS_ROOT` environment variable to choose between the main checkout's `skills/` and a worktree's `skills/`, defaulting to the script's enclosing repo root when unset.
+rationale: Sprint-02-bug-fix-02 ran probes from `docs/chester/working/stress-tests/` against a worktree's modified `skills/` content to verify AC behavior; without an env var, every probe would either hardcode the main checkout's path (forcing edits to the probe per worktree) or guess at a relative path that breaks under worktree layout. `CHESTER_SKILLS_ROOT` decouples the probe from the working-tree topology — set it once in the worktree shell and every probe in `docs/chester/working/stress-tests/` reads from that worktree's skills. The default-when-unset rule preserves existing single-checkout workflows. This is the pattern for any future probe or stress-test that needs to load skills content from a non-default location.
+alternatives:
+  - Pass the skills root as a CLI argument to every probe — rejected because probes are invoked across many call sites (manual shell, scheduled tasks, scripts) and threading an arg through every invocation is more invasive than reading one env var.
+  - Symlink `docs/chester/working/stress-tests/` into each worktree so probes resolve `skills/` relatively — rejected because it duplicates the working/ tree per worktree and breaks the single-working-dir invariant (see `docs/chester/CLAUDE.md`).
+  - Hardcode the main checkout's `skills/` path in each probe — rejected because it makes probes useless for worktree AC verification, which is precisely the case this sprint surfaced.
+tags: [convention, tool, worktree]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-02/summary/sprint-02-bug-fix-02-summary-00.md
+---
+
+---
+id: dr-20260517-12-option-b-lightweight-design-brief-path
+date: 2026-05-17
+sprint: 20260511-01-mp-redesign-proof-system / sprint-02-bug-fix-02
+stage: design-specify
+title: Option-b lightweight design-brief path for cascade-determined sub-sprints
+decision: When a sub-sprint's design space is fully determined by existing cascade text and prior decision-record precedent (no new architectural choice, no competing alternatives), the human operator may skip the `design-small-task` Q&A loop and author the design brief directly as a human-written document consolidating the micro-decisions; `design-specify` accepts this lightweight brief as input on the same footing as a skill-produced brief.
+rationale: Sprint-02-bug-fix-02's design space was fully constrained by (a) the cascade text already specifying RISK.addresses and PERMISSION.grant reference semantics, (b) dr-20260517-01's established directive-pattern convention, and (c) the prior sub-sprint's `nonEmptyStringFields` precedent — every micro-decision had a precedent answer. Running `design-small-task`'s Q&A loop in that situation produces ceremony without information, because the loop's purpose is to surface considerations and force decisions and there are no real considerations or open decisions to force. The option-b path acknowledges this and provides a direct human-authored brief route while preserving `design-specify` as the formalization step — the brief still gets adversarial review, fidelity review, and ground-truth verification before plan-build. The precedent is narrow: option-b applies only when the cascade and prior records fully determine the design space. Anything else still uses `design-small-task` or `design-large-task`. Future sprints invoking option-b must name the cascade sections and decision-record ids that determine the design space; an unanchored option-b claim collapses back to design-small-task.
+alternatives:
+  - Always run `design-small-task` regardless — rejected because the Q&A loop adds rounds of conversation that produce no new information when the design space is precedent-determined, costing operator time and conversation tokens without improving the design.
+  - Skip the design brief entirely and go straight to `design-specify` — rejected because `design-specify`'s charter is to formalize a brief, not to produce one; collapsing both into one skill conflates the brief-authoring discipline (consolidate micro-decisions) with the spec-authoring discipline (formalize architecture choice and acceptance criteria) and weakens both.
+  - Create a new "lightweight brief" skill — rejected because the lightweight path is identified by operator judgment about precedent coverage, not by a separate skill body; the work is just "write a brief by hand" and a skill wrapper adds ceremony without changing the artifact shape.
+tags: [process, governance]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-02/design/sprint-02-bug-fix-02-design-00.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-02/spec/sprint-02-bug-fix-02-spec-00.md
+---
