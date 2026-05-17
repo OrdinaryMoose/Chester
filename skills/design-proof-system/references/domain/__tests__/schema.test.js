@@ -18,7 +18,9 @@ describe('schema', () => {
   it('verifyArgsShape passes valid args and throws on missing required field', () => {
     const cat = ELEMENT_CATEGORIES.EVIDENCE;
     const desc = CATEGORY_REGISTRY[cat];
-    const validArgs = Object.fromEntries(desc.requiredFields.map(f => [f, 'x']));
+    // EVIDENCE.source is closed-enum (EVIDENCE_SOURCE_ENUM) per H-4; build validArgs
+    // by stuffing 'x' into every required field EXCEPT source, which needs a real enum value.
+    const validArgs = Object.fromEntries(desc.requiredFields.map(f => [f, f === 'source' ? 'codebase' : 'x']));
     expect(() => verifyArgsShape(validArgs, cat)).not.toThrow();
     const { [desc.requiredFields[0]]: _, ...partial } = validArgs;
     expect(() => verifyArgsShape(partial, cat)).toThrow(/SHAPE/);

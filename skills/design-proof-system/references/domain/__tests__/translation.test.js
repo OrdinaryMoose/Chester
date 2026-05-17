@@ -4,7 +4,7 @@ import { ELEMENT_CATEGORIES } from '../tags.js';
 
 describe('translation', () => {
   it('translate(Evidence) returns baseFacts with predicate "evidence"', () => {
-    const out = translate(ELEMENT_CATEGORIES.EVIDENCE, { source: 'codebase', claim: 'x' }, 'evid_1', 1700000000);
+    const out = translate(ELEMENT_CATEGORIES.EVIDENCE, { source: 'codebase', statement: 'x' }, 'evid_1', 1700000000);
     expect(out.baseFacts.some(f => f[0] === 'evidence')).toBe(true);
     expect(Array.isArray(out.rules)).toBe(true);
     expect(Array.isArray(out.metaFacts)).toBe(true);

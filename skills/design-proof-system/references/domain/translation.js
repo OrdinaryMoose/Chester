@@ -11,7 +11,7 @@ import { ELEMENT_CATEGORIES } from './tags.js';
 
 const TRANSLATORS = Object.freeze({
   [ELEMENT_CATEGORIES.EVIDENCE]: (args, id, ts) => ({
-    baseFacts: [['evidence', [id, args.source, args.claim]]],
+    baseFacts: [['evidence', [id, args.source, args.statement]]],
     rules: [],
     metaFacts: [['created_at', [id, ts]]],
   }),

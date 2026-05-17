@@ -3,7 +3,7 @@ import { validateOpenProofPayload, expandIntoOperations } from '../restructuring
 
 describe('restructuring', () => {
   it('validateOpenProofPayload accepts well-formed payload', () => {
-    const payload = { elements: [{ category: 'evidence', args: { source: 'codebase', claim: 'x' } }] };
+    const payload = { elements: [{ category: 'evidence', args: { source: 'codebase', statement: 'x' } }] };
     expect(() => validateOpenProofPayload(payload)).not.toThrow();
   });
 
@@ -13,7 +13,7 @@ describe('restructuring', () => {
 
   it('expandIntoOperations returns one add op per element', () => {
     const payload = { elements: [
-      { category: 'evidence', args: { source: 'c', claim: 'x' } },
+      { category: 'evidence', args: { source: 'codebase', statement: 'x' } },
       { category: 'rule', args: { statement: 's' } },
     ]};
     const ops = expandIntoOperations(payload);

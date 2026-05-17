@@ -141,7 +141,7 @@ describe('PROPOSITION — translator (AC-3.x)', () => {
 describe('PROPOSITION — ratify path (AC-6.1)', () => {
   it('AC-6.1: ratifyElement({elementId, idShape:proposition}) does not throw SHAPE_INVALID', async () => {
     const bridge = await makeRealBridge();
-    bridge.addElement({ idShape: 'evidence', source: 'design', claim: 'baseline' }, { source: CONSENT_SOURCES.DESIGNER });
+    bridge.addElement({ idShape: 'evidence', source: 'codebase', statement: 'baseline' }, { source: CONSENT_SOURCES.DESIGNER });
     // grounding stored as string here (not array per plan-verbatim) to bypass a pre-existing
     // translator/engine interaction in PROPOSITION's translate: line 31 emits
     // ['grounding', [id, args.grounding]] with grounding passed through as-is, so an array
@@ -167,7 +167,7 @@ describe('PROPOSITION — bridge integration (AC-4.x, AC-5.x)', () => {
 
   it('AC-5.1: bridge round-trip — addElement then query returns reasoning_chain and rejected_alternative facts', async () => {
     const bridge = await makeRealBridge();
-    bridge.addElement({ idShape: 'evidence', source: 'design', claim: 'baseline' }, { source: CONSENT_SOURCES.DESIGNER });
+    bridge.addElement({ idShape: 'evidence', source: 'codebase', statement: 'baseline' }, { source: CONSENT_SOURCES.DESIGNER });
     const { id } = bridge.addElement({
       idShape: 'proposition',
       statement: 'S',
@@ -191,7 +191,7 @@ describe('PROPOSITION — bridge integration (AC-4.x, AC-5.x)', () => {
 
   it('AC-5.2: revise creates new element id; new facts under new id; old facts persist under prior id; superseded link present', async () => {
     const bridge = await makeRealBridge();
-    bridge.addElement({ idShape: 'evidence', source: 'design', claim: 'baseline' }, { source: CONSENT_SOURCES.DESIGNER });
+    bridge.addElement({ idShape: 'evidence', source: 'codebase', statement: 'baseline' }, { source: CONSENT_SOURCES.DESIGNER });
     const { id: oldId } = bridge.addElement({
       idShape: 'proposition',
       statement: 'S',

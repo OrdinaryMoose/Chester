@@ -238,7 +238,7 @@ describe('CONCERN — lifecycle integration (real Engine)', () => {
     // RATIFY has a weak precondition that evidence/3 must exist (see mutations.js:63).
     // Seed a single evidence fact so subsequent ratify calls pass the precondition.
     // This mirrors the working pattern at bridge-integration.test.js:42.
-    bridge.addElement({ idShape: 'evidence', source: 'design', claim: 'baseline' }, { source: CONSENT_SOURCES.DESIGNER });
+    bridge.addElement({ idShape: 'evidence', source: 'codebase', statement: 'baseline' }, { source: CONSENT_SOURCES.DESIGNER });
     const { id } = bridge.addConcern({ label: 'C1', description: 'D1' }, { source: CONSENT_SOURCES.DESIGNER });
     expect(id).toMatch(/^concern_\d+$/);
     // Use the working ratify pattern: generic ratifyElement with dummy source + claim
@@ -254,7 +254,7 @@ describe('CONCERN — lifecycle integration (real Engine)', () => {
   it('AC-7.1: full add → ratify Resolution that addresses → closure_permitted derives', async () => {
     const bridge = await makeRealBridge();
     // Seed evidence/3 to satisfy RATIFY's weak precondition (mutations.js:63).
-    bridge.addElement({ idShape: 'evidence', source: 'design', claim: 'baseline' }, { source: CONSENT_SOURCES.DESIGNER });
+    bridge.addElement({ idShape: 'evidence', source: 'codebase', statement: 'baseline' }, { source: CONSENT_SOURCES.DESIGNER });
     const { id: cId } = bridge.addConcern({ label: 'C1' }, { source: CONSENT_SOURCES.DESIGNER });
     bridge.ratifyElement({ elementId: cId, source: 'designer', claim: '_' }, { source: CONSENT_SOURCES.DESIGNER });
     const { id: rId } = bridge.addElement({ idShape: 'resolution', statement: 'R1', addresses: cId }, { source: CONSENT_SOURCES.DESIGNER });
@@ -266,7 +266,7 @@ describe('CONCERN — lifecycle integration (real Engine)', () => {
   it('AC-6.1 cross-impact: ratifyConcern with only {elementId} no longer throws SHAPE_INVALID (fixed by sprint-02-bug-fix-01)', async () => {
     const bridge = await makeRealBridge();
     expect(typeof bridge.ratifyConcern).toBe('function');
-    bridge.addElement({ idShape: 'evidence', source: 'design', claim: 'baseline' }, { source: CONSENT_SOURCES.DESIGNER });
+    bridge.addElement({ idShape: 'evidence', source: 'codebase', statement: 'baseline' }, { source: CONSENT_SOURCES.DESIGNER });
     const { id } = bridge.addConcern({ label: 'C1' }, { source: CONSENT_SOURCES.DESIGNER });
     // Previously threw SHAPE_INVALID with field 'label' because verifyArgsShape checked
     // Concern's requiredFields against ratify-shape args. The argShape on RATIFY's

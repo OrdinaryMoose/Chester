@@ -1,5 +1,5 @@
 // Per-category required fields, authority, render section. Canonical definitions: ./VOCABULARY.md.
-import { ELEMENT_CATEGORIES, CONSENT_SOURCES, RENDER_SECTIONS, INFERENCE_PATTERNS, FRICTION_SHAPES, FRICTION_DISPOSITIONS, assertExhaustive } from './tags.js';
+import { ELEMENT_CATEGORIES, CONSENT_SOURCES, RENDER_SECTIONS, INFERENCE_PATTERNS, FRICTION_SHAPES, FRICTION_DISPOSITIONS, EVIDENCE_SOURCE_ENUM, assertExhaustive } from './tags.js';
 
 // Private partial mirror of mutations.js's _CATEGORY_PROBES. Cannot import directly
 // (circular: mutations.js imports verifyArgsShape from schema.js). Keyed by
@@ -42,14 +42,14 @@ function _existsCategory(readPort, id, categoryKey) {
 
 export const CATEGORY_REGISTRY = Object.freeze({
   [ELEMENT_CATEGORIES.EVIDENCE]: Object.freeze({
-    requiredFields: ['source', 'claim'],
+    requiredFields: ['source', 'statement'],
     optionalFields: ['url', 'citation'],
     nonEmptyStringFields: [],
     nonEmptyArrayFields: [],
     sourceConstraint: CONSENT_SOURCES.DESIGNER,
     idShape: ELEMENT_CATEGORIES.EVIDENCE,
     renderSection: RENDER_SECTIONS.GIVENS,
-    closedEnumFields: {},
+    closedEnumFields: { source: EVIDENCE_SOURCE_ENUM },
     referenceFields: {},
     authority: { add: [CONSENT_SOURCES.DESIGNER], revise: [CONSENT_SOURCES.DESIGNER], withdraw: [CONSENT_SOURCES.DESIGNER], ratify: [CONSENT_SOURCES.DESIGNER] },
   }),

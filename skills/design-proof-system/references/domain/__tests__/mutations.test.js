@@ -27,14 +27,14 @@ describe('mutations', () => {
   it('runOperation calls saveState after successful commit', () => {
     const s = createInMemorySubstrate();
     const ports = _makeFullPorts(s);
-    runOperation(ACTION_LABELS.ADD, { idShape: 'evidence', source: 'codebase', claim: 'x' }, { source: CONSENT_SOURCES.DESIGNER }, ports);
+    runOperation(ACTION_LABELS.ADD, { idShape: 'evidence', source: 'codebase', statement: 'x' }, { source: CONSENT_SOURCES.DESIGNER }, ports);
     expect(ports.persist.saveState).toHaveBeenCalled();
   });
 
   it('runOperation throws POST_COMMIT_SAVE_FAILED on persist failure', () => {
     const s = createInMemorySubstrate();
     const ports = _makeFullPorts(s, { failSave: true });
-    expect(() => runOperation(ACTION_LABELS.ADD, { idShape: 'evidence', source: 'codebase', claim: 'x' }, { source: CONSENT_SOURCES.DESIGNER }, ports))
+    expect(() => runOperation(ACTION_LABELS.ADD, { idShape: 'evidence', source: 'codebase', statement: 'x' }, { source: CONSENT_SOURCES.DESIGNER }, ports))
       .toThrow(/POST_COMMIT_SAVE_FAILED/);
   });
 });
