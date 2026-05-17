@@ -141,7 +141,7 @@ export const CATEGORY_REGISTRY = Object.freeze({
     authority: { add: [CONSENT_SOURCES.DESIGNER], revise: [CONSENT_SOURCES.DESIGNER], withdraw: [CONSENT_SOURCES.DESIGNER], ratify: [CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER] },
   }),
   [ELEMENT_CATEGORIES.DEFINITION]: Object.freeze({
-    requiredFields: ['term', 'definition'],
+    requiredFields: ['canonical_name', 'definition'],
     optionalFields: ['scope'],
     nonEmptyStringFields: [],
     nonEmptyArrayFields: [],

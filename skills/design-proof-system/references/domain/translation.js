@@ -76,7 +76,7 @@ const TRANSLATORS = Object.freeze({
   }),
   [ELEMENT_CATEGORIES.DEFINITION]: (args, id, ts) => ({
     baseFacts: [
-      ['definition_decl', [id, args.term, args.definition]],
+      ['definition_decl', [id, args.canonical_name, args.definition]],
       // definition_scope discriminates legitimate dual-use of a term from real overlaps.
       // overlap_rule (friction-policy.js) requires same term AND same scope to fire, so
       // operators with intentionally-distinct definitions of "Session" can pass
