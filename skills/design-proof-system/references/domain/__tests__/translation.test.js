@@ -12,7 +12,7 @@ describe('translation', () => {
 
   it('translate(Proposition) returns approval-gated rule shape', () => {
     const out = translate(ELEMENT_CATEGORIES.PROPOSITION,
-      { statement: 's', grounding: 'g', collapse_test: 'ct', inference_pattern: 'grounds_imply_conclusion' },
+      { statement: 's', grounding: 'g', collapse_test: 'ct', inference_pattern: 'grounds_imply_conclusion', reasoning_chain: 'IF X THEN Y' },
       'prop_1', 1700000000);
     // Proposition translation emits base facts (proposition_decl etc.) AND
     // a rule that fires when "approved" is asserted (per ADR-0003).

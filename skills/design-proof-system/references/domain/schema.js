@@ -4,6 +4,7 @@ export const CATEGORY_REGISTRY = Object.freeze({
   [ELEMENT_CATEGORIES.EVIDENCE]: Object.freeze({
     requiredFields: ['source', 'claim'],
     optionalFields: ['url', 'citation'],
+    nonEmptyStringFields: [],
     sourceConstraint: CONSENT_SOURCES.DESIGNER,
     idShape: ELEMENT_CATEGORIES.EVIDENCE,
     renderSection: RENDER_SECTIONS.GIVENS,
@@ -13,6 +14,7 @@ export const CATEGORY_REGISTRY = Object.freeze({
   [ELEMENT_CATEGORIES.RULE]: Object.freeze({
     requiredFields: ['statement'],
     optionalFields: ['rationale'],
+    nonEmptyStringFields: [],
     sourceConstraint: CONSENT_SOURCES.DESIGNER,
     idShape: ELEMENT_CATEGORIES.RULE,
     renderSection: RENDER_SECTIONS.INFERENTIAL_FRAMEWORK,
@@ -22,6 +24,7 @@ export const CATEGORY_REGISTRY = Object.freeze({
   [ELEMENT_CATEGORIES.PERMISSION]: Object.freeze({
     requiredFields: ['statement'],
     optionalFields: ['rationale'],
+    nonEmptyStringFields: [],
     sourceConstraint: CONSENT_SOURCES.DESIGNER,
     idShape: ELEMENT_CATEGORIES.PERMISSION,
     renderSection: RENDER_SECTIONS.INFERENTIAL_FRAMEWORK,
@@ -29,8 +32,9 @@ export const CATEGORY_REGISTRY = Object.freeze({
     authority: { add: [CONSENT_SOURCES.DESIGNER], revise: [CONSENT_SOURCES.DESIGNER], withdraw: [CONSENT_SOURCES.DESIGNER], ratify: [CONSENT_SOURCES.DESIGNER] },
   }),
   [ELEMENT_CATEGORIES.PROPOSITION]: Object.freeze({
-    requiredFields: ['statement', 'grounding', 'collapse_test', 'inference_pattern'],
-    optionalFields: ['scope'],
+    requiredFields: ['statement', 'grounding', 'collapse_test', 'inference_pattern', 'reasoning_chain'],
+    optionalFields: ['scope', 'rejected_alternatives'],
+    nonEmptyStringFields: ['reasoning_chain'],
     sourceConstraint: CONSENT_SOURCES.DESIGNER,
     idShape: ELEMENT_CATEGORIES.PROPOSITION,
     renderSection: RENDER_SECTIONS.LEMMAS,
@@ -40,6 +44,7 @@ export const CATEGORY_REGISTRY = Object.freeze({
   [ELEMENT_CATEGORIES.RISK]: Object.freeze({
     requiredFields: ['statement'],
     optionalFields: ['severity'],
+    nonEmptyStringFields: [],
     sourceConstraint: CONSENT_SOURCES.DESIGNER,
     idShape: ELEMENT_CATEGORIES.RISK,
     renderSection: RENDER_SECTIONS.PROBLEM,
@@ -49,6 +54,7 @@ export const CATEGORY_REGISTRY = Object.freeze({
   [ELEMENT_CATEGORIES.RESOLUTION]: Object.freeze({
     requiredFields: ['statement', 'addresses'],
     optionalFields: [],
+    nonEmptyStringFields: [],
     sourceConstraint: CONSENT_SOURCES.DESIGNER,
     idShape: ELEMENT_CATEGORIES.RESOLUTION,
     renderSection: RENDER_SECTIONS.THEOREMS,
@@ -58,6 +64,7 @@ export const CATEGORY_REGISTRY = Object.freeze({
   [ELEMENT_CATEGORIES.FRICTION]: Object.freeze({
     requiredFields: ['shape', 'description'],
     optionalFields: ['disposition'],
+    nonEmptyStringFields: [],
     sourceConstraint: CONSENT_SOURCES.SYSTEM,
     idShape: ELEMENT_CATEGORIES.FRICTION,
     renderSection: RENDER_SECTIONS.FRICTIONS,
@@ -67,6 +74,7 @@ export const CATEGORY_REGISTRY = Object.freeze({
   [ELEMENT_CATEGORIES.CONCERN]: Object.freeze({
     requiredFields: ['label'],
     optionalFields: ['description'],
+    nonEmptyStringFields: [],
     sourceConstraint: CONSENT_SOURCES.DESIGNER,
     idShape: ELEMENT_CATEGORIES.CONCERN,
     renderSection: RENDER_SECTIONS.PROBLEM,
@@ -76,6 +84,7 @@ export const CATEGORY_REGISTRY = Object.freeze({
   [ELEMENT_CATEGORIES.DEFINITION]: Object.freeze({
     requiredFields: ['term', 'definition'],
     optionalFields: ['scope'],
+    nonEmptyStringFields: [],
     sourceConstraint: CONSENT_SOURCES.DESIGNER,
     idShape: ELEMENT_CATEGORIES.DEFINITION,
     renderSection: RENDER_SECTIONS.DEFINITIONS,
@@ -108,6 +117,14 @@ export function verifyArgsShape(args, shapeOrDescriptor) {
         // the runOperation catch path treats closed-enum violations identically
         // to missing-required-field violations.
         throw Object.assign(e, { code: 'SHAPE_INVALID', field });
+      }
+    }
+  }
+  for (const f of (desc.nonEmptyStringFields ?? [])) {
+    if (f in args) {
+      const v = args[f];
+      if (typeof v !== 'string' || v.trim().length === 0) {
+        throw Object.assign(new Error(`SHAPE_INVALID: field "${f}" for ${label} must be a non-empty string`), { code: 'SHAPE_INVALID', field: f });
       }
     }
   }

@@ -30,6 +30,10 @@ const TRANSLATORS = Object.freeze({
       ['proposition_decl', [id, args.statement, args.inference_pattern]],
       ['grounding', [id, args.grounding]],
       ['collapse_test', [id, args.collapse_test]],
+      ['reasoning_chain', [id, args.reasoning_chain]],
+      ...(Array.isArray(args.rejected_alternatives)
+        ? args.rejected_alternatives.map(alt => ['rejected_alternative', [id, alt.statement, alt.rejection_reason]])
+        : []),
     ],
     rules: [], // The approval-gated rule lives in RULE_TEMPLATES (Phase B); per-element instantiation happens in Phase C via instantiateTemplate.
     metaFacts: [['created_at', [id, ts]]],
@@ -179,7 +183,8 @@ export function instantiateTemplate(idShape, newId, rulePorts) {
 
 const EDB_PREDICATES = Object.freeze(new Set([
   'evidence', 'rule_decl', 'permission_decl', 'proposition_decl', 'grounding',
-  'collapse_test', 'risk', 'resolution_decl', 'addresses', 'friction',
+  'collapse_test', 'reasoning_chain', 'rejected_alternative',
+  'risk', 'resolution_decl', 'addresses', 'friction',
   'friction_disposition', 'definition_decl', 'definition_scope', 'definition_self',
   'concern', 'concern_status',
   'approved', 'two_yes',

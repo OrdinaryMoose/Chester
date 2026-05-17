@@ -112,6 +112,17 @@ export const OPERATION_SPECS = Object.freeze({
     consentCategory: CONSENT_SOURCES.DESIGNER, // Authorities for ratify are looked up per element category via authority.lookupAuthority.
     preconditions: [{ predicate: 'evidence', arity: 3 }], // weak: just confirms an element exists pre-derivation.
     idShape: ELEMENT_CATEGORIES.EVIDENCE,
+    // RATIFY's args are operation-shaped ({elementId, source, idShape?}) — not element-shaped.
+    // argShape overrides the default idShape→CATEGORY_REGISTRY lookup in runOperation so
+    // verifyArgsShape checks only the fields RATIFY actually consumes. Without this, the
+    // generic per-category requiredFields check throws SHAPE_INVALID on category-specific
+    // fields the ratify caller has no reason to supply (e.g., 'label' for CONCERN, 'statement'
+    // for PROPOSITION). Mirrors the WITHDRAW (line 101) and MANAGE_FRICTION (line 141) precedents.
+    argShape: {
+      label: 'ratify',
+      requiredFields: ['elementId'],
+      closedEnumFields: {},
+    },
     // Writes two facts: `approved` (consumed by per-element rule templates for derivation,
     // existing semantics) and `two_yes` (purely observability — lets the two_yes_complete
     // derived predicate detect when both DESIGNER and DESIGN_PARTNER have ratified an
