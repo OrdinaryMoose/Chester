@@ -1739,3 +1739,98 @@ artifact_refs:
   - working/20260511-01-mp-redesign-proof-system/sprint-02-proof-layer-pass-2/plan/sprint-02-proof-layer-pass-2-plan-01.md
   - working/20260511-01-mp-redesign-proof-system/sprint-02-proof-layer-pass-2/summary/sprint-02-proof-layer-pass-2-summary-00.md
 ---
+
+---
+id: dr-20260517-01-non-empty-string-fields-declarative-directive
+date: 2026-05-17
+sprint: 20260511-01-mp-redesign-proof-system
+stage: design-specify
+title: Declarative `nonEmptyStringFields` directive for content-shape validation
+decision: Schema-layer content-shape constraints (e.g. "this string field must be non-empty after trim") are expressed as a declarative descriptor field — `nonEmptyStringFields: [...]` — on every category in `CATEGORY_REGISTRY`, evaluated by a generic loop inside `verifyArgsShape`, rather than as a per-descriptor procedural validator hook or a per-category inline check.
+rationale: Sprint-02-bug-fix-01 needed `reasoning_chain` to reject empty/whitespace-only strings on PROPOSITION; the available alternatives were a one-off check inside the PROPOSITION descriptor, a procedural `validate(args)` callback per descriptor, or a declarative directive read by `verifyArgsShape`. The directive route keeps the validator surface uniform — every category answers the question "which fields must be non-empty?" the same way and the engine answers it once — so future content-shape constraints (e.g. URL-shape, regex-match) add one new directive name and one new loop rather than nine per-descriptor procedural hooks. Adding `nonEmptyStringFields: []` to the other eight descriptors made the directive self-documenting at every category site without changing their behavior. Future sprints adding new content-shape constraints should follow this declarative-directive pattern; only fall back to procedural hooks when the constraint is genuinely cross-field or otherwise not expressible as a per-field declaration.
+alternatives:
+  - Inline per-descriptor procedural check inside each category's descriptor body — rejected because it duplicates the rejection-throw shape at every site and makes the "what content rules apply to this category" question require reading every descriptor in full instead of a single field.
+  - Per-descriptor `validate(args)` callback hook — rejected because it admits arbitrary code at the validation boundary and erodes the schema's declarative property; once one descriptor has procedural logic, every reader has to read all callbacks to understand validation surface.
+  - Keep PROPOSITION-only ad-hoc check and revisit if a second category needs the same constraint — rejected because the YAGNI argument was outweighed by the cost of retrofitting the directive later across nine categories simultaneously; doing it once at introduction time is cheaper than doing it nine times under pressure.
+tags: [convention, architecture]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-01/spec/sprint-02-bug-fix-01-spec-01.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-01/plan/sprint-02-bug-fix-01-plan-00.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-01/summary/sprint-02-bug-fix-01-summary-00.md
+---
+
+---
+id: dr-20260517-02-operation-arg-shape-declared-when-not-element-shaped
+date: 2026-05-17
+sprint: 20260511-01-mp-redesign-proof-system
+stage: execute-write
+title: Operations whose args are not element-shaped must declare their own `argShape`
+decision: Any entry in `OPERATION_SPECS` whose runtime arguments do not match the element-shape expected by `verifyArgsShape`'s default path (e.g. RATIFY takes `{elementId}`, not the full element-creation arg bundle) must declare an explicit `argShape: { label, requiredFields, closedEnumFields }` block on the operation spec; the absence of an `argShape` for such an operation is a latent SHAPE_INVALID bug class that affects every category routed through that operation.
+rationale: Sprint-02-bug-fix-01 surfaced that `ratifyConcern({elementId})` and the same shape for DEFINITION/RESOLUTION/PROPOSITION ratify paths threw `SHAPE_INVALID` because RATIFY had no `argShape` and `verifyArgsShape` fell through to a default that expected element-creation fields. WITHDRAW and MANAGE_FRICTION already declared their own `argShape` for the same reason and were not bugged; RATIFY was the outlier. Adding `argShape: { label: 'ratify', requiredFields: ['elementId'], closedEnumFields: {} }` to RATIFY closed the bug across every category in one change and converted a previously-pinned canary test (`concern-schema.test.js:266-279`, set up by dr-20260515-03) into a passing positive assertion. Future sprints introducing new non-element-shaped operations (e.g. verbs that take an id and a small payload rather than full element fields) must declare an `argShape` on the operation spec at introduction time; the pattern is: operation-shape ≠ element-shape ⇒ declare `argShape`.
+alternatives:
+  - Special-case RATIFY inside `verifyArgsShape` to skip element-shape checks — rejected because it solves only RATIFY and pushes the same special-case decision onto every future non-element-shaped operation, growing the validator into a per-operation switch.
+  - Add a fallback "permissive ratify mode" flag — rejected because it makes the validator's behavior depend on a runtime flag and erodes the "operation declares its own shape" property the other working operations (WITHDRAW, MANAGE_FRICTION) already established.
+  - Restructure RATIFY to accept full element args and re-derive the elementId from them — rejected because it inverts the caller contract (the caller has the id, not the full element) and makes every ratify call site duplicate the element bundle just to satisfy the validator.
+tags: [convention, architecture]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-01/spec/sprint-02-bug-fix-01-spec-01.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-01/plan/sprint-02-bug-fix-01-plan-00.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-01/summary/sprint-02-bug-fix-01-summary-00.md
+---
+
+---
+id: dr-20260517-03-grounding-array-vs-engine-string-gap-deferred
+date: 2026-05-17
+sprint: 20260511-01-mp-redesign-proof-system
+stage: execute-write
+title: `grounding` array-vs-string translator/engine divergence acknowledged and deferred
+decision: The cascade spec (`05-domain-spec.md` §3.4) describes PROPOSITION `grounding` as an array, the PROPOSITION translator stores `args.grounding` as-is, but the Engine's `FactStore._validateArgs` rejects array-valued constants — the sub-sprint did not reconcile the divergence and instead documented it inline in the PROPOSITION test fixture, accepting that tests routed through `assertFact` must use a string `grounding` while tests calling `translate()` directly may use an array; the divergence is deferred to a future sub-sprint that explicitly chooses between (a) fixing the translator to spread `grounding` into per-element facts like RESOLUTION's `addresses` does, or (b) amending the cascade to make `grounding` a string.
+rationale: The sprint's narrow charter was restoring `reasoning_chain` and `rejected_alternatives` to the PROPOSITION pipeline; the `grounding` divergence is a separate pre-existing engine/translator mismatch that surfaced during fixture construction. Fixing it would expand scope into either translator-rewriting territory (option a, which forces a decision about how to model multi-evidence grounding semantics) or cascade-amending territory (option b, which forces an ADR on the PROPOSITION data model) — neither is in the bug-fix sub-sprint's scope. The inline fixture documentation pattern names the divergence, names the two reconciliation routes, and preserves both test patterns until a future sprint commits to one — analogous to dr-20260515-02's composition-first convention for cascade-vs-code mismatches, but applied to a divergence where neither side composes cleanly. Future sprints touching PROPOSITION grounding should treat the choice between (a) and (b) as a required design decision, not an implementation detail; choosing silently in either direction in passing would corrupt the cascade-or-code authority pattern.
+alternatives:
+  - Fix the translator to spread `grounding` per-element (matching cascade §3.4 and following RESOLUTION's `addresses` precedent) in this sub-sprint — rejected because the spread shape commits to "grounding is N independent evidence references" semantics, which is a PROPOSITION-data-model decision deserving an ADR rather than a passing fix.
+  - Amend the cascade to declare `grounding` a string in this sub-sprint — rejected because cascade edits require an ADR and the design question (does a Proposition ground in one or many pieces of evidence?) is out of scope for a bug-fix sub-sprint.
+  - Leave the divergence undocumented and let future sprints rediscover it — rejected because the next sprint that constructs a PROPOSITION fixture will hit the same mismatch and either silently pick a side or relitigate the analysis; documenting the divergence and the two routes preserves the choice for the sprint qualified to make it.
+tags: [architecture, governance]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-01/spec/sprint-02-bug-fix-01-spec-01.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-01/summary/sprint-02-bug-fix-01-summary-00.md
+---
+
+---
+id: dr-20260517-04-strict-verify-fixes-baseline-failures
+date: 2026-05-17
+sprint: 20260511-01-mp-redesign-proof-system
+stage: finish-write-records
+title: At `execute-verify-complete`, pre-existing baseline failures are fixed rather than carried forward
+decision: When `execute-verify-complete`'s strict-discipline gate surfaces test failures that pre-existed the sub-sprint's stated work (i.e. failures unrelated to the sub-sprint's ACs), the working norm is to close them in a targeted follow-up commit before the gate passes, not to accept the baseline and forward the failures to a follow-up sub-sprint; baseline carry-forward is the explicit exception and requires the operator to override deliberately.
+rationale: Sprint-02-bug-fix-01's verify gate surfaced four baseline failures (`bridge-integration AC-3.4`, `AC-6.1`, `AC-11.1`, `facade-jsdoc`) caused by drift unrelated to the sub-sprint's PROPOSITION pipeline work; the gate offered Option 1 (accept baseline) and Option 2 (close them). Option 2 was chosen because all four failures were small mechanical updates (test-fixture verb-case args, substrate fake completeness, JSDoc addition) and carrying them forward would require a new sub-sprint scoped to "fix four unrelated failures" — overhead disproportionate to the fix cost, and the working tree would have shipped to main with known-red tests until that sprint ran. The general principle: at the verify gate, the cost-of-fix-now (small, in-context) versus cost-of-deferral (new sub-sprint overhead + main carries red baseline until fix) almost always favors fix-now for mechanical failures; deferral remains correct only when the fix would expand scope into design-decision territory or touch out-of-scope module boundaries. Future sub-sprints should apply this norm by default and document any baseline-carry-forward with the rationale that justifies the exception.
+alternatives:
+  - Always accept baseline at the verify gate and defer all pre-existing failures to dedicated cleanup sprints — rejected because it creates a permanent class of "main has known-red tests" intervals and multiplies sub-sprint overhead for failures that take minutes to fix in-context.
+  - Always require an ADR before fixing baseline failures outside the sub-sprint's stated scope — rejected because ADR overhead exceeds the typical fix cost and converts a routine cleanup into a governance event; ADRs should gate design decisions, not mechanical test-fixture repairs.
+  - Block the verify gate entirely when baseline failures surface (no Option 1) — rejected because it removes operator judgment for legitimate carry-forward cases (e.g. the fix genuinely requires design work the sub-sprint cannot complete); the two-option menu preserves judgment while making fix-now the typical answer.
+tags: [process, governance]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-01/summary/sprint-02-bug-fix-01-summary-00.md
+---
+
+---
+id: dr-20260517-05-substrate-fake-port-completeness-parity
+date: 2026-05-17
+sprint: 20260511-01-mp-redesign-proof-system
+stage: execute-write
+title: Substrate fakes must implement every method the engine-port-adapter contract names
+decision: The in-memory substrate fake at `__tests__/_fixtures/inMemorySubstrate.js` must implement every method named in the engine-port-adapter contract that the bridge calls — a missing method (e.g. `rulesPort.allRules()`) is a parity bug that produces ghost test failures rather than a deliberate test-only narrowing; whenever the real Engine gains a method on a port the bridge depends on, the substrate fake gains the corresponding method in the same change.
+rationale: Sprint-02-bug-fix-01's verify gate surfaced two failures (`bridge-integration AC-6.1` and `AC-11.1`) traced to the substrate fake's `rulesPort` lacking `allRules()` — the bridge's `getAllRules` helper expected it per the engine-port-adapter contract, the real Engine had implemented it for some time, but the fake lagged. The lag pattern produces a deceptive failure shape: tests that route through the bridge fail with "X is not a function" rather than a clear contract-mismatch error, and the substrate fake's role as a fast test fixture obscures the fact that it is also a port-contract-conformance witness. The general convention is that any port-shaped fake (substrate, ledger, anything that stands in for a real component the bridge calls) must mirror the real component's contract in full; partial implementation is not a deliberate "this fake doesn't need that method" — it is a latent bug waiting on the first test that exercises the missing method. Future sprints adding a method to any port the bridge consumes must update both the real implementation and every fake of that port in the same change; reviewers should flag fake-side gaps the same way they would flag real-side gaps.
+alternatives:
+  - Let fakes implement only the methods the current test suite happens to call and add methods on-demand when tests fail — rejected because it institutionalizes the lag pattern, makes the fake an unreliable witness of port conformance, and turns each new bridge-routing test into a fake-extension session.
+  - Generate fakes mechanically from the port contract — rejected as overkill for the current Chester scale and not committed-to here; the convention requires manual parity but does not commit to automation. A future sprint may choose to generate fakes if the manual parity discipline proves insufficient.
+  - Drop the substrate fake and require all tests to use the real Engine — rejected because pure state-transition tests gain no signal from real-Engine dispatch (see dr-20260515-05); the fake is justified for that test class and the parity discipline preserves its correctness for the bridge-routing test class.
+tags: [convention, testing, architecture]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-01/summary/sprint-02-bug-fix-01-summary-00.md
+---
