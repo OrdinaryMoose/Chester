@@ -100,7 +100,7 @@ describe('bridge-integration', () => {
     // OPERATION_SPECS comments; their translate functions don't read `source`/`claim`, but the
     // shape check still demands them). Required-field sources of truth:
     //   EVIDENCE  → ['source', 'claim']             (schema.js CATEGORY_REGISTRY)
-    //   PROPOSITION → ['statement','grounding','collapse_test','inference_pattern']
+    //   PROPOSITION → ['statement','grounding','collapse_test','inference_pattern','reasoning_chain']
     //   FRICTION  → ['shape', 'description']
     const evidenceFill = { source: 'codebase', claim: 'x' };
     // FRICTION's `shape` field is constrained to FRICTION_SHAPES (closed-enum check in
