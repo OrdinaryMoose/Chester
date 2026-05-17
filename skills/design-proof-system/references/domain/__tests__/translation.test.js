@@ -65,4 +65,22 @@ describe('translation', () => {
     const scopes = result.baseFacts.filter(f => f[0] === 'permission_scope');
     expect(scopes.length).toBe(0);
   });
+
+  it('RISK translator spreads basis into one risk_basis/2 fact per element id', () => {
+    const args = { statement: 'R statement', basis: ['evid_1', 'prop_2'] };
+    const result = translate(ELEMENT_CATEGORIES.RISK, args, 'risk_1', 1700000000);
+    const facts = result.baseFacts;
+    // risk/3 preserved
+    expect(facts).toContainEqual(['risk', ['risk_1', 'R statement', 'unspecified']]);
+    // risk_basis/2 spread
+    expect(facts).toContainEqual(['risk_basis', ['risk_1', 'evid_1']]);
+    expect(facts).toContainEqual(['risk_basis', ['risk_1', 'prop_2']]);
+    expect(facts.filter(f => f[0] === 'risk_basis').length).toBe(2);
+  });
+
+  it('RISK translator preserves severity when provided', () => {
+    const args = { statement: 'R', basis: ['evid_1'], severity: 'high' };
+    const result = translate(ELEMENT_CATEGORIES.RISK, args, 'risk_2', 1700000000);
+    expect(result.baseFacts).toContainEqual(['risk', ['risk_2', 'R', 'high']]);
+  });
 });

@@ -45,7 +45,10 @@ const TRANSLATORS = Object.freeze({
     metaFacts: [['created_at', [id, ts]]],
   }),
   [ELEMENT_CATEGORIES.RISK]: (args, id, ts) => ({
-    baseFacts: [['risk', [id, args.statement, args.severity ?? 'unspecified']]],
+    baseFacts: [
+      ['risk', [id, args.statement, args.severity ?? 'unspecified']],
+      ...(Array.isArray(args.basis) ? args.basis.map(eid => ['risk_basis', [id, eid]]) : []),
+    ],
     rules: [],
     metaFacts: [['created_at', [id, ts]]],
   }),
@@ -190,7 +193,7 @@ export function instantiateTemplate(idShape, newId, rulePorts) {
 const EDB_PREDICATES = Object.freeze(new Set([
   'evidence', 'rule_decl', 'permission_decl', 'permission', 'permission_scope', 'proposition_decl', 'grounding',
   'collapse_test', 'reasoning_chain', 'rejected_alternative',
-  'risk', 'resolution_decl', 'addresses', 'friction',
+  'risk', 'risk_basis', 'resolution_decl', 'addresses', 'friction',
   'friction_disposition', 'definition_decl', 'definition_scope', 'definition_self',
   'concern', 'concern_status',
   'approved', 'two_yes',

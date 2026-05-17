@@ -39,8 +39,8 @@ describe('bridge-integration — engine-shape adapter', () => {
     const consent = { source: CONSENT_SOURCES.DESIGNER };
 
     // Add evidence + risk + resolution; ratify; closure should permit.
-    bridge.addElement({ idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'design', claim: 'baseline' }, consent);
-    const risk = bridge.addElement({ idShape: ELEMENT_CATEGORIES.RISK, statement: 'div-by-zero' }, consent);
+    const evid = bridge.addElement({ idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'design', claim: 'baseline' }, consent);
+    const risk = bridge.addElement({ idShape: ELEMENT_CATEGORIES.RISK, statement: 'div-by-zero', basis: [evid.id] }, consent);
     const res = bridge.addElement({
       idShape: ELEMENT_CATEGORIES.RESOLUTION,
       statement: 'return Error',
