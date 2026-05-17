@@ -7,7 +7,7 @@ export function registerStatic(rulePorts) {
   // in a single negative literal — that join must be reified into an intermediate).
   rulePorts.defineRule('effective_grounding_rule',
     ['effective_grounding', ['P']],
-    [['grounding', ['P', 'E']], ['not', ['withdrew', ['E']]]],
+    [['proposition_grounding', ['P', 'E']], ['not', ['withdrew', ['E']]]],
     { domain_concept: 'effective_grounding', module: 'friction-policy' });
   // A proposition is ungrounded when no effective grounding exists for it. This now
   // catches both the structural case (no grounding fact at all — currently unreachable

@@ -17,11 +17,19 @@ export const CONSENT_SOURCES = Object.freeze({
   DESIGNER: 'designer', DESIGN_PARTNER: 'design_partner', SYSTEM: 'system',
 });
 
+export const EVIDENCE_SOURCE_ENUM = Object.freeze({
+  INDUSTRY: 'industry',
+  CODEBASE: 'codebase',
+  PRIOR_RECORD: 'prior-record',
+  AGENT_DERIVATION: 'agent-derivation',
+});
+
 export const INFERENCE_PATTERNS = Object.freeze({
   GROUNDS_IMPLY_CONCLUSION: 'grounds_imply_conclusion',
-  ABSENCE_IMPLIES_ABSENCE: 'absence_implies_absence',
-  ENABLEMENT: 'enablement',
-  STRUCTURAL: 'structural',
+  RULE_APPLIES_TO_CASE: 'rule_applies_to_case',
+  PERMISSION_LICENSES_RELAXATION: 'permission_licenses_relaxation',
+  DEFINITION_SUBSTITUTION: 'definition_substitution',
+  PROPOSITION_COMPOSITION: 'proposition_composition',
 });
 
 export const FRICTION_SHAPES = Object.freeze({

@@ -38,15 +38,27 @@ describe('bridge-integration — engine-shape adapter', () => {
     const bridge = createDomainBridge({ engine: new Engine(), ...makeAdapters() });
     const consent = { source: CONSENT_SOURCES.DESIGNER };
 
-    // Add evidence + risk + resolution; ratify; closure should permit.
-    const evid = bridge.addElement({ idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'design', claim: 'baseline' }, consent);
-    const risk = bridge.addElement({ idShape: ELEMENT_CATEGORIES.RISK, statement: 'div-by-zero', basis: [evid.id] }, consent);
+    // Add evidence + proposition + concern + resolution; ratify; closure should permit.
+    // RESOLUTION post-§3.6 reshape requires problem_anchor:concern and grounding:[proposition],
+    // so the original {risk, addresses: risk.id} shape is no longer expressible. A risk would
+    // also fire coverage_gap_detected because resolution_anchor is type-locked to concern and
+    // cannot anchor risks — out of scope for this closure-path smoke test.
+    const evid = bridge.addElement({ idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'codebase', statement: 'baseline' }, consent);
+    const prop = bridge.addElement({
+      idShape: ELEMENT_CATEGORIES.PROPOSITION,
+      statement: 'p1',
+      grounding: [evid.id],
+      inference_pattern: 'grounds_imply_conclusion',
+      collapse_test: 'ct',
+      reasoning_chain: 'rc',
+    }, consent);
+    const concern = bridge.addElement({ idShape: ELEMENT_CATEGORIES.CONCERN, label: 'C1' }, consent);
     const res = bridge.addElement({
       idShape: ELEMENT_CATEGORIES.RESOLUTION,
       statement: 'return Error',
-      addresses: risk.id,
+      problem_anchor: concern.id,
+      grounding: [prop.id],
     }, consent);
-    bridge.ratifyElement({ elementId: risk.id, source: 'designer', source_field: 'designer', claim: 'r' }, consent);
     bridge.ratifyElement({ elementId: res.id, source: 'designer', source_field: 'designer', claim: 'r' }, consent);
 
     // After fixing the wildcard bug, unaddressed_concern should be empty here.
@@ -54,7 +66,7 @@ describe('bridge-integration — engine-shape adapter', () => {
     expect(unaddressed).toEqual([]);
     const permitted = bridge.queryProof({ pattern: ['closure_permitted', []] });
     expect(permitted.length).toBe(1);
-    expect(() => bridge.presentClosingArgument({ source: 'designer', claim: 'c' }, consent)).not.toThrow();
+    expect(() => bridge.presentClosingArgument({ source: 'codebase', statement: 'c' }, consent)).not.toThrow();
   });
 
   it('createDomainBridge throws a clear error on an engine shape that is neither port-bundled nor flat', () => {
@@ -99,14 +111,16 @@ describe('bridge-integration', () => {
     // ignores them (e.g., openProof / closure verbs use EVIDENCE as a placeholder idShape per
     // OPERATION_SPECS comments; their translate functions don't read `source`/`claim`, but the
     // shape check still demands them). Required-field sources of truth:
-    //   EVIDENCE  → ['source', 'claim']             (schema.js CATEGORY_REGISTRY)
+    //   EVIDENCE  → ['source', 'statement']          (schema.js CATEGORY_REGISTRY)
     //   PROPOSITION → ['statement','grounding','collapse_test','inference_pattern','reasoning_chain']
-    //   FRICTION  → ['shape', 'description']
-    const evidenceFill = { source: 'codebase', claim: 'x' };
-    // FRICTION's `shape` field is constrained to FRICTION_SHAPES (closed-enum check in
-    // verifyArgsShape). The plan listed 'concern' as a placeholder; corrected to a real
-    // FRICTION_SHAPES value so verifyArgsShape passes and tx.begin fires (§6.1 step 4).
-    const frictionFill = { shape: 'conflict', description: 'placeholder' };
+    //   FRICTION  → ['friction_shape', 'anchor_a', 'anchor_b', 'disposition']
+    const evidenceFill = { source: 'codebase', statement: 'x' };
+    // manage_friction's argShape (mutations.js) is the operation-shaped {frictionId, disposition}
+    // — NOT the FRICTION element descriptor. The spread below contributes inert extras the
+    // translator ignores; only `disposition` (overridden on line 140) is read. Kept aligned
+    // with the post-Task-4 FRICTION descriptor for clarity (`friction_shape` replaces `shape`,
+    // `description` is no longer a required field on the element).
+    const frictionFill = { friction_shape: 'conflict' };
     // NOTE: OPERATION_SPECS is keyed on ACTION_LABELS values (snake_case: 'open_proof', 'add',
     // 'revise', 'withdraw', 'ratify', 'manage_friction', 'present_closing_argument',
     // 'confirm_closure_go'). The plan listed camelCase facade-method names here; corrected to
@@ -119,7 +133,7 @@ describe('bridge-integration', () => {
       // verifyArgsShape). The verb-case was originally written before those guards landed and
       // supplied a bare `id` field which the production runOperation rejected before tx.begin —
       // causing the §6.1-ordering assertion to fail. Updated to the post-guard contract.
-      { verb: 'revise', prep: (b) => b.addElement({ idShape: ELEMENT_CATEGORIES.EVIDENCE, ...evidenceFill }, consent), args: () => ({ idShape: ELEMENT_CATEGORIES.EVIDENCE, supersedes: 'evidence_1', source: 'codebase', claim: 'y' }) },
+      { verb: 'revise', prep: (b) => b.addElement({ idShape: ELEMENT_CATEGORIES.EVIDENCE, ...evidenceFill }, consent), args: () => ({ idShape: ELEMENT_CATEGORIES.EVIDENCE, supersedes: 'evidence_1', source: 'codebase', statement: 'y' }) },
       { verb: 'withdraw', prep: (b) => b.addElement({ idShape: ELEMENT_CATEGORIES.EVIDENCE, ...evidenceFill }, consent), args: () => ({ id: 'evidence_1', ...evidenceFill }) },
       { verb: 'ratify', prep: (b) => b.addElement({ idShape: ELEMENT_CATEGORIES.EVIDENCE, ...evidenceFill }, consent), args: () => ({ elementId: 'evidence_1', source: CONSENT_SOURCES.DESIGNER, ...evidenceFill }) },
       // MANAGE_FRICTION's argShape (mutations.js) requires ['frictionId', 'disposition'] and
@@ -295,7 +309,7 @@ describe('bridge-integration', () => {
     const substrate = createInMemorySubstrate();
     const adapters = makeAdapters({ failSaveOnce: true });
     const bridge = createDomainBridge({ engine: substrate, ...adapters });
-    expect(() => bridge.addElement({ idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'codebase', claim: 'x' }, { source: CONSENT_SOURCES.DESIGNER }))
+    expect(() => bridge.addElement({ idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'codebase', statement: 'x' }, { source: CONSENT_SOURCES.DESIGNER }))
       .toThrow(/POST_COMMIT_SAVE_FAILED/);
     // Engine has committed (assertion visible).
     expect(substrate.query.exists(['evidence', ['_', '_', '_']])).toBe(true);
@@ -309,7 +323,7 @@ describe('bridge-integration', () => {
     const substrate = createInMemorySubstrate();
     const bridge = createDomainBridge({ engine: substrate, ...makeAdapters() });
     // Populate state so each render method has content to project.
-    bridge.addElement({ idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'codebase', claim: 'x' }, { source: CONSENT_SOURCES.DESIGNER });
+    bridge.addElement({ idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'codebase', statement: 'x' }, { source: CONSENT_SOURCES.DESIGNER });
 
     const audit = createReadOnlyAudit(substrate);
     // Spec lists five IRenderSurface methods (Architecture §4.2 + spec Components §"Delivery-port facade methods").

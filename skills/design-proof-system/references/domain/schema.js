@@ -1,11 +1,14 @@
 // Per-category required fields, authority, render section. Canonical definitions: ./VOCABULARY.md.
-import { ELEMENT_CATEGORIES, CONSENT_SOURCES, RENDER_SECTIONS, INFERENCE_PATTERNS, FRICTION_SHAPES, FRICTION_DISPOSITIONS, assertExhaustive } from './tags.js';
+import { ELEMENT_CATEGORIES, CONSENT_SOURCES, RENDER_SECTIONS, INFERENCE_PATTERNS, FRICTION_SHAPES, FRICTION_DISPOSITIONS, EVIDENCE_SOURCE_ENUM, assertExhaustive } from './tags.js';
 
-// Private partial mirror of mutations.js's _CATEGORY_PROBES. Cannot import directly
+// Private partial mirror of mutations.js's `_CATEGORY_PROBES`. Cannot import directly
 // (circular: mutations.js imports verifyArgsShape from schema.js). Keyed by
 // ELEMENT_CATEGORIES string value (e.g. 'rule', 'permission') → [declaration
-// predicate, arity]. Matches the same (category, predicate, arity) triples used
-// by _CATEGORY_PROBES in mutations.js — kept in sync via S2-mitigation discipline.
+// predicate, arity]. MUST stay synchronized with `_CATEGORY_PROBES` in mutations.js —
+// any time a category's declaration predicate or arity changes, BOTH tables update
+// in the same commit. Probe-table sync structural test (DEF-7) is deferred to a
+// future design pass per sprint-02-bug-fix-0306 spec Non-Goals; until that test
+// lands, the discipline is human-enforced.
 // Wildcard '*' (handled in _existsCategory) iterates all entries.
 const _CATEGORY_PROBES_SCHEMA = Object.freeze({
   [ELEMENT_CATEGORIES.EVIDENCE]: ['evidence', 3],
@@ -14,7 +17,7 @@ const _CATEGORY_PROBES_SCHEMA = Object.freeze({
   [ELEMENT_CATEGORIES.PROPOSITION]: ['proposition_decl', 3],
   [ELEMENT_CATEGORIES.RISK]: ['risk', 3],
   [ELEMENT_CATEGORIES.RESOLUTION]: ['resolution_decl', 2],
-  [ELEMENT_CATEGORIES.FRICTION]: ['friction', 4],
+  [ELEMENT_CATEGORIES.FRICTION]: ['friction', 5],     // was 4 — parallel sync with _CATEGORY_PROBES in mutations.js required (AC-12.3)
   [ELEMENT_CATEGORIES.CONCERN]: ['concern', 3],
   [ELEMENT_CATEGORIES.DEFINITION]: ['definition_decl', 3],
 });
@@ -42,14 +45,14 @@ function _existsCategory(readPort, id, categoryKey) {
 
 export const CATEGORY_REGISTRY = Object.freeze({
   [ELEMENT_CATEGORIES.EVIDENCE]: Object.freeze({
-    requiredFields: ['source', 'claim'],
+    requiredFields: ['source', 'statement'],
     optionalFields: ['url', 'citation'],
     nonEmptyStringFields: [],
     nonEmptyArrayFields: [],
     sourceConstraint: CONSENT_SOURCES.DESIGNER,
     idShape: ELEMENT_CATEGORIES.EVIDENCE,
     renderSection: RENDER_SECTIONS.GIVENS,
-    closedEnumFields: {},
+    closedEnumFields: { source: EVIDENCE_SOURCE_ENUM },
     referenceFields: {},
     authority: { add: [CONSENT_SOURCES.DESIGNER], revise: [CONSENT_SOURCES.DESIGNER], withdraw: [CONSENT_SOURCES.DESIGNER], ratify: [CONSENT_SOURCES.DESIGNER] },
   }),
@@ -81,12 +84,12 @@ export const CATEGORY_REGISTRY = Object.freeze({
     requiredFields: ['statement', 'grounding', 'collapse_test', 'inference_pattern', 'reasoning_chain'],
     optionalFields: ['scope', 'rejected_alternatives'],
     nonEmptyStringFields: ['reasoning_chain'],
-    nonEmptyArrayFields: [],
+    nonEmptyArrayFields: ['grounding'],
     sourceConstraint: CONSENT_SOURCES.DESIGNER,
     idShape: ELEMENT_CATEGORIES.PROPOSITION,
     renderSection: RENDER_SECTIONS.LEMMAS,
     closedEnumFields: { inference_pattern: INFERENCE_PATTERNS },
-    referenceFields: {},
+    referenceFields: { grounding: '*' },
     authority: { add: [CONSENT_SOURCES.DESIGNER], revise: [CONSENT_SOURCES.DESIGNER], withdraw: [CONSENT_SOURCES.DESIGNER], ratify: [CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER] },
   }),
   [ELEMENT_CATEGORIES.RISK]: Object.freeze({
@@ -102,27 +105,27 @@ export const CATEGORY_REGISTRY = Object.freeze({
     authority: { add: [CONSENT_SOURCES.DESIGNER], revise: [CONSENT_SOURCES.DESIGNER], withdraw: [CONSENT_SOURCES.DESIGNER], ratify: [CONSENT_SOURCES.DESIGNER] },
   }),
   [ELEMENT_CATEGORIES.RESOLUTION]: Object.freeze({
-    requiredFields: ['statement', 'addresses'],
+    requiredFields: ['statement', 'problem_anchor', 'grounding'],
     optionalFields: [],
     nonEmptyStringFields: [],
-    nonEmptyArrayFields: [],
+    nonEmptyArrayFields: ['grounding'],
     sourceConstraint: CONSENT_SOURCES.DESIGNER,
     idShape: ELEMENT_CATEGORIES.RESOLUTION,
     renderSection: RENDER_SECTIONS.THEOREMS,
     closedEnumFields: {},
-    referenceFields: {},
+    referenceFields: { problem_anchor: 'concern', grounding: 'proposition' },
     authority: { add: [CONSENT_SOURCES.DESIGNER], revise: [CONSENT_SOURCES.DESIGNER], withdraw: [CONSENT_SOURCES.DESIGNER], ratify: [CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER] },
   }),
   [ELEMENT_CATEGORIES.FRICTION]: Object.freeze({
-    requiredFields: ['shape', 'description'],
-    optionalFields: ['disposition'],
+    requiredFields: ['friction_shape', 'anchor_a', 'anchor_b', 'disposition'],
+    optionalFields: ['statement'],
     nonEmptyStringFields: [],
     nonEmptyArrayFields: [],
     sourceConstraint: CONSENT_SOURCES.SYSTEM,
     idShape: ELEMENT_CATEGORIES.FRICTION,
     renderSection: RENDER_SECTIONS.FRICTIONS,
-    closedEnumFields: { shape: FRICTION_SHAPES, disposition: FRICTION_DISPOSITIONS },
-    referenceFields: {},
+    closedEnumFields: { friction_shape: FRICTION_SHAPES, disposition: FRICTION_DISPOSITIONS },
+    referenceFields: { anchor_a: '*', anchor_b: '*' },
     authority: { add: [CONSENT_SOURCES.SYSTEM, CONSENT_SOURCES.DESIGNER], revise: [CONSENT_SOURCES.DESIGNER], withdraw: [CONSENT_SOURCES.DESIGNER], ratify: [CONSENT_SOURCES.DESIGNER] },
   }),
   [ELEMENT_CATEGORIES.CONCERN]: Object.freeze({
@@ -138,7 +141,7 @@ export const CATEGORY_REGISTRY = Object.freeze({
     authority: { add: [CONSENT_SOURCES.DESIGNER], revise: [CONSENT_SOURCES.DESIGNER], withdraw: [CONSENT_SOURCES.DESIGNER], ratify: [CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER] },
   }),
   [ELEMENT_CATEGORIES.DEFINITION]: Object.freeze({
-    requiredFields: ['term', 'definition'],
+    requiredFields: ['canonical_name', 'definition'],
     optionalFields: ['scope'],
     nonEmptyStringFields: [],
     nonEmptyArrayFields: [],

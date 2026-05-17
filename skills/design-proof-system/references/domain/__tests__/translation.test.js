@@ -4,7 +4,7 @@ import { ELEMENT_CATEGORIES } from '../tags.js';
 
 describe('translation', () => {
   it('translate(Evidence) returns baseFacts with predicate "evidence"', () => {
-    const out = translate(ELEMENT_CATEGORIES.EVIDENCE, { source: 'codebase', claim: 'x' }, 'evid_1', 1700000000);
+    const out = translate(ELEMENT_CATEGORIES.EVIDENCE, { source: 'codebase', statement: 'x' }, 'evid_1', 1700000000);
     expect(out.baseFacts.some(f => f[0] === 'evidence')).toBe(true);
     expect(Array.isArray(out.rules)).toBe(true);
     expect(Array.isArray(out.metaFacts)).toBe(true);
@@ -12,7 +12,7 @@ describe('translation', () => {
 
   it('translate(Proposition) returns approval-gated rule shape', () => {
     const out = translate(ELEMENT_CATEGORIES.PROPOSITION,
-      { statement: 's', grounding: 'g', collapse_test: 'ct', inference_pattern: 'grounds_imply_conclusion', reasoning_chain: 'IF X THEN Y' },
+      { statement: 's', grounding: ['g'], collapse_test: 'ct', inference_pattern: 'grounds_imply_conclusion', reasoning_chain: 'IF X THEN Y' },
       'prop_1', 1700000000);
     // Proposition translation emits base facts (proposition_decl etc.) AND
     // a rule that fires when "approved" is asserted (per ADR-0003).

@@ -11,7 +11,7 @@ import { ELEMENT_CATEGORIES } from './tags.js';
 
 const TRANSLATORS = Object.freeze({
   [ELEMENT_CATEGORIES.EVIDENCE]: (args, id, ts) => ({
-    baseFacts: [['evidence', [id, args.source, args.claim]]],
+    baseFacts: [['evidence', [id, args.source, args.statement]]],
     rules: [],
     metaFacts: [['created_at', [id, ts]]],
   }),
@@ -34,7 +34,7 @@ const TRANSLATORS = Object.freeze({
   [ELEMENT_CATEGORIES.PROPOSITION]: (args, id, ts) => ({
     baseFacts: [
       ['proposition_decl', [id, args.statement, args.inference_pattern]],
-      ['grounding', [id, args.grounding]],
+      ...args.grounding.map(eid => ['proposition_grounding', [id, eid]]),
       ['collapse_test', [id, args.collapse_test]],
       ['reasoning_chain', [id, args.reasoning_chain]],
       ...(Array.isArray(args.rejected_alternatives)
@@ -55,13 +55,14 @@ const TRANSLATORS = Object.freeze({
   [ELEMENT_CATEGORIES.RESOLUTION]: (args, id, ts) => ({
     baseFacts: [
       ['resolution_decl', [id, args.statement]],
-      ...(Array.isArray(args.addresses) ? args.addresses.map(rid => ['addresses', [id, rid]]) : [['addresses', [id, args.addresses]]]),
+      ['resolution_anchor', [id, args.problem_anchor]],
+      ...args.grounding.map(pid => ['resolution_grounding', [id, pid]]),
     ],
     rules: [],
     metaFacts: [['created_at', [id, ts]]],
   }),
   [ELEMENT_CATEGORIES.FRICTION]: (args, id, ts) => ({
-    baseFacts: [['friction', [id, args.shape, args.description, args.disposition ?? 'unset']]],
+    baseFacts: [['friction', [id, args.friction_shape, args.anchor_a, args.anchor_b, args.disposition]]],
     rules: [],
     metaFacts: [['created_at', [id, ts]]],
   }),
@@ -75,7 +76,7 @@ const TRANSLATORS = Object.freeze({
   }),
   [ELEMENT_CATEGORIES.DEFINITION]: (args, id, ts) => ({
     baseFacts: [
-      ['definition_decl', [id, args.term, args.definition]],
+      ['definition_decl', [id, args.canonical_name, args.definition]],
       // definition_scope discriminates legitimate dual-use of a term from real overlaps.
       // overlap_rule (friction-policy.js) requires same term AND same scope to fire, so
       // operators with intentionally-distinct definitions of "Session" can pass
@@ -191,9 +192,9 @@ export function instantiateTemplate(idShape, newId, rulePorts) {
 // EDB base-fact predicates). Per the spec's Data Flow §"Session boot" step 5.
 
 const EDB_PREDICATES = Object.freeze(new Set([
-  'evidence', 'rule_decl', 'permission_decl', 'permission', 'permission_scope', 'proposition_decl', 'grounding',
+  'evidence', 'rule_decl', 'permission_decl', 'permission', 'permission_scope', 'proposition_decl', 'proposition_grounding',
   'collapse_test', 'reasoning_chain', 'rejected_alternative',
-  'risk', 'risk_basis', 'resolution_decl', 'addresses', 'friction',
+  'risk', 'risk_basis', 'resolution_decl', 'resolution_anchor', 'resolution_grounding', 'friction',
   'friction_disposition', 'definition_decl', 'definition_scope', 'definition_self',
   'concern', 'concern_status',
   'approved', 'two_yes',

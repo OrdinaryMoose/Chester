@@ -71,7 +71,7 @@ describe('RISK — bridge round-trip (AC-6.2, AC-6.3, AC-6.4)', () => {
   it('AC-6.2: INVALID_REFERENCE thrown when basis contains a non-existent id', async () => {
     const bridge = await makeRealBridge();
     const evid = bridge.addElement(
-      { idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'industry', claim: 'C' },
+      { idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'industry', statement: 'C' },
       designerConsent,
     );
     let captured = null;
@@ -108,7 +108,7 @@ describe('RISK — bridge round-trip (AC-6.2, AC-6.3, AC-6.4)', () => {
   it('AC-6.4: error shape uses property-presence assertions (does not trip on stack)', async () => {
     const bridge = await makeRealBridge();
     const evid = bridge.addElement(
-      { idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'industry', claim: 'C' },
+      { idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'industry', statement: 'C' },
       designerConsent,
     );
     let captured = null;
@@ -127,11 +127,11 @@ describe('RISK — bridge round-trip (AC-6.2, AC-6.3, AC-6.4)', () => {
   it('happy path: addElement RISK with multi-element basis lands N risk_basis/2 facts in EDB (T3 reviewer Important-84)', async () => {
     const bridge = await makeRealBridge();
     const e1 = bridge.addElement(
-      { idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'industry', claim: 'C1' },
+      { idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'industry', statement: 'C1' },
       designerConsent,
     );
     const e2 = bridge.addElement(
-      { idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'industry', claim: 'C2' },
+      { idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'industry', statement: 'C2' },
       designerConsent,
     );
     const risk = bridge.addElement(
@@ -151,11 +151,11 @@ describe('RISK — render via bridge (AC-7.3)', () => {
   it('AC-7.3: risk with multi-element basis renders Basis: <ids> sub-line', async () => {
     const bridge = await makeRealBridge();
     const e1 = bridge.addElement(
-      { idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'industry', claim: 'C1' },
+      { idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'industry', statement: 'C1' },
       designerConsent,
     );
     const e2 = bridge.addElement(
-      { idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'industry', claim: 'C2' },
+      { idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'industry', statement: 'C2' },
       designerConsent,
     );
     const risk = bridge.addElement(
@@ -179,7 +179,7 @@ describe('RISK — bridge query auto-flow (AC-5.4)', () => {
   it('AC-5.4: queryProof works against new EDB predicates without explicit validPredicates edit', async () => {
     const bridge = await makeRealBridge();
     const evid = bridge.addElement(
-      { idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'industry', claim: 'C' },
+      { idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'industry', statement: 'C' },
       designerConsent,
     );
     const rule = bridge.addElement(

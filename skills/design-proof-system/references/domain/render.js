@@ -56,6 +56,10 @@ export function renderStructuredProof(args, readPorts) {
   if (propositions.length) {
     const propBlocks = propositions.map(b => {
       const lines = [`- ${b.I}: ${b.S}`];
+      const declRows = readPorts.query.query(['proposition_decl', [b.I, { var: '_S' }, { var: 'P' }]]);
+      if (declRows.length) lines.push(`  - Inference pattern: ${declRows[0].P}`);
+      const groundingRows = readPorts.query.query(['proposition_grounding', [b.I, { var: 'E' }]]);
+      if (groundingRows.length) lines.push(`  - Grounding: ${groundingRows.map(r => r.E).join(', ')}`);
       const ct = readPorts.query.query(['collapse_test', [b.I, { var: 'T' }]]);
       if (ct.length) lines.push(`  - Collapse test: ${ct[0].T}`);
       const rc = readPorts.query.query(['reasoning_chain', [b.I, { var: 'T' }]]);
@@ -70,7 +74,29 @@ export function renderStructuredProof(args, readPorts) {
     sections.push('## Lemmas (Propositions)\n' + propBlocks.join('\n') + '\n');
   }
   const resolutions = live(readPorts.query.query(['resolution', [{ var: 'I' }, { var: 'S' }]]));
-  if (resolutions.length) sections.push('## Theorems (Resolutions)\n' + resolutions.map(b => `- ${b.I}: ${b.S}`).join('\n') + '\n');
+  if (resolutions.length) {
+    const lines = ['## Theorems (Resolutions)'];
+    for (const r of resolutions) {
+      lines.push(`- ${r.I}: ${r.S}`);
+      const anchor = readPorts.query.query(['resolution_anchor', [r.I, { var: 'C' }]]);
+      if (anchor.length) lines.push(`  - Problem anchor: ${anchor[0].C}`);
+      const grounding = readPorts.query.query(['resolution_grounding', [r.I, { var: 'P' }]]);
+      if (grounding.length) lines.push(`  - Grounding: ${grounding.map(g => g.P).join(', ')}`);
+    }
+    sections.push(lines.join('\n') + '\n');
+  }
+  const frictions = live(readPorts.query.query(['friction', [{ var: 'I' }, { var: 'S' }, { var: 'A' }, { var: 'B' }, { var: 'D' }]]));
+  if (frictions.length) {
+    const lines = ['## Frictions'];
+    for (const f of frictions) {
+      lines.push(`- ${f.I}`);
+      lines.push(`  - Friction shape: ${f.S}`);
+      lines.push(`  - Anchor A: ${f.A}`);
+      lines.push(`  - Anchor B: ${f.B}`);
+      lines.push(`  - Disposition: ${f.D}`);
+    }
+    sections.push(lines.join('\n') + '\n');
+  }
   return sections.join('\n');
 }
 
@@ -84,7 +110,7 @@ const _ARITIES = Object.freeze({
   proposition_decl: 3,
   risk: 3,
   resolution_decl: 2,
-  friction: 4,
+  friction: 5,
   definition_decl: 3,
 });
 
@@ -174,10 +200,10 @@ export function renderDatalogProjection(args, readPorts) {
   const PROJECTION_ARITIES = {
     evidence: 3, rule_decl: 2, permission_decl: 2, permission: 3, permission_scope: 2,
     proposition_decl: 3,
-    grounding: 2, collapse_test: 2, reasoning_chain: 2, rejected_alternative: 3,
+    proposition_grounding: 2, collapse_test: 2, reasoning_chain: 2, rejected_alternative: 3,
     risk: 3, risk_basis: 2,
-    resolution_decl: 2, addresses: 2,
-    friction: 4, friction_disposition: 2, definition_decl: 3, definition_scope: 2, definition_self: 2,
+    resolution_decl: 2, resolution_anchor: 2, resolution_grounding: 2,
+    friction: 5, friction_disposition: 2, definition_decl: 3, definition_scope: 2, definition_self: 2,
     concern: 3, concern_status: 2,
     approved: 3, two_yes: 2,
     closure_committed: 0, closure_pending: 0, round: 1,

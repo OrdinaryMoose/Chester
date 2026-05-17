@@ -141,16 +141,10 @@ describe('PROPOSITION — translator (AC-3.x)', () => {
 describe('PROPOSITION — ratify path (AC-6.1)', () => {
   it('AC-6.1: ratifyElement({elementId, idShape:proposition}) does not throw SHAPE_INVALID', async () => {
     const bridge = await makeRealBridge();
-    bridge.addElement({ idShape: 'evidence', source: 'design', claim: 'baseline' }, { source: CONSENT_SOURCES.DESIGNER });
-    // grounding stored as string here (not array per plan-verbatim) to bypass a pre-existing
-    // translator/engine interaction in PROPOSITION's translate: line 31 emits
-    // ['grounding', [id, args.grounding]] with grounding passed through as-is, so an array
-    // value gets rejected by FactStore._validateArgs (non-constant). That latent translator
-    // shape issue is outside this sub-sprint's scope; using a string here keeps the test
-    // focused on AC-6.1's actual contract (ratify-shape args do not trip SHAPE_INVALID).
+    const ev = bridge.addElement({ idShape: 'evidence', source: 'codebase', statement: 'baseline' }, { source: CONSENT_SOURCES.DESIGNER });
     const { id } = bridge.addElement({
       idShape: 'proposition',
-      statement: 'S', grounding: 'evidence_1', collapse_test: 'T',
+      statement: 'S', grounding: [ev.id], collapse_test: 'T',
       inference_pattern: INFERENCE_PATTERNS.GROUNDS_IMPLY_CONCLUSION,
       reasoning_chain: 'IF X THEN Y',
     }, { source: CONSENT_SOURCES.DESIGNER });
@@ -167,11 +161,11 @@ describe('PROPOSITION — bridge integration (AC-4.x, AC-5.x)', () => {
 
   it('AC-5.1: bridge round-trip — addElement then query returns reasoning_chain and rejected_alternative facts', async () => {
     const bridge = await makeRealBridge();
-    bridge.addElement({ idShape: 'evidence', source: 'design', claim: 'baseline' }, { source: CONSENT_SOURCES.DESIGNER });
+    const ev = bridge.addElement({ idShape: 'evidence', source: 'codebase', statement: 'baseline' }, { source: CONSENT_SOURCES.DESIGNER });
     const { id } = bridge.addElement({
       idShape: 'proposition',
       statement: 'S',
-      grounding: 'evidence_1', // string form — see Task 5 inline note about pre-existing array/engine gap
+      grounding: [ev.id],
       collapse_test: 'T',
       inference_pattern: INFERENCE_PATTERNS.GROUNDS_IMPLY_CONCLUSION,
       reasoning_chain: 'IF X THEN Y',
@@ -191,11 +185,11 @@ describe('PROPOSITION — bridge integration (AC-4.x, AC-5.x)', () => {
 
   it('AC-5.2: revise creates new element id; new facts under new id; old facts persist under prior id; superseded link present', async () => {
     const bridge = await makeRealBridge();
-    bridge.addElement({ idShape: 'evidence', source: 'design', claim: 'baseline' }, { source: CONSENT_SOURCES.DESIGNER });
+    const ev = bridge.addElement({ idShape: 'evidence', source: 'codebase', statement: 'baseline' }, { source: CONSENT_SOURCES.DESIGNER });
     const { id: oldId } = bridge.addElement({
       idShape: 'proposition',
       statement: 'S',
-      grounding: 'evidence_1',
+      grounding: [ev.id],
       collapse_test: 'T',
       inference_pattern: INFERENCE_PATTERNS.GROUNDS_IMPLY_CONCLUSION,
       reasoning_chain: 'OLD',
@@ -205,7 +199,7 @@ describe('PROPOSITION — bridge integration (AC-4.x, AC-5.x)', () => {
       idShape: 'proposition',
       supersedes: oldId,
       statement: 'S',
-      grounding: 'evidence_1',
+      grounding: [ev.id],
       collapse_test: 'T',
       inference_pattern: INFERENCE_PATTERNS.GROUNDS_IMPLY_CONCLUSION,
       reasoning_chain: 'NEW',
@@ -226,5 +220,101 @@ describe('PROPOSITION — bridge integration (AC-4.x, AC-5.x)', () => {
 
     const sup = bridge.queryProof({ pattern: ['superseded', [newId, oldId]] });
     expect(sup.length).toBeGreaterThan(0);
+  });
+});
+
+describe('PROPOSITION — grounding spread (D2)', () => {
+  it('descriptor declares nonEmptyArrayFields and referenceFields for grounding', () => {
+    const desc = CATEGORY_REGISTRY[ELEMENT_CATEGORIES.PROPOSITION];
+    expect(desc.nonEmptyArrayFields).toContain('grounding');
+    expect(desc.referenceFields.grounding).toBe('*');
+  });
+
+  it('translator spreads grounding[] into per-element proposition_grounding/2 facts', async () => {
+    const bridge = await makeRealBridge();
+    const evA = bridge.addElement({ idShape: 'evidence', source: 'industry', statement: 'A' }, { source: CONSENT_SOURCES.DESIGNER });
+    const evB = bridge.addElement({ idShape: 'evidence', source: 'codebase', statement: 'B' }, { source: CONSENT_SOURCES.DESIGNER });
+    const { id: pId } = bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.PROPOSITION,
+        statement: 'p1',
+        grounding: [evA.id, evB.id],
+        inference_pattern: 'grounds_imply_conclusion',
+        collapse_test: 'ct',
+        reasoning_chain: 'rc' },
+      { source: CONSENT_SOURCES.DESIGNER }
+    );
+    const rows = bridge.queryProof({ pattern: ['proposition_grounding', [pId, { var: 'E' }]] });
+    expect(rows).toHaveLength(2);
+    expect(new Set(rows.map(r => r.E))).toEqual(new Set([evA.id, evB.id]));
+  });
+
+  it('engine no longer rejects multi-evidence grounding (no TYPE_ERROR)', async () => {
+    const bridge = await makeRealBridge();
+    const evA = bridge.addElement({ idShape: 'evidence', source: 'industry', statement: 'A' }, { source: CONSENT_SOURCES.DESIGNER });
+    expect(() => bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.PROPOSITION,
+        statement: 'p1', grounding: [evA.id], inference_pattern: 'grounds_imply_conclusion',
+        collapse_test: 'ct', reasoning_chain: 'rc' },
+      { source: CONSENT_SOURCES.DESIGNER }
+    )).not.toThrow();
+  });
+
+  it('throws INVALID_REFERENCE for non-existent grounding ids', async () => {
+    const bridge = await makeRealBridge();
+    expect(() => bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.PROPOSITION,
+        statement: 'p1', grounding: ['nonexistent_id'], inference_pattern: 'grounds_imply_conclusion',
+        collapse_test: 'ct', reasoning_chain: 'rc' },
+      { source: CONSENT_SOURCES.DESIGNER }
+    )).toThrow(expect.objectContaining({
+      code: 'INVALID_REFERENCE',
+      field: 'grounding',
+      referencedId: 'nonexistent_id',
+    }));
+  });
+});
+
+describe('PROPOSITION — inference_pattern enum (D5)', () => {
+  it.each([
+    'grounds_imply_conclusion',
+    'rule_applies_to_case',
+    'permission_licenses_relaxation',
+    'definition_substitution',
+    'proposition_composition',
+  ])('accepts %s', async (pattern) => {
+    const bridge = await makeRealBridge();
+    const evA = bridge.addElement({ idShape: 'evidence', source: 'industry', statement: 'A' }, { source: CONSENT_SOURCES.DESIGNER });
+    expect(() => bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.PROPOSITION,
+        statement: 'p1', grounding: [evA.id], inference_pattern: pattern,
+        collapse_test: 'ct', reasoning_chain: 'rc' },
+      { source: CONSENT_SOURCES.DESIGNER }
+    )).not.toThrow();
+  });
+
+  it.each(['grounds-imply-conclusion', 'structural', 'enablement', 'absence_implies_absence'])('rejects %s with SHAPE_INVALID', async (badPattern) => {
+    const bridge = await makeRealBridge();
+    const evA = bridge.addElement({ idShape: 'evidence', source: 'industry', statement: 'A' }, { source: CONSENT_SOURCES.DESIGNER });
+    expect(() => bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.PROPOSITION,
+        statement: 'p1', grounding: [evA.id], inference_pattern: badPattern,
+        collapse_test: 'ct', reasoning_chain: 'rc' },
+      { source: CONSENT_SOURCES.DESIGNER }
+    )).toThrow(expect.objectContaining({ code: 'SHAPE_INVALID', field: 'inference_pattern' }));
+  });
+});
+
+describe('PROPOSITION — render sub-lines (AC-9.1)', () => {
+  it('renderStructuredProof emits Inference pattern and Grounding sub-lines', async () => {
+    const bridge = await makeRealBridge();
+    const evA = bridge.addElement({ idShape: 'evidence', source: 'industry', statement: 'A' }, { source: CONSENT_SOURCES.DESIGNER });
+    const { id: pId } = bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.PROPOSITION, statement: 'p1', grounding: [evA.id], inference_pattern: 'grounds_imply_conclusion', collapse_test: 'ct', reasoning_chain: 'rc' },
+      { source: CONSENT_SOURCES.DESIGNER }
+    );
+    bridge.ratifyElement({ elementId: pId, idShape: 'proposition', source: CONSENT_SOURCES.DESIGNER }, { source: CONSENT_SOURCES.DESIGNER });
+    const out = bridge.renderStructuredProof();
+    expect(out).toContain('Inference pattern: grounds_imply_conclusion');
+    expect(out).toContain(`Grounding: ${evA.id}`);
   });
 });

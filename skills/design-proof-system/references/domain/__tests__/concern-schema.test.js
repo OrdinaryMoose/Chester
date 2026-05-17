@@ -128,7 +128,7 @@ describe('CONCERN — closure-policy rules', () => {
     engine.assertFact('concern', ['concern_1', 'L1', 'D1']);
     engine.assertFact('concern_status', ['concern_1', 'ratified']);
     engine.assertFact('resolution_decl', ['resn_1', 'R1-statement']);
-    engine.assertFact('addresses', ['resn_1', 'concern_1']);
+    engine.assertFact('resolution_anchor', ['resn_1', 'concern_1']);
     engine.assertFact('approved', ['resn_1', 'designer', 1700000000]);
     expect(engine.exists(['covered', ['concern_1']])).toBe(true);
   });
@@ -136,7 +136,7 @@ describe('CONCERN — closure-policy rules', () => {
   it('AC-4.3: covered(C) does NOT derive when addressing Resolution is unapproved', async () => {
     const engine = await makeRealEngineWithClosurePolicy();
     engine.assertFact('concern_status', ['concern_1', 'ratified']);
-    engine.assertFact('addresses', ['resn_1', 'concern_1']);
+    engine.assertFact('resolution_anchor', ['resn_1', 'concern_1']);
     // no approved(resn_1, _, _) fact
     expect(engine.exists(['covered', ['concern_1']])).toBe(false);
   });
@@ -150,7 +150,7 @@ describe('CONCERN — closure-policy rules', () => {
   it('AC-4.1: unaddressed_concern(C) does NOT derive when Concern is covered', async () => {
     const engine = await makeRealEngineWithClosurePolicy();
     engine.assertFact('concern_status', ['concern_1', 'ratified']);
-    engine.assertFact('addresses', ['resn_1', 'concern_1']);
+    engine.assertFact('resolution_anchor', ['resn_1', 'concern_1']);
     engine.assertFact('approved', ['resn_1', 'designer', 1700000000]);
     expect(engine.exists(['unaddressed_concern', ['concern_1']])).toBe(false);
   });
@@ -170,7 +170,7 @@ describe('CONCERN — closure-policy rules', () => {
   it('AC-4.2: closure_permitted derives when every ratified Concern is covered', async () => {
     const engine = await makeRealEngineWithClosurePolicy();
     engine.assertFact('concern_status', ['concern_1', 'ratified']);
-    engine.assertFact('addresses', ['resn_1', 'concern_1']);
+    engine.assertFact('resolution_anchor', ['resn_1', 'concern_1']);
     engine.assertFact('approved', ['resn_1', 'designer', 1700000000]);
     expect(engine.exists(['closure_permitted', []])).toBe(true);
   });
@@ -238,7 +238,7 @@ describe('CONCERN — lifecycle integration (real Engine)', () => {
     // RATIFY has a weak precondition that evidence/3 must exist (see mutations.js:63).
     // Seed a single evidence fact so subsequent ratify calls pass the precondition.
     // This mirrors the working pattern at bridge-integration.test.js:42.
-    bridge.addElement({ idShape: 'evidence', source: 'design', claim: 'baseline' }, { source: CONSENT_SOURCES.DESIGNER });
+    bridge.addElement({ idShape: 'evidence', source: 'codebase', statement: 'baseline' }, { source: CONSENT_SOURCES.DESIGNER });
     const { id } = bridge.addConcern({ label: 'C1', description: 'D1' }, { source: CONSENT_SOURCES.DESIGNER });
     expect(id).toMatch(/^concern_\d+$/);
     // Use the working ratify pattern: generic ratifyElement with dummy source + claim
@@ -253,11 +253,17 @@ describe('CONCERN — lifecycle integration (real Engine)', () => {
 
   it('AC-7.1: full add → ratify Resolution that addresses → closure_permitted derives', async () => {
     const bridge = await makeRealBridge();
-    // Seed evidence/3 to satisfy RATIFY's weak precondition (mutations.js:63).
-    bridge.addElement({ idShape: 'evidence', source: 'design', claim: 'baseline' }, { source: CONSENT_SOURCES.DESIGNER });
+    // Seed evidence/3 to satisfy RATIFY's weak precondition (mutations.js:63) AND to ground
+    // the proposition that the resolution requires (per sprint-02-bug-fix-0306 §3.6 reshape:
+    // RESOLUTION now requires problem_anchor:concern + grounding:[proposition]).
+    const { id: evId } = bridge.addElement({ idShape: 'evidence', source: 'codebase', statement: 'baseline' }, { source: CONSENT_SOURCES.DESIGNER });
     const { id: cId } = bridge.addConcern({ label: 'C1' }, { source: CONSENT_SOURCES.DESIGNER });
     bridge.ratifyElement({ elementId: cId, source: 'designer', claim: '_' }, { source: CONSENT_SOURCES.DESIGNER });
-    const { id: rId } = bridge.addElement({ idShape: 'resolution', statement: 'R1', addresses: cId }, { source: CONSENT_SOURCES.DESIGNER });
+    const { id: pId } = bridge.addElement(
+      { idShape: 'proposition', statement: 'p1', grounding: [evId], inference_pattern: 'grounds_imply_conclusion', collapse_test: 'ct', reasoning_chain: 'rc' },
+      { source: CONSENT_SOURCES.DESIGNER },
+    );
+    const { id: rId } = bridge.addElement({ idShape: 'resolution', statement: 'R1', problem_anchor: cId, grounding: [pId] }, { source: CONSENT_SOURCES.DESIGNER });
     bridge.ratifyElement({ elementId: rId, source: 'designer', claim: '_' }, { source: CONSENT_SOURCES.DESIGNER });
     const coveredRows = bridge.queryProof({ pattern: ['covered', [cId]] });
     expect(coveredRows.length).toBeGreaterThan(0);
@@ -266,7 +272,7 @@ describe('CONCERN — lifecycle integration (real Engine)', () => {
   it('AC-6.1 cross-impact: ratifyConcern with only {elementId} no longer throws SHAPE_INVALID (fixed by sprint-02-bug-fix-01)', async () => {
     const bridge = await makeRealBridge();
     expect(typeof bridge.ratifyConcern).toBe('function');
-    bridge.addElement({ idShape: 'evidence', source: 'design', claim: 'baseline' }, { source: CONSENT_SOURCES.DESIGNER });
+    bridge.addElement({ idShape: 'evidence', source: 'codebase', statement: 'baseline' }, { source: CONSENT_SOURCES.DESIGNER });
     const { id } = bridge.addConcern({ label: 'C1' }, { source: CONSENT_SOURCES.DESIGNER });
     // Previously threw SHAPE_INVALID with field 'label' because verifyArgsShape checked
     // Concern's requiredFields against ratify-shape args. The argShape on RATIFY's
