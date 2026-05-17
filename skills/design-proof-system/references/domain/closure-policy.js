@@ -74,8 +74,13 @@ export function registerStatic(rulePorts) {
     ],
     { domain_concept: 'closure_permitted', module: 'closure-policy' },
   );
-  // A friction is unresolved iff its element fact still says 'unset' AND no
-  // friction_disposition satellite has been written for it AND it is not withdrawn.
+  // A friction is unresolved iff it exists in the EDB AND no friction_disposition
+  // satellite has been written for it (i.e. manage_friction has not been called)
+  // AND it is not withdrawn. Pre-sprint-02-bug-fix-0306 this rule also matched the
+  // literal 'unset' as the disposition sentinel — that was the translator's
+  // optional-disposition fallback. Post-sprint, disposition is a required field
+  // constrained to FRICTION_DISPOSITIONS (no 'unset' sentinel), so the unresolved
+  // detection now relies entirely on the `not friction_disposition` clause.
   // Adding `not withdrew(F)` is part of the closure-policy withdrawal-awareness fix:
   // withdrawing a friction should clear it from the closure check, but withdrawal
   // doesn't retract the friction EDB fact, so the rule must filter explicitly.
@@ -83,7 +88,7 @@ export function registerStatic(rulePorts) {
     'unresolved_friction_rule',
     ['unresolved_friction', ['F']],
     [
-      ['friction', ['F', '_', '_', '_', 'unset']],
+      ['friction', ['F', '_', '_', '_', '_']],
       ['not', ['friction_disposition', ['F', '_']]],
       ['not', ['withdrew', ['F']]],
     ],
