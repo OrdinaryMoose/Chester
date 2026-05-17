@@ -49,7 +49,7 @@ export function registerStatic(rulePorts) {
   rulePorts.defineRule(
     'effective_addresses_rule',
     ['effective_addresses', ['R', 'C']],
-    [['addresses', ['R', 'C']], ['not', ['withdrew', ['R']]]],
+    [['resolution_anchor', ['R', 'C']], ['not', ['withdrew', ['R']]]],
     { domain_concept: 'effective_addresses', module: 'closure-policy' },
   );
 

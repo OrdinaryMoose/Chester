@@ -102,15 +102,15 @@ export const CATEGORY_REGISTRY = Object.freeze({
     authority: { add: [CONSENT_SOURCES.DESIGNER], revise: [CONSENT_SOURCES.DESIGNER], withdraw: [CONSENT_SOURCES.DESIGNER], ratify: [CONSENT_SOURCES.DESIGNER] },
   }),
   [ELEMENT_CATEGORIES.RESOLUTION]: Object.freeze({
-    requiredFields: ['statement', 'addresses'],
+    requiredFields: ['statement', 'problem_anchor', 'grounding'],
     optionalFields: [],
     nonEmptyStringFields: [],
-    nonEmptyArrayFields: [],
+    nonEmptyArrayFields: ['grounding'],
     sourceConstraint: CONSENT_SOURCES.DESIGNER,
     idShape: ELEMENT_CATEGORIES.RESOLUTION,
     renderSection: RENDER_SECTIONS.THEOREMS,
     closedEnumFields: {},
-    referenceFields: {},
+    referenceFields: { problem_anchor: 'concern', grounding: 'proposition' },
     authority: { add: [CONSENT_SOURCES.DESIGNER], revise: [CONSENT_SOURCES.DESIGNER], withdraw: [CONSENT_SOURCES.DESIGNER], ratify: [CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER] },
   }),
   [ELEMENT_CATEGORIES.FRICTION]: Object.freeze({

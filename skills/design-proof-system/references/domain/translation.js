@@ -55,7 +55,8 @@ const TRANSLATORS = Object.freeze({
   [ELEMENT_CATEGORIES.RESOLUTION]: (args, id, ts) => ({
     baseFacts: [
       ['resolution_decl', [id, args.statement]],
-      ...(Array.isArray(args.addresses) ? args.addresses.map(rid => ['addresses', [id, rid]]) : [['addresses', [id, args.addresses]]]),
+      ['resolution_anchor', [id, args.problem_anchor]],
+      ...args.grounding.map(pid => ['resolution_grounding', [id, pid]]),
     ],
     rules: [],
     metaFacts: [['created_at', [id, ts]]],
@@ -193,7 +194,7 @@ export function instantiateTemplate(idShape, newId, rulePorts) {
 const EDB_PREDICATES = Object.freeze(new Set([
   'evidence', 'rule_decl', 'permission_decl', 'permission', 'permission_scope', 'proposition_decl', 'proposition_grounding',
   'collapse_test', 'reasoning_chain', 'rejected_alternative',
-  'risk', 'risk_basis', 'resolution_decl', 'addresses', 'friction',
+  'risk', 'risk_basis', 'resolution_decl', 'resolution_anchor', 'resolution_grounding', 'friction',
   'friction_disposition', 'definition_decl', 'definition_scope', 'definition_self',
   'concern', 'concern_status',
   'approved', 'two_yes',

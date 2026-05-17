@@ -74,7 +74,17 @@ export function renderStructuredProof(args, readPorts) {
     sections.push('## Lemmas (Propositions)\n' + propBlocks.join('\n') + '\n');
   }
   const resolutions = live(readPorts.query.query(['resolution', [{ var: 'I' }, { var: 'S' }]]));
-  if (resolutions.length) sections.push('## Theorems (Resolutions)\n' + resolutions.map(b => `- ${b.I}: ${b.S}`).join('\n') + '\n');
+  if (resolutions.length) {
+    const lines = ['## Theorems (Resolutions)'];
+    for (const r of resolutions) {
+      lines.push(`- ${r.I}: ${r.S}`);
+      const anchor = readPorts.query.query(['resolution_anchor', [r.I, { var: 'C' }]]);
+      if (anchor.length) lines.push(`  - Problem anchor: ${anchor[0].C}`);
+      const grounding = readPorts.query.query(['resolution_grounding', [r.I, { var: 'P' }]]);
+      if (grounding.length) lines.push(`  - Grounding: ${grounding.map(g => g.P).join(', ')}`);
+    }
+    sections.push(lines.join('\n') + '\n');
+  }
   return sections.join('\n');
 }
 
@@ -180,7 +190,7 @@ export function renderDatalogProjection(args, readPorts) {
     proposition_decl: 3,
     proposition_grounding: 2, collapse_test: 2, reasoning_chain: 2, rejected_alternative: 3,
     risk: 3, risk_basis: 2,
-    resolution_decl: 2, addresses: 2,
+    resolution_decl: 2, resolution_anchor: 2, resolution_grounding: 2,
     friction: 4, friction_disposition: 2, definition_decl: 3, definition_scope: 2, definition_self: 2,
     concern: 3, concern_status: 2,
     approved: 3, two_yes: 2,

@@ -38,15 +38,27 @@ describe('bridge-integration — engine-shape adapter', () => {
     const bridge = createDomainBridge({ engine: new Engine(), ...makeAdapters() });
     const consent = { source: CONSENT_SOURCES.DESIGNER };
 
-    // Add evidence + risk + resolution; ratify; closure should permit.
+    // Add evidence + proposition + concern + resolution; ratify; closure should permit.
+    // RESOLUTION post-§3.6 reshape requires problem_anchor:concern and grounding:[proposition],
+    // so the original {risk, addresses: risk.id} shape is no longer expressible. A risk would
+    // also fire coverage_gap_detected because resolution_anchor is type-locked to concern and
+    // cannot anchor risks — out of scope for this closure-path smoke test.
     const evid = bridge.addElement({ idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'codebase', statement: 'baseline' }, consent);
-    const risk = bridge.addElement({ idShape: ELEMENT_CATEGORIES.RISK, statement: 'div-by-zero', basis: [evid.id] }, consent);
+    const prop = bridge.addElement({
+      idShape: ELEMENT_CATEGORIES.PROPOSITION,
+      statement: 'p1',
+      grounding: [evid.id],
+      inference_pattern: 'grounds_imply_conclusion',
+      collapse_test: 'ct',
+      reasoning_chain: 'rc',
+    }, consent);
+    const concern = bridge.addElement({ idShape: ELEMENT_CATEGORIES.CONCERN, label: 'C1' }, consent);
     const res = bridge.addElement({
       idShape: ELEMENT_CATEGORIES.RESOLUTION,
       statement: 'return Error',
-      addresses: risk.id,
+      problem_anchor: concern.id,
+      grounding: [prop.id],
     }, consent);
-    bridge.ratifyElement({ elementId: risk.id, source: 'designer', source_field: 'designer', claim: 'r' }, consent);
     bridge.ratifyElement({ elementId: res.id, source: 'designer', source_field: 'designer', claim: 'r' }, consent);
 
     // After fixing the wildcard bug, unaddressed_concern should be empty here.
