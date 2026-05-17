@@ -263,18 +263,14 @@ describe('CONCERN — lifecycle integration (real Engine)', () => {
     expect(coveredRows.length).toBeGreaterThan(0);
   });
 
-  it('AC-3.1 surface coverage: ratifyConcern is exported (latent SHAPE_INVALID — see Known Issues)', async () => {
+  it('AC-6.1 cross-impact: ratifyConcern with only {elementId} no longer throws SHAPE_INVALID (fixed by sprint-02-bug-fix-01)', async () => {
     const bridge = await makeRealBridge();
     expect(typeof bridge.ratifyConcern).toBe('function');
-    // Documenting the latent throw: calling ratifyConcern with only {elementId}
-    // throws SHAPE_INVALID because verifyArgsShape checks Concern's requiredFields=['label'].
-    // This mirrors the pre-existing ratifyDefinition brokenness (domain-bridge.js).
-    // Resolution of this latent issue is out of scope for this sprint.
-    let captured = null;
+    bridge.addElement({ idShape: 'evidence', source: 'design', claim: 'baseline' }, { source: CONSENT_SOURCES.DESIGNER });
     const { id } = bridge.addConcern({ label: 'C1' }, { source: CONSENT_SOURCES.DESIGNER });
-    try { bridge.ratifyConcern({ elementId: id }, { source: CONSENT_SOURCES.DESIGNER }); } catch (e) { captured = e; }
-    expect(captured).not.toBeNull();
-    expect(captured.code).toBe('SHAPE_INVALID');
-    expect(captured.field).toBe('label');
+    // Previously threw SHAPE_INVALID with field 'label' because verifyArgsShape checked
+    // Concern's requiredFields against ratify-shape args. The argShape on RATIFY's
+    // OPERATION_SPECS entry (added in sprint-02-bug-fix-01) makes the call shape-correct.
+    expect(() => bridge.ratifyConcern({ elementId: id }, { source: CONSENT_SOURCES.DESIGNER })).not.toThrow();
   });
 });
