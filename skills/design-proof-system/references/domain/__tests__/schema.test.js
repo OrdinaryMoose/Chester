@@ -26,7 +26,7 @@ describe('schema', () => {
 
   it('verifyArgsShape throws SHAPE_INVALID on closed-enum violation (PROPOSITION.inference_pattern)', () => {
     const cat = ELEMENT_CATEGORIES.PROPOSITION;
-    const argsWithBadEnum = { statement: 's', grounding: 'g', collapse_test: 'c', inference_pattern: 'not_a_valid_pattern' };
+    const argsWithBadEnum = { statement: 's', grounding: 'g', collapse_test: 'c', inference_pattern: 'not_a_valid_pattern', reasoning_chain: 'IF X THEN Y' };
     let captured = null;
     try { verifyArgsShape(argsWithBadEnum, cat); } catch (e) { captured = e; }
     expect(captured).not.toBeNull();

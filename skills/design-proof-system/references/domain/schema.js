@@ -32,8 +32,9 @@ export const CATEGORY_REGISTRY = Object.freeze({
     authority: { add: [CONSENT_SOURCES.DESIGNER], revise: [CONSENT_SOURCES.DESIGNER], withdraw: [CONSENT_SOURCES.DESIGNER], ratify: [CONSENT_SOURCES.DESIGNER] },
   }),
   [ELEMENT_CATEGORIES.PROPOSITION]: Object.freeze({
-    requiredFields: ['statement', 'grounding', 'collapse_test', 'inference_pattern'],
-    optionalFields: ['scope'],
+    requiredFields: ['statement', 'grounding', 'collapse_test', 'inference_pattern', 'reasoning_chain'],
+    optionalFields: ['scope', 'rejected_alternatives'],
+    nonEmptyStringFields: ['reasoning_chain'],
     sourceConstraint: CONSENT_SOURCES.DESIGNER,
     idShape: ELEMENT_CATEGORIES.PROPOSITION,
     renderSection: RENDER_SECTIONS.LEMMAS,
