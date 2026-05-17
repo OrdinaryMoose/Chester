@@ -8,7 +8,7 @@ Read after the root `CLAUDE.md` and before any sub-sprint work.
 - `sprint-02-proof-layer/` — Domain layer work.
 - `sprint-03-presentation-layer/` — Interface layer work.
 
-Each sub-sprint has its own `design/ spec/ plan/ summary/` subdirs. All in-progress artifacts live there; no sub-sprint edits the master `design-documents/` cascade without an ADR.
+Each sub-sprint has its own `design/ spec/ plan/ summary/` subdirs. All in-progress artifacts live there;
 
 ## Active sub-sprint
 
