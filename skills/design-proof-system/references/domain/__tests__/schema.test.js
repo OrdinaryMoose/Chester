@@ -33,4 +33,32 @@ describe('schema', () => {
     expect(captured.code).toBe('SHAPE_INVALID');
     expect(captured.field).toBe('inference_pattern');
   });
+
+  it('verifyArgsShape throws SHAPE_INVALID when a nonEmptyStringFields entry is empty or whitespace', () => {
+    const stubDescriptor = {
+      label: 'stub',
+      requiredFields: ['foo'],
+      nonEmptyStringFields: ['foo'],
+      closedEnumFields: {},
+    };
+    let captured = null;
+    try { verifyArgsShape({ foo: '' }, stubDescriptor); } catch (e) { captured = e; }
+    expect(captured).not.toBeNull();
+    expect(captured.code).toBe('SHAPE_INVALID');
+    expect(captured.field).toBe('foo');
+
+    captured = null;
+    try { verifyArgsShape({ foo: '   ' }, stubDescriptor); } catch (e) { captured = e; }
+    expect(captured).not.toBeNull();
+    expect(captured.code).toBe('SHAPE_INVALID');
+    expect(captured.field).toBe('foo');
+
+    captured = null;
+    try { verifyArgsShape({ foo: 42 }, stubDescriptor); } catch (e) { captured = e; }
+    expect(captured).not.toBeNull();
+    expect(captured.code).toBe('SHAPE_INVALID');
+    expect(captured.field).toBe('foo');
+
+    expect(verifyArgsShape({ foo: 'hello' }, stubDescriptor)).toEqual({ foo: 'hello' });
+  });
 });
