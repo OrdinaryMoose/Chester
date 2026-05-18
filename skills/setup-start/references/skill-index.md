@@ -16,6 +16,7 @@ When multiple skills could apply, use this order:
 
 - "Let's build X with architectural choices" → `design-large-task` first, then `plan-build`.
 - "Quick design check for X" → `design-small-task` first, then `plan-build`.
+- "Convene the committee on X" / "ask the committee" / "get a multi-perspective read on X" → `design-committee` standalone (not pipeline-staged).
 
 ## Skill Catalog
 
@@ -25,6 +26,7 @@ When multiple skills could apply, use this order:
 - `start-bootstrap` — Mechanical session setup: config, sprint naming, dir creation, task reset, thinking history
 - `design-large-task` — Default structural design skill: five outer phases (Bootstrap, Parallel Context Exploration, Round One, Interview Loop, Closure). Inside the Interview Loop, an Understand Stage runs under a nine-dimension saturation MCP, then a Solve Stage builds a formal proof of necessary conditions. Closure writes the design brief (the proof envelope) and transitions to design-specify. Architecture choice lives in design-specify, not here.
 - `design-small-task` — Lightweight design conversation for well-bounded tasks. Surfaces considerations through structured Q&A, produces a brief for plan-build. No MCP, no spec step.
+- `design-committee` — Standalone (not pipeline-staged) six-role deliberation team for ad-hoc design consultations. Four-pole Cartesian debate (Conservator / Innovator / Pragmatist / Purist) plus Arbiter (proof-state custodian) and Researcher (codebase / prior-art / industry / admin), with the calling agent as team-lead and the human as designer. Produces a three-section decision packet for the designer to adjudicate. Convene when framing bias is a real risk on a meta-architecture or charter call.
 - `design-specify` — Formalize an approved design brief into a durable spec document. Two-architect competing-architecture review on dispatcher-assigned axes (with F-A-C self-check), automated fidelity review, inline adversarial review, and automatic codebase ground-truth verification (skipped only for greenfield specs) before plan-build.
 - `plan-build` — Write and harden implementation plans; selects execution mode (subagent vs inline) via heuristic + human confirm at plan tail and records it in the plan header
 - `execute-write` — Execute plans, request code review; reads the plan header's `Execution mode` field and runs Section 2 (subagent-driven) or Section 3 (inline), defaulting to subagent if the field is missing
