@@ -76,7 +76,7 @@ export function createDomainBridge({ engine: rawEngine, clock, idAllocator, cons
   // Step 5: assemble validPredicates = Phase-A rule heads ∪ EDB predicates
   const validPredicates = getDeclaredEDBPredicates();
   // For sprint-02's scope, Phase-A rule head predicates are added by reading the rule store, OR statically named here.
-  for (const p of ['closure_permitted', 'unresolved_friction', 'unaddressed_concern', 'covered', 'effective_addresses', 'ungrounded_proposition', 'effective_grounding', 'coverage_gap_detected', 'overlap_detected', 'conflict_detected', 'proposition', 'resolution', 'definition', 'concern', 'concern_status', 'phase', 'two_yes_complete']) validPredicates.add(p);
+  for (const p of ['closure_permitted', 'unresolved_friction', 'unaddressed_concern', 'covered', 'effective_addresses', 'ungrounded_proposition', 'effective_grounding', 'coverage_gap_detected', 'overlap_detected', 'conflict_detected', 'proposition', 'resolution', 'definition', 'concern', 'concern_status', 'concern_note', 'phase', 'two_yes_complete']) validPredicates.add(p);
 
   // Step 6: validate OPERATION_SPECS
   validateOperationSpecs(OPERATION_SPECS, tags, validPredicates);

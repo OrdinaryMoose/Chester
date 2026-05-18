@@ -66,14 +66,16 @@ const TRANSLATORS = Object.freeze({
     rules: [],
     metaFacts: [['created_at', [id, ts]]],
   }),
-  [ELEMENT_CATEGORIES.CONCERN]: (args, id, ts) => ({
-    baseFacts: [
+  [ELEMENT_CATEGORIES.CONCERN]: (args, id, ts) => {
+    const baseFacts = [
       ['concern', [id, args.label, args.description ?? '']],
       ['concern_status', [id, 'draft']],
-    ],
-    rules: [],
-    metaFacts: [['created_at', [id, ts]]],
-  }),
+    ];
+    if (Array.isArray(args.notes)) {
+      for (const note of args.notes) baseFacts.push(['concern_note', [id, note]]);
+    }
+    return { baseFacts, rules: [], metaFacts: [['created_at', [id, ts]]] };
+  },
   [ELEMENT_CATEGORIES.DEFINITION]: (args, id, ts) => ({
     baseFacts: [
       ['definition_decl', [id, args.canonical_name, args.definition]],
@@ -196,7 +198,7 @@ const EDB_PREDICATES = Object.freeze(new Set([
   'collapse_test', 'reasoning_chain', 'rejected_alternative',
   'risk', 'risk_basis', 'resolution_decl', 'resolution_anchor', 'resolution_grounding', 'friction',
   'friction_disposition', 'definition_decl', 'definition_scope', 'definition_self',
-  'concern', 'concern_status',
+  'concern', 'concern_status', 'concern_note',
   'approved', 'two_yes',
   'closure_committed', 'closure_pending', 'phase', 'round', 'created_at',
   'withdrew', 'superseded',

@@ -204,7 +204,7 @@ export function renderDatalogProjection(args, readPorts) {
     risk: 3, risk_basis: 2,
     resolution_decl: 2, resolution_anchor: 2, resolution_grounding: 2,
     friction: 5, friction_disposition: 2, definition_decl: 3, definition_scope: 2, definition_self: 2,
-    concern: 3, concern_status: 2,
+    concern: 3, concern_status: 2, concern_note: 2,
     approved: 3, two_yes: 2,
     closure_committed: 0, closure_pending: 0, round: 1,
     created_at: 2, withdrew: 1, superseded: 2,

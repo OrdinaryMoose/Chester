@@ -203,6 +203,39 @@ describe('D4 — Resolution.problem_anchor accepts concern or risk', () => {
   });
 });
 
+describe('D7 — Concern carries optional notes array', () => {
+  it('AC-7.1 addConcern with notes emits concern_note facts', async () => {
+    const bridge = await makeRealBridge();
+    const concern = bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.CONCERN, label: 'placement', description: 'where', notes: ['hybrid-case', 'sequencing'] },
+      designerConsent,
+    );
+    const notes = bridge.queryProof({ pattern: ['concern_note', [concern.id, { var: 'N' }]] });
+    expect(notes).toHaveLength(2);
+    expect(notes.map(r => r.N).sort()).toEqual(['hybrid-case', 'sequencing']);
+  });
+
+  it('AC-7.1b addConcern without notes emits zero concern_note facts', async () => {
+    const bridge = await makeRealBridge();
+    const concern = bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.CONCERN, label: 'plain', description: 'x' },
+      designerConsent,
+    );
+    const notes = bridge.queryProof({ pattern: ['concern_note', [concern.id, { var: 'N' }]] });
+    expect(notes).toHaveLength(0);
+  });
+
+  it('AC-7.2 concern_note facts appear in projection', async () => {
+    const bridge = await makeRealBridge();
+    bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.CONCERN, label: 'c1', notes: ['n1', 'n2'] },
+      designerConsent,
+    );
+    const projection = bridge.renderDatalogProjection({});
+    expect(projection.facts.some(f => f[0] === 'concern_note')).toBe(true);
+  });
+});
+
 describe('D9 — Payload channel utilities', () => {
   it('AC-9.1 round-trips content through createPayloadChannel + parsePayloadChannel', () => {
     const content = 'evidence claim text with\nmultiple lines\nand "quotes"';

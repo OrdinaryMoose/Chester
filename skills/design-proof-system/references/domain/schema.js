@@ -139,7 +139,7 @@ export const CATEGORY_REGISTRY = Object.freeze({
   }),
   [ELEMENT_CATEGORIES.CONCERN]: Object.freeze({
     requiredFields: ['label'],
-    optionalFields: ['description'],
+    optionalFields: ['description', 'notes'],
     nonEmptyStringFields: [],
     nonEmptyArrayFields: [],
     sourceConstraint: CONSENT_SOURCES.DESIGNER,
