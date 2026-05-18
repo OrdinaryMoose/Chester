@@ -105,6 +105,11 @@ export function createDomainBridge({ engine: rawEngine, clock, idAllocator, cons
     addElement: (args, consent) => runOperation('add', args, consent, fullPorts),
     /** @param {object} args @param {object} consent @throws {DomainError} @returns {object} */
     reviseElement: (args, consent) => runOperation('revise', args, consent, fullPorts),
+    // D12 — atomic add+ratify dual-partner revise for Proposition and Resolution.
+    /** @param {object} args @param {object} consent @throws {DomainError} @returns {object} */
+    reviseProposition: (args, consent) => runOperation('revise_proposition', args, consent, fullPorts),
+    /** @param {object} args @param {object} consent @throws {DomainError} @returns {object} */
+    reviseResolution: (args, consent) => runOperation('revise_resolution', args, consent, fullPorts),
     /** @param {object} args @param {object} consent @throws {DomainError} @returns {object} */
     withdrawElement: (args, consent) => runOperation('withdraw', args, consent, fullPorts),
     // IRatification

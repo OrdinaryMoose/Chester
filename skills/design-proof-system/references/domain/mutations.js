@@ -80,7 +80,7 @@ export class POST_COMMIT_SAVE_FAILED extends DomainError {
   }
 }
 
-// Eight OperationSpec records. customPostCheck appears on 3 (manageFriction, presentClosingArgument, confirmClosureGo).
+// Ten OperationSpec records. customPostCheck appears on 3 (manageFriction, presentClosingArgument, confirmClosureGo).
 export const OPERATION_SPECS = Object.freeze({
   [ACTION_LABELS.OPEN_PROOF]: {
     consentCategory: CONSENT_SOURCES.DESIGNER,
@@ -119,6 +119,58 @@ export const OPERATION_SPECS = Object.freeze({
     },
     postconditions: [],
     clearsTwoYes: true,
+    resultShape: { id: true, fullRecord: true },
+  },
+  // D12 — REVISE_PROPOSITION / REVISE_RESOLUTION: atomic add+ratify for wording cleanup.
+  // Creates a NEW element (fresh id) linked to the prior via `superseded` metaFact, and
+  // emits BOTH DESIGNER and DESIGN_PARTNER approval+two_yes facts in the same transaction
+  // so two_yes_complete derives for the new element without a separate ratify call.
+  // The original element is left extant (no automatic retract/withdraw). Operators who want
+  // to retire the old element should call withdrawElement separately.
+  // Per-category authority routes through `ratify` (DESIGNER ∪ DESIGN_PARTNER); see
+  // runOperation step 2 dispatch.
+  [ACTION_LABELS.REVISE_PROPOSITION]: {
+    consentCategory: [CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER],
+    preconditions: [],
+    idShape: ELEMENT_CATEGORIES.PROPOSITION,
+    translate: (args, id, ts) => {
+      const inner = translate(ELEMENT_CATEGORIES.PROPOSITION, args, id, ts);
+      return {
+        baseFacts: [
+          ...inner.baseFacts,
+          ['approved', [id, CONSENT_SOURCES.DESIGNER, ts]],
+          ['approved', [id, CONSENT_SOURCES.DESIGN_PARTNER, ts]],
+          ['two_yes', [id, CONSENT_SOURCES.DESIGNER]],
+          ['two_yes', [id, CONSENT_SOURCES.DESIGN_PARTNER]],
+        ],
+        rules: inner.rules,
+        metaFacts: [...(inner.metaFacts ?? []), ['superseded', [id, args.supersedes]]],
+      };
+    },
+    postconditions: [],
+    clearsTwoYes: false,
+    resultShape: { id: true, fullRecord: true },
+  },
+  [ACTION_LABELS.REVISE_RESOLUTION]: {
+    consentCategory: [CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER],
+    preconditions: [],
+    idShape: ELEMENT_CATEGORIES.RESOLUTION,
+    translate: (args, id, ts) => {
+      const inner = translate(ELEMENT_CATEGORIES.RESOLUTION, args, id, ts);
+      return {
+        baseFacts: [
+          ...inner.baseFacts,
+          ['approved', [id, CONSENT_SOURCES.DESIGNER, ts]],
+          ['approved', [id, CONSENT_SOURCES.DESIGN_PARTNER, ts]],
+          ['two_yes', [id, CONSENT_SOURCES.DESIGNER]],
+          ['two_yes', [id, CONSENT_SOURCES.DESIGN_PARTNER]],
+        ],
+        rules: inner.rules,
+        metaFacts: [...(inner.metaFacts ?? []), ['superseded', [id, args.supersedes]]],
+      };
+    },
+    postconditions: [],
+    clearsTwoYes: false,
     resultShape: { id: true, fullRecord: true },
   },
   [ACTION_LABELS.WITHDRAW]: {
@@ -245,6 +297,10 @@ export function runOperation(verbName, args, consent, ports) {
   } else if (verbName === ACTION_LABELS.RATIFY) {
     const resolved = _resolveElementCategory(args.elementId, ports.query);
     if (resolved) perCategoryAuthority = lookupAuthority(resolved, ACTION_LABELS.RATIFY);
+  } else if (verbName === ACTION_LABELS.REVISE_PROPOSITION || verbName === ACTION_LABELS.REVISE_RESOLUTION) {
+    // D12: route through the per-category ratify authority — these verbs perform
+    // an atomic add+ratify on the new element.
+    perCategoryAuthority = lookupAuthority(targetShape, ACTION_LABELS.RATIFY);
   }
   const allowedSources = perCategoryAuthority.length > 0 ? perCategoryAuthority : spec.consentCategory;
   verifyConsent(allowedSources, consent, ports.consent);
@@ -265,15 +321,20 @@ export function runOperation(verbName, args, consent, ports) {
   // ADD/REVISE thread the query port through so the referenceFields directive can verify
   // referenced ids exist in the EDB. Other verbs pass null — the loop short-circuits.
   const argShapeTarget = spec.argShape ?? targetShape;
-  const isAddOrRevise = verbName === ACTION_LABELS.ADD || verbName === ACTION_LABELS.REVISE;
+  const isAddOrRevise = verbName === ACTION_LABELS.ADD
+    || verbName === ACTION_LABELS.REVISE
+    || verbName === ACTION_LABELS.REVISE_PROPOSITION
+    || verbName === ACTION_LABELS.REVISE_RESOLUTION;
   verifyArgsShape(args, argShapeTarget, isAddOrRevise ? ports.query : null);
 
   // §6.1 step 3b: REVISE requires args.supersedes naming the prior element id. Validated
   // here rather than in argShape because REVISE also needs the per-category fields (which
   // argShape would short-circuit if it were the only descriptor used).
-  if (verbName === ACTION_LABELS.REVISE) {
+  if (verbName === ACTION_LABELS.REVISE
+      || verbName === ACTION_LABELS.REVISE_PROPOSITION
+      || verbName === ACTION_LABELS.REVISE_RESOLUTION) {
     if (typeof args.supersedes !== 'string' || args.supersedes.length === 0) {
-      throw Object.assign(new Error('SHAPE_INVALID: REVISE requires args.supersedes (string) naming the element being revised'), { code: 'SHAPE_INVALID', field: 'supersedes' });
+      throw Object.assign(new Error('SHAPE_INVALID: revise verbs require args.supersedes (string) naming the element being revised'), { code: 'SHAPE_INVALID', field: 'supersedes' });
     }
   }
 
@@ -291,7 +352,9 @@ export function runOperation(verbName, args, consent, ports) {
     // below to also cover REVISE_PROPOSITION and REVISE_RESOLUTION once those ACTION_LABELS
     // entries land in tags.js.
     if (verbName !== ACTION_LABELS.RATIFY) {
-      if (verbName === ACTION_LABELS.ADD && args.id) {
+      if ((verbName === ACTION_LABELS.ADD
+           || verbName === ACTION_LABELS.REVISE_PROPOSITION
+           || verbName === ACTION_LABELS.REVISE_RESOLUTION) && args.id) {
         const expectedPrefix = ID_PREFIXES[targetShape];
         if (!expectedPrefix || !args.id.startsWith(expectedPrefix)) {
           throw new DomainError({ code: 'ID_PREFIX_MISMATCH', suppliedId: args.id, expectedPrefix: expectedPrefix ?? '<unknown>' });
@@ -313,7 +376,11 @@ export function runOperation(verbName, args, consent, ports) {
     // and REVISE: REVISE produces a new element with its own id, which needs its own
     // per-element approval rule installed so that ratification can later derive the
     // public predicate (proposition/resolution/definition/concern_status) for it.
-    if ([ELEMENT_CATEGORIES.PROPOSITION, ELEMENT_CATEGORIES.RESOLUTION, ELEMENT_CATEGORIES.DEFINITION, ELEMENT_CATEGORIES.CONCERN].includes(targetShape) && (verbName === ACTION_LABELS.ADD || verbName === ACTION_LABELS.REVISE)) {
+    if ([ELEMENT_CATEGORIES.PROPOSITION, ELEMENT_CATEGORIES.RESOLUTION, ELEMENT_CATEGORIES.DEFINITION, ELEMENT_CATEGORIES.CONCERN].includes(targetShape)
+        && (verbName === ACTION_LABELS.ADD
+            || verbName === ACTION_LABELS.REVISE
+            || verbName === ACTION_LABELS.REVISE_PROPOSITION
+            || verbName === ACTION_LABELS.REVISE_RESOLUTION)) {
       instantiateTemplate(targetShape, id, ports.rules);
     }
 

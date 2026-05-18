@@ -4,15 +4,16 @@ import { OPERATION_SPECS, runOperation, DomainError } from '../mutations.js';
 import { ACTION_LABELS, CONSENT_SOURCES } from '../tags.js';
 
 describe('mutations', () => {
-  it('OPERATION_SPECS has exactly 8 named verbs', () => {
+  it('OPERATION_SPECS has exactly 10 named verbs', () => {
     expect(Object.keys(OPERATION_SPECS).sort()).toEqual([
       ACTION_LABELS.ADD, ACTION_LABELS.CONFIRM_CLOSURE_GO, ACTION_LABELS.MANAGE_FRICTION,
       ACTION_LABELS.OPEN_PROOF, ACTION_LABELS.PRESENT_CLOSING_ARGUMENT,
       ACTION_LABELS.RATIFY, ACTION_LABELS.REVISE, ACTION_LABELS.WITHDRAW,
+      ACTION_LABELS.REVISE_PROPOSITION, ACTION_LABELS.REVISE_RESOLUTION,
     ].sort());
   });
 
-  it('customPostCheck appears on at most 3 of 8 specs', () => {
+  it('customPostCheck appears on at most 3 of 10 specs', () => {
     const withCustom = Object.values(OPERATION_SPECS).filter(s => 'customPostCheck' in s);
     expect(withCustom.length).toBeLessThanOrEqual(3);
   });

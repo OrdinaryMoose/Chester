@@ -67,6 +67,8 @@ export const ACTION_LABELS = Object.freeze({
   RATIFY: 'ratify', MANAGE_FRICTION: 'manage_friction',
   PRESENT_CLOSING_ARGUMENT: 'present_closing_argument',
   CONFIRM_CLOSURE_GO: 'confirm_closure_go', OPEN_PROOF: 'open_proof',
+  REVISE_PROPOSITION: 'revise_proposition',
+  REVISE_RESOLUTION: 'revise_resolution',
 });
 
 export const RENDER_SECTIONS = Object.freeze({

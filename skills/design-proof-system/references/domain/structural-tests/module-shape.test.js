@@ -7,7 +7,10 @@ import { readSource, countNonBlankNonComment } from './source-scanner.js';
 
 const DOMAIN = resolve(import.meta.dirname, '..');
 const NAMED = ['tags.js', 'schema.js', 'translation.js', 'authority.js', 'lifecycle.js', 'closure-policy.js', 'friction-policy.js', 'restructuring.js', 'render.js', 'counterfactual.js', 'mutations.js', 'boot-validators.js', 'domain-bridge.js'];
-const CEILINGS = { 'tags.js': 120, 'schema.js': 320, 'translation.js': 320, 'authority.js': 230, 'lifecycle.js': 180, 'closure-policy.js': 280, 'friction-policy.js': 230, 'restructuring.js': 220, 'render.js': 380, 'counterfactual.js': 190, 'mutations.js': 320, 'boot-validators.js': 230, 'domain-bridge.js': 200 };
+// mutations.js ceiling raised from 320 → 360 in Task 12 to accommodate the two
+// new D12 OPERATION_SPECS entries (REVISE_PROPOSITION, REVISE_RESOLUTION) and
+// extended verb-dispatch branches in runOperation.
+const CEILINGS = { 'tags.js': 120, 'schema.js': 320, 'translation.js': 320, 'authority.js': 230, 'lifecycle.js': 180, 'closure-policy.js': 280, 'friction-policy.js': 230, 'restructuring.js': 220, 'render.js': 380, 'counterfactual.js': 190, 'mutations.js': 360, 'boot-validators.js': 230, 'domain-bridge.js': 200 };
 
 describe('module-shape', () => {
   it('all 13 named files exist', () => {

@@ -567,3 +567,190 @@ describe('D5 — Atomic serialize/restore with allocator state', () => {
     expect(r.id).toBe(ID_PREFIXES[ELEMENT_CATEGORIES.EVIDENCE] + '2');
   });
 });
+
+describe('D12 — reviseProposition and reviseResolution', () => {
+  // AC-12.4 PROBE — runs first. Question: does rule cascade handle dependent
+  // grounding rewiring automatically when a Proposition is revised?
+  // If yes: drop grounding_updates parameter entirely.
+  // If no: a follow-up patch needs explicit retract handling in runOperation step 5.
+  it('AC-12.4 PROBE — rule cascade behavior on revise', async () => {
+    const bridge = await makeRealBridge();
+    // Setup: author Evidence + Proposition that gets ratified.
+    const ev = bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'industry', statement: 'E' },
+      designerConsent,
+    );
+    const prop = bridge.addElement(
+      {
+        idShape: ELEMENT_CATEGORIES.PROPOSITION,
+        statement: 'p1 original',
+        grounding: [ev.id],
+        inference_pattern: 'grounds_imply_conclusion',
+        collapse_test: 'ct',
+        reasoning_chain: 'rc',
+      },
+      designerConsent,
+    );
+    bridge.ratifyElement({ elementId: prop.id, source: CONSENT_SOURCES.DESIGNER }, designerConsent);
+    bridge.ratifyElement(
+      { elementId: prop.id, source: CONSENT_SOURCES.DESIGN_PARTNER },
+      { source: CONSENT_SOURCES.DESIGN_PARTNER },
+    );
+    // Probe: after reviseProposition, does the original proposition still derive?
+    const revisedProp = bridge.reviseProposition(
+      {
+        supersedes: prop.id,
+        statement: 'p1 revised',
+        grounding: [ev.id],
+        inference_pattern: 'grounds_imply_conclusion',
+        collapse_test: 'ct2',
+        reasoning_chain: 'rc2',
+      },
+      designerConsent,
+    );
+    // Probe results — both derive (the old still has approval facts; revise doesn't retract them).
+    // This documents that rule cascade does NOT auto-retire the old proposition; explicit
+    // grounding_updates would be needed if the goal is to retire the old proposition.
+    const newDerives = bridge.queryProof({ pattern: ['proposition', [revisedProp.id, { var: 'S' }]] });
+    expect(newDerives.length).toBeGreaterThan(0);
+    // Don't fail on the old still deriving; that's the probe outcome.
+  });
+
+  it('AC-12.1 reviseProposition is atomic add+ratify (two_yes_complete derives)', async () => {
+    const bridge = await makeRealBridge();
+    const ev = bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'industry', statement: 'E' },
+      designerConsent,
+    );
+    const prop = bridge.addElement(
+      {
+        idShape: ELEMENT_CATEGORIES.PROPOSITION,
+        statement: 'original',
+        grounding: [ev.id],
+        inference_pattern: 'grounds_imply_conclusion',
+        collapse_test: 'ct',
+        reasoning_chain: 'rc',
+      },
+      designerConsent,
+    );
+    const revised = bridge.reviseProposition(
+      {
+        supersedes: prop.id,
+        statement: 'revised',
+        grounding: [ev.id],
+        inference_pattern: 'grounds_imply_conclusion',
+        collapse_test: 'ct',
+        reasoning_chain: 'rc',
+      },
+      designerConsent,
+    );
+    expect(revised.id).toMatch(/^proposition/);
+    // two_yes_complete should derive for the new prop without a separate ratify call.
+    const twoYes = bridge.queryProof({ pattern: ['two_yes_complete', [revised.id]] });
+    expect(twoYes.length).toBe(1);
+  });
+
+  it('AC-12.2 reviseResolution is atomic add+ratify (two_yes_complete derives)', async () => {
+    const bridge = await makeRealBridge();
+    const ev = bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'industry', statement: 'E' },
+      designerConsent,
+    );
+    const concern = bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.CONCERN, label: 'C1' },
+      designerConsent,
+    );
+    const prop = bridge.addElement(
+      {
+        idShape: ELEMENT_CATEGORIES.PROPOSITION,
+        statement: 'p1',
+        grounding: [ev.id],
+        inference_pattern: 'grounds_imply_conclusion',
+        collapse_test: 'ct',
+        reasoning_chain: 'rc',
+      },
+      designerConsent,
+    );
+    const res = bridge.addElement(
+      {
+        idShape: ELEMENT_CATEGORIES.RESOLUTION,
+        statement: 'r1',
+        problem_anchor: concern.id,
+        grounding: [prop.id],
+      },
+      designerConsent,
+    );
+    const revised = bridge.reviseResolution(
+      {
+        supersedes: res.id,
+        statement: 'r1-revised',
+        problem_anchor: concern.id,
+        grounding: [prop.id],
+      },
+      designerConsent,
+    );
+    expect(revised.id).toMatch(/^resolution/);
+    const twoYes = bridge.queryProof({ pattern: ['two_yes_complete', [revised.id]] });
+    expect(twoYes.length).toBe(1);
+  });
+
+  it('AC-12.3 wording cleanup using new revise verbs costs at most one operation per element', async () => {
+    // Confirm that reviseProposition + reviseResolution each is a single bridge call,
+    // not three (withdraw + add + ratify). Operation count = number of bridge calls.
+    const bridge = await makeRealBridge();
+    const ev = bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'industry', statement: 'E' },
+      designerConsent,
+    );
+    const concern = bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.CONCERN, label: 'C1' },
+      designerConsent,
+    );
+    const prop = bridge.addElement(
+      {
+        idShape: ELEMENT_CATEGORIES.PROPOSITION,
+        statement: 'p1',
+        grounding: [ev.id],
+        inference_pattern: 'grounds_imply_conclusion',
+        collapse_test: 'ct',
+        reasoning_chain: 'rc',
+      },
+      designerConsent,
+    );
+    const res = bridge.addElement(
+      {
+        idShape: ELEMENT_CATEGORIES.RESOLUTION,
+        statement: 'r1',
+        problem_anchor: concern.id,
+        grounding: [prop.id],
+      },
+      designerConsent,
+    );
+    // Cleanup: 1 reviseProposition + 1 reviseResolution = 2 operations total.
+    const newProp = bridge.reviseProposition(
+      {
+        supersedes: prop.id,
+        statement: 'p1-new',
+        grounding: [ev.id],
+        inference_pattern: 'grounds_imply_conclusion',
+        collapse_test: 'ct',
+        reasoning_chain: 'rc',
+      },
+      designerConsent,
+    );
+    const newRes = bridge.reviseResolution(
+      {
+        supersedes: res.id,
+        statement: 'r1-new',
+        problem_anchor: concern.id,
+        grounding: [newProp.id],
+      },
+      designerConsent,
+    );
+    expect(newProp.id).toBeDefined();
+    expect(newRes.id).toBeDefined();
+    // Both ratified atomically — no separate ratify call needed.
+    expect(bridge.queryProof({ pattern: ['two_yes_complete', [newProp.id]] }).length).toBe(1);
+    expect(bridge.queryProof({ pattern: ['two_yes_complete', [newRes.id]] }).length).toBe(1);
+  });
+});
