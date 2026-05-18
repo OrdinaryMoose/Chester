@@ -47,7 +47,7 @@ A first-class vocabulary fixing. Approval-gated. Required fields: `term`, `defin
 
 Field names are stable across categories. Use these names verbatim in arguments — `addElement` validates required fields by exact name.
 
-- `source` — on Evidence: the attribution of the factual claim (e.g. `'design-decision'`, `'rfc'`).
+- `source` — on Evidence: the closed four-value enum `EVIDENCE_SOURCE_ENUM` from `tags.js`. One of: `'industry'`, `'codebase'`, `'prior-record'`, `'agent-derivation'`. The engine rejects any other value with `SHAPE_INVALID`.
 - `claim` — on Evidence: the factual content itself.
 - `statement` — on Rule, Permission, Proposition, Risk, Resolution: the prose body of the element.
 - `grounding` — on Proposition: the id of an Evidence element that supports the Proposition. Single id (string).
