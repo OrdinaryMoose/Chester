@@ -236,6 +236,81 @@ describe('D7 — Concern carries optional notes array', () => {
   });
 });
 
+describe('D10 — renderElementDeep returns full element record', () => {
+  it('AC-10.1 Proposition record includes grounding, collapse_test, reasoning_chain', async () => {
+    const bridge = await makeRealBridge();
+    const ev = bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'industry', statement: 'E' },
+      designerConsent,
+    );
+    const prop = bridge.addElement(
+      {
+        idShape: ELEMENT_CATEGORIES.PROPOSITION,
+        statement: 'p1',
+        grounding: [ev.id],
+        inference_pattern: 'grounds_imply_conclusion',
+        collapse_test: 'ct-text',
+        reasoning_chain: 'rc-text',
+      },
+      designerConsent,
+    );
+    const record = bridge.renderElementDeep({ id: prop.id });
+    expect(record.id).toBe(prop.id);
+    expect(record.grounding).toEqual([ev.id]);
+    expect(record.collapse_test).toBe('ct-text');
+    expect(record.reasoning_chain).toBe('rc-text');
+  });
+
+  it('AC-10.2 Resolution record includes problem_anchor and grounding', async () => {
+    const bridge = await makeRealBridge();
+    const ev = bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'industry', statement: 'E' },
+      designerConsent,
+    );
+    const concern = bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.CONCERN, label: 'C1' },
+      designerConsent,
+    );
+    const prop = bridge.addElement(
+      {
+        idShape: ELEMENT_CATEGORIES.PROPOSITION,
+        statement: 'p1',
+        grounding: [ev.id],
+        inference_pattern: 'grounds_imply_conclusion',
+        collapse_test: 'ct',
+        reasoning_chain: 'rc',
+      },
+      designerConsent,
+    );
+    const res = bridge.addElement(
+      {
+        idShape: ELEMENT_CATEGORIES.RESOLUTION,
+        statement: 'R1',
+        problem_anchor: concern.id,
+        grounding: [prop.id],
+      },
+      designerConsent,
+    );
+    const record = bridge.renderElementDeep({ id: res.id });
+    expect(record.problem_anchor).toBe(concern.id);
+    expect(record.grounding).toEqual([prop.id]);
+  });
+
+  it('AC-10.3 / AC-7.3 Concern record includes notes array', async () => {
+    const bridge = await makeRealBridge();
+    const c1 = bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.CONCERN, label: 'c1', notes: ['obligation X'] },
+      designerConsent,
+    );
+    const c2 = bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.CONCERN, label: 'c2' },
+      designerConsent,
+    );
+    expect(bridge.renderElementDeep({ id: c1.id }).notes).toEqual(['obligation X']);
+    expect(bridge.renderElementDeep({ id: c2.id }).notes).toEqual([]);
+  });
+});
+
 describe('D9 — Payload channel utilities', () => {
   it('AC-9.1 round-trips content through createPayloadChannel + parsePayloadChannel', () => {
     const content = 'evidence claim text with\nmultiple lines\nand "quotes"';

@@ -112,6 +112,43 @@ const _ARITIES = Object.freeze({
   resolution_decl: 2,
   friction: 5,
   definition_decl: 3,
+  concern: 3,
+});
+
+// Secondary-query plan per primary-declaration predicate. After the primary
+// match in renderElementDeep, the matching satellite predicates are queried so
+// the returned record carries the full element body — grounding, anchors,
+// notes, scope, etc. Each descriptor:
+//   pred    — satellite predicate name
+//   arity   — its arity (id + (arity-1) bound variables)
+//   varName — string for arity-2, array of strings for arity≥3
+//   field   — output field name on the record
+//   multi   — true => collect all rows into an array; false => first row's value
+const _SECONDARY_QUERIES = Object.freeze({
+  proposition_decl: [
+    { pred: 'proposition_grounding', arity: 2, varName: 'E', field: 'grounding', multi: true },
+    { pred: 'collapse_test',         arity: 2, varName: 'T', field: 'collapse_test',  multi: false },
+    { pred: 'reasoning_chain',       arity: 2, varName: 'T', field: 'reasoning_chain', multi: false },
+    { pred: 'rejected_alternative',  arity: 3, varName: ['A', 'R'], field: 'rejected_alternative', multi: true },
+  ],
+  resolution_decl: [
+    { pred: 'resolution_anchor',    arity: 2, varName: 'C', field: 'problem_anchor', multi: false },
+    { pred: 'resolution_grounding', arity: 2, varName: 'E', field: 'grounding',     multi: true },
+  ],
+  risk: [
+    { pred: 'risk_basis', arity: 2, varName: 'E', field: 'basis', multi: true },
+  ],
+  concern: [
+    { pred: 'concern_status', arity: 2, varName: 'S', field: 'status', multi: false },
+    { pred: 'concern_note',   arity: 2, varName: 'N', field: 'notes',  multi: true },
+  ],
+  definition_decl: [
+    { pred: 'definition_scope', arity: 2, varName: 'S', field: 'scope', multi: false },
+  ],
+  permission_decl: [
+    { pred: 'permission_scope', arity: 2, varName: 'S', field: 'scope', multi: false },
+    { pred: 'permission',       arity: 2, varName: 'R', field: 'relieves', multi: false },
+  ],
 });
 
 export function renderElementDeep(args, readPorts) {
@@ -125,7 +162,30 @@ export function renderElementDeep(args, readPorts) {
     if (arity < 1) continue;
     const pattern = [id, ...Array(arity - 1).fill('_')];
     const rows = readPorts.query.query([pred, pattern]);
-    if (rows.length) return { id, predicate: pred, withdrawn, ...rows[0] };
+    if (rows.length) {
+      const base = { id, predicate: pred, withdrawn, ...rows[0] };
+      const queries = _SECONDARY_QUERIES[pred] ?? [];
+      for (const q of queries) {
+        const varBindings = Array.isArray(q.varName)
+          ? q.varName.map(v => ({ var: v }))
+          : [{ var: q.varName }];
+        const satellitePattern = [id, ...varBindings];
+        const satelliteRows = readPorts.query.query([q.pred, satellitePattern]);
+        if (q.multi) {
+          base[q.field] = satelliteRows.map(r => Array.isArray(q.varName)
+            ? q.varName.map(v => r[v])
+            : r[q.varName]);
+        } else {
+          base[q.field] = satelliteRows.length > 0
+            ? (Array.isArray(q.varName) ? q.varName.map(v => satelliteRows[0][v]) : satelliteRows[0][q.varName])
+            : undefined;
+        }
+      }
+      // Default empty array for notes when no concern_note facts exist — caller
+      // expects `notes: []` not undefined so consumers can iterate safely.
+      if (pred === 'concern' && !Array.isArray(base.notes)) base.notes = [];
+      return base;
+    }
   }
   return null;
 }
