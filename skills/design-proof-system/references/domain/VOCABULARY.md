@@ -301,3 +301,12 @@ The `shape` argument passed to `next()` is the **wire string** (lowercase, e.g. 
 **Disambiguation.** `cern` is the acronym for **CONCERN** (an element category), not **CONFLICT** (a friction shape). Friction shapes appear only as values of a Friction element's `shape` field and have no ids of their own — Friction *elements* use `fric_NNN` regardless of which `FRICTION_SHAPES` value they carry.
 
 **No alternate acronyms.** Do not use `e_`, `ev`, `evi`, or `evidence_` for Evidence. Do not use `r_`, `rl`, or `rules_` for Rule. The four-character acronyms above are the only legal prefixes. Successor sessions grep for `prop_` to find Propositions; alternates break that grep.
+
+## Structured payload channel
+
+For payloads whose content is transport-fragile (typed-element addition payloads delivered through agent message envelopes that may strip or hide markdown), use the helpers exported from `domain-bridge.js`:
+
+- `createPayloadChannel(content: string): string` — wraps content in sentinel delimiters
+- `parsePayloadChannel(raw: string): string | null` — extracts content between sentinels, or null on malformed input
+
+Format: `===== PAYLOAD_START =====\n<content>\n===== PAYLOAD_END =====`.

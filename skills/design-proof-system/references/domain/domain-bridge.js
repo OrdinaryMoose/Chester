@@ -13,6 +13,27 @@ import { validateOperationSpecs, validateCategoryRegistry, validateRuleTemplates
 import { normalizeEngine } from './engine-port-adapter.js';
 
 /**
+ * D9 — Stable payload channel for transport-fragile structured content. Wraps a payload
+ * in sentinel delimiters so receiving agents can extract the content without depending
+ * on markdown rendering.
+ */
+export function createPayloadChannel(content) {
+  return `===== PAYLOAD_START =====\n${content}\n===== PAYLOAD_END =====`;
+}
+
+/**
+ * D9 — Unwrap a payload channel string. Returns the content between the sentinels,
+ * or null if the input is malformed (missing either sentinel).
+ */
+export function parsePayloadChannel(raw) {
+  if (typeof raw !== 'string') return null;
+  const startIdx = raw.indexOf('===== PAYLOAD_START =====\n');
+  const endIdx = raw.indexOf('\n===== PAYLOAD_END =====');
+  if (startIdx === -1 || endIdx === -1 || endIdx <= startIdx) return null;
+  return raw.slice(startIdx + '===== PAYLOAD_START =====\n'.length, endIdx);
+}
+
+/**
  * @param {{engine: object, clock: object, idAllocator: object, consentVerification: object, persistenceRepo: object}} deps
  * @returns {Readonly<object>} frozen facade
  */
