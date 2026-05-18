@@ -248,15 +248,16 @@ export function runOperation(verbName, args, consent, ports) {
   let id = null;
   try {
     // §6.1 step 5: assert facts + define rules
-    // D1 invariant + D2 optional caller-supplied id.
+    // D1 invariant: RATIFY MUST NOT advance the ID allocator. The ratify translate path
+    // uses args.elementId directly (already known); the allocator slot would be discarded.
+    // Counter-parity: after N add+ratify cycles for a single category, idAllocator.highWater
+    // equals N (not 2N).
+    // D2: ADD accepts an optional caller-supplied id, validated for prefix-match against
+    // ID_PREFIXES and uniqueness against the EDB. Task 12 will extend the ADD-only check
+    // below to also cover REVISE_PROPOSITION and REVISE_RESOLUTION once those ACTION_LABELS
+    // entries land in tags.js.
     if (verbName !== ACTION_LABELS.RATIFY) {
-      // D2: ADD (and future D12 revise_proposition/revise_resolution verbs) accept an
-      // optional caller-supplied id. Validated for prefix-match against ID_PREFIXES
-      // and uniqueness against the EDB; throw before commit on either failure.
-      if ((verbName === ACTION_LABELS.ADD
-           || verbName === ACTION_LABELS.REVISE_PROPOSITION
-           || verbName === ACTION_LABELS.REVISE_RESOLUTION)
-          && args.id) {
+      if (verbName === ACTION_LABELS.ADD && args.id) {
         const expectedPrefix = ID_PREFIXES[targetShape];
         if (!expectedPrefix || !args.id.startsWith(expectedPrefix)) {
           throw new DomainError({ code: 'ID_PREFIX_MISMATCH', suppliedId: args.id, expectedPrefix: expectedPrefix ?? '<unknown>' });
