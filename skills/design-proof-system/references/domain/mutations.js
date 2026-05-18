@@ -386,8 +386,8 @@ export function runOperation(verbName, args, consent, ports) {
     // allocator and produces an unused id, so `id` is non-null but does NOT identify the
     // withdrawn element — that's in `args.id`. For RATIFY `id` is null (skipped by D1
     // gate at line 354) and `args.elementId` carries the target. For ADD / REVISE /
-    // REVISE_PROPOSITION / REVISE_RESOLUTION / MANAGE_FRICTION the allocator-produced `id`
-    // IS the target.
+    // REVISE_PROPOSITION / REVISE_RESOLUTION the allocator-produced `id` IS the target.
+    // (MANAGE_FRICTION is DESIGNER-only after D1 and thus unreachable from this block.)
     if (consent.source === CONSENT_SOURCES.DESIGN_PARTNER) {
       let targetId;
       if (verbName === ACTION_LABELS.WITHDRAW) {

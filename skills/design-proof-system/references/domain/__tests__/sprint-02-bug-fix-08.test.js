@@ -12,7 +12,7 @@ async function makeRealBridge() {
       counters.set(shape, n);
       return `${shape}_${n}`;
     },
-    seed: (map) => { counters.clear(); for (const [k, v] of Object.entries(map)) counters.set(k, v); },
+    seed: (map) => { counters.clear(); for (const [k, v] of Object.entries(map ?? {})) counters.set(k, v); },
     highWater: (shape) => counters.get(shape) ?? 0,
   };
   const clock = { now: () => 1700000000 };
@@ -513,6 +513,52 @@ describe('AC-2.3 — agent_action present in renderDatalogProjection', () => {
     );
     const projection = bridge.renderDatalogProjection({});
     expect(projection.facts.some(f => f[0] === 'agent_action')).toBe(true);
+  });
+});
+
+// AC-2.4 — agent_action emits on reviseProposition (DESIGN_PARTNER path through the
+// else-branch of the verb-aware targetId resolution). REVISE_PROPOSITION is the only
+// non-ADD verb that DESIGN_PARTNER can invoke via the allocator-id path; this test
+// pins that branch so a future refactor cannot silently drop emission for it.
+describe('AC-2.4 — agent_action emits on reviseProposition with DESIGN_PARTNER consent', () => {
+  it('reviseProposition by agent emits one agent_action row with verb=revise_proposition and the new proposition id', async () => {
+    const bridge = await makeRealBridge();
+    const ev = bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'industry', statement: 'E' },
+      designerConsent,
+    );
+    // Designer authors a base Proposition (no agent_action emitted on this designer step).
+    const prop = bridge.addElement(
+      {
+        idShape: ELEMENT_CATEGORIES.PROPOSITION,
+        statement: 'original wording',
+        grounding: [ev.id],
+        inference_pattern: 'grounds_imply_conclusion',
+        collapse_test: 'ct',
+        reasoning_chain: 'rc',
+      },
+      designerConsent,
+    );
+    // Agent revises the proposition.
+    const revised = bridge.reviseProposition(
+      {
+        supersedes: prop.id,
+        statement: 'revised wording',
+        grounding: [ev.id],
+        inference_pattern: 'grounds_imply_conclusion',
+        collapse_test: 'ct',
+        reasoning_chain: 'rc',
+      },
+      designPartnerConsent,
+    );
+    // Exactly one agent_action row, carrying the NEW proposition id (not the old one).
+    const rows = bridge.queryProof({
+      pattern: ['agent_action', [{ var: 'I' }, { var: 'V' }, { var: 'S' }, { var: 'T' }]],
+    });
+    expect(rows.length).toBe(1);
+    expect(rows[0].I).toBe(revised.id);
+    expect(rows[0].V).toBe(ACTION_LABELS.REVISE_PROPOSITION);
+    expect(rows[0].S).toBe(CONSENT_SOURCES.DESIGN_PARTNER);
   });
 });
 
