@@ -65,7 +65,7 @@ export const CATEGORY_REGISTRY = Object.freeze({
     renderSection: RENDER_SECTIONS.GIVENS,
     closedEnumFields: { source: EVIDENCE_SOURCE_ENUM },
     referenceFields: {},
-    authority: { add: [CONSENT_SOURCES.DESIGNER], revise: [CONSENT_SOURCES.DESIGNER], withdraw: [CONSENT_SOURCES.DESIGNER], ratify: [CONSENT_SOURCES.DESIGNER] },
+    authority: { add: [CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER], revise: [CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER], withdraw: [CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER], ratify: [CONSENT_SOURCES.DESIGNER] },
   }),
   [ELEMENT_CATEGORIES.RULE]: Object.freeze({
     requiredFields: ['statement'],
@@ -101,7 +101,7 @@ export const CATEGORY_REGISTRY = Object.freeze({
     renderSection: RENDER_SECTIONS.LEMMAS,
     closedEnumFields: { inference_pattern: INFERENCE_PATTERNS },
     referenceFields: { grounding: '*' },
-    authority: { add: [CONSENT_SOURCES.DESIGNER], revise: [CONSENT_SOURCES.DESIGNER], withdraw: [CONSENT_SOURCES.DESIGNER], ratify: [CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER] },
+    authority: { add: [CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER], revise: [CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER], withdraw: [CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER], ratify: [CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER] },
   }),
   [ELEMENT_CATEGORIES.RISK]: Object.freeze({
     requiredFields: ['statement', 'basis'],
@@ -113,7 +113,7 @@ export const CATEGORY_REGISTRY = Object.freeze({
     renderSection: RENDER_SECTIONS.PROBLEM,
     closedEnumFields: {},
     referenceFields: { basis: '*' },
-    authority: { add: [CONSENT_SOURCES.DESIGNER], revise: [CONSENT_SOURCES.DESIGNER], withdraw: [CONSENT_SOURCES.DESIGNER], ratify: [CONSENT_SOURCES.DESIGNER] },
+    authority: { add: [CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER], revise: [CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER], withdraw: [CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER], ratify: [CONSENT_SOURCES.DESIGNER] },
   }),
   [ELEMENT_CATEGORIES.RESOLUTION]: Object.freeze({
     requiredFields: ['statement', 'problem_anchor', 'grounding'],
@@ -125,7 +125,7 @@ export const CATEGORY_REGISTRY = Object.freeze({
     renderSection: RENDER_SECTIONS.THEOREMS,
     closedEnumFields: {},
     referenceFields: { problem_anchor: ['concern', 'risk'], grounding: 'proposition' },
-    authority: { add: [CONSENT_SOURCES.DESIGNER], revise: [CONSENT_SOURCES.DESIGNER], withdraw: [CONSENT_SOURCES.DESIGNER], ratify: [CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER] },
+    authority: { add: [CONSENT_SOURCES.DESIGNER], revise: [CONSENT_SOURCES.DESIGNER], withdraw: [CONSENT_SOURCES.DESIGNER], ratify: [CONSENT_SOURCES.DESIGNER] },
   }),
   [ELEMENT_CATEGORIES.FRICTION]: Object.freeze({
     requiredFields: ['friction_shape', 'anchor_a', 'anchor_b', 'disposition'],
@@ -137,7 +137,7 @@ export const CATEGORY_REGISTRY = Object.freeze({
     renderSection: RENDER_SECTIONS.FRICTIONS,
     closedEnumFields: { friction_shape: FRICTION_SHAPES, disposition: FRICTION_DISPOSITIONS },
     referenceFields: { anchor_a: '*', anchor_b: '*' },
-    authority: { add: [CONSENT_SOURCES.SYSTEM, CONSENT_SOURCES.DESIGNER], revise: [CONSENT_SOURCES.DESIGNER], withdraw: [CONSENT_SOURCES.DESIGNER], ratify: [CONSENT_SOURCES.DESIGNER] },
+    authority: { add: [CONSENT_SOURCES.SYSTEM, CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER], revise: [CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER], withdraw: [CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER], ratify: [CONSENT_SOURCES.DESIGNER] },
   }),
   [ELEMENT_CATEGORIES.CONCERN]: Object.freeze({
     requiredFields: ['label'],
@@ -149,7 +149,7 @@ export const CATEGORY_REGISTRY = Object.freeze({
     renderSection: RENDER_SECTIONS.PROBLEM,
     closedEnumFields: {},
     referenceFields: {},
-    authority: { add: [CONSENT_SOURCES.DESIGNER], revise: [CONSENT_SOURCES.DESIGNER], withdraw: [CONSENT_SOURCES.DESIGNER], ratify: [CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER] },
+    authority: { add: [CONSENT_SOURCES.DESIGNER], revise: [CONSENT_SOURCES.DESIGNER], withdraw: [CONSENT_SOURCES.DESIGNER], ratify: [CONSENT_SOURCES.DESIGNER] },
   }),
   [ELEMENT_CATEGORIES.DEFINITION]: Object.freeze({
     requiredFields: ['canonical_name', 'definition'],
@@ -161,7 +161,7 @@ export const CATEGORY_REGISTRY = Object.freeze({
     renderSection: RENDER_SECTIONS.DEFINITIONS,
     closedEnumFields: {},
     referenceFields: {},
-    authority: { add: [CONSENT_SOURCES.DESIGNER], revise: [CONSENT_SOURCES.DESIGNER], withdraw: [CONSENT_SOURCES.DESIGNER], ratify: [CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER] },
+    authority: { add: [CONSENT_SOURCES.DESIGNER], revise: [CONSENT_SOURCES.DESIGNER], withdraw: [CONSENT_SOURCES.DESIGNER], ratify: [CONSENT_SOURCES.DESIGNER] },
   }),
 });
 
