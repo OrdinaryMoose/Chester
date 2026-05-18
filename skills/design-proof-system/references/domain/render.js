@@ -127,6 +127,23 @@ const _ARITIES = Object.freeze({
 //   multi   — true => collect bound vars from every row into an array
 //             false => extract bound vars from the first row only (or undefined)
 //   extract — variable name (or array of names) to pull out of each row
+// Primary-slot field names per primary-declaration predicate. The id slot is
+// always position 0 and is excluded. Remaining slots map positionally to record
+// fields so renderElementDeep can surface the primary-fact contents (statement,
+// source, label, description, ...) on the returned record. When a predicate is
+// absent from this table, the primary fact contributes only the id slot.
+const _PRIMARY_FIELDS = Object.freeze({
+  evidence:         ['source', 'statement'],
+  rule_decl:        ['statement'],
+  permission_decl:  ['statement'],
+  proposition_decl: ['statement', 'inference_pattern'],
+  risk:             ['statement', 'severity'],
+  resolution_decl:  ['statement'],
+  friction:         ['friction_shape', 'anchor_a', 'anchor_b', 'disposition'],
+  definition_decl:  ['canonical_name', 'definition'],
+  concern:          ['label', 'description'],
+});
+
 const _SECONDARY_QUERIES = Object.freeze({
   proposition_decl: [
     { pred: 'proposition_grounding', pattern: [{ var: 'E' }], extract: 'E', field: 'grounding', multi: true },
@@ -165,10 +182,23 @@ export function renderElementDeep(args, readPorts) {
   const withdrawn = _withdrewIdSet(readPorts).has(id);
   for (const [pred, arity] of Object.entries(_ARITIES)) {
     if (arity < 1) continue;
-    const pattern = [id, ...Array(arity - 1).fill('_')];
+    // Bind primary-slot vars (when this predicate has declared field names) so the
+    // returned record carries primary-fact contents like statement/source/label.
+    // Fall back to wildcards when no field mapping exists — preserves prior behavior.
+    const primaryFields = _PRIMARY_FIELDS[pred];
+    const slotPattern = primaryFields && primaryFields.length === arity - 1
+      ? primaryFields.map((_, i) => ({ var: `__pf_${i}` }))
+      : Array(arity - 1).fill('_');
+    const pattern = [id, ...slotPattern];
     const rows = readPorts.query.query([pred, pattern]);
     if (rows.length) {
-      const base = { id, predicate: pred, withdrawn, ...rows[0] };
+      const base = { id, predicate: pred, withdrawn };
+      if (primaryFields && primaryFields.length === arity - 1) {
+        const r0 = rows[0];
+        for (let i = 0; i < primaryFields.length; i++) {
+          base[primaryFields[i]] = r0[`__pf_${i}`];
+        }
+      }
       const queries = _SECONDARY_QUERIES[pred] ?? [];
       for (const q of queries) {
         const satellitePattern = [id, ...q.pattern];

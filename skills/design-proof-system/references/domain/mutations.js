@@ -4,6 +4,7 @@ import { translate, instantiateTemplate } from './translation.js';
 import { verifyConsent, lookupAuthority } from './authority.js';
 import { advance } from './lifecycle.js';
 import { triggerGate as closureTriggerGate } from './closure-policy.js';
+import * as render from './render.js';
 
 // Each entry probes whether `id` belongs to that category by checking the EDB
 // representation predicate at its declared arity. Order matters only for ambiguity
@@ -64,7 +65,7 @@ export const OPERATION_SPECS = Object.freeze({
     translate: (args, id, ts) => translate(args.idShape, args, id, ts),
     postconditions: [],
     clearsTwoYes: true,
-    resultShape: { id: 'string' },
+    resultShape: { id: true, fullRecord: true },
   },
   [ACTION_LABELS.REVISE]: {
     consentCategory: CONSENT_SOURCES.DESIGNER,
@@ -85,7 +86,7 @@ export const OPERATION_SPECS = Object.freeze({
     },
     postconditions: [],
     clearsTwoYes: true,
-    resultShape: { id: 'string' },
+    resultShape: { id: true, fullRecord: true },
   },
   [ACTION_LABELS.WITHDRAW]: {
     consentCategory: CONSENT_SOURCES.DESIGNER,
@@ -340,7 +341,12 @@ export function runOperation(verbName, args, consent, ports) {
   }
 
   // §6.1 step 12: build result
-  const result = spec.resultShape && 'id' in spec.resultShape ? { id } : {};
+  let result = spec.resultShape && 'id' in spec.resultShape ? { id } : {};
+  if (spec.resultShape && spec.resultShape.fullRecord && id) {
+    const readPorts = { query: ports.query, explain: ports.explain };
+    const deep = render.renderElementDeep({ id }, readPorts);
+    if (deep) result = { ...result, ...deep };
+  }
 
   // §6.1 step 13: advance round if applicable
   if (spec.clearsTwoYes) advance(ports);

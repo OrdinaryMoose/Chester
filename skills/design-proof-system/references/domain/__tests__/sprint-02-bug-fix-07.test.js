@@ -267,6 +267,30 @@ describe('D4 — Resolution.problem_anchor accepts concern or risk', () => {
   });
 });
 
+describe('D6 — Mutation result carries full element record', () => {
+  it('AC-6.1 addElement EVIDENCE result includes statement and source', async () => {
+    const bridge = await makeRealBridge();
+    const r = bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'codebase', statement: 'observed' },
+      designerConsent,
+    );
+    expect(r).toMatchObject({ id: expect.stringMatching(/^evidence_/), source: 'codebase', statement: 'observed' });
+  });
+
+  it('AC-6.2 reviseConcern result includes updated description and notes', async () => {
+    const bridge = await makeRealBridge();
+    const c = bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.CONCERN, label: 'X', description: 'Y' },
+      designerConsent,
+    );
+    const revised = bridge.reviseElement(
+      { idShape: ELEMENT_CATEGORIES.CONCERN, supersedes: c.id, label: 'X', description: 'Z' },
+      designerConsent,
+    );
+    expect(revised).toMatchObject({ description: 'Z' });
+  });
+});
+
 describe('D7 — Concern carries optional notes array', () => {
   it('AC-7.1 addConcern with notes emits concern_note facts', async () => {
     const bridge = await makeRealBridge();
