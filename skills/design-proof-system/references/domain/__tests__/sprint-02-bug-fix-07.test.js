@@ -144,7 +144,7 @@ describe('D4 — Resolution.problem_anchor accepts concern or risk', () => {
     expect(captured.message).toMatch(/concern or risk/);
   });
 
-  it('AC-4.2 Risk with a ratified Resolution closes the coverage_gap and permits closure', async () => {
+  it('AC-4.2 closure blocks on unaddressed Risk and unblocks when Resolution anchors it', async () => {
     const bridge = await makeRealBridge();
     const ev = bridge.addElement(
       { idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'industry', statement: 'E' },
@@ -154,6 +154,13 @@ describe('D4 — Resolution.problem_anchor accepts concern or risk', () => {
       { idShape: ELEMENT_CATEGORIES.RISK, statement: 'Risk1', basis: [ev.id] },
       designerConsent,
     );
+    // Pre-resolution: coverage_gap_detected fires for this Risk; closure is blocked.
+    const gapsBefore = bridge.queryProof({ pattern: ['coverage_gap_detected', [{ var: 'C' }]] });
+    expect(gapsBefore.map(r => r.C)).toContain(risk.id);
+    const permittedBefore = bridge.queryProof({ pattern: ['closure_permitted', []] });
+    expect(permittedBefore.length).toBe(0);
+
+    // Add and ratify a Resolution anchoring the Risk.
     const prop = bridge.addElement(
       {
         idShape: ELEMENT_CATEGORIES.PROPOSITION,
@@ -178,27 +185,21 @@ describe('D4 — Resolution.problem_anchor accepts concern or risk', () => {
       { elementId: res.id, source: CONSENT_SOURCES.DESIGNER, source_field: 'designer', claim: 'r' },
       designerConsent,
     );
-    // coverage_gap_detected(C) for this Risk must be empty — effective_addresses(R, risk.id) holds.
-    const gaps = bridge.queryProof({ pattern: ['coverage_gap_detected', [risk.id]] });
+
+    // Post-resolution: coverage_gap_detected(risk.id) is gone; closure permitted.
+    const gapsAfter = bridge.queryProof({ pattern: ['coverage_gap_detected', [risk.id]] });
+    expect(gapsAfter).toEqual([]);
+    const permittedAfter = bridge.queryProof({ pattern: ['closure_permitted', []] });
+    expect(permittedAfter.length).toBe(1);
+  });
+
+  it('AC-4.3 zero active Risks: Risk-coverage gate does not fire, closure permitted', async () => {
+    const bridge = await makeRealBridge();
+    // No Risks authored. Closure depends on no unaddressed Concerns and no other blockers.
+    const gaps = bridge.queryProof({ pattern: ['coverage_gap_detected', [{ var: 'C' }]] });
     expect(gaps).toEqual([]);
     const permitted = bridge.queryProof({ pattern: ['closure_permitted', []] });
     expect(permitted.length).toBe(1);
-  });
-
-  it('AC-4.3 Risk without an addressing Resolution blocks closure via coverage_gap_detected', async () => {
-    const bridge = await makeRealBridge();
-    const ev = bridge.addElement(
-      { idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'industry', statement: 'E' },
-      designerConsent,
-    );
-    const risk = bridge.addElement(
-      { idShape: ELEMENT_CATEGORIES.RISK, statement: 'Risk-uncovered', basis: [ev.id] },
-      designerConsent,
-    );
-    const gaps = bridge.queryProof({ pattern: ['coverage_gap_detected', [{ var: 'C' }]] });
-    expect(gaps.map(r => r.C)).toContain(risk.id);
-    const permitted = bridge.queryProof({ pattern: ['closure_permitted', []] });
-    expect(permitted.length).toBe(0);
   });
 });
 
