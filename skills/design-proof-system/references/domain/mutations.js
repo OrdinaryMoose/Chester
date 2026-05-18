@@ -1,5 +1,5 @@
-import { ACTION_LABELS, CONSENT_SOURCES, ELEMENT_CATEGORIES, FRICTION_DISPOSITIONS } from './tags.js';
-import { verifyArgsShape } from './schema.js';
+import { ACTION_LABELS, CONSENT_SOURCES, ELEMENT_CATEGORIES, FRICTION_DISPOSITIONS, ID_PREFIXES } from './tags.js';
+import { verifyArgsShape, _existsAnyCategory } from './schema.js';
 import { translate, instantiateTemplate } from './translation.js';
 import { verifyConsent, lookupAuthority } from './authority.js';
 import { advance } from './lifecycle.js';
@@ -248,12 +248,26 @@ export function runOperation(verbName, args, consent, ports) {
   let id = null;
   try {
     // §6.1 step 5: assert facts + define rules
-    // D1 invariant: RATIFY MUST NOT advance the ID allocator. The ratify translate path
-    // uses args.elementId directly (already known) — the allocator slot would be discarded.
-    // Counter-parity: after N add+ratify cycles for a single category, idAllocator.highWater
-    // equals N (not 2N).
+    // D1 invariant + D2 optional caller-supplied id.
     if (verbName !== ACTION_LABELS.RATIFY) {
-      id = ports.ids.next(targetShape);
+      // D2: ADD (and future D12 revise_proposition/revise_resolution verbs) accept an
+      // optional caller-supplied id. Validated for prefix-match against ID_PREFIXES
+      // and uniqueness against the EDB; throw before commit on either failure.
+      if ((verbName === ACTION_LABELS.ADD
+           || verbName === ACTION_LABELS.REVISE_PROPOSITION
+           || verbName === ACTION_LABELS.REVISE_RESOLUTION)
+          && args.id) {
+        const expectedPrefix = ID_PREFIXES[targetShape];
+        if (!expectedPrefix || !args.id.startsWith(expectedPrefix)) {
+          throw new DomainError({ code: 'ID_PREFIX_MISMATCH', suppliedId: args.id, expectedPrefix: expectedPrefix ?? '<unknown>' });
+        }
+        if (_existsAnyCategory(ports.query, args.id)) {
+          throw new DomainError({ code: 'DUPLICATE_ID', suppliedId: args.id });
+        }
+        id = args.id;
+      } else {
+        id = ports.ids.next(targetShape);
+      }
     }
     const ts = ports.clock.now();
     const { baseFacts, rules, metaFacts } = spec.translate(args, id, ts);

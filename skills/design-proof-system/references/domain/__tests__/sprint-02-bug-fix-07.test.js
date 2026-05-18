@@ -51,6 +51,42 @@ describe('D1 — RATIFY does not advance the ID allocator', () => {
   });
 });
 
+describe('D2 — Optional caller-supplied id', () => {
+  it('AC-2.1 supplied unique id is used; allocator counter not advanced', async () => {
+    const { bridge, idAllocator } = await makeRealBridge({ withAllocator: true });
+    // Note: ID_PREFIXES[EVIDENCE] is 'evid_'. The fixture allocator currently emits
+    // `${shape}_${n}` (e.g., 'evidence_1') NOT 'evid_1'. Use a caller-supplied id matching
+    // ID_PREFIXES['evidence'] = 'evid_'.
+    const before = idAllocator.highWater(ELEMENT_CATEGORIES.EVIDENCE);
+    const r = bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.EVIDENCE, id: 'evid_5', source: 'industry', statement: 'x' },
+      designerConsent,
+    );
+    expect(r.id).toBe('evid_5');
+    expect(idAllocator.highWater(ELEMENT_CATEGORIES.EVIDENCE)).toBe(before);
+  });
+
+  it('AC-2.2 supplied colliding id throws DUPLICATE_ID', async () => {
+    const bridge = await makeRealBridge();
+    bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.EVIDENCE, id: 'evid_5', source: 'industry', statement: 'x' },
+      designerConsent,
+    );
+    expect(() => bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.EVIDENCE, id: 'evid_5', source: 'industry', statement: 'y' },
+      designerConsent,
+    )).toThrow(/DUPLICATE_ID/);
+  });
+
+  it('AC-2.3 supplied prefix-mismatched id throws ID_PREFIX_MISMATCH', async () => {
+    const bridge = await makeRealBridge();
+    expect(() => bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.EVIDENCE, id: 'cern_1', source: 'industry', statement: 'x' },
+      designerConsent,
+    )).toThrow(/ID_PREFIX_MISMATCH/);
+  });
+});
+
 describe('D3 — presentClosingArgument has its own argShape', () => {
   it('AC-3.1 OPERATION_SPECS[PRESENT_CLOSING_ARGUMENT] carries an inline argShape with no required fields', () => {
     const spec = OPERATION_SPECS[tags.ACTION_LABELS.PRESENT_CLOSING_ARGUMENT];

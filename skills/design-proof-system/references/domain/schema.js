@@ -22,7 +22,7 @@ const _CATEGORY_PROBES_SCHEMA = Object.freeze({
   [ELEMENT_CATEGORIES.DEFINITION]: ['definition_decl', 3],
 });
 
-function _existsAnyCategory(readPort, id) {
+export function _existsAnyCategory(readPort, id) {
   for (const [pred, arity] of Object.values(_CATEGORY_PROBES_SCHEMA)) {
     const pattern = [id, ...Array(arity - 1).fill('_')];
     if (readPort.exists([pred, pattern])) return true;
