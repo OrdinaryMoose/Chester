@@ -5,7 +5,7 @@ import { CATEGORY_REGISTRY } from '../schema.js';
 import { ELEMENT_CATEGORIES, CONSENT_SOURCES } from '../tags.js';
 import * as tags from '../tags.js';
 
-async function makeRealBridge() {
+async function makeRealBridge({ withAllocator = false } = {}) {
   const { Engine } = await import('../../engine/Engine.js');
   const counters = new Map();
   const idAllocator = {
@@ -14,14 +14,42 @@ async function makeRealBridge() {
       counters.set(shape, n);
       return `${shape}_${n}`;
     },
+    highWater: (shape) => counters.get(shape) ?? 0,
   };
   const clock = { now: () => 1700000000 };
   const consentVerification = { verify: () => true };
   const persistenceRepo = { saveState: () => {} };
-  return createDomainBridge({ engine: new Engine(), clock, idAllocator, consentVerification, persistenceRepo });
+  const bridge = createDomainBridge({ engine: new Engine(), clock, idAllocator, consentVerification, persistenceRepo });
+  return withAllocator ? { bridge, idAllocator } : bridge;
 }
 
 const designerConsent = Object.freeze({ source: CONSENT_SOURCES.DESIGNER });
+
+describe('D1 — RATIFY does not advance the ID allocator', () => {
+  // Implementation note: chose option (b) — augment makeRealBridge to optionally return
+  // the allocator. Smaller diff than constructing an inline substrate-based bridge here,
+  // and the existing Engine-backed scaffold already exercises the same code path.
+  it('AC-1.1 add+ratify advances counter exactly once (the ADD)', async () => {
+    const { bridge, idAllocator } = await makeRealBridge({ withAllocator: true });
+    // RATIFY's precondition requires an evidence fact to exist (weak existence probe).
+    bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'industry', statement: 'E' },
+      designerConsent,
+    );
+    // Author a Concern (advances concern counter), then ratify it (must not advance further).
+    const c = bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.CONCERN, label: 'x' },
+      designerConsent,
+    );
+    const before = idAllocator.highWater(ELEMENT_CATEGORIES.CONCERN);
+    bridge.ratifyElement(
+      { elementId: c.id, source: CONSENT_SOURCES.DESIGNER, source_field: 'designer', claim: 'r' },
+      designerConsent,
+    );
+    const after = idAllocator.highWater(ELEMENT_CATEGORIES.CONCERN);
+    expect(after).toBe(before);
+  });
+});
 
 describe('D3 — presentClosingArgument has its own argShape', () => {
   it('AC-3.1 OPERATION_SPECS[PRESENT_CLOSING_ARGUMENT] carries an inline argShape with no required fields', () => {

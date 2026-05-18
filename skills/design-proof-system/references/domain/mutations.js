@@ -248,7 +248,13 @@ export function runOperation(verbName, args, consent, ports) {
   let id = null;
   try {
     // §6.1 step 5: assert facts + define rules
-    id = ports.ids.next(targetShape);
+    // D1 invariant: RATIFY MUST NOT advance the ID allocator. The ratify translate path
+    // uses args.elementId directly (already known) — the allocator slot would be discarded.
+    // Counter-parity: after N add+ratify cycles for a single category, idAllocator.highWater
+    // equals N (not 2N).
+    if (verbName !== ACTION_LABELS.RATIFY) {
+      id = ports.ids.next(targetShape);
+    }
     const ts = ports.clock.now();
     const { baseFacts, rules, metaFacts } = spec.translate(args, id, ts);
     for (const [pred, a] of baseFacts) ports.facts.assertFact(pred, a);
