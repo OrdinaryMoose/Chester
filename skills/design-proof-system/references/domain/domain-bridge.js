@@ -3,7 +3,7 @@
 
 import { CATEGORY_REGISTRY } from './schema.js';
 import { OPERATION_SPECS, runOperation } from './mutations.js';
-import { RULE_TEMPLATES, registerRuleTemplates, getDeclaredEDBPredicates } from './translation.js';
+import { RULE_TEMPLATES, registerRuleTemplates, getDeclaredEDBPredicates, extractAllocatorHighWaterMarks } from './translation.js';
 import * as closurePolicy from './closure-policy.js';
 import * as frictionPolicy from './friction-policy.js';
 import * as render from './render.js';
@@ -189,6 +189,27 @@ export function createDomainBridge({ engine: rawEngine, clock, idAllocator, cons
      * @returns {{stillCloses: boolean, failureReasons: string[]}}
      */
     runCounterfactual: (args) => counterfactual.collapseTest(args, probePorts),
+    // D5 — Atomic serialize/restore with allocator state. Bundles engine snapshot
+    // token + per-category allocator high-water marks so reload preserves uniqueness.
+    serializeWithAllocatorState: (args) => {
+      if (typeof idAllocator.highWater !== 'function' || typeof idAllocator.seed !== 'function') {
+        throw new Error('ALLOCATOR_MISSING_HIGHWATER: IIDAllocator must implement highWater(shape) and seed(counters) for D5 serialize/restore');
+      }
+      const engineToken = engine.snapshot.snapshot();
+      const shapes = Object.values(tags.ELEMENT_CATEGORIES);
+      const allocatorState = Object.fromEntries(shapes.map(s => [s, idAllocator.highWater(s)]));
+      return { engine: engineToken, allocatorState };
+    },
+    loadFromWithAllocatorState: (args, serialized) => {
+      if (typeof idAllocator.seed !== 'function' || typeof idAllocator.highWater !== 'function') {
+        throw new Error('ALLOCATOR_MISSING_HIGHWATER: IIDAllocator must implement highWater(shape) and seed(counters) for D5 serialize/restore');
+      }
+      engine.snapshot.restore(serialized.engine);
+      const counters = serialized.allocatorState ?? {};
+      const hasCounters = Object.keys(counters).length > 0;
+      const effective = hasCounters ? counters : extractAllocatorHighWaterMarks(readPorts);
+      idAllocator.seed(effective);
+    },
   });
 }
 

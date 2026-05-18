@@ -2,8 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { createPayloadChannel, parsePayloadChannel, createDomainBridge } from '../domain-bridge.js';
 import { OPERATION_SPECS } from '../mutations.js';
 import { CATEGORY_REGISTRY } from '../schema.js';
-import { ELEMENT_CATEGORIES, CONSENT_SOURCES } from '../tags.js';
+import { ELEMENT_CATEGORIES, CONSENT_SOURCES, ID_PREFIXES } from '../tags.js';
 import * as tags from '../tags.js';
+import { createInMemorySubstrate } from './_fixtures/inMemorySubstrate.js';
 
 async function makeRealBridge({ withAllocator = false } = {}) {
   const { Engine } = await import('../../engine/Engine.js');
@@ -15,6 +16,11 @@ async function makeRealBridge({ withAllocator = false } = {}) {
       return `${shape}_${n}`;
     },
     highWater: (shape) => counters.get(shape) ?? 0,
+    // D5 — accept a {shape: number} counters map for determinism across save/restore.
+    seed: (map) => {
+      counters.clear();
+      for (const [k, v] of Object.entries(map ?? {})) counters.set(k, v);
+    },
   };
   const clock = { now: () => 1700000000 };
   const consentVerification = { verify: () => true };
@@ -497,5 +503,67 @@ describe('D11 — Pre-ratify vocabulary lint', () => {
       { elementId: c.id, source: CONSENT_SOURCES.DESIGNER },
       designerConsent,
     )).not.toThrow();
+  });
+});
+
+// Helper: substrate-based bridge for AC-5.3 — uses the canonical fixture allocator
+// in inMemorySubstrate that emits ID_PREFIXES[shape] + n. Required because
+// extractAllocatorHighWaterMarks scans the EDB by ID_PREFIXES, which only matches
+// the substrate fixture's id shape, not makeRealBridge's `${shape}_${n}` shape.
+function makeSubstrateBridge() {
+  const substrate = createInMemorySubstrate();
+  const clock = { now: () => 1700000000 };
+  const consentVerification = { verify: () => true };
+  const persistenceRepo = { saveState: () => {} };
+  const bridge = createDomainBridge({
+    engine: substrate,
+    clock,
+    idAllocator: substrate.idAllocator,
+    consentVerification,
+    persistenceRepo,
+  });
+  return { bridge, idAllocator: substrate.idAllocator };
+}
+
+describe('D5 — Atomic serialize/restore with allocator state', () => {
+  it('AC-5.1 serializeWithAllocatorState bundles per-category counters', async () => {
+    const { bridge, idAllocator } = await makeRealBridge({ withAllocator: true });
+    bridge.addElement({ idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'codebase', statement: 'a' }, designerConsent);
+    bridge.addElement({ idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'codebase', statement: 'b' }, designerConsent);
+    const snapshot = bridge.serializeWithAllocatorState({});
+    expect(snapshot.engine).toBeDefined();
+    expect(snapshot.allocatorState[ELEMENT_CATEGORIES.EVIDENCE]).toBe(idAllocator.highWater(ELEMENT_CATEGORIES.EVIDENCE));
+    expect(snapshot.allocatorState[ELEMENT_CATEGORIES.EVIDENCE]).toBe(2);
+  });
+
+  it('AC-5.2 / AC-5.4 round-trip restore preserves allocator high-water', async () => {
+    const { bridge: b1 } = await makeRealBridge({ withAllocator: true });
+    b1.addElement({ idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'codebase', statement: 'a' }, designerConsent);
+    const snapshot = b1.serializeWithAllocatorState({});
+    const { bridge: b2 } = await makeRealBridge({ withAllocator: true });
+    b2.loadFromWithAllocatorState({}, snapshot);
+    const r = b2.addElement({ idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'codebase', statement: 'b' }, designerConsent);
+    // The makeRealBridge fixture allocator emits `${shape}_${n}` so id should be 'evidence_2'.
+    expect(r.id).toBe(`${ELEMENT_CATEGORIES.EVIDENCE}_2`);
+  });
+
+  it('AC-5.3 loadFromWithAllocatorState falls back to EDB scan when allocatorState is empty', () => {
+    // Use the substrate fixture (option a from task plan) because its allocator
+    // emits ID_PREFIXES[shape] + n (e.g., 'evid_1'), which is what
+    // extractAllocatorHighWaterMarks scans for. makeRealBridge's fixture emits
+    // 'evidence_1' which would not match the prefix scan.
+    const { bridge: b1 } = makeSubstrateBridge();
+    const ev = b1.addElement({ idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'codebase', statement: 'a' }, designerConsent);
+    expect(ev.id).toBe(ID_PREFIXES[ELEMENT_CATEGORIES.EVIDENCE] + '1'); // sanity: substrate uses canonical prefixes
+    const snapshot = b1.serializeWithAllocatorState({});
+    // Tamper to legacy shape: empty allocatorState. The load path must fall back
+    // to extractAllocatorHighWaterMarks(readPorts) and recover the counter from EDB.
+    snapshot.allocatorState = {};
+    const { bridge: b2 } = makeSubstrateBridge();
+    b2.loadFromWithAllocatorState({}, snapshot);
+    // After fallback recovery, the next allocation must not collide with the
+    // existing 'evid_1'. The recovered counter is 1, so next() yields 'evid_2'.
+    const r = b2.addElement({ idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'codebase', statement: 'b' }, designerConsent);
+    expect(r.id).toBe(ID_PREFIXES[ELEMENT_CATEGORIES.EVIDENCE] + '2');
   });
 });

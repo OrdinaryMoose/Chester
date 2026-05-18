@@ -1,4 +1,4 @@
-import { ELEMENT_CATEGORIES } from './tags.js';
+import { ELEMENT_CATEGORIES, ID_PREFIXES } from './tags.js';
 
 // Translators — one per element category. Each returns {baseFacts, rules, metaFacts}.
 // baseFacts: Array<[predicate, args]> — assertFact inputs.
@@ -206,4 +206,34 @@ const EDB_PREDICATES = Object.freeze(new Set([
 
 export function getDeclaredEDBPredicates() {
   return new Set(EDB_PREDICATES);
+}
+
+/**
+ * D5: scan EDB for highest numeric suffix per category prefix. Used as the
+ * load-time fallback when allocatorState is empty (legacy-snapshot recovery, AC-5.3).
+ */
+export function extractAllocatorHighWaterMarks(readPorts) {
+  const declPredsByCategory = [
+    [ELEMENT_CATEGORIES.EVIDENCE,    ['evidence',         [{ var: 'I' }, '_', '_']]],
+    [ELEMENT_CATEGORIES.RULE,        ['rule_decl',        [{ var: 'I' }, '_']]],
+    [ELEMENT_CATEGORIES.PERMISSION,  ['permission_decl',  [{ var: 'I' }, '_']]],
+    [ELEMENT_CATEGORIES.PROPOSITION, ['proposition_decl', [{ var: 'I' }, '_', '_']]],
+    [ELEMENT_CATEGORIES.RISK,        ['risk',             [{ var: 'I' }, '_', '_']]],
+    [ELEMENT_CATEGORIES.RESOLUTION,  ['resolution_decl',  [{ var: 'I' }, '_']]],
+    [ELEMENT_CATEGORIES.FRICTION,    ['friction',         [{ var: 'I' }, '_', '_', '_', '_']]],
+    [ELEMENT_CATEGORIES.CONCERN,     ['concern',          [{ var: 'I' }, '_', '_']]],
+    [ELEMENT_CATEGORIES.DEFINITION,  ['definition_decl',  [{ var: 'I' }, '_', '_']]],
+  ];
+  const counters = {};
+  for (const [shape, pattern] of declPredsByCategory) {
+    const prefix = ID_PREFIXES[shape];
+    const rows = readPorts.query.query(pattern);
+    for (const row of rows) {
+      const id = row.I;
+      if (typeof id !== 'string' || !id.startsWith(prefix)) continue;
+      const n = parseInt(id.slice(prefix.length), 10);
+      if (Number.isFinite(n) && (!counters[shape] || n > counters[shape])) counters[shape] = n;
+    }
+  }
+  return counters;
 }
