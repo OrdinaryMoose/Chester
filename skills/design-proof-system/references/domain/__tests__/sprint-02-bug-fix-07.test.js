@@ -428,3 +428,74 @@ describe('D9 — Payload channel utilities', () => {
     expect(parsePayloadChannel('content without start =====\n===== PAYLOAD_END =====')).toBeNull();
   });
 });
+
+describe('D11 — Pre-ratify vocabulary lint', () => {
+  it('AC-11.3 no ratified definitions → ratify passes regardless of text', async () => {
+    const bridge = await makeRealBridge();
+    // RATIFY precondition requires evidence to exist.
+    bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'industry', statement: 'E' },
+      designerConsent,
+    );
+    const c = bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.CONCERN, label: 'reachability' },
+      designerConsent,
+    );
+    expect(() => bridge.ratifyElement(
+      { elementId: c.id, source: CONSENT_SOURCES.DESIGNER },
+      designerConsent,
+    )).not.toThrow();
+  });
+
+  it('AC-11.1 element using uncapitalized variant of ratified canonical term throws VOCABULARY_LINT_VIOLATION', async () => {
+    const bridge = await makeRealBridge();
+    // RATIFY precondition requires evidence to exist.
+    bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'industry', statement: 'E' },
+      designerConsent,
+    );
+    // Author and ratify a Definition with canonical_name 'Reachability'.
+    const d = bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.DEFINITION, canonical_name: 'Reachability', definition: 'the ability...' },
+      designerConsent,
+    );
+    bridge.ratifyElement(
+      { elementId: d.id, source: CONSENT_SOURCES.DESIGNER },
+      designerConsent,
+    );
+    // Add a Concern whose label uses the uncapitalized variant.
+    const c = bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.CONCERN, label: 'uses reachability everywhere' },
+      designerConsent,
+    );
+    expect(() => bridge.ratifyElement(
+      { elementId: c.id, source: CONSENT_SOURCES.DESIGNER },
+      designerConsent,
+    )).toThrow(/VOCABULARY_LINT_VIOLATION/);
+  });
+
+  it('AC-11.2 element using canonical form verbatim passes lint', async () => {
+    const bridge = await makeRealBridge();
+    // RATIFY precondition requires evidence to exist.
+    bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'industry', statement: 'E' },
+      designerConsent,
+    );
+    const d = bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.DEFINITION, canonical_name: 'Reachability', definition: 'x' },
+      designerConsent,
+    );
+    bridge.ratifyElement(
+      { elementId: d.id, source: CONSENT_SOURCES.DESIGNER },
+      designerConsent,
+    );
+    const c = bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.CONCERN, label: 'uses Reachability everywhere' },
+      designerConsent,
+    );
+    expect(() => bridge.ratifyElement(
+      { elementId: c.id, source: CONSENT_SOURCES.DESIGNER },
+      designerConsent,
+    )).not.toThrow();
+  });
+});

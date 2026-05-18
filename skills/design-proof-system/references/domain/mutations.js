@@ -32,6 +32,39 @@ function _resolveElementCategory(id, queryPort) {
   return null;
 }
 
+// D11 pre-ratify vocabulary lint gate. Reads ratified `definition/3` rows (derived
+// once a Definition element is ratified by per-element RULE_TEMPLATES). For each
+// canonical term, scans the target element's string-valued fields for a case-insensitive
+// substring match that is NOT the exact canonical form — i.e. a case variant — and
+// returns the first violation it finds. Returns null when no definitions are ratified
+// (AC-11.3) or when every field is clean.
+function _vocabularyLintCheck(elementId, ports) {
+  const ratifiedDefs = ports.query.query(['definition', [{ var: 'D' }, { var: 'T' }, { var: 'X' }]]);
+  if (ratifiedDefs.length === 0) return null;
+  const canonicalTerms = ratifiedDefs.map(r => r.T).filter(t => typeof t === 'string' && t.length > 0);
+  if (canonicalTerms.length === 0) return null;
+
+  const readPorts = { query: ports.query, explain: ports.explain };
+  const record = render.renderElementDeep({ id: elementId }, readPorts);
+  if (!record) return null;
+
+  for (const [field, value] of Object.entries(record)) {
+    if (typeof value !== 'string' || value.length === 0) continue;
+    for (const term of canonicalTerms) {
+      if (term === value) continue; // exact match of the entire field — skip (likely the Definition's own canonical_name field)
+      const lowerValue = value.toLowerCase();
+      const lowerTerm = term.toLowerCase();
+      const idx = lowerValue.indexOf(lowerTerm);
+      if (idx === -1) continue;
+      const matchedSubstring = value.slice(idx, idx + term.length);
+      if (matchedSubstring !== term) {
+        return { field, value: matchedSubstring, canonicalTerm: term };
+      }
+    }
+  }
+  return null;
+}
+
 export class DomainError extends Error {
   constructor(payload) {
     super(payload.message ?? payload.code);
@@ -314,6 +347,14 @@ export function runOperation(verbName, args, consent, ports) {
     for (const pat of spec.postconditions) {
       if (!ports.query.exists([pat.predicate, Array(pat.arity).fill('_')])) {
         throw new DomainError({ code: 'POSTCONDITION_FAILED', predicate: pat.predicate });
+      }
+    }
+
+    // §6.1 step 8b (D11): pre-ratify vocabulary lint. Blocking gate before customPostCheck.
+    if (verbName === ACTION_LABELS.RATIFY) {
+      const violation = _vocabularyLintCheck(args.elementId, ports);
+      if (violation) {
+        throw new DomainError({ code: 'VOCABULARY_LINT_VIOLATION', ...violation });
       }
     }
 
