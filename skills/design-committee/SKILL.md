@@ -1,7 +1,7 @@
 ---
 name: design-committee
 description: Convene a six-role deliberation team for ad-hoc design consultations. Use whenever the designer wants independent multi-perspective review of a meta-architecture question, a cross-cutting design choice, a charter or boundary call, or any decision where framing bias is a real risk — even if they don't explicitly use the word "committee". Triggers on "convene the committee", "ask the committee", "committee deliberation", "four-pole review", "/design-committee", and any natural-language ask for a structured multi-perspective consultation on a design question.
-version: v0002
+version: v0003
 ---
 
 # Design Committee
@@ -54,12 +54,16 @@ non-dispatched (team-lead is the calling agent, designer is the human).
 
 **Dispatched support roles** — agents at `agents/design-committee-{role}.md`:
 
-- **Arbiter** — proof-state custodian. The sole role authorized to read or mutate the
-  structured state the Committee is bound to this invocation (when the designer has
-  named a state source — for example, a design-proof-system simulation). Operates on
-  element CRUD, verbatim retrieval, closure-gate checks, friction detection, counter-
-  factual probes, and an audit trail of mutations. **Hard prohibitions:** no design
-  opinion, no research, no admin file ops, no element proposals.
+- **Arbiter** — proof-state custodian. Default-bound to the live design-proof-system
+  code (engine + domain bridge at `skills/design-proof-system/references/`); custom
+  instructions from the team-lead or the project CLAUDE.md may redirect the binding for
+  a specific invocation. The sole role authorized to read or mutate proof state.
+  Operates the actual engine and domain code — element CRUD via the bridge, verbatim
+  retrieval from the FactStore, closure-gate checks via `presentClosingArgument`,
+  friction detection via the bridge, counterfactual probes via snapshot-and-discard, and
+  an audit trail of mutations. Never simulates semantics from prose. **Hard
+  prohibitions:** no design opinion, no research, no admin file ops, no element
+  proposals.
 - **Researcher** — research and administrative tasks. Codebase research, prior-art
   research, industry research, document reading, file operations beyond proof state,
   multi-source consolidation. **Hard prohibitions:** no proof mutations, no design
@@ -81,10 +85,14 @@ Confirm with the designer what the Committee is being asked to deliberate. Get a
 three things before convening:
 
 - **The question** — what decision the Committee is producing input for. One sentence.
-- **State source (if any)** — whether the Committee is bound to a structured state source
-  the Arbiter should operate on. If yes, name the source (for example, a design-proof-
-  system simulation path or a specific file the Arbiter is custodian of). If no, the
-  Arbiter still convenes but its operations are no-op for this invocation.
+- **State source** — the Arbiter's default state source is the live design-proof-system
+  code (engine + domain bridge at `skills/design-proof-system/references/`). You do not
+  need to name a source for the default to apply. Capture an explicit source here only
+  when one of these holds: the project's custom instructions (CLAUDE.md) name a
+  different state source the Arbiter should use; the designer wants this specific
+  invocation bound to a non-default source for a one-off reason; the default code is
+  known to be unreachable from this project. In all other cases, leave this field at
+  "default (design-proof-system)" and let the Arbiter resolve the path at convene time.
 - **Round shape** — single-round (default) or multi-round. Single-round is request → all
   six reply → consolidation → designer. Multi-round (R1 proposals + cross-DM, R2 finals
   + per-pole positions, risk-weighted consolidation) is appropriate for charter calls and
@@ -229,8 +237,9 @@ When the Committee is bound to a structured state source, the forbidden internal
 vocabulary tokens are the IDs and state-machine vocabulary specific to that source — for
 example, element IDs, rule IDs, dimension names, scoring fields. The team-lead applies a
 mechanical regex pass at consolidation for tokens it can name, plus the read-aloud test
-as the catch-all. When no state source is bound, the read-aloud test is the only gate
-the team-lead needs to apply.
+as the catch-all. The Arbiter always runs against a state source by default (the
+design-proof-system code), so the structured-state branch is the live one unless custom
+instructions override to a source with a different vocabulary.
 
 ## Scope of This Skill
 
@@ -244,16 +253,18 @@ format, the Translation Gate at consolidation, the teardown.
   cross-DM authorization rules live in a follow-up brief.
 - **Pole-only sub-invocations.** A designer asking for just-Conservator on a single
   choice is plausible; the skill does not yet expose `--pole=conservator`.
-- **Design-proof-system runtime wire-up.** When the Arbiter is bound to a live design-
-  proof-system instance, the specific tooling and state-handoff semantics are deferred.
-  The Arbiter agent file describes the contract abstractly so wire-up can be added
-  later without churning the contract.
 
 ## Standalone Invocability
 
 The skill has no entry condition. It does not require a sprint context, a master-plan
-breadcrumb, a config file, or a state source. Convene from any context. The Arbiter's
-operations no-op when no state source is named; the other roles do their work regardless.
+breadcrumb, or a config file. Convene from any context. The Arbiter operates the
+design-proof-system code by default (resolving the path at convene time per its agent
+file's binding precedence — custom instructions, repo-local, plugin cache); the other
+roles do their work regardless of state-source status. If the design-proof-system code
+cannot be reached and no custom-instructions override resolves to a reachable source,
+the Arbiter stands down explicitly in its first reply and the other five roles still
+convene and contribute — the Committee remains useful, just without proof-state
+operations for that invocation.
 
 ## Why Parallel Pole Agent Files (Rather Than Reuse)
 

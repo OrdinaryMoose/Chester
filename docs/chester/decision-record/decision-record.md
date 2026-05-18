@@ -2214,3 +2214,22 @@ artifact_refs:
   - working/20260517-01-create-design-committee/design/20260517-01-create-design-committee-design-00.md
   - working/20260517-01-create-design-committee/summary/20260517-01-create-design-committee-summary-00.md
 ---
+
+---
+id: dr-20260517-26-arbiter-explicit-default-binding-no-simulation
+date: 2026-05-17
+sprint: 20260517-01-create-design-committee
+stage: execute-write
+title: Arbiter explicitly defaults to design-proof-system; simulation language removed
+decision: The design-committee Arbiter binds by default to the live design-proof-system code (engine + domain bridge at `skills/design-proof-system/references/`) and operates that actual code; custom instructions from the team-lead's convening message or the project CLAUDE.md may redirect the binding for a specific invocation, otherwise the default holds. Simulation as a fallback shape is removed entirely — the Arbiter does not simulate proof semantics from prose, spec, or memory; if the engine and domain code cannot be reached and no custom-instructions override resolves to a reachable source, the Arbiter stands down explicitly and the other five roles still convene.
+rationale: The v0001/v0002 contract left the Arbiter abstract ("the state source the team-lead names per invocation") with three permitted binding shapes — live design-proof-system, spec-only simulation, structured file — and a default of no-op when no source was named. In practice this leaked: in StoryDesigner the Arbiter kept binding to the wrong proof system because the project CLAUDE.md still documented the older Committee convention as the default source, and the abstract contract had no opinion to override that default. Worse, the spec-only-simulation shape encouraged the Arbiter to reason about proof outcomes from prose when the live code was the actual source of truth. Making design-proof-system the explicit default (with a clear custom-instructions override path) and removing simulation as a shape entirely tightens the contract to: the Arbiter operates real code or stands down — never improvises. This sets the pattern: when an agent's contract has a canonical operational target, make that target the default explicitly rather than leaving the agent abstract with the target as one of several shapes, because abstraction without an opinion lets inherited project context override the intended default silently.
+alternatives:
+  - Keep the abstract contract and require every project's CLAUDE.md to name the Arbiter's state source explicitly — rejected because the binding-leak case (StoryDesigner) demonstrates that project CLAUDE.md often carries stale defaults from prior conventions; an explicit Chester-side default with an override path is more reliable than a per-project requirement.
+  - Default to design-proof-system but keep the spec-only-simulation shape as a fallback when the code is unreachable — rejected because simulation produces results that look identical in shape to engine-grounded results but carry no Fact-status warrant, and the discipline boundary between "ran the code" and "reasoned from prose" must be sharp; standing down is the honest fallback when the actual code is unreachable.
+  - Bind the Arbiter to a specific design-proof-system version pinned in the agent file — rejected because the design-proof-system code path is environment-dependent (repo-local during development, plugin cache during normal use); the agent file specifies the resolution precedence (custom instructions → repo-local → plugin cache) rather than a fixed path.
+tags: [architecture, convention, skill]
+supersedes: dr-20260517-22-arbiter-state-source-binding-with-abstract-contract
+artifact_refs:
+  - working/20260517-01-create-design-committee/design/20260517-01-create-design-committee-design-00.md
+  - working/20260517-01-create-design-committee/summary/20260517-01-create-design-committee-summary-00.md
+---
