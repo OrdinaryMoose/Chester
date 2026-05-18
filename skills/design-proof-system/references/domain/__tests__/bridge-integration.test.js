@@ -9,7 +9,7 @@ export function makeAdapters({ failSaveOnce = false } = {}) {
   // Deterministic per-shape counter so tests can reference predictable ids like 'evid_1'.
   // Each call to next(shape) yields ID_PREFIXES[shape] + <n>, with n monotonically increasing
   // per shape. Prefix table is the single source of truth pinned in tags.js (sprint-02-bug-fix-07).
-  const counters = {};
+  let counters = {};
   return {
     clock: { now: () => 1700000000 },
     idAllocator: {
@@ -17,7 +17,10 @@ export function makeAdapters({ failSaveOnce = false } = {}) {
         counters[shape] = (counters[shape] ?? 0) + 1;
         return ID_PREFIXES[shape] + counters[shape];
       },
-      seed: (map) => { Object.assign(counters, map); },
+      // Replace semantics — mirrors the substrate fixture's idAllocator.seed
+      // so D5's atomic restore path produces identical counter state regardless
+      // of which fixture allocator the test uses.
+      seed: (map) => { counters = { ...map }; },
       highWater: (shape) => counters[shape] ?? 0,
     },
     consentVerification: { verify: () => true },
