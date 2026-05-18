@@ -309,6 +309,20 @@ describe('D10 — renderElementDeep returns full element record', () => {
     expect(bridge.renderElementDeep({ id: c1.id }).notes).toEqual(['obligation X']);
     expect(bridge.renderElementDeep({ id: c2.id }).notes).toEqual([]);
   });
+
+  it('AC-10.4 Permission record includes relieves (regression: arity-3 satellite)', async () => {
+    const bridge = await makeRealBridge();
+    const rule = bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.RULE, statement: 'rule body' },
+      designerConsent,
+    );
+    const perm = bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.PERMISSION, statement: 'perm body', relieves: rule.id },
+      designerConsent,
+    );
+    const record = bridge.renderElementDeep({ id: perm.id });
+    expect(record.relieves).toBe(rule.id);
+  });
 });
 
 describe('D9 — Payload channel utilities', () => {

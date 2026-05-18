@@ -120,34 +120,39 @@ const _ARITIES = Object.freeze({
 // the returned record carries the full element body — grounding, anchors,
 // notes, scope, etc. Each descriptor:
 //   pred    — satellite predicate name
-//   arity   — its arity (id + (arity-1) bound variables)
-//   varName — string for arity-2, array of strings for arity≥3
+//   pattern — query pattern after the leading id slot. Strings (`'_'`) become
+//             positional wildcards; objects with a `var` key bind that slot.
+//             Pattern length must equal arity-1.
 //   field   — output field name on the record
-//   multi   — true => collect all rows into an array; false => first row's value
+//   multi   — true => collect bound vars from every row into an array
+//             false => extract bound vars from the first row only (or undefined)
+//   extract — variable name (or array of names) to pull out of each row
 const _SECONDARY_QUERIES = Object.freeze({
   proposition_decl: [
-    { pred: 'proposition_grounding', arity: 2, varName: 'E', field: 'grounding', multi: true },
-    { pred: 'collapse_test',         arity: 2, varName: 'T', field: 'collapse_test',  multi: false },
-    { pred: 'reasoning_chain',       arity: 2, varName: 'T', field: 'reasoning_chain', multi: false },
-    { pred: 'rejected_alternative',  arity: 3, varName: ['A', 'R'], field: 'rejected_alternative', multi: true },
+    { pred: 'proposition_grounding', pattern: [{ var: 'E' }], extract: 'E', field: 'grounding', multi: true },
+    { pred: 'collapse_test',         pattern: [{ var: 'T' }], extract: 'T', field: 'collapse_test',  multi: false },
+    { pred: 'reasoning_chain',       pattern: [{ var: 'T' }], extract: 'T', field: 'reasoning_chain', multi: false },
+    { pred: 'rejected_alternative',  pattern: [{ var: 'A' }, { var: 'R' }], extract: ['A', 'R'], field: 'rejected_alternative', multi: true },
   ],
   resolution_decl: [
-    { pred: 'resolution_anchor',    arity: 2, varName: 'C', field: 'problem_anchor', multi: false },
-    { pred: 'resolution_grounding', arity: 2, varName: 'E', field: 'grounding',     multi: true },
+    { pred: 'resolution_anchor',    pattern: [{ var: 'C' }], extract: 'C', field: 'problem_anchor', multi: false },
+    { pred: 'resolution_grounding', pattern: [{ var: 'E' }], extract: 'E', field: 'grounding',     multi: true },
   ],
   risk: [
-    { pred: 'risk_basis', arity: 2, varName: 'E', field: 'basis', multi: true },
+    { pred: 'risk_basis', pattern: [{ var: 'E' }], extract: 'E', field: 'basis', multi: true },
   ],
   concern: [
-    { pred: 'concern_status', arity: 2, varName: 'S', field: 'status', multi: false },
-    { pred: 'concern_note',   arity: 2, varName: 'N', field: 'notes',  multi: true },
+    { pred: 'concern_status', pattern: [{ var: 'S' }], extract: 'S', field: 'status', multi: false },
+    { pred: 'concern_note',   pattern: [{ var: 'N' }], extract: 'N', field: 'notes',  multi: true },
   ],
   definition_decl: [
-    { pred: 'definition_scope', arity: 2, varName: 'S', field: 'scope', multi: false },
+    { pred: 'definition_scope', pattern: [{ var: 'S' }], extract: 'S', field: 'scope', multi: false },
   ],
   permission_decl: [
-    { pred: 'permission_scope', arity: 2, varName: 'S', field: 'scope', multi: false },
-    { pred: 'permission',       arity: 2, varName: 'R', field: 'relieves', multi: false },
+    // permission_scope is arity 2: (id, scope). permission is arity 3: (id, statement, relieves) —
+    // skip the statement slot with a wildcard and extract only `relieves`.
+    { pred: 'permission_scope', pattern: [{ var: 'S' }], extract: 'S', field: 'scope', multi: false },
+    { pred: 'permission',       pattern: ['_', { var: 'R' }], extract: 'R', field: 'relieves', multi: false },
   ],
 });
 
@@ -166,24 +171,18 @@ export function renderElementDeep(args, readPorts) {
       const base = { id, predicate: pred, withdrawn, ...rows[0] };
       const queries = _SECONDARY_QUERIES[pred] ?? [];
       for (const q of queries) {
-        const varBindings = Array.isArray(q.varName)
-          ? q.varName.map(v => ({ var: v }))
-          : [{ var: q.varName }];
-        const satellitePattern = [id, ...varBindings];
+        const satellitePattern = [id, ...q.pattern];
         const satelliteRows = readPorts.query.query([q.pred, satellitePattern]);
+        const extractRow = (r) => Array.isArray(q.extract)
+          ? q.extract.map(v => r[v])
+          : r[q.extract];
         if (q.multi) {
-          base[q.field] = satelliteRows.map(r => Array.isArray(q.varName)
-            ? q.varName.map(v => r[v])
-            : r[q.varName]);
+          // Empty satelliteRows yields [] naturally — callers can iterate safely.
+          base[q.field] = satelliteRows.map(extractRow);
         } else {
-          base[q.field] = satelliteRows.length > 0
-            ? (Array.isArray(q.varName) ? q.varName.map(v => satelliteRows[0][v]) : satelliteRows[0][q.varName])
-            : undefined;
+          base[q.field] = satelliteRows.length > 0 ? extractRow(satelliteRows[0]) : undefined;
         }
       }
-      // Default empty array for notes when no concern_note facts exist — caller
-      // expects `notes: []` not undefined so consumers can iterate safely.
-      if (pred === 'concern' && !Array.isArray(base.notes)) base.notes = [];
       return base;
     }
   }
