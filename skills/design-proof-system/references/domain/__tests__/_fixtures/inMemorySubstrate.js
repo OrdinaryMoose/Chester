@@ -2,6 +2,8 @@
 // Engine Spec §4.1–§4.8. NOT a mock — implements the contracts correctly.
 // Used by every Domain test (Spec Testing Strategy).
 
+import { ID_PREFIXES } from '../../tags.js';
+
 export function createInMemorySubstrate() {
   const baseFacts = new Map(); // predicate -> Set<JSON args>
   const rules = new Map();     // ruleId -> {head, body, metadata}
@@ -231,7 +233,23 @@ export function createInMemorySubstrate() {
   }
   function _resetTxBuffer() { txBuffer.asserts.length = txBuffer.retracts.length = txBuffer.defines.length = txBuffer.undefines.length = 0; }
 
-  return { facts, rules: rulesPort, query: queryPort, snapshot: snapshotPort, explain: explainFn, tx };
+  // Deterministic, per-shape id allocator following the abbreviated prefix convention
+  // pinned by sprint-02-bug-fix-07 (ID_PREFIXES in tags.js). Exposed on the substrate so
+  // tests that need a canonical allocator can read it from the fixture rather than
+  // re-declaring one inline. `seed(map)` accepts a {shape: number} counters map for
+  // determinism across save/restore tests; `highWater(shape)` returns the current
+  // counter (0 if unseen).
+  const idAllocator = {
+    counters: {},
+    next(shape) {
+      this.counters[shape] = (this.counters[shape] ?? 0) + 1;
+      return ID_PREFIXES[shape] + this.counters[shape];
+    },
+    seed(map) { this.counters = { ...map }; },
+    highWater(shape) { return this.counters[shape] ?? 0; },
+  };
+
+  return { facts, rules: rulesPort, query: queryPort, snapshot: snapshotPort, explain: explainFn, tx, idAllocator };
 }
 
 export function createRecordingSubstrate() {
