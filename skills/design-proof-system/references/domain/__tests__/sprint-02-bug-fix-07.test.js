@@ -690,8 +690,11 @@ describe('D12 — reviseProposition and reviseResolution', () => {
       designerConsent,
     );
     expect(revised.id).toMatch(/^resolution/);
-    const twoYes = bridge.queryProof({ pattern: ['two_yes_complete', [revised.id]] });
-    expect(twoYes.length).toBe(1);
+    const resolutionDerived = bridge.queryProof({ pattern: ['resolution', [revised.id, { var: 'S' }]] });
+    expect(resolutionDerived.length).toBe(1);
+    const approvalRows = bridge.queryProof({ pattern: ['approved', [revised.id, { var: 'SRC' }, { var: 'T' }]] });
+    expect(approvalRows.length).toBe(1);
+    expect(approvalRows[0].SRC).toBe('designer');
   });
 
   it('AC-12.3 wording cleanup using new revise verbs costs at most one operation per element', async () => {
@@ -749,8 +752,11 @@ describe('D12 — reviseProposition and reviseResolution', () => {
     );
     expect(newProp.id).toBeDefined();
     expect(newRes.id).toBeDefined();
-    // Both ratified atomically — no separate ratify call needed.
+    // Proposition is ratified atomically (dual-partner) — no separate ratify call needed.
     expect(bridge.queryProof({ pattern: ['two_yes_complete', [newProp.id]] }).length).toBe(1);
-    expect(bridge.queryProof({ pattern: ['two_yes_complete', [newRes.id]] }).length).toBe(1);
+    // Resolution carries designer-only approval (D3); two_yes_complete is not asserted.
+    const newResApprovals = bridge.queryProof({ pattern: ['approved', [newRes.id, { var: 'SRC' }, { var: 'T' }]] });
+    expect(newResApprovals.length).toBe(1);
+    expect(newResApprovals[0].SRC).toBe('designer');
   });
 });

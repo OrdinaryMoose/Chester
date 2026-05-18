@@ -152,7 +152,7 @@ export const OPERATION_SPECS = Object.freeze({
     resultShape: { id: true, fullRecord: true },
   },
   [ACTION_LABELS.REVISE_RESOLUTION]: {
-    consentCategory: [CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER],
+    consentCategory: [CONSENT_SOURCES.DESIGNER],
     preconditions: [],
     idShape: ELEMENT_CATEGORIES.RESOLUTION,
     translate: (args, id, ts) => {
@@ -161,9 +161,7 @@ export const OPERATION_SPECS = Object.freeze({
         baseFacts: [
           ...inner.baseFacts,
           ['approved', [id, CONSENT_SOURCES.DESIGNER, ts]],
-          ['approved', [id, CONSENT_SOURCES.DESIGN_PARTNER, ts]],
           ['two_yes', [id, CONSENT_SOURCES.DESIGNER]],
-          ['two_yes', [id, CONSENT_SOURCES.DESIGN_PARTNER]],
         ],
         rules: inner.rules,
         metaFacts: [...(inner.metaFacts ?? []), ['superseded', [id, args.supersedes]]],
