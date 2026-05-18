@@ -1,5 +1,15 @@
 import { describe, it, expect } from 'vitest';
 import { createPayloadChannel, parsePayloadChannel } from '../domain-bridge.js';
+import { OPERATION_SPECS } from '../mutations.js';
+import * as tags from '../tags.js';
+
+describe('D3 — presentClosingArgument has its own argShape', () => {
+  it('AC-3.1 OPERATION_SPECS[PRESENT_CLOSING_ARGUMENT] carries an inline argShape with no required fields', () => {
+    const spec = OPERATION_SPECS[tags.ACTION_LABELS.PRESENT_CLOSING_ARGUMENT];
+    expect(spec.argShape).toBeDefined();
+    expect(spec.argShape).toMatchObject({ requiredFields: [], closedEnumFields: {} });
+  });
+});
 
 describe('D9 — Payload channel utilities', () => {
   it('AC-9.1 round-trips content through createPayloadChannel + parsePayloadChannel', () => {

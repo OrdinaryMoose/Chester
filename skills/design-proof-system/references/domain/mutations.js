@@ -164,6 +164,7 @@ export const OPERATION_SPECS = Object.freeze({
     consentCategory: CONSENT_SOURCES.DESIGNER,
     preconditions: [],
     idShape: ELEMENT_CATEGORIES.EVIDENCE,
+    argShape: { requiredFields: [], closedEnumFields: {}, label: 'present_closing_argument' },
     translate: () => ({ baseFacts: [['closure_pending', []]], rules: [], metaFacts: [] }),
     postconditions: [],
     customPostCheck: (args, readPorts) => closureTriggerGate(args, readPorts),
