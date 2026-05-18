@@ -12,13 +12,19 @@ import * as tags from './tags.js';
 import { validateOperationSpecs, validateCategoryRegistry, validateRuleTemplates, DomainBootError } from './boot-validators.js';
 import { normalizeEngine } from './engine-port-adapter.js';
 
+// D9 — payload channel sentinels. Single source of truth for both helpers and
+// (indirectly) the VOCABULARY.md documentation. Changing these requires updating
+// the doc in lockstep — the test suite does not couple to these constants directly.
+const PAYLOAD_START = '===== PAYLOAD_START =====';
+const PAYLOAD_END = '===== PAYLOAD_END =====';
+
 /**
  * D9 — Stable payload channel for transport-fragile structured content. Wraps a payload
  * in sentinel delimiters so receiving agents can extract the content without depending
  * on markdown rendering.
  */
 export function createPayloadChannel(content) {
-  return `===== PAYLOAD_START =====\n${content}\n===== PAYLOAD_END =====`;
+  return `${PAYLOAD_START}\n${content}\n${PAYLOAD_END}`;
 }
 
 /**
@@ -27,10 +33,12 @@ export function createPayloadChannel(content) {
  */
 export function parsePayloadChannel(raw) {
   if (typeof raw !== 'string') return null;
-  const startIdx = raw.indexOf('===== PAYLOAD_START =====\n');
-  const endIdx = raw.indexOf('\n===== PAYLOAD_END =====');
+  const startToken = `${PAYLOAD_START}\n`;
+  const endToken = `\n${PAYLOAD_END}`;
+  const startIdx = raw.indexOf(startToken);
+  const endIdx = raw.indexOf(endToken);
   if (startIdx === -1 || endIdx === -1 || endIdx <= startIdx) return null;
-  return raw.slice(startIdx + '===== PAYLOAD_START =====\n'.length, endIdx);
+  return raw.slice(startIdx + startToken.length, endIdx);
 }
 
 /**

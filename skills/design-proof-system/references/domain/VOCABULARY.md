@@ -310,3 +310,5 @@ For payloads whose content is transport-fragile (typed-element addition payloads
 - `parsePayloadChannel(raw: string): string | null` — extracts content between sentinels, or null on malformed input
 
 Format: `===== PAYLOAD_START =====\n<content>\n===== PAYLOAD_END =====`.
+
+Receiving agents call `parsePayloadChannel` on incoming messages whose intended payload may have been transformed. The sentinel format is stable and verified by the D9 round-trip tests.
