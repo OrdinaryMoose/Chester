@@ -204,7 +204,18 @@ export function createDomainBridge({ engine: rawEngine, clock, idAllocator, cons
       if (typeof idAllocator.seed !== 'function' || typeof idAllocator.highWater !== 'function') {
         throw new Error('ALLOCATOR_MISSING_HIGHWATER: IIDAllocator must implement highWater(shape) and seed(counters) for D5 serialize/restore');
       }
-      engine.snapshot.restore(serialized.engine);
+      // If engine.snapshot.restore throws on a malformed token, the bridge is
+      // left in a partially-loaded state. Re-throw with a named error so the
+      // caller knows the bridge state is undefined; do NOT proceed to seed the
+      // allocator against an inconsistent engine.
+      try {
+        engine.snapshot.restore(serialized.engine);
+      } catch (cause) {
+        const err = new Error('LOAD_FAILED_BRIDGE_INCONSISTENT: engine.snapshot.restore threw; bridge state is now indeterminate');
+        err.code = 'LOAD_FAILED_BRIDGE_INCONSISTENT';
+        err.cause = cause;
+        throw err;
+      }
       const counters = serialized.allocatorState ?? {};
       const hasCounters = Object.keys(counters).length > 0;
       const effective = hasCounters ? counters : extractAllocatorHighWaterMarks(readPorts);

@@ -4,11 +4,13 @@ import { ELEMENT_CATEGORIES, CONSENT_SOURCES, RENDER_SECTIONS, INFERENCE_PATTERN
 // Private partial mirror of mutations.js's `_CATEGORY_PROBES`. Cannot import directly
 // (circular: mutations.js imports verifyArgsShape from schema.js). Keyed by
 // ELEMENT_CATEGORIES string value (e.g. 'rule', 'permission') → [declaration
-// predicate, arity]. MUST stay synchronized with `_CATEGORY_PROBES` in mutations.js —
-// any time a category's declaration predicate or arity changes, BOTH tables update
-// in the same commit. Probe-table sync structural test (DEF-7) is deferred to a
-// future design pass per sprint-02-bug-fix-0306 spec Non-Goals; until that test
-// lands, the discipline is human-enforced.
+// predicate, arity]. MUST stay synchronized with `_CATEGORY_PROBES` in mutations.js
+// AND `declPredsByCategory` in translation.js (the latter used by D5's
+// extractAllocatorHighWaterMarks for legacy-snapshot allocator recovery) — any
+// time a category's declaration predicate or arity changes, ALL THREE tables
+// update in the same commit. Probe-table sync structural test (DEF-7) is
+// deferred to a future design pass per sprint-02-bug-fix-0306 spec Non-Goals;
+// until that test lands, the discipline is human-enforced.
 // Wildcard '*' (handled in _existsCategory) iterates all entries.
 const _CATEGORY_PROBES_SCHEMA = Object.freeze({
   [ELEMENT_CATEGORIES.EVIDENCE]: ['evidence', 3],
