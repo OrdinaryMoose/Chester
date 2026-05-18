@@ -43,6 +43,15 @@ function _existsCategory(readPort, id, categoryKey) {
   return readPort.exists([pred, pattern]);
 }
 
+// D4: probe membership across multiple candidate categories. Returns true if id exists
+// in any of the listed categories. Used by verifyArgsShape for array-valued referenceFields.
+function _existsOneOf(readPort, id, categoryKeys) {
+  for (const key of categoryKeys) {
+    if (_existsCategory(readPort, id, key)) return true;
+  }
+  return false;
+}
+
 export const CATEGORY_REGISTRY = Object.freeze({
   [ELEMENT_CATEGORIES.EVIDENCE]: Object.freeze({
     requiredFields: ['source', 'statement'],
@@ -113,7 +122,7 @@ export const CATEGORY_REGISTRY = Object.freeze({
     idShape: ELEMENT_CATEGORIES.RESOLUTION,
     renderSection: RENDER_SECTIONS.THEOREMS,
     closedEnumFields: {},
-    referenceFields: { problem_anchor: 'concern', grounding: 'proposition' },
+    referenceFields: { problem_anchor: ['concern', 'risk'], grounding: 'proposition' },
     authority: { add: [CONSENT_SOURCES.DESIGNER], revise: [CONSENT_SOURCES.DESIGNER], withdraw: [CONSENT_SOURCES.DESIGNER], ratify: [CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER] },
   }),
   [ELEMENT_CATEGORIES.FRICTION]: Object.freeze({
@@ -212,10 +221,14 @@ export function verifyArgsShape(args, shapeOrDescriptor, readPort = null) {
       if (!(field in args)) continue;
       const raw = args[field];
       const ids = Array.isArray(raw) ? raw : [raw];
+      const isArrayConstraint = Array.isArray(categoryConstraint);
       for (const id of ids) {
-        if (!_existsCategory(readPort, id, categoryConstraint)) {
+        const ok = isArrayConstraint
+          ? _existsOneOf(readPort, id, categoryConstraint)
+          : _existsCategory(readPort, id, categoryConstraint);
+        if (!ok) {
           throw Object.assign(
-            new Error(`INVALID_REFERENCE: field "${field}" for ${label} references non-existent ${categoryConstraint === '*' ? 'element' : categoryConstraint} "${id}"`),
+            new Error(`INVALID_REFERENCE: field "${field}" for ${label} references non-existent ${categoryConstraint === '*' ? 'element' : (isArrayConstraint ? categoryConstraint.join(' or ') : categoryConstraint)} "${id}"`),
             { code: 'INVALID_REFERENCE', field, referencedId: id }
           );
         }

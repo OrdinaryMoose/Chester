@@ -30,10 +30,10 @@ describe('RESOLUTION — descriptor shape', () => {
     expect(new Set(desc.requiredFields)).toEqual(new Set(['statement', 'problem_anchor', 'grounding']));
   });
 
-  it('AC-5.1: nonEmptyArrayFields contains grounding; referenceFields targets concern + proposition', () => {
+  it('AC-5.1: nonEmptyArrayFields contains grounding; referenceFields targets concern|risk + proposition', () => {
     const desc = CATEGORY_REGISTRY[ELEMENT_CATEGORIES.RESOLUTION];
     expect(desc.nonEmptyArrayFields).toContain('grounding');
-    expect(desc.referenceFields).toEqual({ problem_anchor: 'concern', grounding: 'proposition' });
+    expect(desc.referenceFields).toEqual({ problem_anchor: ['concern', 'risk'], grounding: 'proposition' });
   });
 });
 
