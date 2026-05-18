@@ -345,7 +345,12 @@ export function runOperation(verbName, args, consent, ports) {
   if (spec.resultShape && spec.resultShape.fullRecord && id) {
     const readPorts = { query: ports.query, explain: ports.explain };
     const deep = render.renderElementDeep({ id }, readPorts);
-    if (deep) result = { ...result, ...deep };
+    if (deep) {
+      // Strip render-side artifacts before merging — `predicate` and `withdrawn`
+      // belong to the read-side rendering API, not the mutation result contract.
+      const { predicate: _p, withdrawn: _w, ...fields } = deep;
+      result = { ...result, ...fields };
+    }
   }
 
   // §6.1 step 13: advance round if applicable
