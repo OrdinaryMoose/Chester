@@ -695,6 +695,11 @@ describe('D12 — reviseProposition and reviseResolution', () => {
     const approvalRows = bridge.queryProof({ pattern: ['approved', [revised.id, { var: 'SRC' }, { var: 'T' }]] });
     expect(approvalRows.length).toBe(1);
     expect(approvalRows[0].SRC).toBe('designer');
+    // D3 (sprint-02-bug-fix-08): two_yes_complete must NOT derive for the revised
+    // resolution — only one source ratified, not both. Negative assertion locks the
+    // contract so a future regression that re-adds DESIGN_PARTNER approval is caught.
+    const twoYesComplete = bridge.queryProof({ pattern: ['two_yes_complete', [revised.id]] });
+    expect(twoYesComplete.length).toBe(0);
   });
 
   it('AC-12.3 wording cleanup using new revise verbs costs at most one operation per element', async () => {

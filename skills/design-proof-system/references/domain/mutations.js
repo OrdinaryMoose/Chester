@@ -121,14 +121,14 @@ export const OPERATION_SPECS = Object.freeze({
     clearsTwoYes: true,
     resultShape: { id: true, fullRecord: true },
   },
-  // D12 — REVISE_PROPOSITION / REVISE_RESOLUTION: atomic add+ratify for wording cleanup.
-  // Creates a NEW element (fresh id) linked to the prior via `superseded` metaFact, and
-  // emits BOTH DESIGNER and DESIGN_PARTNER approval+two_yes facts in the same transaction
-  // so two_yes_complete derives for the new element without a separate ratify call.
-  // The original element is left extant (no automatic retract/withdraw). Operators who want
-  // to retire the old element should call withdrawElement separately.
-  // Per-category authority routes through `ratify` (DESIGNER ∪ DESIGN_PARTNER); see
-  // runOperation step 2 dispatch.
+  // D12 — REVISE_PROPOSITION: atomic add+ratify for wording cleanup on Propositions.
+  // Creates a NEW Proposition (fresh id) linked to the prior via `superseded` metaFact,
+  // and emits BOTH DESIGNER and DESIGN_PARTNER approval+two_yes facts in the same
+  // transaction so two_yes_complete derives for the new element without a separate
+  // ratify call. The original element is left extant (no automatic retract/withdraw).
+  // Operators who want to retire the old element should call withdrawElement separately.
+  // Per-category authority routes through PROPOSITION.authority.ratify (DESIGNER ∪
+  // DESIGN_PARTNER); see runOperation step 2 dispatch.
   [ACTION_LABELS.REVISE_PROPOSITION]: {
     consentCategory: [CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER],
     preconditions: [],
@@ -151,6 +151,14 @@ export const OPERATION_SPECS = Object.freeze({
     clearsTwoYes: false,
     resultShape: { id: true, fullRecord: true },
   },
+  // D3 (sprint-02-bug-fix-08) — REVISE_RESOLUTION: atomic add+designer-ratify for
+  // wording cleanup on Resolutions. Designer-only consent per D1+D3 (Resolution is
+  // a framing category; DESIGN_PARTNER is not licensed to ratify it). Only the
+  // DESIGNER approval+two_yes facts are emitted in the same transaction — DESIGN_PARTNER
+  // facts are NOT emitted. As a result, `two_yes_complete` does not derive for the
+  // revised resolution; the `resolution(id, S)` derivation still fires from the single
+  // DESIGNER approval row (approval-gated rule requires only one `approved` row).
+  // Per-category authority routes through RESOLUTION.authority.ratify (DESIGNER-only).
   [ACTION_LABELS.REVISE_RESOLUTION]: {
     consentCategory: [CONSENT_SOURCES.DESIGNER],
     preconditions: [],
