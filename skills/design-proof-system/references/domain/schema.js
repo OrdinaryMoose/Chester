@@ -4,11 +4,13 @@ import { ELEMENT_CATEGORIES, CONSENT_SOURCES, RENDER_SECTIONS, INFERENCE_PATTERN
 // Private partial mirror of mutations.js's `_CATEGORY_PROBES`. Cannot import directly
 // (circular: mutations.js imports verifyArgsShape from schema.js). Keyed by
 // ELEMENT_CATEGORIES string value (e.g. 'rule', 'permission') → [declaration
-// predicate, arity]. MUST stay synchronized with `_CATEGORY_PROBES` in mutations.js —
-// any time a category's declaration predicate or arity changes, BOTH tables update
-// in the same commit. Probe-table sync structural test (DEF-7) is deferred to a
-// future design pass per sprint-02-bug-fix-0306 spec Non-Goals; until that test
-// lands, the discipline is human-enforced.
+// predicate, arity]. MUST stay synchronized with `_CATEGORY_PROBES` in mutations.js
+// AND `declPredsByCategory` in translation.js (the latter used by D5's
+// extractAllocatorHighWaterMarks for legacy-snapshot allocator recovery) — any
+// time a category's declaration predicate or arity changes, ALL THREE tables
+// update in the same commit. Probe-table sync structural test (DEF-7) is
+// deferred to a future design pass per sprint-02-bug-fix-0306 spec Non-Goals;
+// until that test lands, the discipline is human-enforced.
 // Wildcard '*' (handled in _existsCategory) iterates all entries.
 const _CATEGORY_PROBES_SCHEMA = Object.freeze({
   [ELEMENT_CATEGORIES.EVIDENCE]: ['evidence', 3],
@@ -22,7 +24,7 @@ const _CATEGORY_PROBES_SCHEMA = Object.freeze({
   [ELEMENT_CATEGORIES.DEFINITION]: ['definition_decl', 3],
 });
 
-function _existsAnyCategory(readPort, id) {
+export function _existsAnyCategory(readPort, id) {
   for (const [pred, arity] of Object.values(_CATEGORY_PROBES_SCHEMA)) {
     const pattern = [id, ...Array(arity - 1).fill('_')];
     if (readPort.exists([pred, pattern])) return true;
@@ -41,6 +43,15 @@ function _existsCategory(readPort, id, categoryKey) {
   const [pred, arity] = probe;
   const pattern = [id, ...Array(arity - 1).fill('_')];
   return readPort.exists([pred, pattern]);
+}
+
+// D4: probe membership across multiple candidate categories. Returns true if id exists
+// in any of the listed categories. Used by verifyArgsShape for array-valued referenceFields.
+function _existsOneOf(readPort, id, categoryKeys) {
+  for (const key of categoryKeys) {
+    if (_existsCategory(readPort, id, key)) return true;
+  }
+  return false;
 }
 
 export const CATEGORY_REGISTRY = Object.freeze({
@@ -113,7 +124,7 @@ export const CATEGORY_REGISTRY = Object.freeze({
     idShape: ELEMENT_CATEGORIES.RESOLUTION,
     renderSection: RENDER_SECTIONS.THEOREMS,
     closedEnumFields: {},
-    referenceFields: { problem_anchor: 'concern', grounding: 'proposition' },
+    referenceFields: { problem_anchor: ['concern', 'risk'], grounding: 'proposition' },
     authority: { add: [CONSENT_SOURCES.DESIGNER], revise: [CONSENT_SOURCES.DESIGNER], withdraw: [CONSENT_SOURCES.DESIGNER], ratify: [CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER] },
   }),
   [ELEMENT_CATEGORIES.FRICTION]: Object.freeze({
@@ -130,7 +141,7 @@ export const CATEGORY_REGISTRY = Object.freeze({
   }),
   [ELEMENT_CATEGORIES.CONCERN]: Object.freeze({
     requiredFields: ['label'],
-    optionalFields: ['description'],
+    optionalFields: ['description', 'notes'],
     nonEmptyStringFields: [],
     nonEmptyArrayFields: [],
     sourceConstraint: CONSENT_SOURCES.DESIGNER,
@@ -212,10 +223,14 @@ export function verifyArgsShape(args, shapeOrDescriptor, readPort = null) {
       if (!(field in args)) continue;
       const raw = args[field];
       const ids = Array.isArray(raw) ? raw : [raw];
+      const isArrayConstraint = Array.isArray(categoryConstraint);
       for (const id of ids) {
-        if (!_existsCategory(readPort, id, categoryConstraint)) {
+        const ok = isArrayConstraint
+          ? _existsOneOf(readPort, id, categoryConstraint)
+          : _existsCategory(readPort, id, categoryConstraint);
+        if (!ok) {
           throw Object.assign(
-            new Error(`INVALID_REFERENCE: field "${field}" for ${label} references non-existent ${categoryConstraint === '*' ? 'element' : categoryConstraint} "${id}"`),
+            new Error(`INVALID_REFERENCE: field "${field}" for ${label} references non-existent ${categoryConstraint === '*' ? 'element' : (isArrayConstraint ? categoryConstraint.join(' or ') : categoryConstraint)} "${id}"`),
             { code: 'INVALID_REFERENCE', field, referencedId: id }
           );
         }

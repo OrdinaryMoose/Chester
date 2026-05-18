@@ -112,6 +112,65 @@ const _ARITIES = Object.freeze({
   resolution_decl: 2,
   friction: 5,
   definition_decl: 3,
+  concern: 3,
+});
+
+// Secondary-query plan per primary-declaration predicate. After the primary
+// match in renderElementDeep, the matching satellite predicates are queried so
+// the returned record carries the full element body — grounding, anchors,
+// notes, scope, etc. Each descriptor:
+//   pred    — satellite predicate name
+//   pattern — query pattern after the leading id slot. Strings (`'_'`) become
+//             positional wildcards; objects with a `var` key bind that slot.
+//             Pattern length must equal arity-1.
+//   field   — output field name on the record
+//   multi   — true => collect bound vars from every row into an array
+//             false => extract bound vars from the first row only (or undefined)
+//   extract — variable name (or array of names) to pull out of each row
+// Primary-slot field names per primary-declaration predicate. The id slot is
+// always position 0 and is excluded. Remaining slots map positionally to record
+// fields so renderElementDeep can surface the primary-fact contents (statement,
+// source, label, description, ...) on the returned record. When a predicate is
+// absent from this table, the primary fact contributes only the id slot.
+const _PRIMARY_FIELDS = Object.freeze({
+  evidence:         ['source', 'statement'],
+  rule_decl:        ['statement'],
+  permission_decl:  ['statement'],
+  proposition_decl: ['statement', 'inference_pattern'],
+  risk:             ['statement', 'severity'],
+  resolution_decl:  ['statement'],
+  friction:         ['friction_shape', 'anchor_a', 'anchor_b', 'disposition'],
+  definition_decl:  ['canonical_name', 'definition'],
+  concern:          ['label', 'description'],
+});
+
+const _SECONDARY_QUERIES = Object.freeze({
+  proposition_decl: [
+    { pred: 'proposition_grounding', pattern: [{ var: 'E' }], extract: 'E', field: 'grounding', multi: true },
+    { pred: 'collapse_test',         pattern: [{ var: 'T' }], extract: 'T', field: 'collapse_test',  multi: false },
+    { pred: 'reasoning_chain',       pattern: [{ var: 'T' }], extract: 'T', field: 'reasoning_chain', multi: false },
+    { pred: 'rejected_alternative',  pattern: [{ var: 'A' }, { var: 'R' }], extract: ['A', 'R'], field: 'rejected_alternative', multi: true },
+  ],
+  resolution_decl: [
+    { pred: 'resolution_anchor',    pattern: [{ var: 'C' }], extract: 'C', field: 'problem_anchor', multi: false },
+    { pred: 'resolution_grounding', pattern: [{ var: 'E' }], extract: 'E', field: 'grounding',     multi: true },
+  ],
+  risk: [
+    { pred: 'risk_basis', pattern: [{ var: 'E' }], extract: 'E', field: 'basis', multi: true },
+  ],
+  concern: [
+    { pred: 'concern_status', pattern: [{ var: 'S' }], extract: 'S', field: 'status', multi: false },
+    { pred: 'concern_note',   pattern: [{ var: 'N' }], extract: 'N', field: 'notes',  multi: true },
+  ],
+  definition_decl: [
+    { pred: 'definition_scope', pattern: [{ var: 'S' }], extract: 'S', field: 'scope', multi: false },
+  ],
+  permission_decl: [
+    // permission_scope is arity 2: (id, scope). permission is arity 3: (id, statement, relieves) —
+    // skip the statement slot with a wildcard and extract only `relieves`.
+    { pred: 'permission_scope', pattern: [{ var: 'S' }], extract: 'S', field: 'scope', multi: false },
+    { pred: 'permission',       pattern: ['_', { var: 'R' }], extract: 'R', field: 'relieves', multi: false },
+  ],
 });
 
 export function renderElementDeep(args, readPorts) {
@@ -123,9 +182,39 @@ export function renderElementDeep(args, readPorts) {
   const withdrawn = _withdrewIdSet(readPorts).has(id);
   for (const [pred, arity] of Object.entries(_ARITIES)) {
     if (arity < 1) continue;
-    const pattern = [id, ...Array(arity - 1).fill('_')];
+    // Bind primary-slot vars (when this predicate has declared field names) so the
+    // returned record carries primary-fact contents like statement/source/label.
+    // Fall back to wildcards when no field mapping exists — preserves prior behavior.
+    const primaryFields = _PRIMARY_FIELDS[pred];
+    const slotPattern = primaryFields && primaryFields.length === arity - 1
+      ? primaryFields.map((_, i) => ({ var: `__pf_${i}` }))
+      : Array(arity - 1).fill('_');
+    const pattern = [id, ...slotPattern];
     const rows = readPorts.query.query([pred, pattern]);
-    if (rows.length) return { id, predicate: pred, withdrawn, ...rows[0] };
+    if (rows.length) {
+      const base = { id, predicate: pred, withdrawn };
+      if (primaryFields && primaryFields.length === arity - 1) {
+        const r0 = rows[0];
+        for (let i = 0; i < primaryFields.length; i++) {
+          base[primaryFields[i]] = r0[`__pf_${i}`];
+        }
+      }
+      const queries = _SECONDARY_QUERIES[pred] ?? [];
+      for (const q of queries) {
+        const satellitePattern = [id, ...q.pattern];
+        const satelliteRows = readPorts.query.query([q.pred, satellitePattern]);
+        const extractRow = (r) => Array.isArray(q.extract)
+          ? q.extract.map(v => r[v])
+          : r[q.extract];
+        if (q.multi) {
+          // Empty satelliteRows yields [] naturally — callers can iterate safely.
+          base[q.field] = satelliteRows.map(extractRow);
+        } else {
+          base[q.field] = satelliteRows.length > 0 ? extractRow(satelliteRows[0]) : undefined;
+        }
+      }
+      return base;
+    }
   }
   return null;
 }
@@ -204,7 +293,7 @@ export function renderDatalogProjection(args, readPorts) {
     risk: 3, risk_basis: 2,
     resolution_decl: 2, resolution_anchor: 2, resolution_grounding: 2,
     friction: 5, friction_disposition: 2, definition_decl: 3, definition_scope: 2, definition_self: 2,
-    concern: 3, concern_status: 2,
+    concern: 3, concern_status: 2, concern_note: 2,
     approved: 3, two_yes: 2,
     closure_committed: 0, closure_pending: 0, round: 1,
     created_at: 2, withdrew: 1, superseded: 2,

@@ -8,6 +8,22 @@ export const ELEMENT_CATEGORIES = Object.freeze({
   FRICTION: 'friction', CONCERN: 'concern', DEFINITION: 'definition',
 });
 
+// Abbreviated id-prefix convention pinned by sprint-02-bug-fix-07. Single source of
+// truth for the per-shape id prefix string used by idAllocator.next(shape). Production
+// allocators, fixture allocators, and any test that asserts on element ids must read
+// from this table — no inline string-prefixing allowed.
+export const ID_PREFIXES = Object.freeze({
+  [ELEMENT_CATEGORIES.EVIDENCE]:    'evid_',
+  [ELEMENT_CATEGORIES.RULE]:        'rule_',
+  [ELEMENT_CATEGORIES.PERMISSION]:  'perm_',
+  [ELEMENT_CATEGORIES.PROPOSITION]: 'prop_',
+  [ELEMENT_CATEGORIES.RISK]:        'risk_',
+  [ELEMENT_CATEGORIES.RESOLUTION]:  'res_',
+  [ELEMENT_CATEGORIES.FRICTION]:    'fric_',
+  [ELEMENT_CATEGORIES.CONCERN]:     'cern_',
+  [ELEMENT_CATEGORIES.DEFINITION]:  'defn_',
+});
+
 export const PHASES = Object.freeze({
   ESTABLISHMENT: 'establishment', LANE_RESOLUTION: 'lane_resolution',
   PRESENTATION: 'presentation', CONFIRMATION: 'confirmation',
@@ -51,6 +67,8 @@ export const ACTION_LABELS = Object.freeze({
   RATIFY: 'ratify', MANAGE_FRICTION: 'manage_friction',
   PRESENT_CLOSING_ARGUMENT: 'present_closing_argument',
   CONFIRM_CLOSURE_GO: 'confirm_closure_go', OPEN_PROOF: 'open_proof',
+  REVISE_PROPOSITION: 'revise_proposition',
+  REVISE_RESOLUTION: 'revise_resolution',
 });
 
 export const RENDER_SECTIONS = Object.freeze({

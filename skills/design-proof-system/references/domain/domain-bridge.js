@@ -3,7 +3,7 @@
 
 import { CATEGORY_REGISTRY } from './schema.js';
 import { OPERATION_SPECS, runOperation } from './mutations.js';
-import { RULE_TEMPLATES, registerRuleTemplates, getDeclaredEDBPredicates } from './translation.js';
+import { RULE_TEMPLATES, registerRuleTemplates, getDeclaredEDBPredicates, extractAllocatorHighWaterMarks } from './translation.js';
 import * as closurePolicy from './closure-policy.js';
 import * as frictionPolicy from './friction-policy.js';
 import * as render from './render.js';
@@ -11,6 +11,35 @@ import * as counterfactual from './counterfactual.js';
 import * as tags from './tags.js';
 import { validateOperationSpecs, validateCategoryRegistry, validateRuleTemplates, DomainBootError } from './boot-validators.js';
 import { normalizeEngine } from './engine-port-adapter.js';
+
+// D9 — payload channel sentinels. Single source of truth for both helpers and
+// (indirectly) the VOCABULARY.md documentation. Changing these requires updating
+// the doc in lockstep — the test suite does not couple to these constants directly.
+const PAYLOAD_START = '===== PAYLOAD_START =====';
+const PAYLOAD_END = '===== PAYLOAD_END =====';
+
+/**
+ * D9 — Stable payload channel for transport-fragile structured content. Wraps a payload
+ * in sentinel delimiters so receiving agents can extract the content without depending
+ * on markdown rendering.
+ */
+export function createPayloadChannel(content) {
+  return `${PAYLOAD_START}\n${content}\n${PAYLOAD_END}`;
+}
+
+/**
+ * D9 — Unwrap a payload channel string. Returns the content between the sentinels,
+ * or null if the input is malformed (missing either sentinel).
+ */
+export function parsePayloadChannel(raw) {
+  if (typeof raw !== 'string') return null;
+  const startToken = `${PAYLOAD_START}\n`;
+  const endToken = `\n${PAYLOAD_END}`;
+  const startIdx = raw.indexOf(startToken);
+  const endIdx = raw.indexOf(endToken);
+  if (startIdx === -1 || endIdx === -1 || endIdx <= startIdx) return null;
+  return raw.slice(startIdx + startToken.length, endIdx);
+}
 
 /**
  * @param {{engine: object, clock: object, idAllocator: object, consentVerification: object, persistenceRepo: object}} deps
@@ -47,7 +76,7 @@ export function createDomainBridge({ engine: rawEngine, clock, idAllocator, cons
   // Step 5: assemble validPredicates = Phase-A rule heads ∪ EDB predicates
   const validPredicates = getDeclaredEDBPredicates();
   // For sprint-02's scope, Phase-A rule head predicates are added by reading the rule store, OR statically named here.
-  for (const p of ['closure_permitted', 'unresolved_friction', 'unaddressed_concern', 'covered', 'effective_addresses', 'ungrounded_proposition', 'effective_grounding', 'coverage_gap_detected', 'overlap_detected', 'conflict_detected', 'proposition', 'resolution', 'definition', 'concern', 'concern_status', 'phase', 'two_yes_complete']) validPredicates.add(p);
+  for (const p of ['closure_permitted', 'unresolved_friction', 'unaddressed_concern', 'covered', 'effective_addresses', 'ungrounded_proposition', 'effective_grounding', 'coverage_gap_detected', 'overlap_detected', 'conflict_detected', 'proposition', 'resolution', 'definition', 'concern', 'concern_status', 'concern_note', 'phase', 'two_yes_complete']) validPredicates.add(p);
 
   // Step 6: validate OPERATION_SPECS
   validateOperationSpecs(OPERATION_SPECS, tags, validPredicates);
@@ -76,6 +105,11 @@ export function createDomainBridge({ engine: rawEngine, clock, idAllocator, cons
     addElement: (args, consent) => runOperation('add', args, consent, fullPorts),
     /** @param {object} args @param {object} consent @throws {DomainError} @returns {object} */
     reviseElement: (args, consent) => runOperation('revise', args, consent, fullPorts),
+    // D12 — atomic add+ratify dual-partner revise for Proposition and Resolution.
+    /** @param {object} args @param {object} consent @throws {DomainError} @returns {object} */
+    reviseProposition: (args, consent) => runOperation('revise_proposition', args, consent, fullPorts),
+    /** @param {object} args @param {object} consent @throws {DomainError} @returns {object} */
+    reviseResolution: (args, consent) => runOperation('revise_resolution', args, consent, fullPorts),
     /** @param {object} args @param {object} consent @throws {DomainError} @returns {object} */
     withdrawElement: (args, consent) => runOperation('withdraw', args, consent, fullPorts),
     // IRatification
@@ -160,6 +194,38 @@ export function createDomainBridge({ engine: rawEngine, clock, idAllocator, cons
      * @returns {{stillCloses: boolean, failureReasons: string[]}}
      */
     runCounterfactual: (args) => counterfactual.collapseTest(args, probePorts),
+    // D5 — Atomic serialize/restore with allocator state. Bundles engine snapshot
+    // token + per-category allocator high-water marks so reload preserves uniqueness.
+    serializeWithAllocatorState: (args) => {
+      if (typeof idAllocator.highWater !== 'function' || typeof idAllocator.seed !== 'function') {
+        throw new Error('ALLOCATOR_MISSING_HIGHWATER: IIDAllocator must implement highWater(shape) and seed(counters) for D5 serialize/restore');
+      }
+      const engineToken = engine.snapshot.snapshot();
+      const shapes = Object.values(tags.ELEMENT_CATEGORIES);
+      const allocatorState = Object.fromEntries(shapes.map(s => [s, idAllocator.highWater(s)]));
+      return { engine: engineToken, allocatorState };
+    },
+    loadFromWithAllocatorState: (args, serialized) => {
+      if (typeof idAllocator.seed !== 'function' || typeof idAllocator.highWater !== 'function') {
+        throw new Error('ALLOCATOR_MISSING_HIGHWATER: IIDAllocator must implement highWater(shape) and seed(counters) for D5 serialize/restore');
+      }
+      // If engine.snapshot.restore throws on a malformed token, the bridge is
+      // left in a partially-loaded state. Re-throw with a named error so the
+      // caller knows the bridge state is undefined; do NOT proceed to seed the
+      // allocator against an inconsistent engine.
+      try {
+        engine.snapshot.restore(serialized.engine);
+      } catch (cause) {
+        const err = new Error('LOAD_FAILED_BRIDGE_INCONSISTENT: engine.snapshot.restore threw; bridge state is now indeterminate');
+        err.code = 'LOAD_FAILED_BRIDGE_INCONSISTENT';
+        err.cause = cause;
+        throw err;
+      }
+      const counters = serialized.allocatorState ?? {};
+      const hasCounters = Object.keys(counters).length > 0;
+      const effective = hasCounters ? counters : extractAllocatorHighWaterMarks(readPorts);
+      idAllocator.seed(effective);
+    },
   });
 }
 

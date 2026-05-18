@@ -1,9 +1,10 @@
-import { ACTION_LABELS, CONSENT_SOURCES, ELEMENT_CATEGORIES, FRICTION_DISPOSITIONS } from './tags.js';
-import { verifyArgsShape } from './schema.js';
+import { ACTION_LABELS, CONSENT_SOURCES, ELEMENT_CATEGORIES, FRICTION_DISPOSITIONS, ID_PREFIXES } from './tags.js';
+import { verifyArgsShape, _existsAnyCategory } from './schema.js';
 import { translate, instantiateTemplate } from './translation.js';
 import { verifyConsent, lookupAuthority } from './authority.js';
 import { advance } from './lifecycle.js';
 import { triggerGate as closureTriggerGate } from './closure-policy.js';
+import * as render from './render.js';
 
 // Each entry probes whether `id` belongs to that category by checking the EDB
 // representation predicate at its declared arity. Order matters only for ambiguity
@@ -31,6 +32,39 @@ function _resolveElementCategory(id, queryPort) {
   return null;
 }
 
+// D11 pre-ratify vocabulary lint gate. Reads ratified `definition/3` rows (derived
+// once a Definition element is ratified by per-element RULE_TEMPLATES). For each
+// canonical term, scans the target element's string-valued fields for a case-insensitive
+// substring match that is NOT the exact canonical form — i.e. a case variant — and
+// returns the first violation it finds. Returns null when no definitions are ratified
+// (AC-11.3) or when every field is clean.
+function _vocabularyLintCheck(elementId, ports) {
+  const ratifiedDefs = ports.query.query(['definition', [{ var: 'D' }, { var: 'T' }, { var: 'X' }]]);
+  if (ratifiedDefs.length === 0) return null;
+  const canonicalTerms = ratifiedDefs.map(r => r.T).filter(t => typeof t === 'string' && t.length > 0);
+  if (canonicalTerms.length === 0) return null;
+
+  const readPorts = { query: ports.query, explain: ports.explain };
+  const record = render.renderElementDeep({ id: elementId }, readPorts);
+  if (!record) return null;
+
+  for (const [field, value] of Object.entries(record)) {
+    if (typeof value !== 'string' || value.length === 0) continue;
+    for (const term of canonicalTerms) {
+      if (term === value) continue; // exact match of the entire field — skip (likely the Definition's own canonical_name field)
+      const lowerValue = value.toLowerCase();
+      const lowerTerm = term.toLowerCase();
+      const idx = lowerValue.indexOf(lowerTerm);
+      if (idx === -1) continue;
+      const matchedSubstring = value.slice(idx, idx + term.length);
+      if (matchedSubstring !== term) {
+        return { field, value: matchedSubstring, canonicalTerm: term };
+      }
+    }
+  }
+  return null;
+}
+
 export class DomainError extends Error {
   constructor(payload) {
     super(payload.message ?? payload.code);
@@ -46,7 +80,7 @@ export class POST_COMMIT_SAVE_FAILED extends DomainError {
   }
 }
 
-// Eight OperationSpec records. customPostCheck appears on 3 (manageFriction, presentClosingArgument, confirmClosureGo).
+// Ten OperationSpec records. customPostCheck appears on 3 (manageFriction, presentClosingArgument, confirmClosureGo).
 export const OPERATION_SPECS = Object.freeze({
   [ACTION_LABELS.OPEN_PROOF]: {
     consentCategory: CONSENT_SOURCES.DESIGNER,
@@ -64,7 +98,7 @@ export const OPERATION_SPECS = Object.freeze({
     translate: (args, id, ts) => translate(args.idShape, args, id, ts),
     postconditions: [],
     clearsTwoYes: true,
-    resultShape: { id: 'string' },
+    resultShape: { id: true, fullRecord: true },
   },
   [ACTION_LABELS.REVISE]: {
     consentCategory: CONSENT_SOURCES.DESIGNER,
@@ -85,7 +119,59 @@ export const OPERATION_SPECS = Object.freeze({
     },
     postconditions: [],
     clearsTwoYes: true,
-    resultShape: { id: 'string' },
+    resultShape: { id: true, fullRecord: true },
+  },
+  // D12 — REVISE_PROPOSITION / REVISE_RESOLUTION: atomic add+ratify for wording cleanup.
+  // Creates a NEW element (fresh id) linked to the prior via `superseded` metaFact, and
+  // emits BOTH DESIGNER and DESIGN_PARTNER approval+two_yes facts in the same transaction
+  // so two_yes_complete derives for the new element without a separate ratify call.
+  // The original element is left extant (no automatic retract/withdraw). Operators who want
+  // to retire the old element should call withdrawElement separately.
+  // Per-category authority routes through `ratify` (DESIGNER ∪ DESIGN_PARTNER); see
+  // runOperation step 2 dispatch.
+  [ACTION_LABELS.REVISE_PROPOSITION]: {
+    consentCategory: [CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER],
+    preconditions: [],
+    idShape: ELEMENT_CATEGORIES.PROPOSITION,
+    translate: (args, id, ts) => {
+      const inner = translate(ELEMENT_CATEGORIES.PROPOSITION, args, id, ts);
+      return {
+        baseFacts: [
+          ...inner.baseFacts,
+          ['approved', [id, CONSENT_SOURCES.DESIGNER, ts]],
+          ['approved', [id, CONSENT_SOURCES.DESIGN_PARTNER, ts]],
+          ['two_yes', [id, CONSENT_SOURCES.DESIGNER]],
+          ['two_yes', [id, CONSENT_SOURCES.DESIGN_PARTNER]],
+        ],
+        rules: inner.rules,
+        metaFacts: [...(inner.metaFacts ?? []), ['superseded', [id, args.supersedes]]],
+      };
+    },
+    postconditions: [],
+    clearsTwoYes: false,
+    resultShape: { id: true, fullRecord: true },
+  },
+  [ACTION_LABELS.REVISE_RESOLUTION]: {
+    consentCategory: [CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER],
+    preconditions: [],
+    idShape: ELEMENT_CATEGORIES.RESOLUTION,
+    translate: (args, id, ts) => {
+      const inner = translate(ELEMENT_CATEGORIES.RESOLUTION, args, id, ts);
+      return {
+        baseFacts: [
+          ...inner.baseFacts,
+          ['approved', [id, CONSENT_SOURCES.DESIGNER, ts]],
+          ['approved', [id, CONSENT_SOURCES.DESIGN_PARTNER, ts]],
+          ['two_yes', [id, CONSENT_SOURCES.DESIGNER]],
+          ['two_yes', [id, CONSENT_SOURCES.DESIGN_PARTNER]],
+        ],
+        rules: inner.rules,
+        metaFacts: [...(inner.metaFacts ?? []), ['superseded', [id, args.supersedes]]],
+      };
+    },
+    postconditions: [],
+    clearsTwoYes: false,
+    resultShape: { id: true, fullRecord: true },
   },
   [ACTION_LABELS.WITHDRAW]: {
     consentCategory: CONSENT_SOURCES.DESIGNER,
@@ -164,6 +250,7 @@ export const OPERATION_SPECS = Object.freeze({
     consentCategory: CONSENT_SOURCES.DESIGNER,
     preconditions: [],
     idShape: ELEMENT_CATEGORIES.EVIDENCE,
+    argShape: { requiredFields: [], closedEnumFields: {}, label: 'present_closing_argument' },
     translate: () => ({ baseFacts: [['closure_pending', []]], rules: [], metaFacts: [] }),
     postconditions: [],
     customPostCheck: (args, readPorts) => closureTriggerGate(args, readPorts),
@@ -210,6 +297,10 @@ export function runOperation(verbName, args, consent, ports) {
   } else if (verbName === ACTION_LABELS.RATIFY) {
     const resolved = _resolveElementCategory(args.elementId, ports.query);
     if (resolved) perCategoryAuthority = lookupAuthority(resolved, ACTION_LABELS.RATIFY);
+  } else if (verbName === ACTION_LABELS.REVISE_PROPOSITION || verbName === ACTION_LABELS.REVISE_RESOLUTION) {
+    // D12: route through the per-category ratify authority — these verbs perform
+    // an atomic add+ratify on the new element.
+    perCategoryAuthority = lookupAuthority(targetShape, ACTION_LABELS.RATIFY);
   }
   const allowedSources = perCategoryAuthority.length > 0 ? perCategoryAuthority : spec.consentCategory;
   verifyConsent(allowedSources, consent, ports.consent);
@@ -230,15 +321,20 @@ export function runOperation(verbName, args, consent, ports) {
   // ADD/REVISE thread the query port through so the referenceFields directive can verify
   // referenced ids exist in the EDB. Other verbs pass null — the loop short-circuits.
   const argShapeTarget = spec.argShape ?? targetShape;
-  const isAddOrRevise = verbName === ACTION_LABELS.ADD || verbName === ACTION_LABELS.REVISE;
+  const isAddOrRevise = verbName === ACTION_LABELS.ADD
+    || verbName === ACTION_LABELS.REVISE
+    || verbName === ACTION_LABELS.REVISE_PROPOSITION
+    || verbName === ACTION_LABELS.REVISE_RESOLUTION;
   verifyArgsShape(args, argShapeTarget, isAddOrRevise ? ports.query : null);
 
   // §6.1 step 3b: REVISE requires args.supersedes naming the prior element id. Validated
   // here rather than in argShape because REVISE also needs the per-category fields (which
   // argShape would short-circuit if it were the only descriptor used).
-  if (verbName === ACTION_LABELS.REVISE) {
+  if (verbName === ACTION_LABELS.REVISE
+      || verbName === ACTION_LABELS.REVISE_PROPOSITION
+      || verbName === ACTION_LABELS.REVISE_RESOLUTION) {
     if (typeof args.supersedes !== 'string' || args.supersedes.length === 0) {
-      throw Object.assign(new Error('SHAPE_INVALID: REVISE requires args.supersedes (string) naming the element being revised'), { code: 'SHAPE_INVALID', field: 'supersedes' });
+      throw Object.assign(new Error('SHAPE_INVALID: revise verbs require args.supersedes (string) naming the element being revised'), { code: 'SHAPE_INVALID', field: 'supersedes' });
     }
   }
 
@@ -247,7 +343,30 @@ export function runOperation(verbName, args, consent, ports) {
   let id = null;
   try {
     // §6.1 step 5: assert facts + define rules
-    id = ports.ids.next(targetShape);
+    // D1 invariant: RATIFY MUST NOT advance the ID allocator. The ratify translate path
+    // uses args.elementId directly (already known); the allocator slot would be discarded.
+    // Counter-parity: after N add+ratify cycles for a single category, idAllocator.highWater
+    // equals N (not 2N).
+    // D2: ADD accepts an optional caller-supplied id, validated for prefix-match against
+    // ID_PREFIXES and uniqueness against the EDB. Task 12 will extend the ADD-only check
+    // below to also cover REVISE_PROPOSITION and REVISE_RESOLUTION once those ACTION_LABELS
+    // entries land in tags.js.
+    if (verbName !== ACTION_LABELS.RATIFY) {
+      if ((verbName === ACTION_LABELS.ADD
+           || verbName === ACTION_LABELS.REVISE_PROPOSITION
+           || verbName === ACTION_LABELS.REVISE_RESOLUTION) && args.id) {
+        const expectedPrefix = ID_PREFIXES[targetShape];
+        if (!expectedPrefix || !args.id.startsWith(expectedPrefix)) {
+          throw new DomainError({ code: 'ID_PREFIX_MISMATCH', suppliedId: args.id, expectedPrefix: expectedPrefix ?? '<unknown>' });
+        }
+        if (_existsAnyCategory(ports.query, args.id)) {
+          throw new DomainError({ code: 'DUPLICATE_ID', suppliedId: args.id });
+        }
+        id = args.id;
+      } else {
+        id = ports.ids.next(targetShape);
+      }
+    }
     const ts = ports.clock.now();
     const { baseFacts, rules, metaFacts } = spec.translate(args, id, ts);
     for (const [pred, a] of baseFacts) ports.facts.assertFact(pred, a);
@@ -257,7 +376,11 @@ export function runOperation(verbName, args, consent, ports) {
     // and REVISE: REVISE produces a new element with its own id, which needs its own
     // per-element approval rule installed so that ratification can later derive the
     // public predicate (proposition/resolution/definition/concern_status) for it.
-    if ([ELEMENT_CATEGORIES.PROPOSITION, ELEMENT_CATEGORIES.RESOLUTION, ELEMENT_CATEGORIES.DEFINITION, ELEMENT_CATEGORIES.CONCERN].includes(targetShape) && (verbName === ACTION_LABELS.ADD || verbName === ACTION_LABELS.REVISE)) {
+    if ([ELEMENT_CATEGORIES.PROPOSITION, ELEMENT_CATEGORIES.RESOLUTION, ELEMENT_CATEGORIES.DEFINITION, ELEMENT_CATEGORIES.CONCERN].includes(targetShape)
+        && (verbName === ACTION_LABELS.ADD
+            || verbName === ACTION_LABELS.REVISE
+            || verbName === ACTION_LABELS.REVISE_PROPOSITION
+            || verbName === ACTION_LABELS.REVISE_RESOLUTION)) {
       instantiateTemplate(targetShape, id, ports.rules);
     }
 
@@ -294,6 +417,14 @@ export function runOperation(verbName, args, consent, ports) {
       }
     }
 
+    // §6.1 step 8b (D11): pre-ratify vocabulary lint. Blocking gate before customPostCheck.
+    if (verbName === ACTION_LABELS.RATIFY) {
+      const violation = _vocabularyLintCheck(args.elementId, ports);
+      if (violation) {
+        throw new DomainError({ code: 'VOCABULARY_LINT_VIOLATION', ...violation });
+      }
+    }
+
     // §6.1 step 9: customPostCheck if present
     if (spec.customPostCheck) {
       const err = spec.customPostCheck(args, readView);
@@ -318,7 +449,17 @@ export function runOperation(verbName, args, consent, ports) {
   }
 
   // §6.1 step 12: build result
-  const result = spec.resultShape && 'id' in spec.resultShape ? { id } : {};
+  let result = spec.resultShape && 'id' in spec.resultShape ? { id } : {};
+  if (spec.resultShape && spec.resultShape.fullRecord && id) {
+    const readPorts = { query: ports.query, explain: ports.explain };
+    const deep = render.renderElementDeep({ id }, readPorts);
+    if (deep) {
+      // Strip render-side artifacts before merging — `predicate` and `withdrawn`
+      // belong to the read-side rendering API, not the mutation result contract.
+      const { predicate: _p, withdrawn: _w, ...fields } = deep;
+      result = { ...result, ...fields };
+    }
+  }
 
   // §6.1 step 13: advance round if applicable
   if (spec.clearsTwoYes) advance(ports);

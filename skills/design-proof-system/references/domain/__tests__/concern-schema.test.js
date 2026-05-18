@@ -24,7 +24,7 @@ describe('CONCERN — schema', () => {
     const entry = CATEGORY_REGISTRY[ELEMENT_CATEGORIES.CONCERN];
     expect(entry).toBeDefined();
     expect(entry.requiredFields).toEqual(['label']);
-    expect(entry.optionalFields).toEqual(['description']);
+    expect(entry.optionalFields).toEqual(['description', 'notes']);
     expect(entry.idShape).toBe('concern');
     expect(entry.sourceConstraint).toBe(CONSENT_SOURCES.DESIGNER);
     expect(entry.renderSection).toBe(RENDER_SECTIONS.PROBLEM);

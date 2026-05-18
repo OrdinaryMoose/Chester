@@ -28,7 +28,14 @@ export function validateOperationSpecs(specs, tags, validPredicates) {
     for (const f of ['consentCategory', 'preconditions', 'idShape', 'translate', 'postconditions', 'clearsTwoYes', 'resultShape']) {
       check(f in spec, { validator: 'validateOperationSpecs', recordId: verb, field: f, violation: 'missing required field', expected: 'present', actual: 'missing' });
     }
-    check(consentSources.has(spec.consentCategory), { validator: 'validateOperationSpecs', recordId: verb, field: 'consentCategory', violation: 'not in tags.CONSENT_SOURCES', expected: [...consentSources], actual: spec.consentCategory });
+    const cc = spec.consentCategory;
+    if (Array.isArray(cc)) {
+      for (const s of cc) {
+        check(consentSources.has(s), { validator: 'validateOperationSpecs', recordId: verb, field: 'consentCategory[*]', violation: 'not in tags.CONSENT_SOURCES', expected: [...consentSources], actual: s });
+      }
+    } else {
+      check(consentSources.has(cc), { validator: 'validateOperationSpecs', recordId: verb, field: 'consentCategory', violation: 'not in tags.CONSENT_SOURCES', expected: [...consentSources], actual: cc });
+    }
     check(elementCategories.has(spec.idShape), { validator: 'validateOperationSpecs', recordId: verb, field: 'idShape', violation: 'not in tags.ELEMENT_CATEGORIES', expected: [...elementCategories], actual: spec.idShape });
     if ('customPostCheck' in spec) {
       check(typeof spec.customPostCheck === 'function' && spec.customPostCheck.length === 2,

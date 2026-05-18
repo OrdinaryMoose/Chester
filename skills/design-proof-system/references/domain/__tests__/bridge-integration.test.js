@@ -2,21 +2,26 @@ import { describe, it, expect, vi } from 'vitest';
 import { createInMemorySubstrate, createRecordingSubstrate } from './_fixtures/inMemorySubstrate.js';
 import { createDomainBridge, createReadOnlyAudit } from '../domain-bridge.js';
 import { DomainBootError } from '../boot-validators.js';
-import { CONSENT_SOURCES, ELEMENT_CATEGORIES } from '../tags.js';
+import { CONSENT_SOURCES, ELEMENT_CATEGORIES, ID_PREFIXES } from '../tags.js';
 
-function makeAdapters({ failSaveOnce = false } = {}) {
+export function makeAdapters({ failSaveOnce = false } = {}) {
   let saved = false;
-  // Deterministic per-shape counter so tests can reference predictable ids like 'evidence_1'.
-  // Each call to next(shape) yields shape_<n> with n monotonically increasing per shape.
-  const counters = new Map();
+  // Deterministic per-shape counter so tests can reference predictable ids like 'evid_1'.
+  // Each call to next(shape) yields ID_PREFIXES[shape] + <n>, with n monotonically increasing
+  // per shape. Prefix table is the single source of truth pinned in tags.js (sprint-02-bug-fix-07).
+  let counters = {};
   return {
     clock: { now: () => 1700000000 },
     idAllocator: {
       next: (shape) => {
-        const n = (counters.get(shape) ?? 0) + 1;
-        counters.set(shape, n);
-        return `${shape}_${n}`;
+        counters[shape] = (counters[shape] ?? 0) + 1;
+        return ID_PREFIXES[shape] + counters[shape];
       },
+      // Replace semantics — mirrors the substrate fixture's idAllocator.seed
+      // so D5's atomic restore path produces identical counter state regardless
+      // of which fixture allocator the test uses.
+      seed: (map) => { counters = { ...map }; },
+      highWater: (shape) => counters[shape] ?? 0,
     },
     consentVerification: { verify: () => true },
     persistenceRepo: { saveState: vi.fn(() => { if (failSaveOnce && !saved) { saved = true; throw new Error('DISK_FULL'); } }) },
@@ -133,9 +138,9 @@ describe('bridge-integration', () => {
       // verifyArgsShape). The verb-case was originally written before those guards landed and
       // supplied a bare `id` field which the production runOperation rejected before tx.begin —
       // causing the §6.1-ordering assertion to fail. Updated to the post-guard contract.
-      { verb: 'revise', prep: (b) => b.addElement({ idShape: ELEMENT_CATEGORIES.EVIDENCE, ...evidenceFill }, consent), args: () => ({ idShape: ELEMENT_CATEGORIES.EVIDENCE, supersedes: 'evidence_1', source: 'codebase', statement: 'y' }) },
-      { verb: 'withdraw', prep: (b) => b.addElement({ idShape: ELEMENT_CATEGORIES.EVIDENCE, ...evidenceFill }, consent), args: () => ({ id: 'evidence_1', ...evidenceFill }) },
-      { verb: 'ratify', prep: (b) => b.addElement({ idShape: ELEMENT_CATEGORIES.EVIDENCE, ...evidenceFill }, consent), args: () => ({ elementId: 'evidence_1', source: CONSENT_SOURCES.DESIGNER, ...evidenceFill }) },
+      { verb: 'revise', prep: (b) => b.addElement({ idShape: ELEMENT_CATEGORIES.EVIDENCE, ...evidenceFill }, consent), args: () => ({ idShape: ELEMENT_CATEGORIES.EVIDENCE, supersedes: 'evid_1', source: 'codebase', statement: 'y' }) },
+      { verb: 'withdraw', prep: (b) => b.addElement({ idShape: ELEMENT_CATEGORIES.EVIDENCE, ...evidenceFill }, consent), args: () => ({ id: 'evid_1', ...evidenceFill }) },
+      { verb: 'ratify', prep: (b) => b.addElement({ idShape: ELEMENT_CATEGORIES.EVIDENCE, ...evidenceFill }, consent), args: () => ({ elementId: 'evid_1', source: CONSENT_SOURCES.DESIGNER, ...evidenceFill }) },
       // MANAGE_FRICTION's argShape (mutations.js) requires ['frictionId', 'disposition'] and
       // closed-enum-checks `disposition` against FRICTION_DISPOSITIONS. The verb-case was
       // missing `disposition`, causing verifyArgsShape to throw before tx.begin.
@@ -332,7 +337,7 @@ describe('bridge-integration', () => {
     // via bridge.addElement, so an evidence_1 element exists for renderElementDeep to find.
     const renderInvocations = [
       ['renderStructuredProof', {}],
-      ['renderElementDeep', { id: 'evidence_1' }],
+      ['renderElementDeep', { id: 'evid_1' }],
       ['renderClosingArgument', {}],
       ['renderDatalogProjection', {}],
       ['renderLaneSlice', { lane: 'all' }],
