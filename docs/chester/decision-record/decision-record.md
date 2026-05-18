@@ -2119,3 +2119,98 @@ artifact_refs:
   - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-0306/summary/sprint-02-bug-fix-0306-summary-00.md
   - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-0306/plan/sprint-02-bug-fix-0306-plan-threat-report-00.md
 ---
+
+---
+id: dr-20260517-21-parallel-committee-mode-agent-files
+date: 2026-05-17
+sprint: 20260517-01-create-design-committee
+stage: execute-write
+title: Parallel new Committee-mode agent files rather than reuse Step-B pole agents
+decision: The four Cartesian-pole agents needed by the design-committee skill (Conservator, Innovator, Pragmatist, Purist) are written as new files under `agents/design-committee-*.md` rather than reusing the existing Step-B pole agents; the Step-B precursors serve only as a template to adapt from.
+rationale: The four poles share a tight template across both contexts (lens description, failure mode, voice-discipline notes), so adaptation cost was low. But the Committee phase contract — output-block shape, cross-DM authorization rules, decision-packet voice, Translation-Gate participation, R1/R2 round protocol — diverges from the Step-B contract. Forking the files lets each contract evolve independently; future Committee-mode skills (or per-pole sub-invocations like `--pole=conservator`) can edit Committee-mode files without disturbing Step-B callers, and Step-B-mode tweaks land in one place without leaking into Committee semantics. This sets the pattern: when a new orchestration mode reuses the four-pole Cartesian shape but binds the poles to a different phase contract, write new mode-named agent files rather than overloading existing pole files with mode flags.
+alternatives:
+  - Reuse the existing Step-B pole agents and pass a mode flag at invocation — rejected because the two phase contracts (Step-B's input/output shape vs the Committee's R1/R2 decision-packet shape) diverge enough that the mode flag would split the agent body into two largely disjoint sections, making the file harder to read and entangling tweaks across modes.
+  - Factor the shared template into a `util-pole-base.md` reference and have both Step-B and Committee files import from it — rejected as premature factoring; with only two pole-using modes today the duplication cost is lower than the indirection cost, and the shared parts (lens, failure mode, voice discipline) are short enough to copy.
+  - Defer the Committee poles entirely and reuse Step-B files with adapter prompts at the team-lead — rejected because the Committee skill needs per-pole files to ship as standalone subagent types `chester:design-committee-{role}` for the dispatch infrastructure; an adapter prompt at the team-lead is not registrable as a subagent type.
+tags: [architecture, skill, convention]
+supersedes: null
+artifact_refs:
+  - working/20260517-01-create-design-committee/design/20260517-01-create-design-committee-design-00.md
+  - working/20260517-01-create-design-committee/summary/20260517-01-create-design-committee-summary-00.md
+---
+
+---
+id: dr-20260517-22-arbiter-state-source-binding-with-abstract-contract
+date: 2026-05-17
+sprint: 20260517-01-create-design-committee
+stage: execute-write
+title: Arbiter bound to design-proof-system as state source with abstract per-invocation contract
+decision: The design-committee Arbiter agent file binds to design-proof-system as the canonical state source for the Committee's proof-state custody role, but the agent's contract is written abstractly enough — "operate on whatever state-source the team-lead names per invocation" — that the file remains usable when the state source is a non-proof state (e.g., a feature-spec document, a charter draft, a session-scoped scratch document).
+rationale: The brief named design-proof-system as the motivating use case, but at file-write time the design-proof-system runtime had no SKILL.md or live MCP wire-up (the master plan is still redesigning it), so a tight binding would have made the agent unusable until that runtime existed. Writing the contract as "the state source the team-lead names at invocation" with design-proof-system as the canonical example lets the Arbiter ship usable today against any structured state the Committee is asked to custody, while preserving the design-proof-system intent for the moment the runtime lands. Future Committee invocations should name the state source explicitly at convening; Arbiter outputs (retrieval, mutation, closure, friction, counterfactual, audit) carry the same block shape regardless of source. This sets the pattern: when an agent's motivating system is not yet runtime-live, write the agent's contract one abstraction level above the motivating system so the agent is usable before and after the runtime exists.
+alternatives:
+  - Bind the Arbiter tightly to design-proof-system specifics (MCP tool names, schema field names) — rejected because design-proof-system has no live MCP and no stable schema at file-write time; binding tightly would have shipped a file that could not be exercised until the master-plan runtime lands.
+  - Defer the Arbiter agent entirely until design-proof-system is runtime-live — rejected because the brief named the Arbiter as a load-bearing Committee role and the inline rehearsal against the calculator stress-test confirmed the role's value with a simulated state source.
+  - Ship two Arbiter files — one tightly bound and one abstract — for separate paths — rejected because the abstract contract already covers the bound case (the team-lead names design-proof-system at invocation), and two files would create a maintenance fork before any concrete divergence exists.
+tags: [architecture, skill, convention]
+supersedes: null
+artifact_refs:
+  - working/20260517-01-create-design-committee/design/20260517-01-create-design-committee-design-00.md
+  - working/20260517-01-create-design-committee/summary/20260517-01-create-design-committee-summary-00.md
+---
+
+---
+id: dr-20260517-23-absence-findings-as-first-class-researcher-result
+date: 2026-05-17
+sprint: 20260517-01-create-design-committee
+stage: execute-write
+title: Absence findings promoted to first-class contracted result shape in Researcher agent
+decision: The Researcher agent's prior-art-in-project output shape carries explicit "Absences worth naming" and "Search scope" fields as contracted result-shape elements, making absence findings a first-class result rather than something the Researcher might surface in passing prose.
+rationale: The inline rehearsal against the calculator stress-test Finding #1 surfaced an absence finding ("no prior brief in the project explicitly chose convention X for this kind of structural choice") that became load-bearing in the consolidated decision packet — the Committee's recommendation depended on the fact that the convention was unselected, not on any positive prior-art match. The original Researcher contract treated prior-art output as positive matches with no symmetric place for documented absences; the rehearsal exposed that prose-only absence reporting is easy to skim past or omit, which would have weakened consolidation. Promoting absence to a contracted field forces the Researcher to either fill it with substance or explicitly mark it empty, and makes consolidation reliably able to weight absences alongside positive findings. Future agent files where the absence of a thing is sometimes load-bearing should follow this pattern: name the absence shape as a contracted result, not as discretionary prose.
+alternatives:
+  - Leave absence reporting as discretionary prose inside the prior-art block — rejected because the rehearsal demonstrated absences are easy to omit when they are not contracted, and consolidation cannot reliably weight what may not be present.
+  - Add an absence field only to the industry-research output shape — rejected because the rehearsal's load-bearing absence was a project-internal one (no prior brief chose convention X), so the project-prior-art output is the right home; industry can adopt the same shape later if a parallel need surfaces.
+  - Create a separate "negative-findings" agent role distinct from Researcher — rejected as over-fragmenting the team; absences are a property of the search, not a separate research mode, so they belong in the same agent's contract as positive findings.
+tags: [convention, format, skill]
+supersedes: null
+artifact_refs:
+  - working/20260517-01-create-design-committee/design/20260517-01-create-design-committee-design-00.md
+  - working/20260517-01-create-design-committee/summary/20260517-01-create-design-committee-summary-00.md
+---
+
+---
+id: dr-20260517-24-skip-quantitative-eval-loop-for-meta-orchestration-skills
+date: 2026-05-17
+sprint: 20260517-01-create-design-committee
+stage: execute-write
+title: Skip skill-creator's quantitative eval loop when the skill being built is a subagent orchestrator
+decision: When the skill under construction is itself a subagent orchestrator (its purpose is to dispatch and consolidate output from other subagents), skill-creator's standard quantitative eval loop (draft → spawn parallel subagents on test prompts → benchmark outputs → iterate) is skipped in favor of inline rehearsal against a representative real question; the eval-loop's nested-orchestration cost outweighs its discrimination value for this skill class.
+rationale: Running skill-creator's eval loop on a subagent-orchestrator skill spawns a test subagent that invokes a skill which spawns N more subagents per test prompt; the nested orchestration is expensive, the benchmark output shape (free-form decision packets) does not lend itself to crisp comparison, and the load-bearing question is whether the agent-file format produces clean output, not whether the team-lead prompt picks the right pole. Inline rehearsal — playing each role in the parent context against a real design question — exercises the same agent-file specs as instructions while letting cheap edits land between rounds. This sets a process precedent: when the skill being built is a meta-orchestrator (its job is to drive other subagents), prefer inline rehearsal over the eval loop, and reserve the eval loop for skills whose output is a single agent's response. The eval loop's quantitative discrimination is still valuable for single-agent skills; the precedent narrows where it does not pay off, not whether it pays off generally.
+alternatives:
+  - Run skill-creator's full eval loop on the design-committee skill — rejected because the nested-orchestration cost (six subagents per test prompt, free-form output) is high and the benchmark output is hard to compare crisply; the loop's value lives in quantitative discrimination across single-agent outputs that did not exist for this skill.
+  - Build a custom multi-agent eval harness that scores decision packets along Committee-specific axes — rejected as premature investment; the inline rehearsal sufficed to surface the two real revisions this skill needed, and a custom harness should follow evidence of need from live use, not precede it.
+  - Skip validation entirely and ship on draft confidence — rejected because the agent-file format is the load-bearing artifact and unvalidated formats are the classic source of late re-spec; the inline rehearsal is the cheap validation that the eval loop's cost does not justify.
+tags: [process, skill, governance]
+supersedes: null
+artifact_refs:
+  - working/20260517-01-create-design-committee/design/20260517-01-create-design-committee-design-00.md
+  - working/20260517-01-create-design-committee/summary/20260517-01-create-design-committee-summary-00.md
+---
+
+---
+id: dr-20260517-25-inline-rehearsal-as-validation-before-plugin-reload
+date: 2026-05-17
+sprint: 20260517-01-create-design-committee
+stage: execute-write
+title: Inline rehearsal as the cheap validation path when new subagent types are uninstalled
+decision: When a sprint ships new subagent types whose live registration requires a plugin reload (the types do not load until `/reload-plugins` or `/refresh-chester`), pre-merge validation is performed by inline rehearsal against a real consultation question — each role played in the parent context using the new agent files as instructions — rather than by attempting live subagent dispatch on the still-unloaded types.
+rationale: New subagent types under `agents/` load when the plugin is reloaded, not from disk; live dispatch of `chester:design-committee-{role}` from a session that predates the reload would fail or fall back to a generic dispatch, neither of which validates the agent-file format. Inline rehearsal — the team-lead reads each agent file as a prompt instruction and produces the agent's output directly in the parent context — exercises the same specs the live subagent would receive, surfaces awkward output shapes (the absence-finding promotion in this sprint came directly from rehearsal), and produces revisions before the agent-file format reaches its first real caller. Live consultation validation still has to happen after merge and reload, but the inline pass catches the cheap revisions while edits are still in-branch. Future sprints that ship new subagent types should default to inline rehearsal pre-merge and name live-consultation validation as a post-merge handoff item, not a merge gate.
+alternatives:
+  - Skip pre-merge validation and rely entirely on post-reload live consultation — rejected because the first live caller pays the cost of any format awkwardness, and revisions then have to come back through a fresh sprint instead of as in-branch edits.
+  - Force a plugin reload mid-sprint to enable live dispatch validation — rejected because mid-sprint reload disrupts the session's working context and the validation it enables (live dispatch against the new types) is no more discriminating than inline rehearsal for the load-bearing question (does the agent file produce clean output?).
+  - Validate only the skill-body workflow and skip per-agent rehearsal — rejected because the agent files are the load-bearing artifacts in a subagent-orchestrator skill; the skill body is the dispatch sequence, and validating the sequence without exercising the agent specs leaves the more failure-prone half untested.
+tags: [process, skill, governance]
+supersedes: null
+artifact_refs:
+  - working/20260517-01-create-design-committee/design/20260517-01-create-design-committee-design-00.md
+  - working/20260517-01-create-design-committee/summary/20260517-01-create-design-committee-summary-00.md
+---
