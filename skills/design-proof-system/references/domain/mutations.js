@@ -378,6 +378,28 @@ export function runOperation(verbName, args, consent, ports) {
     for (const [pred, a] of baseFacts) ports.facts.assertFact(pred, a);
     for (const r of rules) ports.rules.defineRule(r.ruleId, r.headAtom, r.bodyAtoms, r.metadata);
     for (const [pred, a] of metaFacts) ports.facts.assertFact(pred, a);
+
+    // D2: designer-inform channel — record every DESIGN_PARTNER action as an EDB fact.
+    // agent_action(elementId, verb, source, ts) — central emission, gated on consent.source.
+    // targetId resolution is verb-specific because the allocator-produced `id` is meaningless
+    // for verbs that operate on an existing element (WITHDRAW, RATIFY): WITHDRAW runs the
+    // allocator and produces an unused id, so `id` is non-null but does NOT identify the
+    // withdrawn element — that's in `args.id`. For RATIFY `id` is null (skipped by D1
+    // gate at line 354) and `args.elementId` carries the target. For ADD / REVISE /
+    // REVISE_PROPOSITION / REVISE_RESOLUTION / MANAGE_FRICTION the allocator-produced `id`
+    // IS the target.
+    if (consent.source === CONSENT_SOURCES.DESIGN_PARTNER) {
+      let targetId;
+      if (verbName === ACTION_LABELS.WITHDRAW) {
+        targetId = args.id;
+      } else if (verbName === ACTION_LABELS.RATIFY) {
+        targetId = args.elementId;
+      } else {
+        targetId = id;
+      }
+      ports.facts.assertFact('agent_action', [targetId, verbName, consent.source, ts]);
+    }
+
     // Phase-C template instantiation for approval-gated categories. Fires for both ADD
     // and REVISE: REVISE produces a new element with its own id, which needs its own
     // per-element approval rule installed so that ratification can later derive the
