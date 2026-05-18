@@ -1,7 +1,7 @@
 ---
 name: design-committee
 description: Convene a six-role deliberation team for ad-hoc design consultations. Use whenever the designer wants independent multi-perspective review of a meta-architecture question, a cross-cutting design choice, a charter or boundary call, or any decision where framing bias is a real risk — even if they don't explicitly use the word "committee". Triggers on "convene the committee", "ask the committee", "committee deliberation", "four-pole review", "/design-committee", and any natural-language ask for a structured multi-perspective consultation on a design question.
-version: v0001
+version: v0002
 ---
 
 # Design Committee
@@ -93,7 +93,14 @@ three things before convening:
 
 ### 2. Convene the Team
 
-Spawn the six subagents in a single message with parallel `Task` calls (one per role):
+The Committee runs as a named **agent team**, not as one-shot parallel `Task` dispatches.
+Use `TeamCreate` to instantiate the six roles as a persistent team, then route work to
+them via `SendMessage`. This is load-bearing for two reasons: peer-DM in multi-round
+deliberation depends on team-membership routing, and the Arbiter's audit trail across
+multiple operations within one invocation depends on a stable agent identity that
+survives multiple messages. One-shot `Task` calls do not satisfy either requirement.
+
+Create the team with all six members in one call:
 
 - `chester:design-committee-conservator`
 - `chester:design-committee-innovator`
@@ -102,29 +109,39 @@ Spawn the six subagents in a single message with parallel `Task` calls (one per 
 - `chester:design-committee-arbiter`
 - `chester:design-committee-researcher`
 
-For environments that expose `TeamCreate` and named agents, name the team
-`design-committee-<short-question-slug>` so peer-DM via `SendMessage` works cleanly.
-Otherwise treat the parallel `Task` dispatch as the convening step and skip peer-DM.
+Name the team `design-committee-<short-question-slug>` so `SendMessage` routing and
+peer-DM are unambiguous. The slug is the team-lead's choice — keep it readable in plain
+language (`design-committee-friction-disposition-fix`, not `design-committee-q1`).
 
-The convening message to each subagent carries:
+The convening message sent to each team member carries:
 
 - The captured question.
 - The state-source name (if any) — only the Arbiter acts on this; the others ignore.
 - Any context packets the designer has already produced (linked or quoted briefly).
 - The round shape (single or multi).
-- An explicit reminder that each subagent self-enforces the Translation Gate.
+- The names of the other team members (so peer-DM addressing is possible in multi-round).
+- An explicit reminder that each agent self-enforces the Translation Gate.
 
 ### 3. Dispatch the Round
 
-**Single-round (default).** Send the same question to all six in parallel. Each replies
-with their phase-contract-shaped output (see each agent file for the format). The four
-poles produce design opinion within their lens; the Arbiter produces state-operation
-results (or a no-op confirmation); the Researcher produces requested research with sources.
+All round dispatch happens via `SendMessage` to team members, in parallel where the
+round permits, sequentially where peer-DM ordering matters.
 
-**Multi-round.** Run R1 (proposals + cross-DM): each pole submits a proposal, then poles
-may direct-message peers to challenge or extend. Then R2 (finals + per-pole positions):
-each pole submits a final position incorporating cross-DM critique. Arbiter and Researcher
-contribute as needed each round; they are not on a debate clock. The team-lead consolidates
+**Single-round (default).** Send the same question via `SendMessage` to all six team
+members in parallel. Each replies with their phase-contract-shaped output (see each
+agent file for the format). The four poles produce design opinion within their lens;
+the Arbiter produces state-operation results (or a no-op confirmation); the Researcher
+produces requested research with sources. No peer-DM in single-round.
+
+**Multi-round.** Run R1 (proposals + cross-DM): the team-lead sends the R1 prompt to
+all four poles in parallel via `SendMessage`. After R1 replies return, the team-lead
+exposes peer proposals to each pole and authorizes cross-DM — each pole may then
+`SendMessage` up to two challenges to other team members directly. After cross-DM
+settles, the team-lead sends the R2 prompt to all four poles; each pole submits a
+final position incorporating cross-DM critique. The Arbiter and the Researcher receive
+`SendMessage` requests on demand throughout — proof-state probes for the Arbiter,
+research asks for the Researcher; they are not on the debate clock and do not receive
+the round prompts unless the team-lead explicitly routes one. The team-lead consolidates
 at R2 close.
 
 ### 4. Consolidate
@@ -164,13 +181,13 @@ state source), loop back to Step 1 with the updated inputs.
 ### 6. Tear Down
 
 When the designer signals closure ("we're done", "decision made", "shelve this"), tear
-down the team:
+down the team with `TeamDelete` on the named team. Teardown is mandatory — agent teams
+persist until explicitly deleted, and a stranded Committee team leaks context across
+unrelated future invocations.
 
-- If a named team was created, `TeamDelete` it.
-- Otherwise the convening was per-dispatch and needs no explicit teardown.
-
-The decision packet stays in the conversation; the Arbiter's mutation log (if any) stays
-in whatever state-source it was bound to.
+The decision packet stays in the conversation record; the Arbiter's mutation log (if
+any) stays in whatever state-source it was bound to. Both are independent of the team's
+lifecycle.
 
 ## Decision Packet Format
 
@@ -251,10 +268,16 @@ untouched and continue to function inside their own skill.
 
 ## Reading Order for the Team-Lead
 
-When invoked, read in this order before dispatching:
+When invoked, read in this order before convening:
 
 1. This SKILL.md (you're here).
 2. `skills/util-design-partner-role/SKILL.md` — voice discipline and stance principles.
-3. `skills/util-dispatch/SKILL.md` — parallel-dispatch pattern reference.
-4. Each `agents/design-committee-*.md` you intend to dispatch — so you know what each
-   role's phase contract looks like and can craft the dispatch message accordingly.
+3. Each `agents/design-committee-*.md` you intend to convene — so you know what each
+   role's phase contract looks like and can craft the convening and round messages
+   accordingly.
+
+`skills/util-dispatch/SKILL.md` describes one-shot `Task` parallel dispatch and is *not*
+the orchestration pattern for this skill — the Committee runs as a `TeamCreate`-named
+persistent team with `SendMessage` routing. Read util-dispatch only if you want general
+background on isolated-context dispatching; do not apply its `Task`-based recipe to the
+Committee.
