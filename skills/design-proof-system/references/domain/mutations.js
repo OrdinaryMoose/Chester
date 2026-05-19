@@ -121,14 +121,14 @@ export const OPERATION_SPECS = Object.freeze({
     clearsTwoYes: true,
     resultShape: { id: true, fullRecord: true },
   },
-  // D12 — REVISE_PROPOSITION / REVISE_RESOLUTION: atomic add+ratify for wording cleanup.
-  // Creates a NEW element (fresh id) linked to the prior via `superseded` metaFact, and
-  // emits BOTH DESIGNER and DESIGN_PARTNER approval+two_yes facts in the same transaction
-  // so two_yes_complete derives for the new element without a separate ratify call.
-  // The original element is left extant (no automatic retract/withdraw). Operators who want
-  // to retire the old element should call withdrawElement separately.
-  // Per-category authority routes through `ratify` (DESIGNER ∪ DESIGN_PARTNER); see
-  // runOperation step 2 dispatch.
+  // D12 — REVISE_PROPOSITION: atomic add+ratify for wording cleanup on Propositions.
+  // Creates a NEW Proposition (fresh id) linked to the prior via `superseded` metaFact,
+  // and emits BOTH DESIGNER and DESIGN_PARTNER approval+two_yes facts in the same
+  // transaction so two_yes_complete derives for the new element without a separate
+  // ratify call. The original element is left extant (no automatic retract/withdraw).
+  // Operators who want to retire the old element should call withdrawElement separately.
+  // Per-category authority routes through PROPOSITION.authority.ratify (DESIGNER ∪
+  // DESIGN_PARTNER); see runOperation step 2 dispatch.
   [ACTION_LABELS.REVISE_PROPOSITION]: {
     consentCategory: [CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER],
     preconditions: [],
@@ -151,8 +151,16 @@ export const OPERATION_SPECS = Object.freeze({
     clearsTwoYes: false,
     resultShape: { id: true, fullRecord: true },
   },
+  // D3 (sprint-02-bug-fix-08) — REVISE_RESOLUTION: atomic add+designer-ratify for
+  // wording cleanup on Resolutions. Designer-only consent per D1+D3 (Resolution is
+  // a framing category; DESIGN_PARTNER is not licensed to ratify it). Only the
+  // DESIGNER approval+two_yes facts are emitted in the same transaction — DESIGN_PARTNER
+  // facts are NOT emitted. As a result, `two_yes_complete` does not derive for the
+  // revised resolution; the `resolution(id, S)` derivation still fires from the single
+  // DESIGNER approval row (approval-gated rule requires only one `approved` row).
+  // Per-category authority routes through RESOLUTION.authority.ratify (DESIGNER-only).
   [ACTION_LABELS.REVISE_RESOLUTION]: {
-    consentCategory: [CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER],
+    consentCategory: [CONSENT_SOURCES.DESIGNER],
     preconditions: [],
     idShape: ELEMENT_CATEGORIES.RESOLUTION,
     translate: (args, id, ts) => {
@@ -161,9 +169,7 @@ export const OPERATION_SPECS = Object.freeze({
         baseFacts: [
           ...inner.baseFacts,
           ['approved', [id, CONSENT_SOURCES.DESIGNER, ts]],
-          ['approved', [id, CONSENT_SOURCES.DESIGN_PARTNER, ts]],
           ['two_yes', [id, CONSENT_SOURCES.DESIGNER]],
-          ['two_yes', [id, CONSENT_SOURCES.DESIGN_PARTNER]],
         ],
         rules: inner.rules,
         metaFacts: [...(inner.metaFacts ?? []), ['superseded', [id, args.supersedes]]],
@@ -372,6 +378,28 @@ export function runOperation(verbName, args, consent, ports) {
     for (const [pred, a] of baseFacts) ports.facts.assertFact(pred, a);
     for (const r of rules) ports.rules.defineRule(r.ruleId, r.headAtom, r.bodyAtoms, r.metadata);
     for (const [pred, a] of metaFacts) ports.facts.assertFact(pred, a);
+
+    // D2: designer-inform channel — record every DESIGN_PARTNER action as an EDB fact.
+    // agent_action(elementId, verb, source, ts) — central emission, gated on consent.source.
+    // targetId resolution is verb-specific because the allocator-produced `id` is meaningless
+    // for verbs that operate on an existing element (WITHDRAW, RATIFY): WITHDRAW runs the
+    // allocator and produces an unused id, so `id` is non-null but does NOT identify the
+    // withdrawn element — that's in `args.id`. For RATIFY `id` is null (skipped by D1
+    // gate at line 354) and `args.elementId` carries the target. For ADD / REVISE /
+    // REVISE_PROPOSITION / REVISE_RESOLUTION the allocator-produced `id` IS the target.
+    // (MANAGE_FRICTION is DESIGNER-only after D1 and thus unreachable from this block.)
+    if (consent.source === CONSENT_SOURCES.DESIGN_PARTNER) {
+      let targetId;
+      if (verbName === ACTION_LABELS.WITHDRAW) {
+        targetId = args.id;
+      } else if (verbName === ACTION_LABELS.RATIFY) {
+        targetId = args.elementId;
+      } else {
+        targetId = id;
+      }
+      ports.facts.assertFact('agent_action', [targetId, verbName, consent.source, ts]);
+    }
+
     // Phase-C template instantiation for approval-gated categories. Fires for both ADD
     // and REVISE: REVISE produces a new element with its own id, which needs its own
     // per-element approval rule installed so that ratification can later derive the

@@ -32,7 +32,7 @@ describe('CONCERN — schema', () => {
     expect(entry.authority.add).toEqual([CONSENT_SOURCES.DESIGNER]);
     expect(entry.authority.revise).toEqual([CONSENT_SOURCES.DESIGNER]);
     expect(entry.authority.withdraw).toEqual([CONSENT_SOURCES.DESIGNER]);
-    expect(entry.authority.ratify).toEqual([CONSENT_SOURCES.DESIGNER, CONSENT_SOURCES.DESIGN_PARTNER]);
+    expect(entry.authority.ratify).toEqual([CONSENT_SOURCES.DESIGNER]);
   });
 
   it('AC-1.3: verifyArgsShape accepts valid args, throws SHAPE_INVALID on missing label', () => {

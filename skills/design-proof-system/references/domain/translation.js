@@ -202,6 +202,7 @@ const EDB_PREDICATES = Object.freeze(new Set([
   'approved', 'two_yes',
   'closure_committed', 'closure_pending', 'phase', 'round', 'created_at',
   'withdrew', 'superseded',
+  'agent_action',
 ]));
 
 export function getDeclaredEDBPredicates() {

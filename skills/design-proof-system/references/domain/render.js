@@ -297,6 +297,7 @@ export function renderDatalogProjection(args, readPorts) {
     approved: 3, two_yes: 2,
     closure_committed: 0, closure_pending: 0, round: 1,
     created_at: 2, withdrew: 1, superseded: 2,
+    agent_action: 4,
   };
   const facts = [];
   for (const [pred, arity] of Object.entries(PROJECTION_ARITIES)) {
