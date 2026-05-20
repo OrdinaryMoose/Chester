@@ -34,15 +34,36 @@ function _resolveElementCategory(id, queryPort) {
 
 // D11 pre-ratify vocabulary lint gate. Reads ratified `definition/3` rows (derived
 // once a Definition element is ratified by per-element RULE_TEMPLATES). For each
-// canonical term, scans the target element's string-valued fields for a case-insensitive
-// substring match that is NOT the exact canonical form — i.e. a case variant — and
-// returns the first violation it finds. Returns null when no definitions are ratified
-// (AC-11.3) or when every field is clean.
-function _vocabularyLintCheck(elementId, ports) {
+// canonical term, scans the target element's string-valued fields for a
+// case-insensitive substring match that is NOT the exact canonical form — i.e.
+// a case variant — and returns the first violation it finds. Returns null when
+// no definitions are ratified, when the element's category is in the exempt set
+// (descriptive prose: Definition, Concern, Risk, Evidence), or when every field
+// is clean.
+//
+// Exempt-set rationale: descriptive categories naturally reference canonical terms
+// in common-noun and inflected forms. The mechanical discipline is reserved for
+// argumentative categories (Proposition, Resolution, Rule, Permission, Friction)
+// where canonical-form consistency carries weight. The authoring rule in
+// VOCABULARY.md §11 remains universal guidance regardless.
+const VOCAB_LINT_EXEMPT_CATEGORIES = Object.freeze(new Set([
+  ELEMENT_CATEGORIES.DEFINITION,
+  ELEMENT_CATEGORIES.CONCERN,
+  ELEMENT_CATEGORIES.RISK,
+  ELEMENT_CATEGORIES.EVIDENCE,
+]));
+
+function _vocabularyLintCheck(elementId, ports, elementCategory) {
   const ratifiedDefs = ports.query.query(['definition', [{ var: 'D' }, { var: 'T' }, { var: 'X' }]]);
   if (ratifiedDefs.length === 0) return null;
   const canonicalTerms = ratifiedDefs.map(r => r.T).filter(t => typeof t === 'string' && t.length > 0);
   if (canonicalTerms.length === 0) return null;
+
+  // Exempt-category early-exit: descriptive categories are not subject to the
+  // mechanical case-variance check. The discipline applies to argumentative
+  // prose only. A null elementCategory (defensive fallthrough on category-
+  // resolution failure) does NOT short-circuit here.
+  if (elementCategory && VOCAB_LINT_EXEMPT_CATEGORIES.has(elementCategory)) return null;
 
   const readPorts = { query: ports.query, explain: ports.explain };
   const record = render.renderElementDeep({ id: elementId }, readPorts);
@@ -420,8 +441,11 @@ export function runOperation(verbName, args, consent, ports) {
     // only the current lifecycle state. Safe on non-CONCERN ratifications: retractFact
     // returns false on missing facts (no throw). Gated on the resolved category to keep
     // intent explicit.
+    // RATIFY-only: resolve the target element's category once, then reuse it for
+    // both the CONCERN cleanup (immediately below) and the lint-check at step 8b.
+    let ratifyTarget = null;
     if (verbName === ACTION_LABELS.RATIFY) {
-      const ratifyTarget = _resolveElementCategory(args.elementId, ports.query);
+      ratifyTarget = _resolveElementCategory(args.elementId, ports.query);
       if (ratifyTarget === ELEMENT_CATEGORIES.CONCERN) {
         ports.facts.retractFact('concern_status', [args.elementId, 'draft']);
       }
@@ -446,8 +470,10 @@ export function runOperation(verbName, args, consent, ports) {
     }
 
     // §6.1 step 8b (D11): pre-ratify vocabulary lint. Blocking gate before customPostCheck.
+    // Passes the previously-resolved ratifyTarget so the lint can short-circuit on
+    // exempt categories without an additional category-resolution query.
     if (verbName === ACTION_LABELS.RATIFY) {
-      const violation = _vocabularyLintCheck(args.elementId, ports);
+      const violation = _vocabularyLintCheck(args.elementId, ports, ratifyTarget);
       if (violation) {
         throw new DomainError({ code: 'VOCABULARY_LINT_VIOLATION', ...violation });
       }
