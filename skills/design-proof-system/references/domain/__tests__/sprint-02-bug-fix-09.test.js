@@ -4,7 +4,8 @@ import { ELEMENT_CATEGORIES, CONSENT_SOURCES } from '../tags.js';
 
 // D11 contract spans two files. Baseline assertions (AC-11.1, AC-11.2, AC-11.3) live
 // in sprint-02-bug-fix-07.test.js. This file holds the sprint-02-bug-fix-09 refinement:
-// exempt-category coverage (AC-11.4, AC-11.5).
+// exempt-category coverage (AC-11.4, AC-11.5) and whole-word matcher coverage
+// (AC-11.6, AC-11.7).
 
 async function makeRealBridge() {
   const { Engine } = await import('../../engine/Engine.js');
@@ -67,6 +68,54 @@ describe('sprint-02-bug-fix-09 — Vocabulary discipline refinement', () => {
     );
     const r = bridge.addElement(
       { idShape: ELEMENT_CATEGORIES.RISK, statement: 'throughput may degrade under load', basis: [ev.id] },
+      designerConsent,
+    );
+    expect(() => bridge.ratifyElement(
+      { elementId: r.id, source: CONSENT_SOURCES.DESIGNER },
+      designerConsent,
+    )).not.toThrow();
+  });
+
+  it('AC-11.6 inflection of a canonical term passes on a non-exempt element', async () => {
+    const bridge = await makeRealBridge();
+    bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'industry', statement: 'E' },
+      designerConsent,
+    );
+    const d = bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.DEFINITION, canonical_name: 'Cache', definition: 'a temporary store' },
+      designerConsent,
+    );
+    bridge.ratifyElement(
+      { elementId: d.id, source: CONSENT_SOURCES.DESIGNER },
+      designerConsent,
+    );
+    const r = bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.RULE, statement: 'cached results expire after timeout' },
+      designerConsent,
+    );
+    expect(() => bridge.ratifyElement(
+      { elementId: r.id, source: CONSENT_SOURCES.DESIGNER },
+      designerConsent,
+    )).not.toThrow();
+  });
+
+  it('AC-11.7 canonical form on a non-exempt element passes (regression lock)', async () => {
+    const bridge = await makeRealBridge();
+    bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.EVIDENCE, source: 'industry', statement: 'E' },
+      designerConsent,
+    );
+    const d = bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.DEFINITION, canonical_name: 'Visibility', definition: 'observable state of a thing' },
+      designerConsent,
+    );
+    bridge.ratifyElement(
+      { elementId: d.id, source: CONSENT_SOURCES.DESIGNER },
+      designerConsent,
+    );
+    const r = bridge.addElement(
+      { idShape: ELEMENT_CATEGORIES.RULE, statement: 'Visibility drives the architecture' },
       designerConsent,
     );
     expect(() => bridge.ratifyElement(

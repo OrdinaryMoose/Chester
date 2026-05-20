@@ -34,10 +34,10 @@ function _resolveElementCategory(id, queryPort) {
 
 // D11 pre-ratify vocabulary lint gate. Reads ratified `definition/3` rows (derived
 // once a Definition element is ratified by per-element RULE_TEMPLATES). For each
-// canonical term, scans the target element's string-valued fields for a
-// case-insensitive substring match that is NOT the exact canonical form — i.e.
-// a case variant — and returns the first violation it finds. Returns null when
-// no definitions are ratified, when the element's category is in the exempt set
+// canonical term, scans the target element's string-valued fields for a whole-word
+// case-variant occurrence of the term under the narrow word-character set
+// [A-Za-z0-9], and returns the first violation it finds. Returns null when no
+// definitions are ratified, when the element's category is in the exempt set
 // (descriptive prose: Definition, Concern, Risk, Evidence), or when every field
 // is clean.
 //
@@ -73,11 +73,18 @@ function _vocabularyLintCheck(elementId, ports, elementCategory) {
     if (typeof value !== 'string' || value.length === 0) continue;
     for (const term of canonicalTerms) {
       if (term === value) continue; // exact match of the entire field — skip (likely the Definition's own canonical_name field)
-      const lowerValue = value.toLowerCase();
-      const lowerTerm = term.toLowerCase();
-      const idx = lowerValue.indexOf(lowerTerm);
-      if (idx === -1) continue;
-      const matchedSubstring = value.slice(idx, idx + term.length);
+      // Whole-word match under the narrow word-character set [A-Za-z0-9].
+      // Underscore, hyphen, period, apostrophe, and whitespace all separate words.
+      // Case-insensitive (`i` flag) so the matcher locates case-variant occurrences;
+      // the matched substring is extracted from the candidate text in its original
+      // case and compared against the canonical term's exact case to detect a
+      // case-variance violation. Canonical-term values are regex-escaped so terms
+      // containing regex metacharacters (e.g. a period) are handled correctly.
+      const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const wordBoundaryRe = new RegExp(`(?<![A-Za-z0-9])${escapedTerm}(?![A-Za-z0-9])`, 'i');
+      const match = wordBoundaryRe.exec(value);
+      if (!match) continue;
+      const matchedSubstring = match[0];
       if (matchedSubstring !== term) {
         return { field, value: matchedSubstring, canonicalTerm: term };
       }
