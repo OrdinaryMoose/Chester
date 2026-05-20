@@ -444,7 +444,7 @@ describe('D11 — Pre-ratify vocabulary lint', () => {
       designerConsent,
     );
     const c = bridge.addElement(
-      { idShape: ELEMENT_CATEGORIES.CONCERN, label: 'reachability' },
+      { idShape: ELEMENT_CATEGORIES.RULE, statement: 'reachability' },
       designerConsent,
     );
     expect(() => bridge.ratifyElement(
@@ -469,9 +469,9 @@ describe('D11 — Pre-ratify vocabulary lint', () => {
       { elementId: d.id, source: CONSENT_SOURCES.DESIGNER },
       designerConsent,
     );
-    // Add a Concern whose label uses the uncapitalized variant.
+    // Add a Rule whose statement uses the uncapitalized variant.
     const c = bridge.addElement(
-      { idShape: ELEMENT_CATEGORIES.CONCERN, label: 'uses reachability everywhere' },
+      { idShape: ELEMENT_CATEGORIES.RULE, statement: 'uses reachability everywhere' },
       designerConsent,
     );
     expect(() => bridge.ratifyElement(
@@ -496,7 +496,7 @@ describe('D11 — Pre-ratify vocabulary lint', () => {
       designerConsent,
     );
     const c = bridge.addElement(
-      { idShape: ELEMENT_CATEGORIES.CONCERN, label: 'uses Reachability everywhere' },
+      { idShape: ELEMENT_CATEGORIES.RULE, statement: 'uses Reachability everywhere' },
       designerConsent,
     );
     expect(() => bridge.ratifyElement(
