@@ -34,15 +34,36 @@ function _resolveElementCategory(id, queryPort) {
 
 // D11 pre-ratify vocabulary lint gate. Reads ratified `definition/3` rows (derived
 // once a Definition element is ratified by per-element RULE_TEMPLATES). For each
-// canonical term, scans the target element's string-valued fields for a case-insensitive
-// substring match that is NOT the exact canonical form — i.e. a case variant — and
-// returns the first violation it finds. Returns null when no definitions are ratified
-// (AC-11.3) or when every field is clean.
-function _vocabularyLintCheck(elementId, ports) {
+// canonical term, scans the target element's string-valued fields for a whole-word
+// case-variant occurrence of the term under the narrow word-character set
+// [A-Za-z0-9], and returns the first violation it finds. Returns null when no
+// definitions are ratified, when the element's category is in the exempt set
+// (descriptive prose: Definition, Concern, Risk, Evidence), or when every field
+// is clean.
+//
+// Exempt-set rationale: descriptive categories naturally reference canonical terms
+// in common-noun and inflected forms. The mechanical discipline is reserved for
+// argumentative categories (Proposition, Resolution, Rule, Permission, Friction)
+// where canonical-form consistency carries weight. The authoring rule in
+// VOCABULARY.md §11 remains universal guidance regardless.
+const VOCAB_LINT_EXEMPT_CATEGORIES = Object.freeze(new Set([
+  ELEMENT_CATEGORIES.DEFINITION,
+  ELEMENT_CATEGORIES.CONCERN,
+  ELEMENT_CATEGORIES.RISK,
+  ELEMENT_CATEGORIES.EVIDENCE,
+]));
+
+function _vocabularyLintCheck(elementId, ports, elementCategory) {
   const ratifiedDefs = ports.query.query(['definition', [{ var: 'D' }, { var: 'T' }, { var: 'X' }]]);
   if (ratifiedDefs.length === 0) return null;
   const canonicalTerms = ratifiedDefs.map(r => r.T).filter(t => typeof t === 'string' && t.length > 0);
   if (canonicalTerms.length === 0) return null;
+
+  // Exempt-category early-exit: descriptive categories are not subject to the
+  // mechanical case-variance check. The discipline applies to argumentative
+  // prose only. A null elementCategory (defensive fallthrough on category-
+  // resolution failure) does NOT short-circuit here.
+  if (elementCategory && VOCAB_LINT_EXEMPT_CATEGORIES.has(elementCategory)) return null;
 
   const readPorts = { query: ports.query, explain: ports.explain };
   const record = render.renderElementDeep({ id: elementId }, readPorts);
@@ -52,11 +73,18 @@ function _vocabularyLintCheck(elementId, ports) {
     if (typeof value !== 'string' || value.length === 0) continue;
     for (const term of canonicalTerms) {
       if (term === value) continue; // exact match of the entire field — skip (likely the Definition's own canonical_name field)
-      const lowerValue = value.toLowerCase();
-      const lowerTerm = term.toLowerCase();
-      const idx = lowerValue.indexOf(lowerTerm);
-      if (idx === -1) continue;
-      const matchedSubstring = value.slice(idx, idx + term.length);
+      // Whole-word match under the narrow word-character set [A-Za-z0-9].
+      // Underscore, hyphen, period, apostrophe, and whitespace all separate words.
+      // Case-insensitive (`i` flag) so the matcher locates case-variant occurrences;
+      // the matched substring is extracted from the candidate text in its original
+      // case and compared against the canonical term's exact case to detect a
+      // case-variance violation. Canonical-term values are regex-escaped so terms
+      // containing regex metacharacters (e.g. a period) are handled correctly.
+      const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const wordBoundaryRe = new RegExp(`(?<![A-Za-z0-9])${escapedTerm}(?![A-Za-z0-9])`, 'i');
+      const match = wordBoundaryRe.exec(value);
+      if (!match) continue;
+      const matchedSubstring = match[0];
       if (matchedSubstring !== term) {
         return { field, value: matchedSubstring, canonicalTerm: term };
       }
@@ -287,6 +315,11 @@ export function runOperation(verbName, args, consent, ports) {
   const spec = OPERATION_SPECS[verbName];
   if (!spec) throw new DomainError({ code: 'UNKNOWN_VERB', verbName });
 
+  // RATIFY-only: resolved once at step 2 (consent lookup) and reused at
+  // step 5.5 (CONCERN cleanup) and step 8b (vocabulary lint). One
+  // _resolveElementCategory call per RATIFY operation.
+  let ratifyTarget = null;
+
   // §6.1 step 2: verify consent
   // For verbs whose target element category is determinable from args (ADD/REVISE/WITHDRAW),
   // consult CATEGORY_REGISTRY[idShape].authority[action] — that's the authoritative per-category
@@ -301,8 +334,8 @@ export function runOperation(verbName, args, consent, ports) {
   if (verbName === ACTION_LABELS.ADD || verbName === ACTION_LABELS.REVISE || verbName === ACTION_LABELS.WITHDRAW) {
     perCategoryAuthority = lookupAuthority(targetShape, verbName);
   } else if (verbName === ACTION_LABELS.RATIFY) {
-    const resolved = _resolveElementCategory(args.elementId, ports.query);
-    if (resolved) perCategoryAuthority = lookupAuthority(resolved, ACTION_LABELS.RATIFY);
+    ratifyTarget = _resolveElementCategory(args.elementId, ports.query);
+    if (ratifyTarget) perCategoryAuthority = lookupAuthority(ratifyTarget, ACTION_LABELS.RATIFY);
   } else if (verbName === ACTION_LABELS.REVISE_PROPOSITION || verbName === ACTION_LABELS.REVISE_RESOLUTION) {
     // D12: route through the per-category ratify authority — these verbs perform
     // an atomic add+ratify on the new element.
@@ -420,8 +453,9 @@ export function runOperation(verbName, args, consent, ports) {
     // only the current lifecycle state. Safe on non-CONCERN ratifications: retractFact
     // returns false on missing facts (no throw). Gated on the resolved category to keep
     // intent explicit.
+    // RATIFY-only: ratifyTarget was resolved once at step 2 (consent lookup) and
+    // reused here for the CONCERN cleanup and at step 8b for the lint check.
     if (verbName === ACTION_LABELS.RATIFY) {
-      const ratifyTarget = _resolveElementCategory(args.elementId, ports.query);
       if (ratifyTarget === ELEMENT_CATEGORIES.CONCERN) {
         ports.facts.retractFact('concern_status', [args.elementId, 'draft']);
       }
@@ -446,8 +480,10 @@ export function runOperation(verbName, args, consent, ports) {
     }
 
     // §6.1 step 8b (D11): pre-ratify vocabulary lint. Blocking gate before customPostCheck.
+    // Passes the previously-resolved ratifyTarget so the lint can short-circuit on
+    // exempt categories without an additional category-resolution query.
     if (verbName === ACTION_LABELS.RATIFY) {
-      const violation = _vocabularyLintCheck(args.elementId, ports);
+      const violation = _vocabularyLintCheck(args.elementId, ports, ratifyTarget);
       if (violation) {
         throw new DomainError({ code: 'VOCABULARY_LINT_VIOLATION', ...violation });
       }

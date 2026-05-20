@@ -243,6 +243,8 @@ When writing artifacts, error messages, or inter-agent prose:
 - Do not invent synonyms for canonical detected conditions: it is `ungrounded_proposition`, not "unsupported proposition"; `coverage_gap_detected`, not "missing resolution".
 - When a friction shape appears in prose, use its enum form in `UPPER_SNAKE_CASE` (`COVERAGE_GAP`), not a paraphrase.
 
+The naming-form rules above are enforced mechanically at ratification time, for a specific subset of element categories. The discipline applies to **Proposition**, **Resolution**, **Rule**, **Permission**, and **Friction** elements — categories whose prose is argumentative and where canonical-form consistency carries weight. When one of these is ratified, the engine scans its text fields for whole-word occurrences of any ratified canonical term that differ from the canonical's exact case, and refuses ratification when one is found. The discipline does **not** apply to **Definition**, **Concern**, **Risk**, or **Evidence** elements — descriptive categories whose prose naturally reaches for common-noun and inflected forms of canonical terms in the course of explaining the design subject. The authoring rule above applies universally regardless; only the mechanical enforcement is asymmetric.
+
 If a needed term is not in this file, add it here first, then use it. New terms enter the vocabulary via this file, not via ad-hoc coining in code or artifacts.
 
 ---
@@ -312,3 +314,9 @@ For payloads whose content is transport-fragile (typed-element addition payloads
 Format: `===== PAYLOAD_START =====\n<content>\n===== PAYLOAD_END =====`.
 
 Receiving agents call `parsePayloadChannel` on incoming messages whose intended payload may have been transformed. The sentinel format is stable and verified by the D9 round-trip tests.
+
+---
+
+## Change Log
+
+- **2026-05-20** — Section 11 gained the mechanical-enforcement paragraph. The proof system's pre-ratify vocabulary check is scoped to the argumentative element categories and uses whole-word matching under the narrow word-character set. The four descriptive categories (Definition, Concern, Risk, Evidence) are exempt from the mechanical check; the authoring rule continues to apply to all categories. See `docs/chester/plans/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-09/` for the design and implementation record.
