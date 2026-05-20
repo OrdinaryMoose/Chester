@@ -2233,3 +2233,80 @@ artifact_refs:
   - working/20260517-01-create-design-committee/design/20260517-01-create-design-committee-design-00.md
   - working/20260517-01-create-design-committee/summary/20260517-01-create-design-committee-summary-00.md
 ---
+
+---
+id: dr-20260520-01-standalone-documentation-discipline
+date: 2026-05-20
+sprint: sprint-02-bug-fix-09
+stage: design-small-task
+title: Standalone-documentation discipline for Chester artifacts
+decision: Every Chester artifact (brief, spec, plan, vocabulary document, in-document section) describes its current state declaratively as if read in isolation; cross-version lineage, prior-behavior contrast, and history live exclusively in an end-of-document change log on the same artifact.
+rationale: The designer rejected comparative framing ("we used to do X, now we do Y") in artifact bodies on the grounds that future readers consult artifacts as authoritative descriptions of present state, not as diffs against an unstated prior. Encoding history into the body forces every reader to reconstruct the present from the past; pushing history into an end-of-document change log lets the body read as a self-contained specification while preserving lineage where future readers expect to find it. The principle promotes change logs from afterthought to load-bearing artifact — they are the only place history lives — so each document carries a change log scoped to its own content. The discipline also extends to commit subjects (each commit message describes its current change declaratively, not in reference to future tasks).
+alternatives:
+  - Carry comparative framing in artifact bodies ("the new contract differs from the old by ...") — rejected because it embeds an unstated prior version into the present-tense document and forces readers to reconstruct the current state from a delta.
+  - Maintain lineage in a separate cross-document history file — rejected because it separates a document's history from its body and breaks the locality property (a reader holding one artifact has both its current state and its lineage in hand).
+  - Treat change logs as optional per artifact — rejected because the discipline depends on history having a single canonical home; making it optional reintroduces the body-as-diff failure mode the principle is designed to prevent.
+tags: [convention, format, process]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-09/design/sprint-02-bug-fix-09-design-00.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-09/spec/sprint-02-bug-fix-09-spec-00.md
+---
+
+---
+id: dr-20260520-02-asymmetric-vocabulary-lint-enforcement
+date: 2026-05-20
+sprint: sprint-02-bug-fix-09
+stage: design-small-task
+title: Asymmetric mechanical enforcement of the vocabulary discipline
+decision: The naming-hygiene rule remains a universal authoring expectation across all proof elements, but the engine's mechanical lint at ratification time enforces the rule only on argumentative element categories (Proposition, Resolution, Rule, Permission, Friction); descriptive categories (Definition, Concern, Risk, Evidence) are exempt from the mechanical check at category-level granularity.
+rationale: Live field evidence from StoryDesigner showed the substring-scoped, universally-applied lint blocking legitimate descriptive prose (e.g., a Concern titled "subscription cancellation semantics" tripped on `subscription`) and forced operators to patch the engine from the outside with rollback-catching wrappers that manually assert facts — bypassing the entire mutations pipeline. The natural-language-vs-argumentative boundary is the right place for the asymmetry: descriptive fields routinely reach for common-noun and inflected forms of canonical terms, so most discipline violations there are false positives; argumentative fields are where canonical-form drift actually corrupts reasoning chains and where the discipline pays off. Splitting authorial guidance (universal) from mechanical enforcement (scoped) keeps the engine fix minimal and pragmatic while preserving the cultural rule that all proof prose should respect canonical names. Category-level granularity was chosen over field-level granularity because field-level requires per-category configuration surface the engine does not yet need; if rationale-on-Rule or another descriptive field ever becomes a chronic friction point, that becomes a follow-up sub-sprint with finer granularity.
+alternatives:
+  - Make the rule itself category-scoped (descriptive elements may use any form) — rejected because the authorial expectation that all proof prose respects canonical names is culturally valuable even where mechanically unenforced; weakening the rule loses guidance the engine does not need to police.
+  - Field-level granularity (exempt only specific fields like description on Concern, body on Definition) — rejected as premature investment; the StoryDesigner workaround operates at category granularity and category-level exemption matches the natural-language-vs-argumentative boundary cleanly without adding configuration surface.
+  - Add a per-Definition `lint_policy` field or `lexical_variants` whitelist — rejected as over-engineered for the failure mode observed; the descriptive/argumentative split resolves the live evidence without introducing per-element configuration.
+  - Keep universal mechanical enforcement and require operators to patch around it with wrapper scripts — rejected because the wrapper catches rollbacks and manually asserts facts directly into the engine, bypassing postconditions, customPostCheck, and persistence; the engine fix preserves pipeline invariants the wrapper trades away.
+tags: [architecture, governance, convention]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-09/design/sprint-02-bug-fix-09-design-00.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-09/spec/sprint-02-bug-fix-09-spec-00.md
+---
+
+---
+id: dr-20260520-03-per-sub-sprint-test-file-segregation
+date: 2026-05-20
+sprint: sprint-02-bug-fix-09
+stage: design-specify
+title: Per-sub-sprint test file convention with in-place relocation on contract narrowing
+decision: When a sub-sprint refines a contract that crosses the proof-system lifecycle, tests are organized per-sub-sprint (each sub-sprint owns its own `__tests__/<sprint-name>.test.js` file for new contract surface), while existing tests in prior sub-sprint files whose subject category becomes invalid under the new contract are relocated in-place (rewritten onto a still-active category in the same file, not moved to a new file).
+rationale: This split preserves two complementary properties. Per-sub-sprint files keep the contract narrative for each sub-sprint navigable — a reader can open one file and read the locked behaviors for that sub-sprint as a unit. In-place relocation of tests that drift under a new contract preserves the prior sub-sprint's locking intent on the same predicate it originally locked, just expressed against a category that the new contract still polices; moving such tests to a new file would orphan the original locking story and create artificial coupling between the new sub-sprint's file and the prior sub-sprint's contract. The convention emerged when adversarial review caught that AC-11.1 (originally locking "substring matcher rejects lowercase canonical term" via Concern) would falsely pass under the new exempt-Concern contract; the fix was to rewrite the test to use Rule (a still-policed category) in the same file, not to delete it or move it. This sets the cross-sprint pattern: new contract surface lives in a sprint-named file; tests whose locking subject is invalidated by the new contract are rewritten in their original file to lock the equivalent behavior on a still-valid subject.
+alternatives:
+  - Move drift-affected tests to the new sub-sprint's file — rejected because it severs the test from the contract it was originally locking and creates a synthetic dependency from the new sub-sprint's file onto pre-existing behavior that predates it.
+  - Delete drift-affected tests outright and rely on the new sub-sprint's tests to cover the equivalent behavior — rejected because the new sub-sprint's tests lock the new exempt-category behavior; the original test was locking matcher behavior on a non-exempt category, which is a different predicate that still needs coverage.
+  - Consolidate all vocabulary-lint tests into a single discipline-scoped file — rejected because it dissolves the per-sub-sprint navigation property and forces every future sub-sprint touching the discipline to thread its changes through a shared file, increasing merge friction and review surface.
+tags: [convention, tool, process]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-09/spec/sprint-02-bug-fix-09-spec-00.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-09/plan/sprint-02-bug-fix-09-plan-00.md
+---
+
+---
+id: dr-20260520-04-enum-references-over-wire-strings-in-metadata-sets
+date: 2026-05-20
+sprint: sprint-02-bug-fix-09
+stage: plan-build
+title: Encode per-category metadata Sets via ELEMENT_CATEGORIES enum references, not wire-string literals
+decision: Engine-internal Sets that carry per-category metadata (e.g., the vocabulary-lint exempt set) are populated by referencing the `ELEMENT_CATEGORIES.*` enum members directly (`ELEMENT_CATEGORIES.DEFINITION`, etc.), not by inlining wire-string literals (`'definition'`, etc.); the constructor reads the enum at module load and any future enum rename surfaces as a load-time error rather than a silent runtime drift.
+rationale: Wire-string literals look identical to enum values today but decouple from the enum at construction time, so a future rename of `ELEMENT_CATEGORIES.DEFINITION` to a different wire value would silently desynchronize the metadata Set without any compiler or runtime signal — the lint would simply stop exempting the category in question, and the failure mode would only surface when an operator hit the lint on a now-unexempt element and assumed the rule had changed. Enum-references convert that latent failure into a load-time `ReferenceError` if the symbol disappears, and into a same-rename auto-propagation if the symbol is renamed in place. The pattern generalizes: any future per-category metadata structure the engine introduces (allow-lists, threshold maps, policy overrides) should use enum references for the same robustness property. The cost is one extra import line; the avoided failure mode is silent semantic drift across module boundaries.
+alternatives:
+  - Use wire-string literals directly in the Set constructor — rejected because the wire-string-vs-enum coupling is exactly the kind of silent dependency that fails late and obscurely on rename; the rename would not produce any signal until an operator hit the now-misclassified category in production.
+  - Build the Set at runtime from a category-traversal of all known categories minus the policed ones — rejected as over-engineered for a four-element set whose membership is itself the design decision being recorded; deriving membership from the inverse complicates the readable expression of "these categories are exempt."
+  - Defer the enum-reference change to a follow-up cleanup sprint — rejected because the smell forecast caught it during plan hardening; fixing it inline at construction is cheaper than a follow-up sprint and the silent-drift failure mode applies from the moment the Set ships.
+tags: [architecture, convention, tool]
+supersedes: null
+artifact_refs:
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-09/plan/sprint-02-bug-fix-09-plan-00.md
+  - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-09/plan/sprint-02-bug-fix-09-plan-threat-report-00.md
+---
