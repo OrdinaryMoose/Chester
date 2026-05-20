@@ -315,6 +315,11 @@ export function runOperation(verbName, args, consent, ports) {
   const spec = OPERATION_SPECS[verbName];
   if (!spec) throw new DomainError({ code: 'UNKNOWN_VERB', verbName });
 
+  // RATIFY-only: resolved once at step 2 (consent lookup) and reused at
+  // step 5.5 (CONCERN cleanup) and step 8b (vocabulary lint). One
+  // _resolveElementCategory call per RATIFY operation.
+  let ratifyTarget = null;
+
   // §6.1 step 2: verify consent
   // For verbs whose target element category is determinable from args (ADD/REVISE/WITHDRAW),
   // consult CATEGORY_REGISTRY[idShape].authority[action] — that's the authoritative per-category
@@ -329,8 +334,8 @@ export function runOperation(verbName, args, consent, ports) {
   if (verbName === ACTION_LABELS.ADD || verbName === ACTION_LABELS.REVISE || verbName === ACTION_LABELS.WITHDRAW) {
     perCategoryAuthority = lookupAuthority(targetShape, verbName);
   } else if (verbName === ACTION_LABELS.RATIFY) {
-    const resolved = _resolveElementCategory(args.elementId, ports.query);
-    if (resolved) perCategoryAuthority = lookupAuthority(resolved, ACTION_LABELS.RATIFY);
+    ratifyTarget = _resolveElementCategory(args.elementId, ports.query);
+    if (ratifyTarget) perCategoryAuthority = lookupAuthority(ratifyTarget, ACTION_LABELS.RATIFY);
   } else if (verbName === ACTION_LABELS.REVISE_PROPOSITION || verbName === ACTION_LABELS.REVISE_RESOLUTION) {
     // D12: route through the per-category ratify authority — these verbs perform
     // an atomic add+ratify on the new element.
@@ -448,11 +453,9 @@ export function runOperation(verbName, args, consent, ports) {
     // only the current lifecycle state. Safe on non-CONCERN ratifications: retractFact
     // returns false on missing facts (no throw). Gated on the resolved category to keep
     // intent explicit.
-    // RATIFY-only: resolve the target element's category once, then reuse it for
-    // both the CONCERN cleanup (immediately below) and the lint-check at step 8b.
-    let ratifyTarget = null;
+    // RATIFY-only: ratifyTarget was resolved once at step 2 (consent lookup) and
+    // reused here for the CONCERN cleanup and at step 8b for the lint check.
     if (verbName === ACTION_LABELS.RATIFY) {
-      ratifyTarget = _resolveElementCategory(args.elementId, ports.query);
       if (ratifyTarget === ELEMENT_CATEGORIES.CONCERN) {
         ports.facts.retractFact('concern_status', [args.elementId, 'draft']);
       }
