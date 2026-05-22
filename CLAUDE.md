@@ -114,7 +114,7 @@ Skills are live-reloaded — edit SKILL.md files and use `/reload-plugins` to pi
 
 ## Master Plan Mode
 
-**Currently active:** `20260511-01-mp-redesign-proof-system` — master working dir at `docs/chester/working/20260511-01-mp-redesign-proof-system/`. Read its `CLAUDE.md` after this file before sub-sprint work. Breadcrumb file `.active-master` is not currently in place; the master is identified by this section directly.
+**No master plan currently active.** Default sprint conventions apply. Re-enter Master Plan Mode by placing a `docs/chester/working/.active-master` breadcrumb whose single-line content is the master sprint name.
 
 Some pieces of Chester work span multiple sub-sprints under one umbrella plan (e.g. `20260430-02-rebuild-design-derivation` with three cluster sub-sprints). Master Plan Mode is a breadcrumb-toggled overlay over the default sprint conventions.
 
