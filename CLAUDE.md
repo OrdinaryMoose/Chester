@@ -109,7 +109,7 @@ Skills are live-reloaded — edit SKILL.md files and use `/reload-plugins` to pi
 
 ## Master Plan Mode
 
-**Currently active:** `20260511-01-mp-redesign-proof-system` (per `docs/chester/working/.active-master`). Read `docs/chester/working/20260511-01-mp-redesign-proof-system/CLAUDE.md` after this file before sub-sprint work.
+**Currently active:** `20260511-01-mp-redesign-proof-system` — master working dir at `docs/chester/working/20260511-01-mp-redesign-proof-system/`. Read its `CLAUDE.md` after this file before sub-sprint work. Breadcrumb file `.active-master` is not currently in place; the master is identified by this section directly.
 
 Some pieces of Chester work span multiple sub-sprints under one umbrella plan (e.g. `20260430-02-rebuild-design-derivation` with three cluster sub-sprints). Master Plan Mode is a breadcrumb-toggled overlay over the default sprint conventions.
 
@@ -124,6 +124,9 @@ If the file **exists**, read its single-line content — that is the **active ma
 - **Master root:** `docs/chester/working/<master-sprint-name>/` holds `master-plan.md`, the master-level `CLAUDE.md` (master-specific commitments), master-level `design/ spec/ plan/ summary/` directories, and all sub-sprint subdirectories nested inside it.
 - **Sub-sprint naming uses master-plan-derived IDs, not the default `YYYYMMDD-##-verb-noun-noun`:**
   - Cluster sub-sprints: `cluster-<letter>-<verb-slug>` (e.g. `cluster-a-define-solve`, `cluster-b-define-transition`).
+  - Layer-sequence sub-sprints: `sprint-<NN>-<slug>` (e.g. `sprint-01-proof-backend`, `sprint-02-proof-layer`). Used when the master plan defines an ordered build sequence rather than cluster decomposition.
+  - Bug-fix sub-sprints under a master: `sprint-<NN>-bug-fix-<MM>` (e.g. `sprint-02-bug-fix-09`).
+  - Re-do passes on the same sub-sprint: append `-pass-<N>` (e.g. `sprint-01-proof-backend-pass-3`).
   - Other sub-sprint types (LBDs, follow-up cycles, etc.) follow whatever pattern the master plan defines.
 - **New sub-sprint creation:**
   - Derive the ID from `master-plan.md` (next pending cluster or open LBD).
