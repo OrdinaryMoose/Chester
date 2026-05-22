@@ -74,8 +74,11 @@ Sprint name format: `YYYYMMDD-##-verb-noun-noun` where `##` is the next availabl
 - `feat:` for new skills or capabilities
 - `fix:` for bug fixes
 - `chore:` for config, gitignore, non-functional changes
+- `docs:` for documentation and CLAUDE.md changes
 - `checkpoint:` for mid-session saves (e.g., `checkpoint: spec approved`)
 - Merge commits: `Merge branch '<branch>' — <one-line summary>`
+
+**Staging discipline.** The tree often carries unrelated `D` and `??` entries from prior sprint cleanup, archive flows, or IDE files. Never `git add -A` or `git add .`. Stage explicitly by path so commits stay scoped to the work in hand.
 
 ## Tests
 
@@ -96,6 +99,8 @@ Tests are self-contained bash scripts. They validate hooks, config resolution, a
 When editing a SKILL.md, the `description` frontmatter field and the skill's entry in `skills/setup-start/SKILL.md` (the available skills list) must stay in sync. If you change what a skill does, update both. Also bump the `version` field (e.g. `v0001 → v0002`) for any behavior or contract change.
 
 Skill types: **rigid** (follow exactly — e.g., test-first, fix-bugs) vs **flexible** (adapt principles to context). The skill itself declares which.
+
+**Filename case matters.** Claude Code auto-discovers `CLAUDE.md` (uppercase) — lowercase `claude.md` files are not loaded as context on case-sensitive filesystems. Always create as `CLAUDE.md`.
 
 ## Development
 
