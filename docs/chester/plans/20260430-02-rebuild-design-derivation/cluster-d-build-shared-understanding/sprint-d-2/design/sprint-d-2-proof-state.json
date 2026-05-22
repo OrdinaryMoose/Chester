@@ -1,5 +1,5 @@
 {
-  "round": 20,
+  "round": 31,
   "problemStatement": "D.2 builds the redesigned design-large-task Presentation layer (voice, packet, phase orchestration, round mechanics, render steps) that interfaces with the Proof layer contracts so that the designer can read, understand, and update proof state, culminating with the ratification of the closing argument, production of the design brief, and handover to design-specify.",
   "elements": {
     "EVID-1": {
@@ -817,11 +817,10 @@
       "statement": "Each round addresses exactly one topic; multi-topic rounds are prohibited; surplus topics queue for subsequent rounds in priority order.",
       "source": null,
       "grounding": [
-        "RULE-1",
-        "RULE-2"
+        "RULE-17"
       ],
       "collapse_test": "If multi-topic rounds are allowed, the decision venue shape blurs, designer ratification becomes ambiguous (which topic was approved?), proof element provenance gets noisy, and the agent can hide implementation drift in a secondary topic the designer didn't focus on.",
-      "reasoning_chain": "IF the proof carries structural weight at design altitude (RULE-1) AND Shared Understanding requires unambiguous decision venues (RULE-2) AND multi-topic packets dilute the venue, THEN single-topic discipline is necessary so designer ratification per round attaches to one decision.",
+      "reasoning_chain": "IF rounds must be single-topic (RULE-17), THEN the presentation layer must enforce single-topic discipline at the round-cycle level — composing each round around exactly one decision venue and queuing surplus topics in priority order.",
       "rejected_alternatives": [],
       "relieves": null,
       "basis": [],
@@ -829,8 +828,8 @@
       "ratification": null,
       "status": "active",
       "addedInRound": 2,
-      "revisedInRound": null,
-      "revision": 0,
+      "revisedInRound": 22,
+      "revision": 1,
       "ratificationStatus": "draft"
     },
     "NCON-3": {
@@ -850,11 +849,12 @@
       "basis": [],
       "problem_anchor": null,
       "ratification": null,
-      "status": "active",
+      "status": "withdrawn",
       "addedInRound": 2,
       "revisedInRound": 4,
       "revision": 1,
-      "ratificationStatus": "draft"
+      "ratificationStatus": "draft",
+      "withdrawal_disposition": "superseded"
     },
     "NCON-4": {
       "id": "NCON-4",
@@ -872,11 +872,12 @@
       "basis": [],
       "problem_anchor": null,
       "ratification": null,
-      "status": "active",
+      "status": "withdrawn",
       "addedInRound": 2,
       "revisedInRound": null,
       "revision": 0,
-      "ratificationStatus": "draft"
+      "ratificationStatus": "draft",
+      "withdrawal_disposition": "superseded"
     },
     "NCON-5": {
       "id": "NCON-5",
@@ -895,11 +896,12 @@
       "basis": [],
       "problem_anchor": null,
       "ratification": null,
-      "status": "active",
+      "status": "withdrawn",
       "addedInRound": 2,
       "revisedInRound": 4,
       "revision": 1,
-      "ratificationStatus": "draft"
+      "ratificationStatus": "draft",
+      "withdrawal_disposition": "superseded"
     },
     "NCON-6": {
       "id": "NCON-6",
@@ -918,11 +920,12 @@
       "basis": [],
       "problem_anchor": null,
       "ratification": null,
-      "status": "active",
+      "status": "withdrawn",
       "addedInRound": 2,
       "revisedInRound": 4,
       "revision": 1,
-      "ratificationStatus": "draft"
+      "ratificationStatus": "draft",
+      "withdrawal_disposition": "superseded"
     },
     "NCON-7": {
       "id": "NCON-7",
@@ -996,7 +999,7 @@
       "addedInRound": 3,
       "revisedInRound": null,
       "revision": 0,
-      "ratificationStatus": "draft"
+      "ratificationStatus": "ratified"
     },
     "RULE-14": {
       "id": "RULE-14",
@@ -1063,15 +1066,16 @@
     "NCON-11": {
       "id": "NCON-11",
       "type": "NECESSARY_CONDITION",
-      "statement": "The agent classifies information into proof element types per D.1's category-shape rules before submission: NC (must-be-true claim with grounding, reasoning chain, collapse test), Rule (designer-source directive restricting design space), Evidence (non-designer-source factual observation), Concern (designer-named worry anchoring RCs), Definition (vocabulary entry — G1 slot), Risk (hazard with basis pointer), Permission (designer-source relief from a Rule), Friction (tension between two existing elements), RC (resolved-state claim per Concern). When classification is uncertain, the agent surfaces the candidate and its category in commentary for designer ratification before adding. Misclassifications detected post-add are corrected via withdraw + re-add, not in-place mutation.",
+      "statement": "The agent classifies information into proof element types per the rules' category-shape definitions before submission. When classification is uncertain, the agent surfaces the candidate and its category in commentary for designer ratification before adding. Misclassifications detected post-add are corrected via withdraw + re-add, not in-place mutation.",
       "source": null,
       "grounding": [
         "RULE-3",
         "RULE-9",
-        "RULE-14"
+        "RULE-14",
+        "RULE-18"
       ],
       "collapse_test": "If the agent skips pre-submission classification check, designer-source statements drift into Evidence (or vice versa), schema rejections happen at the boundary (concrete evidence this session: the EVIDENCE source=designer rejection), and the proof's structural meaning blurs. If uncertainty isn't surfaced for designer ratification, the agent guesses category and silently locks the wrong shape (concrete evidence this session: the rules-vs-NCs misclassification of 8 elements at proof open). If misclassifications can't be corrected via withdraw + re-add, the proof carries permanent category errors.",
-      "reasoning_chain": "IF the proof's structural meaning depends on category correctness (Shared Understanding via RULE-2, Design-is-the-code via RULE-1) AND D.1's Proof-layer contracts define category-shape rules (RULE-14) AND PM-as-decider says designer authority controls classification edge cases (RULE-3) AND agent-rule-submission discipline limits agent-side category creation (RULE-9), THEN agent classification must apply category-shape rules before submission, surface uncertainty for designer ratification rather than guessing, and correct misclassifications via withdraw + re-add rather than in-place mutation.",
+      "reasoning_chain": "IF the rules enumerate the element types and the per-add validation (RULE-14, RULE-18) AND the designer holds authority over classification edge cases (RULE-3) AND agents don't free-create categories (RULE-9), THEN the agent must classify per the rules before submission, surface uncertainty for designer ratification rather than guessing, and correct misclassifications via withdraw + re-add.",
       "rejected_alternatives": [
         "Agent free-classifies without pre-check — rejected because category drift produces schema rejections and structural-meaning blur; the rules-vs-NCs misclassification this session is concrete evidence of how this fails.",
         "Designer pre-classifies all elements — rejected as inversion of PM-as-decider; designer doesn't have the codebase or proof-state context to apply D.1's category-shape rules at the volume each round produces.",
@@ -1083,8 +1087,8 @@
       "ratification": null,
       "status": "active",
       "addedInRound": 6,
-      "revisedInRound": null,
-      "revision": 0,
+      "revisedInRound": 23,
+      "revision": 1,
       "ratificationStatus": "draft"
     },
     "NCON-12": {
@@ -1175,21 +1179,23 @@
     "NCON-15": {
       "id": "NCON-15",
       "type": "NECESSARY_CONDITION",
-      "statement": "Necessary Conditions are authored by the agent in a draft-then-review cycle. Each NC carries five required fields: statement (the must-be-true claim), grounding (pointers to active Evidence/Rule elements), reasoning chain (IF...THEN... structure connecting grounding to statement), collapse test (what breaks if NC removed from proof), rejected alternatives (design-space candidates considered and discarded with reasons). Agent drafts the full NC before designer review per PM-as-decider; designer-facing turn prints the full text of all five fields (not just ID + summary). Designer responds with accept, push back, or revise; revisions cycle until accept. Rejected alternatives field accumulates each refinement pass as paper trail — prior drafts that lost to the landed shape stay recorded with reasons, not deleted. Multi-NC authoring per round prohibited unless Concern coverage requires NC+RC pair (slot 3 sub-state).",
+      "statement": "Necessary Conditions are authored by the agent in a draft-then-review cycle. The agent drafts the full NC before designer review per PM-as-decider. The designer-facing turn prints the full text of every required field (not just ID + summary) so ratification can lock what the designer reads in full. The designer responds with accept, push back, or revise; revisions cycle until text-accept. The rejected alternatives field accumulates each refinement pass as paper trail — prior drafts that lost to the landed shape stay recorded with reasons, not deleted. Text-accept ends the authoring cycle and lands the NC in draft state; ratification is a separate later cycle through the per-element ratify path, not part of authoring. Multi-NC authoring per round is prohibited unless Concern coverage requires an NC+RC pair (slot 3 sub-state).",
       "source": null,
       "grounding": [
         "RULE-2",
         "RULE-3",
-        "RULE-14"
+        "RULE-14",
+        "RULE-18"
       ],
-      "collapse_test": "If NCs lack any required field, schema floor fails and proof MCP rejects. If agent skips draft and asks designer to author the statement, PM-as-decider asymmetry inverts and designer carries labor agent should carry. If designer-facing turn prints ID + summary instead of full text, ratification fails — designer cannot lock what they cannot read in full. If rejected alternatives field is empty or only carries the landed shape, future skill maintainer reads NC and sees no design-space exploration — claim looks dropped from sky rather than landed via reasoning. If multi-NC authoring per round becomes routine, single-topic discipline collapses and designer attention fragments across parallel build threads.",
-      "reasoning_chain": "IF Shared Understanding requires evidence-grounded claims (RULE-2) AND PM-as-decider says agent owns authoring labor (RULE-3) AND proof contracts are binding (RULE-14), THEN NC authoring must (a) carry the five-field schema floor for structural validation, (b) be drafted before designer sees it (PM-as-decider asymmetry), (c) present full text to designer for review (ratification-readability), (d) preserve design-space paper trail in rejected alternatives (future-maintainer reads exploration not just answer), (e) iterate via accept/push-back/revise until designer locks.",
+      "collapse_test": "If the agent skips draft and asks the designer to author the statement, PM-as-decider asymmetry inverts and the designer carries labor the agent should carry. If the designer-facing turn prints ID + summary instead of full text, ratification fails — the designer cannot lock what they cannot read in full. If the rejected alternatives field is empty or only carries the landed shape, the future skill maintainer reads the NC and sees no design-space exploration — the claim looks dropped from sky rather than landed via reasoning. If text-accept is conflated with ratify-accept, the authoring cycle pre-empts ratification review and the per-element ratify path becomes redundant ceremony rather than a separate review moment. If multi-NC authoring per round becomes routine, single-topic discipline collapses and designer attention fragments across parallel build threads.",
+      "reasoning_chain": "IF the rules enumerate the schema floor for NC authoring (RULE-14, RULE-18) AND PM-as-decider says the agent owns authoring labor (RULE-3) AND shared understanding requires evidence-grounded claims (RULE-2), THEN NC authoring must (a) be drafted before designer review, (b) present full text for ratification-readability, (c) preserve paper trail across revisions, (d) treat text-accept and ratify-accept as separate cycles, (e) iterate via accept/push-back/revise until text-accept.",
       "rejected_alternatives": [
         "Designer authors NC, agent records — inverts PM-as-decider; designer carries authoring labor; agent's research/curation context unused.",
         "Agent drafts NC with statement + grounding only, omits reasoning chain and collapse test — schema floor too thin; downstream maintainer cannot reconstruct why claim holds.",
         "Designer-facing turn prints ID + one-line summary — ratification-readability fails; designer recalls element from memory or looks up in proof state instead of reading full text in the turn.",
         "Rejected alternatives field reset on each revision (only landed shape recorded) — paper trail lost; future maintainer reads NC and sees no exploration.",
-        "Multi-NC authoring per round as default — collapses single-topic discipline. Exception: NC+RC pair within slot 3 Concern coverage is one decision venue (one Concern), not two topics."
+        "Multi-NC authoring per round as default — collapses single-topic discipline. Exception: NC+RC pair within slot 3 Concern coverage is one decision venue (one Concern), not two topics.",
+        "Conflate text-accept with ratify-accept (no boundary) — rejected because it makes the per-element ratify path redundant ceremony; the new ratify_necessary_condition tool was built precisely to enable per-element ratification as a separate review moment."
       ],
       "relieves": null,
       "basis": [],
@@ -1197,14 +1203,14 @@
       "ratification": null,
       "status": "active",
       "addedInRound": 11,
-      "revisedInRound": null,
-      "revision": 0,
+      "revisedInRound": 24,
+      "revision": 1,
       "ratificationStatus": "draft"
     },
     "NCON-16": {
       "id": "NCON-16",
       "type": "NECESSARY_CONDITION",
-      "statement": "When slot 2 of the round-cycle queue fires (Ratification), the agent presents an explicit choice with full information packet to the designer before requesting lock. Information packet contains: (a) the element under ratification (Concern, NC, or RC) printed in full text — all five fields for an NC, label + description for a Concern, statement + problem-anchor for an RC; (b) every element grounding it or anchored to it, also in full text where practical; (c) the closure gate the ratification advances toward; (d) the explicit choice — accept (ratify), push back with reason (revise then re-present), or defer (return to queue for later round). No ratification call (manage_concerns op:ratify, ratify_resolve_condition) fires until designer responds with explicit accept. Implicit consent prohibited; silence does not ratify.",
+      "statement": "When slot 2 of the round-cycle queue fires (Ratification), the agent presents an explicit choice with full information packet to the designer before requesting lock. Information packet contains: (a) the element under ratification (Concern, NC, or RC) printed in full text — all five fields for an NC, label + description for a Concern, statement + problem-anchor for an RC; (b) every element grounding it or anchored to it, also in full text where practical; (c) the closure gate the ratification advances toward; (d) the explicit choice — accept (ratify), push back with reason (revise then re-present), or defer (return to queue for later round). No ratification call (manage_concerns op:ratify, ratify_resolve_condition, ratify_necessary_condition) fires until designer responds with explicit accept. Implicit consent prohibited; silence does not ratify.",
       "source": null,
       "grounding": [
         "RULE-2",
@@ -1226,9 +1232,9 @@
       "ratification": null,
       "status": "active",
       "addedInRound": 12,
-      "revisedInRound": null,
-      "revision": 0,
-      "ratificationStatus": "draft"
+      "revisedInRound": 25,
+      "revision": 1,
+      "ratificationStatus": "ratified"
     },
     "RULE-16": {
       "id": "RULE-16",
@@ -1308,16 +1314,16 @@
     "NCON-17": {
       "id": "NCON-17",
       "type": "NECESSARY_CONDITION",
-      "statement": "When Concerns are seeded at Phase 2 (open_proof) or surfaced mid-cycle via slot 7 agent-proposed topics, the agent presents each Concern in full text (label + description) and explicitly requests designer ratify per NCON-16 turn shape. Designer accept on a Concern at presentation = ratified Concern (manage_concerns op:ratify fires same round under RULE-16 strict consent). Concerns presented but not explicitly accepted in the same round remain in draft. Concerns left in draft at RC review fall under PERM-1 bundling — RC ratify + Concern ratify in same round permitted for 1:1 case. Concerns ratified up-front under this NC do not bundle at RC review; their RC ratify stands alone.",
+      "statement": "When Concerns are seeded at Phase 2 (open_proof) or surfaced mid-cycle via slot 7 agent-proposed topics, the agent presents each Concern in full text (label + description) and explicitly requests designer ratify in a turn that prints full element text and requires explicit accept. Designer accept on a Concern at presentation = ratified Concern (manage_concerns op:ratify fires same round under RULE-16 strict consent). Concerns presented but not explicitly accepted in the same round remain in draft. Concerns left in draft at RC review fall under PERM-1 bundling — RC ratify + Concern ratify in same round permitted for 1:1 case. Concerns ratified up-front under this NC do not bundle at RC review; their RC ratify stands alone.",
       "source": null,
       "grounding": [
         "RULE-2",
         "RULE-3",
-        "RULE-16",
-        "NCON-16"
+        "RULE-14",
+        "RULE-16"
       ],
       "collapse_test": "Without this NC, designer faces two failure modes — (1) Concerns added at Phase 2 stay in draft indefinitely with no agent prompt for ratification, requiring designer to volunteer ratify out of context (PM-as-decider inverts: agent should prompt the locking moment); (2) RC ratify becomes the de facto Concern lock per the empirical CERN-1 pattern, collapsing Concern lifecycle into RC lifecycle and erasing the up-front-locks-direction discipline designer originally intended.",
-      "reasoning_chain": "IF Shared Understanding requires designer-locked Concerns to ground proof work (RULE-2) AND PM-as-decider says designer authoritatively names the targets the proof addresses (RULE-3) AND ratification turn shape requires explicit accept on lockable elements (NCON-16) AND consent must be explicit per RULE-16 hooks, THEN Concerns presented at Phase 2 or via slot 7 must (a) be presented in full text per NCON-16, (b) include explicit ratify request, (c) ratify on accept in the same round, (d) remain in draft if not accepted. PERM-1 covers the late-bundle path for Concerns that reach RC review still in draft.",
+      "reasoning_chain": "IF Shared Understanding requires designer-locked Concerns to ground proof work and full-text presentation so the designer can verify what they lock (RULE-2) AND PM-as-decider says the designer authoritatively names the targets the proof addresses while the agent owns presentation labor (RULE-3) AND proof contracts are binding such that ratify cannot be undone outside reopen_proof (RULE-14) AND consent must be explicit per RULE-16 hooks, THEN Concerns presented at Phase 2 or via slot 7 must (a) be presented in full text, (b) include an explicit ratify request, (c) ratify on accept in the same round, (d) remain in draft if not accepted. PERM-1 covers the late-bundle path for Concerns that reach RC review still in draft.",
       "rejected_alternatives": [
         "Concerns auto-ratify on add — inverts PM-as-decider; agent silently locks designer's authority moment.",
         "Concerns require ratify-on-add for the proof to accept the add — too rigid; sometimes designer adds a Concern intentionally as draft for later refinement.",
@@ -1330,9 +1336,9 @@
       "ratification": null,
       "status": "active",
       "addedInRound": 17,
-      "revisedInRound": null,
-      "revision": 0,
-      "ratificationStatus": "draft"
+      "revisedInRound": 26,
+      "revision": 1,
+      "ratificationStatus": "ratified"
     },
     "PERM-2": {
       "id": "PERM-2",
@@ -1365,7 +1371,10 @@
       "relieves": null,
       "basis": [],
       "problem_anchor": "CERN-2",
-      "ratification": null,
+      "ratification": {
+        "ratifiedAtRound": 29,
+        "text": "Ratified at round 35. Coverage criterion locks the agent-constructed-framing discipline as the resolution claim against CERN-2 (decision venue construction). Operationally observable across the round cycle: every information packet presents agent-constructed research, framing, and drafted options; no packet asks the designer for technical context only the agent or codebase can supply."
+      },
       "status": "active",
       "addedInRound": 19,
       "revisedInRound": null,
@@ -1388,13 +1397,153 @@
       "addedInRound": 20,
       "revisedInRound": null,
       "revision": 0
+    },
+    "PERM-3": {
+      "id": "PERM-3",
+      "type": "PERMISSION",
+      "statement": "Temporary relief from RULE-17 (single-topic-per-round) for the round-21 withdrawal bundle only. Scope: this round, this specific bundle of four NC withdrawals (NCON-3, NCON-4, NCON-5, NCON-6), all superseded by RULE-14 + RULE-18 enumeration of the proof MCP validation surface. Authorization: designer directive 'bundle the withdrawals' issued at round 21 resume.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": "RULE-17",
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 21,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "NCON-18": {
+      "id": "NCON-18",
+      "type": "NECESSARY_CONDITION",
+      "statement": "Before calling any state-mutating proof MCP tool, the presentation layer checks that the call would pass the proof system's per-call rules (RULE-18). The check covers: required fields are present and well-formed; referenced element IDs exist and are in the right state; consent token has a valid source; for gated calls (present_closing_argument, confirm_closure_go), the gate signals are satisfied. If the check fails, the agent does not make the call. The agent reports the gap and asks for direction on how to resolve before retrying. The agent does not lean on MCP refusal as a runtime fallback. Compliance is a property of the call site itself.",
+      "source": null,
+      "grounding": [
+        "RULE-3",
+        "RULE-14",
+        "RULE-18"
+      ],
+      "collapse_test": "If the agent calls tools without pre-checks, MCP refusals leak into designer-facing turns as error messages instead of being prevented at the call site (concrete evidence this session: the schema rejection of EVIDENCE source=designer in early rounds; the FIRST_YES_GATE_FAILED scenario if present_closing_argument fires before all elements are ratified). If pre-checks are treated as best-effort rather than required, gaps in the check logic produce silent compliance violations that surface only when the MCP catches them. If MCP refusal becomes a runtime fallback, the agent develops habits of probing the MCP rather than respecting its binding contracts.",
+      "reasoning_chain": "IF the rules enumerate proof MCP per-call validation as a binding compliance surface (RULE-14, RULE-18) AND PM-as-decider says the agent owns operational discipline at the call site (RULE-3), THEN the presentation layer must verify call requirements before invoking each tool, refuse to invoke when verification fails, and treat MCP refusal as structural failure rather than runtime-recoverable fallback.",
+      "rejected_alternatives": [
+        "Rely on MCP refusal as the only compliance check — rejected because errors that should have been prevented surface to the designer; concrete evidence from this session (the EVIDENCE source=designer rejection, the FIRST_YES_GATE_FAILED scenario).",
+        "Hard-code verification per tool inside the prompt template — rejected because verification logic must reference the rules' validation surface (RULE-18); duplicating it inside the prompt creates drift risk when rules update.",
+        "Skip verification for tools with low-impact failure modes — rejected because it makes the structural-vs-recoverable distinction conditional on tool, fragmenting the discipline.",
+        "Designer validates each call before invocation — rejected because every call would require a designer round-trip; the discipline is agent-side pre-check, not designer-side review."
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 27,
+      "revisedInRound": null,
+      "revision": 0,
+      "ratificationStatus": "ratified"
+    },
+    "NCON-19": {
+      "id": "NCON-19",
+      "type": "NECESSARY_CONDITION",
+      "statement": "When the proof system reports integrity warnings on a state-mutating call response, the presentation layer surfaces every warning to the designer in domain language as part of the next designer-facing turn. Each warning is translated from its internal type code to a plain-language description and connected to the specific elements involved. The presentation layer does not silently absorb integrity warnings, batch them across multiple rounds, or defer them until closure. Surfacing is a per-round commitment — every round whose response carries integrity warnings shows them in the observations block of that round's turn.",
+      "source": null,
+      "grounding": [
+        "RULE-2",
+        "RULE-3",
+        "RULE-18"
+      ],
+      "collapse_test": "If integrity warnings are silently absorbed by the agent, structural anomalies accumulate in the proof body without designer awareness — the proof drifts from the designer's mental model. If warnings are batched across rounds, the designer cannot tie a warning to the specific call that generated it, making the cause harder to diagnose. If warnings are surfaced as raw type codes ('stale-grounding', 'ungrounded-condition'), the designer must learn the proof system's internal vocabulary instead of reading the structural meaning. If surfacing is deferred until closure, structural anomalies that should have been resolved earlier compound across rounds and create a closure-time backlog of structural debt.",
+      "reasoning_chain": "IF the rules enumerate integrity warnings as part of the proof's structural-state surface (RULE-18) AND shared understanding requires the designer can see structural-state changes (RULE-2) AND PM-as-decider says the designer makes design calls based on full information (RULE-3), THEN integrity warnings must be surfaced to the designer in domain language in the same round they are generated, translated from internal type codes to plain language, and connected to the specific elements involved.",
+      "rejected_alternatives": [
+        "Surface warnings in their raw form (type codes) — rejected because it fails the translation gate; designer reads internal vocabulary instead of structural meaning.",
+        "Batch warnings across multiple rounds and surface in checkpoints — rejected because it loses the call-to-warning connection; harder to diagnose root cause.",
+        "Defer all warnings until closure — rejected because it creates a closure-time backlog of structural anomalies that should have been resolved earlier; closure gate requires integrity-zero anyway, so deferral just delays.",
+        "Surface only 'blocking' warnings (those that prevent closure) and silently absorb others — rejected because it fragments the discipline; warnings exist precisely to flag structural concerns the designer should know about, not just to gate closure."
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 28,
+      "revisedInRound": null,
+      "revision": 0,
+      "ratificationStatus": "ratified"
+    },
+    "NCON-20": {
+      "id": "NCON-20",
+      "type": "NECESSARY_CONDITION",
+      "statement": "NC ratification has two acceptance moments separated by a state boundary. Text-accept (during slot 4 NC authoring) locks the NC's text and lands it in draft state. Ratify-accept (during slot 2 NC ratification, via ratify_necessary_condition) moves the NC from draft to ratified. The agent does not conflate these two moments. If the designer asks to revise an NC during slot-2 ratification, the cycle resets to authoring: the NC drops back to revise-and-text-accept, and ratification cannot fire on the new text until text-accept lands again. NCs in draft state are routed to slot 2 in subsequent rounds for ratification per the priority queue.",
+      "source": null,
+      "grounding": [
+        "RULE-2",
+        "RULE-3",
+        "RULE-14",
+        "RULE-16",
+        "RULE-18"
+      ],
+      "collapse_test": "If text-accept and ratify-accept are conflated, the designer accepts an NC's text and silently locks ratification too — the per-element ratify path becomes redundant ceremony. If mid-revision reset is not enforced, designer revisions during slot 2 land directly as ratified text without re-review, defeating the two-cycle discipline. If draft NCs auto-ratify on routing to slot 2, the designer loses the deliberate ratify-accept moment and becomes a rubber-stamp rather than an active gate. If slot-2 routing happens without priority-queue discipline, ratification cycles fragment across rounds and the designer cannot track which NCs are still in draft.",
+      "reasoning_chain": "IF the rules require explicit consent for ratification (RULE-16) AND proof contracts make ratification binding once locked (RULE-14) AND PM-as-decider gives the designer control of cadence (RULE-3) AND shared understanding requires the designer knows what each acceptance moment locks (RULE-2), THEN NC ratification must (a) maintain a state boundary between text-accept and ratify-accept, (b) treat designer revision during slot 2 as a reset to authoring, (c) refuse ratify-accept on revised text until text-accept lands again, (d) route draft NCs to slot 2 per priority queue without auto-ratifying.",
+      "rejected_alternatives": [
+        "Single acceptance moment (text-accept = ratify-accept) — rejected because it collapses the two-cycle discipline that NCON-15's lifecycle marker and the new ratify tool were built to enable.",
+        "Auto-ratify draft NCs on slot-2 routing — rejected because it removes the deliberate ratify-accept moment; designer becomes rubber-stamp.",
+        "Allow ratify-accept on revised text without text-accept reset — rejected because it bypasses the authoring-cycle review of the new text; ratify-accept locks something the designer may not have read in full.",
+        "Designer manages slot-2 routing manually — rejected because it inverts agent's operational discipline; designer carries scheduling labor."
+      ],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 29,
+      "revisedInRound": null,
+      "revision": 0,
+      "ratificationStatus": "ratified"
+    },
+    "RULE-19": {
+      "id": "RULE-19",
+      "type": "RULE",
+      "statement": "Ratification of proof elements proceeds by per-Concern vertical slice, not by element type. The unit of ratification is the slice: one Concern, every Resolve Condition with problem_anchor equal to that Concern, every Necessary Condition the agent attributes to that Concern, every Risk whose basis cites a slice Necessary Condition, every Friction whose anchor_a or anchor_b is a slice element, and every Definition cited in slice prose. Until the proof schema supports a concerns_addressed[] pointer on Necessary Conditions, the agent maintains slice membership in a designer-visible ledger declared at the head of every ratification round, and renders exactly one slice per ratification round in priority order, with a frontmatter round preceding the first slice and a cross-slice reconciliation round preceding the closing argument.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": null,
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 30,
+      "revisedInRound": null,
+      "revision": 0
+    },
+    "PERM-4": {
+      "id": "PERM-4",
+      "type": "PERMISSION",
+      "statement": "Permission relieving RULE-17 hook 2 (multi-ratify per round prohibited) for round shapes defined by RULE-19. Specifically: (a) the frontmatter round may bundle Problem Statement validation, Concern ratifications, and Definition ratifications in a single round; (b) a slice round may bundle the slice's element ratifications (Concern + Resolve Conditions + Necessary Conditions + Risks + Frictions + Definitions) in a single round; (c) the cross-slice reconciliation round may handle cross-slice elements together in a single round. The Permission is scoped to RULE-19 round shapes only; non-RULE-19 rounds remain bound by RULE-17.",
+      "source": "designer",
+      "grounding": [],
+      "collapse_test": null,
+      "reasoning_chain": null,
+      "rejected_alternatives": [],
+      "relieves": "RULE-17",
+      "basis": [],
+      "problem_anchor": null,
+      "ratification": null,
+      "status": "active",
+      "addedInRound": 31,
+      "revisedInRound": null,
+      "revision": 0
     }
   },
   "elementCounters": {
     "EVIDENCE": 6,
-    "RULE": 18,
-    "PERMISSION": 2,
-    "NECESSARY_CONDITION": 17,
+    "RULE": 19,
+    "PERMISSION": 4,
+    "NECESSARY_CONDITION": 20,
     "RISK": 0,
     "RESOLVE_CONDITION": 2,
     "FRICTION": 0
@@ -1471,6 +1620,31 @@
       "elementId": "PERM-2",
       "round": 19,
       "disposition": "superseded"
+    },
+    {
+      "target": "NCON-2",
+      "round": 22,
+      "revision": 1
+    },
+    {
+      "target": "NCON-11",
+      "round": 23,
+      "revision": 1
+    },
+    {
+      "target": "NCON-15",
+      "round": 24,
+      "revision": 1
+    },
+    {
+      "target": "NCON-16",
+      "round": 25,
+      "revision": 1
+    },
+    {
+      "target": "NCON-17",
+      "round": 26,
+      "revision": 1
     }
   ],
   "phaseTransitionRound": 0,
@@ -1479,73 +1653,73 @@
       "id": "CERN-1",
       "label": "C-2",
       "description": "Designer consumption of proof state — the designer can read, understand, and update proof state, culminating with the ratification of the closing argument, production of the design brief, and handover to design-specify. Inherited from cluster-D foundation v1; rephrased per polished sprint-d-2 problem statement.",
-      "status": "draft"
+      "status": "ratified"
     },
     {
       "id": "CERN-2",
       "label": "D2-C-1",
       "description": "Decision venue construction — concern that the Presentation layer must construct properly framed decision venues (agent supplies research and framing, designer supplies the decision) rather than soliciting designer input that requires technical context the designer doesn't have.",
-      "status": "draft"
+      "status": "ratified"
     },
     {
       "id": "CERN-3",
       "label": "D2-C-2",
       "description": "Information packet shape correctness — concern that the information packet as defined and rendered each round actually delivers the six-component shape (insight + intro + facts + agent commentary + pessimist commentary + decision) consistently, with each component carrying the substance the designer needs to read against expectation.",
-      "status": "draft"
+      "status": "ratified"
     },
     {
       "id": "CERN-4",
       "label": "D2-C-3",
       "description": "Single-topic discipline enforcement — concern that the single-topic-per-round rule actually holds in practice across the round cycle, with mechanisms to detect and prevent multi-topic packet drift, surplus-topic queueing, and ambiguous designer ratification.",
-      "status": "draft"
+      "status": "ratified"
     },
     {
       "id": "CERN-5",
       "label": "D2-C-4",
       "description": "Voice/Style plugin implementation — concern that the Voice and Style system is implemented as an effective plugin: session V/S designer-selectable and mid-session mutable, render V/S fixed at briefing voice, with the selection and switching mechanics structurally enforced rather than left to agent discretion.",
-      "status": "draft"
+      "status": "ratified"
     },
     {
       "id": "CERN-6",
       "label": "D2-C-5",
       "description": "Interview phase structure and flow — concern that the six-phase architecture (Initialize, Open Proof, Research Summary, Round Cycle, Closing Argument, Closure) carries clear structure, well-defined transitions, and an orchestration that the designer can navigate without confusion about which phase is active or what the next move is.",
-      "status": "draft"
+      "status": "ratified"
     },
     {
       "id": "CERN-7",
       "label": "D2-C-6",
       "description": "Agent classification of information into proof elements — concern that the agent properly classifies information into the correct proof element types (Evidence vs Rule vs NC vs Concern vs Definition vs Risk vs RC vs Permission vs Friction), avoiding category confusion (e.g., misclassifying NCs as Rules or principles as Evidence) that would distort the proof's structural meaning.",
-      "status": "draft"
+      "status": "ratified"
     },
     {
       "id": "CERN-8",
       "label": "D2-C-7",
       "description": "Topic and initial concern review — concern that the topic and the initial concerns are reviewed properly before the proof is opened, with the designer having the chance to revise, add, or remove before structural lock; pre-open seeding does not become a back-door way for the agent to fix the proof shape.",
-      "status": "draft"
+      "status": "ratified"
     },
     {
       "id": "CERN-9",
       "label": "D2-C-8",
       "description": "Research agent dispatch — concern that the research agents (codebase explorer, prior-art explorer, industry explorer) are dispatched effectively: the right agents for the topic, with prompts that frame what they're looking for in service of decision-venue construction, and with their findings curated rather than dumped wholesale into the conversation.",
-      "status": "draft"
+      "status": "ratified"
     },
     {
       "id": "CERN-10",
       "label": "D2-C-9",
       "description": "Round-cycle topic selection — concern that the agent selects round-cycle topics that genuinely advance the proof toward closure, rather than topics that are easy to discuss, lowest-resistance, or that serve agent narrative; selection is grounded in proof-state gaps, designer priority, and decision-venue readiness.",
-      "status": "draft"
+      "status": "ratified"
     },
     {
       "id": "CERN-11",
       "label": "D2-C-10",
       "description": "Closing argument request and initiation — concern that the closing argument is requested and initiated at the right moment, by the right party, against the right readiness signals; not premature (agent rushes to closure when proof isn't ready) and not delayed (agent keeps spinning when proof is ready).",
-      "status": "draft"
+      "status": "ratified"
     },
     {
       "id": "CERN-12",
       "label": "D2-C-11",
       "description": "Necessary condition development — concern that NCs are developed properly: each grounded in real Evidence and Rules, each with a meaningful collapse test, each with rejected alternatives where relevant, and each authored at the right altitude (architectural, not implementation) so the proof actually carries structural weight at design altitude.",
-      "status": "draft"
+      "status": "ratified"
     }
   ],
   "concernsLocked": true,
@@ -1556,6 +1730,108 @@
       "target": "RCON-1",
       "round": 15,
       "ratificationText": "RCON-1 accepted"
+    },
+    {
+      "event": "concern-ratified",
+      "concernId": "CERN-2",
+      "round": 29
+    },
+    {
+      "event": "ratified",
+      "target": "RCON-2",
+      "round": 29,
+      "ratificationText": "Ratified at round 35. Coverage criterion locks the agent-constructed-framing discipline as the resolution claim against CERN-2 (decision venue construction). Operationally observable across the round cycle: every information packet presents agent-constructed research, framing, and drafted options; no packet asks the designer for technical context only the agent or codebase can supply."
+    },
+    {
+      "event": "concern-ratified",
+      "concernId": "CERN-1",
+      "round": 31
+    },
+    {
+      "event": "concern-ratified",
+      "concernId": "CERN-3",
+      "round": 31
+    },
+    {
+      "event": "concern-ratified",
+      "concernId": "CERN-4",
+      "round": 31
+    },
+    {
+      "event": "concern-ratified",
+      "concernId": "CERN-5",
+      "round": 31
+    },
+    {
+      "event": "concern-ratified",
+      "concernId": "CERN-6",
+      "round": 31
+    },
+    {
+      "event": "concern-ratified",
+      "concernId": "CERN-7",
+      "round": 31
+    },
+    {
+      "event": "concern-ratified",
+      "concernId": "CERN-8",
+      "round": 31
+    },
+    {
+      "event": "concern-ratified",
+      "concernId": "CERN-9",
+      "round": 31
+    },
+    {
+      "event": "concern-ratified",
+      "concernId": "CERN-10",
+      "round": 31
+    },
+    {
+      "event": "concern-ratified",
+      "concernId": "CERN-11",
+      "round": 31
+    },
+    {
+      "event": "concern-ratified",
+      "concernId": "CERN-12",
+      "round": 31
+    },
+    {
+      "event": "ratified",
+      "target": "NCON-16",
+      "round": 31,
+      "ratificationText": "Ratified at CERN-1 slice round 42 as part of designer batch acceptance. Locks the slot-2 ratification packet shape: full element text plus surrounding context plus explicit three-option choice; no implicit consent permitted."
+    },
+    {
+      "event": "ratified",
+      "target": "NCON-17",
+      "round": 31,
+      "ratificationText": "Ratified at CERN-1 slice round 42 as part of designer batch acceptance. Locks the Concern presentation discipline: Concerns at Phase 2 and slot 7 presented in full text with explicit ratify request; designer accept ratifies in the same round; PERM-1 covers the late-bundle path for Concerns reaching RC review still in draft."
+    },
+    {
+      "event": "ratified",
+      "target": "NCON-18",
+      "round": 31,
+      "ratificationText": "Ratified at CERN-1 slice round 42 as part of designer batch acceptance. Locks the pre-call validation discipline: presentation layer checks every state-mutating call against RULE-18 before invoking; MCP refusal is a backstop against agent bugs, not a runtime fallback; compliance is a property of the call site."
+    },
+    {
+      "event": "ratified",
+      "target": "NCON-19",
+      "round": 31,
+      "ratificationText": "Ratified at CERN-1 slice round 42 as part of designer batch acceptance. Locks the integrity-warning surfacing discipline: every warning translated from internal type code to plain language and surfaced in the same round it's generated; no silent absorption, batching across rounds, or deferral until closure."
+    },
+    {
+      "event": "ratified",
+      "target": "NCON-20",
+      "round": 31,
+      "ratificationText": "Ratified at CERN-1 slice round 42 as part of designer batch acceptance. Locks the ratification-lifecycle navigation: text-accept (slot 4 authoring) and ratify-accept (slot 2 ratification) are two separate moments; designer revisions during slot 2 reset to authoring; draft NCs route to slot 2 per priority queue without auto-ratifying."
+    },
+    {
+      "event": "ratified",
+      "target": "NCON-9",
+      "round": 31,
+      "ratificationText": "Ratified at CERN-2 slice round 44. Locks decision-venue construction as the structural shape of every round of the round cycle: agent-supplied research, framing, and drafted options; designer-supplied decision; no soliciting designer input that requires technical context the designer doesn't have. Multi-slice ratification — covers both CERN-2 (Decision venue construction) and CERN-10 (Round-cycle topic selection)."
     }
   ],
   "frictionLog": [],
@@ -1878,6 +2154,795 @@
           "source": "designer",
           "statement": "Proof layer element validation checks must be complied with. The presentation layer's tool calls and turn structure must satisfy every sub-clause below; non-compliance is a structural failure mode of the presentation layer, not a recoverable runtime condition.\n\nOpen-time validation:\n18.1 — Restructuring report must be a non-empty string at open_proof.\n18.2 — Admitted elements array must be non-empty at open_proof.\n18.3 — Every admitted element must carry a restructuring_action_label in {verbatim-preserve, reshape, gap-fill, infer, derive}.\n18.4 — Every admitted element must carry a provenance object.\n18.5 — Every admitted element's provenance must carry a source_citation string.\n18.6 — Non-verbatim admitted elements must carry a non-empty reasoning_chain field.\n18.7 — Required field values must not be empty, null, placeholder strings (todo, not specified, tbd, n/a), or metadata redirects (see metadata...).\n18.8 — Reasoning anchors must match one of three shapes: rule:[a-z0-9-]+, schema:[A-Z_]+\\.[a-z_]+, or template:[a-z0-9-]+.\n\nPer-mutation validation:\n18.9 — Every state-mutating tool call must carry a consent token of shape {source, rationale?}; missing or malformed consent is rejected.\n18.10 — consent.source must be 'designer' or 'agent-proposed-designer-confirmed'; per RULE-16 hook 1, the latter path is closed for D.2 — source must be 'designer'.\n18.11 — proofStatus must not equal 'finish'; post-closure mutations are rejected.\n18.12 — Each state-mutating tool call must carry exactly one operation; submit_proof_update.operations.length must equal 1.\n\nPer-add validation:\n18.13 — type must be in the closed element set: NECESSARY_CONDITION, EVIDENCE, RULE, PERMISSION, RISK, RESOLVE_CONDITION, FRICTION, DEFINITION.\n18.14 — NC add must carry all five required fields: statement, grounding, reasoning_chain, collapse_test, rejected_alternatives.\n18.15 — NC grounding array entries must reference IDs of existing active elements.\n18.16 — RULE source must be 'designer'; PERMISSION source must be 'designer'; EVIDENCE source must not be 'designer'.\n18.17 — RC add must carry a problem_anchor matching an existing Concern ID.\n18.18 — RISK add must carry a basis array referencing existing element IDs.\n18.19 — PERMISSION add must carry a relieves field naming the restriction being relaxed.\n\nPer-ratify validation:\n18.20 — Target element must exist; missing target rejected as NOT_FOUND.\n18.21 — Target element type must match the ratify tool's expected type; mismatch rejected as TYPE_MISMATCH.\n18.22 — Target element status must be 'active'; withdrawn targets rejected.\n18.23 — For NCs, ratificationStatus must not already be 'ratified'; double-ratify rejected as ALREADY_RATIFIED.\n18.24 — ratification text must be a non-empty string; empty rejected as INVALID_RATIFICATION_TEXT.\n\nPer-revise validation:\n18.25 — Revise of NC statement or grounding must revert ratificationStatus from ratified to draft (mid-revision reset; structural invariant).\n\nPer-withdraw validation:\n18.26 — Withdraw category must be in EVIDENCE, RULE, PERMISSION, NECESSARY_CONDITION, RISK, RESOLVE_CONDITION, CONCERN, DEFINITION; FRICTION rejected (uses override_friction_disposition).\n18.27 — Withdraw disposition must be valid for the named category per the closed-set disposition table.\n18.28 — Withdraw target element must exist.\n\nPer-friction validation:\n18.29 — Both anchor_a and anchor_b element IDs must exist as active elements.\n18.30 — friction_shape must be in nc-nc-opposing-pull, rc-rule-conflict, permission-risk-linkage, concern-concern-competition.\n18.31 — disposition must be in lived-with, relieved-by-exception, dissolved-by-revision, dissolved-by-scope-cut, not-really-friction.\n18.32 — Terminal dispositions (dissolved-by-revision, dissolved-by-scope-cut, not-really-friction) auto-flip element status to 'withdrawn' and suppress re-detection.\n\nFirst-yes precondition:\n18.33 — Every active NC must have ratificationStatus === 'ratified' before present_closing_argument may fire.\n18.34 — Every active RC must have non-null ratification before present_closing_argument may fire.\n18.35 — Every Concern must have status === 'ratified' before present_closing_argument may fire.\n18.36 — Every Definition must have status === 'ratified' before present_closing_argument may fire.\n\nClosing-argument trigger gate:\n18.37 — grounding_coverage must be >= 0.9 (NC chains terminating in EVIDENCE/RULE/PERMISSION).\n18.38 — resolve_condition_count must be >= 1.\n18.39 — ratified_rc_count must equal resolve_condition_count (no draft RCs).\n18.40 — All active NCs must carry a collapse_test.\n18.41 — At least one active NC must carry a non-empty rejected_alternatives array.\n18.42 — Every Concern must be covered by a ratified RC or an active Rule.\n18.43 — state.round must be >= 3.\n18.44 — Aggregate score must be >= 0.8 — weighted 0.4 * (ratified_rc / rc_count) + 0.4 * grounding_coverage + 0.2 * (conditions_with_alt / condition_count).\n18.45 — Integrity warnings count must be 0.\n\nClosure gate:\n18.46 — All active NCs must be grounded in EVIDENCE / RULE / PERMISSION via traversed grounding chain.\n18.47 — Every active NC must carry a collapse_test.\n18.48 — At least one active NC must carry rejected_alternatives.\n18.49 — At least one element must carry revisedInRound > phaseTransitionRound (designer-interaction marker).\n18.50 — round must be >= 3.\n18.51 — At least one active NC must exist.\n18.52 — At least one Concern must exist in state.concerns.\n18.53 — No active RC may have ratification === null.\n18.54 — Every Concern must be covered by a ratified RC or an active Rule.\n18.55 — closingArgGoRound must equal state.round (designer two-yes confirmed in current round).\n\nTwo-yes invariant:\n18.56 — Every state-mutating operation must clear closingArgPresentedRound and closingArgGoRound to null.\n18.57 — confirm_closure_go must be refused unless closingArgPresentedRound === state.round (re-presentation forced if state shifted).\n\nContinuous integrity gates:\n18.58 — withdrawn-grounding warning fires when an active NC grounds on a withdrawn element.\n18.59 — ungrounded-condition warning fires when an active NC has no EVIDENCE/RULE/PERMISSION in its grounding chain.\n18.60 — missing-collapse-test warning fires when an active NC lacks a collapse_test.\n18.61 — stale-grounding warning fires when an NC's grounding was revised but the NC has not been revisited."
         }
+      }
+    },
+    {
+      "round": 21,
+      "op": "add",
+      "entityId": "PERM-3",
+      "type": "PERMISSION",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer directed 'bundle the withdrawals' at round 21. Single batch: temporary PERMISSION relieving RULE-17 for this withdrawal bundle, plus four NC withdrawals (NCON-3, 4, 5, 6) — each superseded by RULE-14 + RULE-18 enumeration of the proof MCP validation surface."
+      },
+      "changedFields": null,
+      "provenance": {
+        "initialPayload": {
+          "op": "add",
+          "type": "PERMISSION",
+          "source": "designer",
+          "statement": "Temporary relief from RULE-17 (single-topic-per-round) for the round-21 withdrawal bundle only. Scope: this round, this specific bundle of four NC withdrawals (NCON-3, NCON-4, NCON-5, NCON-6), all superseded by RULE-14 + RULE-18 enumeration of the proof MCP validation surface. Authorization: designer directive 'bundle the withdrawals' issued at round 21 resume.",
+          "relieves": "RULE-17"
+        }
+      }
+    },
+    {
+      "round": 21,
+      "op": "withdraw",
+      "entityId": "NCON-3",
+      "type": "NECESSARY_CONDITION",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer directed 'bundle the withdrawals' at round 21. Single batch: temporary PERMISSION relieving RULE-17 for this withdrawal bundle, plus four NC withdrawals (NCON-3, 4, 5, 6) — each superseded by RULE-14 + RULE-18 enumeration of the proof MCP validation surface."
+      },
+      "changedFields": [
+        "status",
+        "withdrawal_disposition"
+      ],
+      "provenance": {
+        "withdrawal_disposition": "superseded"
+      }
+    },
+    {
+      "round": 21,
+      "op": "withdraw",
+      "entityId": "NCON-4",
+      "type": "NECESSARY_CONDITION",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer directed 'bundle the withdrawals' at round 21. Single batch: temporary PERMISSION relieving RULE-17 for this withdrawal bundle, plus four NC withdrawals (NCON-3, 4, 5, 6) — each superseded by RULE-14 + RULE-18 enumeration of the proof MCP validation surface."
+      },
+      "changedFields": [
+        "status",
+        "withdrawal_disposition"
+      ],
+      "provenance": {
+        "withdrawal_disposition": "superseded"
+      }
+    },
+    {
+      "round": 21,
+      "op": "withdraw",
+      "entityId": "NCON-5",
+      "type": "NECESSARY_CONDITION",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer directed 'bundle the withdrawals' at round 21. Single batch: temporary PERMISSION relieving RULE-17 for this withdrawal bundle, plus four NC withdrawals (NCON-3, 4, 5, 6) — each superseded by RULE-14 + RULE-18 enumeration of the proof MCP validation surface."
+      },
+      "changedFields": [
+        "status",
+        "withdrawal_disposition"
+      ],
+      "provenance": {
+        "withdrawal_disposition": "superseded"
+      }
+    },
+    {
+      "round": 21,
+      "op": "withdraw",
+      "entityId": "NCON-6",
+      "type": "NECESSARY_CONDITION",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer directed 'bundle the withdrawals' at round 21. Single batch: temporary PERMISSION relieving RULE-17 for this withdrawal bundle, plus four NC withdrawals (NCON-3, 4, 5, 6) — each superseded by RULE-14 + RULE-18 enumeration of the proof MCP validation surface."
+      },
+      "changedFields": [
+        "status",
+        "withdrawal_disposition"
+      ],
+      "provenance": {
+        "withdrawal_disposition": "superseded"
+      }
+    },
+    {
+      "round": 22,
+      "op": "revise",
+      "entityId": "NCON-2",
+      "type": "NECESSARY_CONDITION",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer accepted NCON-2 regrounding edit at round 27. Statement and collapse test unchanged; grounding moves from RULE-1+RULE-2 to RULE-17; reasoning chain shortens to derive directly from the single-topic rule."
+      },
+      "changedFields": [
+        "statement",
+        "grounding",
+        "collapse_test",
+        "reasoning_chain"
+      ],
+      "provenance": {
+        "before": {
+          "statement": "Each round addresses exactly one topic; multi-topic rounds are prohibited; surplus topics queue for subsequent rounds in priority order.",
+          "grounding": [
+            "RULE-1",
+            "RULE-2"
+          ],
+          "collapse_test": "If multi-topic rounds are allowed, the decision venue shape blurs, designer ratification becomes ambiguous (which topic was approved?), proof element provenance gets noisy, and the agent can hide implementation drift in a secondary topic the designer didn't focus on.",
+          "reasoning_chain": "IF the proof carries structural weight at design altitude (RULE-1) AND Shared Understanding requires unambiguous decision venues (RULE-2) AND multi-topic packets dilute the venue, THEN single-topic discipline is necessary so designer ratification per round attaches to one decision."
+        },
+        "after": {
+          "statement": "Each round addresses exactly one topic; multi-topic rounds are prohibited; surplus topics queue for subsequent rounds in priority order.",
+          "grounding": [
+            "RULE-17"
+          ],
+          "collapse_test": "If multi-topic rounds are allowed, the decision venue shape blurs, designer ratification becomes ambiguous (which topic was approved?), proof element provenance gets noisy, and the agent can hide implementation drift in a secondary topic the designer didn't focus on.",
+          "reasoning_chain": "IF rounds must be single-topic (RULE-17), THEN the presentation layer must enforce single-topic discipline at the round-cycle level — composing each round around exactly one decision venue and queuing surplus topics in priority order."
+        },
+        "revision": 1
+      }
+    },
+    {
+      "round": 23,
+      "op": "revise",
+      "entityId": "NCON-11",
+      "type": "NECESSARY_CONDITION",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer accepted NCON-11 trim edit at round 28. Catalog of element types removed from statement (now lives in RULE-14 and RULE-18). Three pieces of agent-classification discipline preserved. Grounding gains RULE-18; reasoning chain shortens. Collapse test and rejected alternatives unchanged."
+      },
+      "changedFields": [
+        "statement",
+        "grounding",
+        "collapse_test",
+        "reasoning_chain",
+        "rejected_alternatives"
+      ],
+      "provenance": {
+        "before": {
+          "statement": "The agent classifies information into proof element types per D.1's category-shape rules before submission: NC (must-be-true claim with grounding, reasoning chain, collapse test), Rule (designer-source directive restricting design space), Evidence (non-designer-source factual observation), Concern (designer-named worry anchoring RCs), Definition (vocabulary entry — G1 slot), Risk (hazard with basis pointer), Permission (designer-source relief from a Rule), Friction (tension between two existing elements), RC (resolved-state claim per Concern). When classification is uncertain, the agent surfaces the candidate and its category in commentary for designer ratification before adding. Misclassifications detected post-add are corrected via withdraw + re-add, not in-place mutation.",
+          "grounding": [
+            "RULE-3",
+            "RULE-9",
+            "RULE-14"
+          ],
+          "collapse_test": "If the agent skips pre-submission classification check, designer-source statements drift into Evidence (or vice versa), schema rejections happen at the boundary (concrete evidence this session: the EVIDENCE source=designer rejection), and the proof's structural meaning blurs. If uncertainty isn't surfaced for designer ratification, the agent guesses category and silently locks the wrong shape (concrete evidence this session: the rules-vs-NCs misclassification of 8 elements at proof open). If misclassifications can't be corrected via withdraw + re-add, the proof carries permanent category errors.",
+          "reasoning_chain": "IF the proof's structural meaning depends on category correctness (Shared Understanding via RULE-2, Design-is-the-code via RULE-1) AND D.1's Proof-layer contracts define category-shape rules (RULE-14) AND PM-as-decider says designer authority controls classification edge cases (RULE-3) AND agent-rule-submission discipline limits agent-side category creation (RULE-9), THEN agent classification must apply category-shape rules before submission, surface uncertainty for designer ratification rather than guessing, and correct misclassifications via withdraw + re-add rather than in-place mutation.",
+          "rejected_alternatives": [
+            "Agent free-classifies without pre-check — rejected because category drift produces schema rejections and structural-meaning blur; the rules-vs-NCs misclassification this session is concrete evidence of how this fails.",
+            "Designer pre-classifies all elements — rejected as inversion of PM-as-decider; designer doesn't have the codebase or proof-state context to apply D.1's category-shape rules at the volume each round produces.",
+            "In-place category-mutation tool — rejected because category change after grounding-chain references propagate would silently invalidate downstream NCs; withdraw + re-add forces re-grounding which exposes the propagation impact."
+          ]
+        },
+        "after": {
+          "statement": "The agent classifies information into proof element types per the rules' category-shape definitions before submission. When classification is uncertain, the agent surfaces the candidate and its category in commentary for designer ratification before adding. Misclassifications detected post-add are corrected via withdraw + re-add, not in-place mutation.",
+          "grounding": [
+            "RULE-3",
+            "RULE-9",
+            "RULE-14",
+            "RULE-18"
+          ],
+          "collapse_test": "If the agent skips pre-submission classification check, designer-source statements drift into Evidence (or vice versa), schema rejections happen at the boundary (concrete evidence this session: the EVIDENCE source=designer rejection), and the proof's structural meaning blurs. If uncertainty isn't surfaced for designer ratification, the agent guesses category and silently locks the wrong shape (concrete evidence this session: the rules-vs-NCs misclassification of 8 elements at proof open). If misclassifications can't be corrected via withdraw + re-add, the proof carries permanent category errors.",
+          "reasoning_chain": "IF the rules enumerate the element types and the per-add validation (RULE-14, RULE-18) AND the designer holds authority over classification edge cases (RULE-3) AND agents don't free-create categories (RULE-9), THEN the agent must classify per the rules before submission, surface uncertainty for designer ratification rather than guessing, and correct misclassifications via withdraw + re-add.",
+          "rejected_alternatives": [
+            "Agent free-classifies without pre-check — rejected because category drift produces schema rejections and structural-meaning blur; the rules-vs-NCs misclassification this session is concrete evidence of how this fails.",
+            "Designer pre-classifies all elements — rejected as inversion of PM-as-decider; designer doesn't have the codebase or proof-state context to apply D.1's category-shape rules at the volume each round produces.",
+            "In-place category-mutation tool — rejected because category change after grounding-chain references propagate would silently invalidate downstream NCs; withdraw + re-add forces re-grounding which exposes the propagation impact."
+          ]
+        },
+        "revision": 1
+      }
+    },
+    {
+      "round": 24,
+      "op": "revise",
+      "entityId": "NCON-15",
+      "type": "NECESSARY_CONDITION",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer accepted NCON-15 trim plus lifecycle marker at round 29. Five-field schema enumeration removed (now in RULE-18.14); five pieces of authoring-cycle discipline preserved; one-sentence lifecycle boundary marker added (text-accept vs ratify-accept). Grounding gains RULE-18; reasoning chain rewritten; collapse test trimmed of schema-floor failure (covered by RULE-18) and gains lifecycle-boundary failure; rejected alternatives gain one new entry."
+      },
+      "changedFields": [
+        "statement",
+        "grounding",
+        "collapse_test",
+        "reasoning_chain",
+        "rejected_alternatives"
+      ],
+      "provenance": {
+        "before": {
+          "statement": "Necessary Conditions are authored by the agent in a draft-then-review cycle. Each NC carries five required fields: statement (the must-be-true claim), grounding (pointers to active Evidence/Rule elements), reasoning chain (IF...THEN... structure connecting grounding to statement), collapse test (what breaks if NC removed from proof), rejected alternatives (design-space candidates considered and discarded with reasons). Agent drafts the full NC before designer review per PM-as-decider; designer-facing turn prints the full text of all five fields (not just ID + summary). Designer responds with accept, push back, or revise; revisions cycle until accept. Rejected alternatives field accumulates each refinement pass as paper trail — prior drafts that lost to the landed shape stay recorded with reasons, not deleted. Multi-NC authoring per round prohibited unless Concern coverage requires NC+RC pair (slot 3 sub-state).",
+          "grounding": [
+            "RULE-2",
+            "RULE-3",
+            "RULE-14"
+          ],
+          "collapse_test": "If NCs lack any required field, schema floor fails and proof MCP rejects. If agent skips draft and asks designer to author the statement, PM-as-decider asymmetry inverts and designer carries labor agent should carry. If designer-facing turn prints ID + summary instead of full text, ratification fails — designer cannot lock what they cannot read in full. If rejected alternatives field is empty or only carries the landed shape, future skill maintainer reads NC and sees no design-space exploration — claim looks dropped from sky rather than landed via reasoning. If multi-NC authoring per round becomes routine, single-topic discipline collapses and designer attention fragments across parallel build threads.",
+          "reasoning_chain": "IF Shared Understanding requires evidence-grounded claims (RULE-2) AND PM-as-decider says agent owns authoring labor (RULE-3) AND proof contracts are binding (RULE-14), THEN NC authoring must (a) carry the five-field schema floor for structural validation, (b) be drafted before designer sees it (PM-as-decider asymmetry), (c) present full text to designer for review (ratification-readability), (d) preserve design-space paper trail in rejected alternatives (future-maintainer reads exploration not just answer), (e) iterate via accept/push-back/revise until designer locks.",
+          "rejected_alternatives": [
+            "Designer authors NC, agent records — inverts PM-as-decider; designer carries authoring labor; agent's research/curation context unused.",
+            "Agent drafts NC with statement + grounding only, omits reasoning chain and collapse test — schema floor too thin; downstream maintainer cannot reconstruct why claim holds.",
+            "Designer-facing turn prints ID + one-line summary — ratification-readability fails; designer recalls element from memory or looks up in proof state instead of reading full text in the turn.",
+            "Rejected alternatives field reset on each revision (only landed shape recorded) — paper trail lost; future maintainer reads NC and sees no exploration.",
+            "Multi-NC authoring per round as default — collapses single-topic discipline. Exception: NC+RC pair within slot 3 Concern coverage is one decision venue (one Concern), not two topics."
+          ]
+        },
+        "after": {
+          "statement": "Necessary Conditions are authored by the agent in a draft-then-review cycle. The agent drafts the full NC before designer review per PM-as-decider. The designer-facing turn prints the full text of every required field (not just ID + summary) so ratification can lock what the designer reads in full. The designer responds with accept, push back, or revise; revisions cycle until text-accept. The rejected alternatives field accumulates each refinement pass as paper trail — prior drafts that lost to the landed shape stay recorded with reasons, not deleted. Text-accept ends the authoring cycle and lands the NC in draft state; ratification is a separate later cycle through the per-element ratify path, not part of authoring. Multi-NC authoring per round is prohibited unless Concern coverage requires an NC+RC pair (slot 3 sub-state).",
+          "grounding": [
+            "RULE-2",
+            "RULE-3",
+            "RULE-14",
+            "RULE-18"
+          ],
+          "collapse_test": "If the agent skips draft and asks the designer to author the statement, PM-as-decider asymmetry inverts and the designer carries labor the agent should carry. If the designer-facing turn prints ID + summary instead of full text, ratification fails — the designer cannot lock what they cannot read in full. If the rejected alternatives field is empty or only carries the landed shape, the future skill maintainer reads the NC and sees no design-space exploration — the claim looks dropped from sky rather than landed via reasoning. If text-accept is conflated with ratify-accept, the authoring cycle pre-empts ratification review and the per-element ratify path becomes redundant ceremony rather than a separate review moment. If multi-NC authoring per round becomes routine, single-topic discipline collapses and designer attention fragments across parallel build threads.",
+          "reasoning_chain": "IF the rules enumerate the schema floor for NC authoring (RULE-14, RULE-18) AND PM-as-decider says the agent owns authoring labor (RULE-3) AND shared understanding requires evidence-grounded claims (RULE-2), THEN NC authoring must (a) be drafted before designer review, (b) present full text for ratification-readability, (c) preserve paper trail across revisions, (d) treat text-accept and ratify-accept as separate cycles, (e) iterate via accept/push-back/revise until text-accept.",
+          "rejected_alternatives": [
+            "Designer authors NC, agent records — inverts PM-as-decider; designer carries authoring labor; agent's research/curation context unused.",
+            "Agent drafts NC with statement + grounding only, omits reasoning chain and collapse test — schema floor too thin; downstream maintainer cannot reconstruct why claim holds.",
+            "Designer-facing turn prints ID + one-line summary — ratification-readability fails; designer recalls element from memory or looks up in proof state instead of reading full text in the turn.",
+            "Rejected alternatives field reset on each revision (only landed shape recorded) — paper trail lost; future maintainer reads NC and sees no exploration.",
+            "Multi-NC authoring per round as default — collapses single-topic discipline. Exception: NC+RC pair within slot 3 Concern coverage is one decision venue (one Concern), not two topics.",
+            "Conflate text-accept with ratify-accept (no boundary) — rejected because it makes the per-element ratify path redundant ceremony; the new ratify_necessary_condition tool was built precisely to enable per-element ratification as a separate review moment."
+          ]
+        },
+        "revision": 1
+      }
+    },
+    {
+      "round": 25,
+      "op": "revise",
+      "entityId": "NCON-16",
+      "type": "NECESSARY_CONDITION",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer accepted NCON-16 tool-list extension at round 30. Adds ratify_necessary_condition to the inline list of ratification tools inside the statement. All other fields unchanged."
+      },
+      "changedFields": [
+        "statement",
+        "grounding",
+        "collapse_test",
+        "reasoning_chain",
+        "rejected_alternatives"
+      ],
+      "provenance": {
+        "before": {
+          "statement": "When slot 2 of the round-cycle queue fires (Ratification), the agent presents an explicit choice with full information packet to the designer before requesting lock. Information packet contains: (a) the element under ratification (Concern, NC, or RC) printed in full text — all five fields for an NC, label + description for a Concern, statement + problem-anchor for an RC; (b) every element grounding it or anchored to it, also in full text where practical; (c) the closure gate the ratification advances toward; (d) the explicit choice — accept (ratify), push back with reason (revise then re-present), or defer (return to queue for later round). No ratification call (manage_concerns op:ratify, ratify_resolve_condition) fires until designer responds with explicit accept. Implicit consent prohibited; silence does not ratify.",
+          "grounding": [
+            "RULE-2",
+            "RULE-3",
+            "RULE-14"
+          ],
+          "collapse_test": "If agent calls ratify without presenting full element, designer locks blind — error in NC grounding goes uncaught and survives to closing argument. If only the element under review is shown without grounding context, designer cannot verify lock holds against rest of proof. If the choice is implicit ('ready to ratify?'), designer either silently accepts or has to reconstruct push-back path themselves — friction biases toward silent accept and proof quality drifts. If implicit consent permitted, ratifications fire on ambiguous designer responses ('ok', 'next') and lock work the designer didn't actually approve.",
+          "reasoning_chain": "IF Shared Understanding requires the designer can see what they are locking (RULE-2) AND PM-as-decider says agent owns presentation labor (RULE-3) AND proof contracts are binding such that ratify cannot be undone outside reopen_proof (RULE-14), THEN the ratification turn must (a) present full element text not ID + summary, (b) carry surrounding context (grounding, anchored elements) so designer can verify the lock holds, (c) name the closure gate the ratification advances, (d) present the choice explicitly with all three options including push-back path, (e) require explicit accept before mutating.",
+          "rejected_alternatives": [
+            "Agent presents element under review only, no grounding context — designer cannot verify lock holds against rest of proof.",
+            "ID + one-line summary, designer looks up full text in proof state — ratification-readability fails (memory rule from 2026-05-07).",
+            "Implicit consent ('ready to ratify? ok proceeding') — silent accepts and ambiguous responses lock work designer didn't approve.",
+            "Agent batches multiple ratifications in one turn — collapses single-topic discipline; designer attention fragments across parallel locks.",
+            "Designer drives ratification cadence (no agent-presented choice) — inverts PM-as-decider for the presentation turn."
+          ]
+        },
+        "after": {
+          "statement": "When slot 2 of the round-cycle queue fires (Ratification), the agent presents an explicit choice with full information packet to the designer before requesting lock. Information packet contains: (a) the element under ratification (Concern, NC, or RC) printed in full text — all five fields for an NC, label + description for a Concern, statement + problem-anchor for an RC; (b) every element grounding it or anchored to it, also in full text where practical; (c) the closure gate the ratification advances toward; (d) the explicit choice — accept (ratify), push back with reason (revise then re-present), or defer (return to queue for later round). No ratification call (manage_concerns op:ratify, ratify_resolve_condition, ratify_necessary_condition) fires until designer responds with explicit accept. Implicit consent prohibited; silence does not ratify.",
+          "grounding": [
+            "RULE-2",
+            "RULE-3",
+            "RULE-14"
+          ],
+          "collapse_test": "If agent calls ratify without presenting full element, designer locks blind — error in NC grounding goes uncaught and survives to closing argument. If only the element under review is shown without grounding context, designer cannot verify lock holds against rest of proof. If the choice is implicit ('ready to ratify?'), designer either silently accepts or has to reconstruct push-back path themselves — friction biases toward silent accept and proof quality drifts. If implicit consent permitted, ratifications fire on ambiguous designer responses ('ok', 'next') and lock work the designer didn't actually approve.",
+          "reasoning_chain": "IF Shared Understanding requires the designer can see what they are locking (RULE-2) AND PM-as-decider says agent owns presentation labor (RULE-3) AND proof contracts are binding such that ratify cannot be undone outside reopen_proof (RULE-14), THEN the ratification turn must (a) present full element text not ID + summary, (b) carry surrounding context (grounding, anchored elements) so designer can verify the lock holds, (c) name the closure gate the ratification advances, (d) present the choice explicitly with all three options including push-back path, (e) require explicit accept before mutating.",
+          "rejected_alternatives": [
+            "Agent presents element under review only, no grounding context — designer cannot verify lock holds against rest of proof.",
+            "ID + one-line summary, designer looks up full text in proof state — ratification-readability fails (memory rule from 2026-05-07).",
+            "Implicit consent ('ready to ratify? ok proceeding') — silent accepts and ambiguous responses lock work designer didn't approve.",
+            "Agent batches multiple ratifications in one turn — collapses single-topic discipline; designer attention fragments across parallel locks.",
+            "Designer drives ratification cadence (no agent-presented choice) — inverts PM-as-decider for the presentation turn."
+          ]
+        },
+        "revision": 1
+      }
+    },
+    {
+      "round": 26,
+      "op": "revise",
+      "entityId": "NCON-17",
+      "type": "NECESSARY_CONDITION",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer chose option B at round 31. Decouple NCON-17 grounding from NCON-16. Drop NC-to-NC grounding edge (the only one in the proof body); add RULE-14 directly so the proof-contract bindingness premise carries through. Reasoning chain rewritten to derive from rules directly. Statement updated to remove NCON-16 reference; the discipline is described inline."
+      },
+      "changedFields": [
+        "statement",
+        "grounding",
+        "collapse_test",
+        "reasoning_chain",
+        "rejected_alternatives"
+      ],
+      "provenance": {
+        "before": {
+          "statement": "When Concerns are seeded at Phase 2 (open_proof) or surfaced mid-cycle via slot 7 agent-proposed topics, the agent presents each Concern in full text (label + description) and explicitly requests designer ratify per NCON-16 turn shape. Designer accept on a Concern at presentation = ratified Concern (manage_concerns op:ratify fires same round under RULE-16 strict consent). Concerns presented but not explicitly accepted in the same round remain in draft. Concerns left in draft at RC review fall under PERM-1 bundling — RC ratify + Concern ratify in same round permitted for 1:1 case. Concerns ratified up-front under this NC do not bundle at RC review; their RC ratify stands alone.",
+          "grounding": [
+            "RULE-2",
+            "RULE-3",
+            "RULE-16",
+            "NCON-16"
+          ],
+          "collapse_test": "Without this NC, designer faces two failure modes — (1) Concerns added at Phase 2 stay in draft indefinitely with no agent prompt for ratification, requiring designer to volunteer ratify out of context (PM-as-decider inverts: agent should prompt the locking moment); (2) RC ratify becomes the de facto Concern lock per the empirical CERN-1 pattern, collapsing Concern lifecycle into RC lifecycle and erasing the up-front-locks-direction discipline designer originally intended.",
+          "reasoning_chain": "IF Shared Understanding requires designer-locked Concerns to ground proof work (RULE-2) AND PM-as-decider says designer authoritatively names the targets the proof addresses (RULE-3) AND ratification turn shape requires explicit accept on lockable elements (NCON-16) AND consent must be explicit per RULE-16 hooks, THEN Concerns presented at Phase 2 or via slot 7 must (a) be presented in full text per NCON-16, (b) include explicit ratify request, (c) ratify on accept in the same round, (d) remain in draft if not accepted. PERM-1 covers the late-bundle path for Concerns that reach RC review still in draft.",
+          "rejected_alternatives": [
+            "Concerns auto-ratify on add — inverts PM-as-decider; agent silently locks designer's authority moment.",
+            "Concerns require ratify-on-add for the proof to accept the add — too rigid; sometimes designer adds a Concern intentionally as draft for later refinement.",
+            "Concerns never ratify up-front; only bundle at RC review — collapses the early-direction-setting designer wanted; Phase 2 Concerns drive Phase 3+ research and round selection, value of locking them up-front is real.",
+            "This discipline as a Rule rather than NC — Rule-class is for designer-issued constraints; this is a structural condition on agent turn shape, NC-class fits."
+          ]
+        },
+        "after": {
+          "statement": "When Concerns are seeded at Phase 2 (open_proof) or surfaced mid-cycle via slot 7 agent-proposed topics, the agent presents each Concern in full text (label + description) and explicitly requests designer ratify in a turn that prints full element text and requires explicit accept. Designer accept on a Concern at presentation = ratified Concern (manage_concerns op:ratify fires same round under RULE-16 strict consent). Concerns presented but not explicitly accepted in the same round remain in draft. Concerns left in draft at RC review fall under PERM-1 bundling — RC ratify + Concern ratify in same round permitted for 1:1 case. Concerns ratified up-front under this NC do not bundle at RC review; their RC ratify stands alone.",
+          "grounding": [
+            "RULE-2",
+            "RULE-3",
+            "RULE-14",
+            "RULE-16"
+          ],
+          "collapse_test": "Without this NC, designer faces two failure modes — (1) Concerns added at Phase 2 stay in draft indefinitely with no agent prompt for ratification, requiring designer to volunteer ratify out of context (PM-as-decider inverts: agent should prompt the locking moment); (2) RC ratify becomes the de facto Concern lock per the empirical CERN-1 pattern, collapsing Concern lifecycle into RC lifecycle and erasing the up-front-locks-direction discipline designer originally intended.",
+          "reasoning_chain": "IF Shared Understanding requires designer-locked Concerns to ground proof work and full-text presentation so the designer can verify what they lock (RULE-2) AND PM-as-decider says the designer authoritatively names the targets the proof addresses while the agent owns presentation labor (RULE-3) AND proof contracts are binding such that ratify cannot be undone outside reopen_proof (RULE-14) AND consent must be explicit per RULE-16 hooks, THEN Concerns presented at Phase 2 or via slot 7 must (a) be presented in full text, (b) include an explicit ratify request, (c) ratify on accept in the same round, (d) remain in draft if not accepted. PERM-1 covers the late-bundle path for Concerns that reach RC review still in draft.",
+          "rejected_alternatives": [
+            "Concerns auto-ratify on add — inverts PM-as-decider; agent silently locks designer's authority moment.",
+            "Concerns require ratify-on-add for the proof to accept the add — too rigid; sometimes designer adds a Concern intentionally as draft for later refinement.",
+            "Concerns never ratify up-front; only bundle at RC review — collapses the early-direction-setting designer wanted; Phase 2 Concerns drive Phase 3+ research and round selection, value of locking them up-front is real.",
+            "This discipline as a Rule rather than NC — Rule-class is for designer-issued constraints; this is a structural condition on agent turn shape, NC-class fits."
+          ]
+        },
+        "revision": 1
+      }
+    },
+    {
+      "round": 27,
+      "op": "add",
+      "entityId": "NCON-18",
+      "type": "NECESSARY_CONDITION",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer accepted the pre-call validation discipline NC at round 32. New requirement: presentation layer checks every state-mutating proof MCP call before invocation; agent owns the validation; designer is involved only when validation fails and resolution needs design direction."
+      },
+      "changedFields": null,
+      "provenance": {
+        "initialPayload": {
+          "op": "add",
+          "type": "NECESSARY_CONDITION",
+          "statement": "Before calling any state-mutating proof MCP tool, the presentation layer checks that the call would pass the proof system's per-call rules (RULE-18). The check covers: required fields are present and well-formed; referenced element IDs exist and are in the right state; consent token has a valid source; for gated calls (present_closing_argument, confirm_closure_go), the gate signals are satisfied. If the check fails, the agent does not make the call. The agent reports the gap and asks for direction on how to resolve before retrying. The agent does not lean on MCP refusal as a runtime fallback. Compliance is a property of the call site itself.",
+          "grounding": [
+            "RULE-3",
+            "RULE-14",
+            "RULE-18"
+          ],
+          "reasoning_chain": "IF the rules enumerate proof MCP per-call validation as a binding compliance surface (RULE-14, RULE-18) AND PM-as-decider says the agent owns operational discipline at the call site (RULE-3), THEN the presentation layer must verify call requirements before invoking each tool, refuse to invoke when verification fails, and treat MCP refusal as structural failure rather than runtime-recoverable fallback.",
+          "collapse_test": "If the agent calls tools without pre-checks, MCP refusals leak into designer-facing turns as error messages instead of being prevented at the call site (concrete evidence this session: the schema rejection of EVIDENCE source=designer in early rounds; the FIRST_YES_GATE_FAILED scenario if present_closing_argument fires before all elements are ratified). If pre-checks are treated as best-effort rather than required, gaps in the check logic produce silent compliance violations that surface only when the MCP catches them. If MCP refusal becomes a runtime fallback, the agent develops habits of probing the MCP rather than respecting its binding contracts.",
+          "rejected_alternatives": [
+            "Rely on MCP refusal as the only compliance check — rejected because errors that should have been prevented surface to the designer; concrete evidence from this session (the EVIDENCE source=designer rejection, the FIRST_YES_GATE_FAILED scenario).",
+            "Hard-code verification per tool inside the prompt template — rejected because verification logic must reference the rules' validation surface (RULE-18); duplicating it inside the prompt creates drift risk when rules update.",
+            "Skip verification for tools with low-impact failure modes — rejected because it makes the structural-vs-recoverable distinction conditional on tool, fragmenting the discipline.",
+            "Designer validates each call before invocation — rejected because every call would require a designer round-trip; the discipline is agent-side pre-check, not designer-side review."
+          ]
+        }
+      }
+    },
+    {
+      "round": 28,
+      "op": "add",
+      "entityId": "NCON-19",
+      "type": "NECESSARY_CONDITION",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer accepted integrity-warning surfacing NC at round 33. Scope kept narrow to integrity warnings; friction hints left as potential future requirement. Per-round commitment with translation from internal type codes to domain language."
+      },
+      "changedFields": null,
+      "provenance": {
+        "initialPayload": {
+          "op": "add",
+          "type": "NECESSARY_CONDITION",
+          "statement": "When the proof system reports integrity warnings on a state-mutating call response, the presentation layer surfaces every warning to the designer in domain language as part of the next designer-facing turn. Each warning is translated from its internal type code to a plain-language description and connected to the specific elements involved. The presentation layer does not silently absorb integrity warnings, batch them across multiple rounds, or defer them until closure. Surfacing is a per-round commitment — every round whose response carries integrity warnings shows them in the observations block of that round's turn.",
+          "grounding": [
+            "RULE-2",
+            "RULE-3",
+            "RULE-18"
+          ],
+          "reasoning_chain": "IF the rules enumerate integrity warnings as part of the proof's structural-state surface (RULE-18) AND shared understanding requires the designer can see structural-state changes (RULE-2) AND PM-as-decider says the designer makes design calls based on full information (RULE-3), THEN integrity warnings must be surfaced to the designer in domain language in the same round they are generated, translated from internal type codes to plain language, and connected to the specific elements involved.",
+          "collapse_test": "If integrity warnings are silently absorbed by the agent, structural anomalies accumulate in the proof body without designer awareness — the proof drifts from the designer's mental model. If warnings are batched across rounds, the designer cannot tie a warning to the specific call that generated it, making the cause harder to diagnose. If warnings are surfaced as raw type codes ('stale-grounding', 'ungrounded-condition'), the designer must learn the proof system's internal vocabulary instead of reading the structural meaning. If surfacing is deferred until closure, structural anomalies that should have been resolved earlier compound across rounds and create a closure-time backlog of structural debt.",
+          "rejected_alternatives": [
+            "Surface warnings in their raw form (type codes) — rejected because it fails the translation gate; designer reads internal vocabulary instead of structural meaning.",
+            "Batch warnings across multiple rounds and surface in checkpoints — rejected because it loses the call-to-warning connection; harder to diagnose root cause.",
+            "Defer all warnings until closure — rejected because it creates a closure-time backlog of structural anomalies that should have been resolved earlier; closure gate requires integrity-zero anyway, so deferral just delays.",
+            "Surface only 'blocking' warnings (those that prevent closure) and silently absorb others — rejected because it fragments the discipline; warnings exist precisely to flag structural concerns the designer should know about, not just to gate closure."
+          ]
+        }
+      }
+    },
+    {
+      "round": 29,
+      "op": "add",
+      "entityId": "NCON-20",
+      "type": "NECESSARY_CONDITION",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer accepted ratification-lifecycle navigation NC at round 34. Operationalizes the boundary marker added to NCON-15 by specifying navigation between text-accept and ratify-accept, mid-revision reset, and slot-2 routing per priority queue."
+      },
+      "changedFields": null,
+      "provenance": {
+        "initialPayload": {
+          "op": "add",
+          "type": "NECESSARY_CONDITION",
+          "statement": "NC ratification has two acceptance moments separated by a state boundary. Text-accept (during slot 4 NC authoring) locks the NC's text and lands it in draft state. Ratify-accept (during slot 2 NC ratification, via ratify_necessary_condition) moves the NC from draft to ratified. The agent does not conflate these two moments. If the designer asks to revise an NC during slot-2 ratification, the cycle resets to authoring: the NC drops back to revise-and-text-accept, and ratification cannot fire on the new text until text-accept lands again. NCs in draft state are routed to slot 2 in subsequent rounds for ratification per the priority queue.",
+          "grounding": [
+            "RULE-2",
+            "RULE-3",
+            "RULE-14",
+            "RULE-16",
+            "RULE-18"
+          ],
+          "reasoning_chain": "IF the rules require explicit consent for ratification (RULE-16) AND proof contracts make ratification binding once locked (RULE-14) AND PM-as-decider gives the designer control of cadence (RULE-3) AND shared understanding requires the designer knows what each acceptance moment locks (RULE-2), THEN NC ratification must (a) maintain a state boundary between text-accept and ratify-accept, (b) treat designer revision during slot 2 as a reset to authoring, (c) refuse ratify-accept on revised text until text-accept lands again, (d) route draft NCs to slot 2 per priority queue without auto-ratifying.",
+          "collapse_test": "If text-accept and ratify-accept are conflated, the designer accepts an NC's text and silently locks ratification too — the per-element ratify path becomes redundant ceremony. If mid-revision reset is not enforced, designer revisions during slot 2 land directly as ratified text without re-review, defeating the two-cycle discipline. If draft NCs auto-ratify on routing to slot 2, the designer loses the deliberate ratify-accept moment and becomes a rubber-stamp rather than an active gate. If slot-2 routing happens without priority-queue discipline, ratification cycles fragment across rounds and the designer cannot track which NCs are still in draft.",
+          "rejected_alternatives": [
+            "Single acceptance moment (text-accept = ratify-accept) — rejected because it collapses the two-cycle discipline that NCON-15's lifecycle marker and the new ratify tool were built to enable.",
+            "Auto-ratify draft NCs on slot-2 routing — rejected because it removes the deliberate ratify-accept moment; designer becomes rubber-stamp.",
+            "Allow ratify-accept on revised text without text-accept reset — rejected because it bypasses the authoring-cycle review of the new text; ratify-accept locks something the designer may not have read in full.",
+            "Designer manages slot-2 routing manually — rejected because it inverts agent's operational discipline; designer carries scheduling labor."
+          ]
+        }
+      }
+    },
+    {
+      "round": 29,
+      "op": "ratify",
+      "entityId": "CERN-2",
+      "type": "CONCERN",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer accepted CERN-2 ratify at round 35 as part of PERM-1 bundle with RCON-2."
+      },
+      "changedFields": [
+        "status"
+      ],
+      "provenance": {
+        "before": "draft",
+        "after": "ratified"
+      }
+    },
+    {
+      "round": 29,
+      "op": "ratify",
+      "entityId": "RCON-2",
+      "type": "RESOLVE_CONDITION",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer accepted RCON-2 ratify at round 35 as part of PERM-1 bundle with CERN-2."
+      },
+      "changedFields": [
+        "ratification"
+      ],
+      "provenance": {
+        "ratificationText": "Ratified at round 35. Coverage criterion locks the agent-constructed-framing discipline as the resolution claim against CERN-2 (decision venue construction). Operationally observable across the round cycle: every information packet presents agent-constructed research, framing, and drafted options; no packet asks the designer for technical context only the agent or codebase can supply."
+      }
+    },
+    {
+      "round": 30,
+      "op": "add",
+      "entityId": "RULE-19",
+      "type": "RULE",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer-issued mid-session for slicing protocol, sprint-d-2 round 30. Submission per designer specification: verbatim-preserve, no restructuring. Statement preserved exactly as designer authored. Five operational obligations follow under this rule: maintain slice-membership ledger at head of every ratification round; declare attribution at NC creation via 'Addresses concerns:' line in reasoning_chain; render one slice per round; mark cross-slice elements explicitly; refuse out-of-cadence ratification."
+      },
+      "changedFields": null,
+      "provenance": {
+        "initialPayload": {
+          "op": "add",
+          "type": "RULE",
+          "source": "designer",
+          "statement": "Ratification of proof elements proceeds by per-Concern vertical slice, not by element type. The unit of ratification is the slice: one Concern, every Resolve Condition with problem_anchor equal to that Concern, every Necessary Condition the agent attributes to that Concern, every Risk whose basis cites a slice Necessary Condition, every Friction whose anchor_a or anchor_b is a slice element, and every Definition cited in slice prose. Until the proof schema supports a concerns_addressed[] pointer on Necessary Conditions, the agent maintains slice membership in a designer-visible ledger declared at the head of every ratification round, and renders exactly one slice per ratification round in priority order, with a frontmatter round preceding the first slice and a cross-slice reconciliation round preceding the closing argument."
+        }
+      }
+    },
+    {
+      "round": 31,
+      "op": "add",
+      "entityId": "PERM-4",
+      "type": "PERMISSION",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer accepted the structural Permission as written at round 40. Relieves RULE-17 hook 2 (multi-ratify per round prohibited) for round shapes defined by RULE-19 — frontmatter, slice, and cross-slice reconciliation rounds. Scoped to RULE-19 round shapes only; non-RULE-19 rounds remain bound by RULE-17."
+      },
+      "changedFields": null,
+      "provenance": {
+        "initialPayload": {
+          "op": "add",
+          "type": "PERMISSION",
+          "source": "designer",
+          "statement": "Permission relieving RULE-17 hook 2 (multi-ratify per round prohibited) for round shapes defined by RULE-19. Specifically: (a) the frontmatter round may bundle Problem Statement validation, Concern ratifications, and Definition ratifications in a single round; (b) a slice round may bundle the slice's element ratifications (Concern + Resolve Conditions + Necessary Conditions + Risks + Frictions + Definitions) in a single round; (c) the cross-slice reconciliation round may handle cross-slice elements together in a single round. The Permission is scoped to RULE-19 round shapes only; non-RULE-19 rounds remain bound by RULE-17.",
+          "relieves": "RULE-17"
+        }
+      }
+    },
+    {
+      "round": 31,
+      "op": "ratify",
+      "entityId": "CERN-1",
+      "type": "CONCERN",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer said 'accept all' at round 41 frontmatter round. Ratifying the eleven still-draft Concerns as a batch under PERM-4."
+      },
+      "changedFields": [
+        "status"
+      ],
+      "provenance": {
+        "before": "draft",
+        "after": "ratified"
+      }
+    },
+    {
+      "round": 31,
+      "op": "ratify",
+      "entityId": "CERN-3",
+      "type": "CONCERN",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer said 'accept all' at round 41 frontmatter round. Ratifying the eleven still-draft Concerns as a batch under PERM-4."
+      },
+      "changedFields": [
+        "status"
+      ],
+      "provenance": {
+        "before": "draft",
+        "after": "ratified"
+      }
+    },
+    {
+      "round": 31,
+      "op": "ratify",
+      "entityId": "CERN-4",
+      "type": "CONCERN",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer said 'accept all' at round 41 frontmatter round. Ratifying the eleven still-draft Concerns as a batch under PERM-4."
+      },
+      "changedFields": [
+        "status"
+      ],
+      "provenance": {
+        "before": "draft",
+        "after": "ratified"
+      }
+    },
+    {
+      "round": 31,
+      "op": "ratify",
+      "entityId": "CERN-5",
+      "type": "CONCERN",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer said 'accept all' at round 41 frontmatter round. Ratifying the eleven still-draft Concerns as a batch under PERM-4."
+      },
+      "changedFields": [
+        "status"
+      ],
+      "provenance": {
+        "before": "draft",
+        "after": "ratified"
+      }
+    },
+    {
+      "round": 31,
+      "op": "ratify",
+      "entityId": "CERN-6",
+      "type": "CONCERN",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer said 'accept all' at round 41 frontmatter round. Ratifying the eleven still-draft Concerns as a batch under PERM-4."
+      },
+      "changedFields": [
+        "status"
+      ],
+      "provenance": {
+        "before": "draft",
+        "after": "ratified"
+      }
+    },
+    {
+      "round": 31,
+      "op": "ratify",
+      "entityId": "CERN-7",
+      "type": "CONCERN",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer said 'accept all' at round 41 frontmatter round. Ratifying the eleven still-draft Concerns as a batch under PERM-4."
+      },
+      "changedFields": [
+        "status"
+      ],
+      "provenance": {
+        "before": "draft",
+        "after": "ratified"
+      }
+    },
+    {
+      "round": 31,
+      "op": "ratify",
+      "entityId": "CERN-8",
+      "type": "CONCERN",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer said 'accept all' at round 41 frontmatter round. Ratifying the eleven still-draft Concerns as a batch under PERM-4."
+      },
+      "changedFields": [
+        "status"
+      ],
+      "provenance": {
+        "before": "draft",
+        "after": "ratified"
+      }
+    },
+    {
+      "round": 31,
+      "op": "ratify",
+      "entityId": "CERN-9",
+      "type": "CONCERN",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer said 'accept all' at round 41 frontmatter round. Ratifying the eleven still-draft Concerns as a batch under PERM-4."
+      },
+      "changedFields": [
+        "status"
+      ],
+      "provenance": {
+        "before": "draft",
+        "after": "ratified"
+      }
+    },
+    {
+      "round": 31,
+      "op": "ratify",
+      "entityId": "CERN-10",
+      "type": "CONCERN",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer said 'accept all' at round 41 frontmatter round. Ratifying the eleven still-draft Concerns as a batch under PERM-4."
+      },
+      "changedFields": [
+        "status"
+      ],
+      "provenance": {
+        "before": "draft",
+        "after": "ratified"
+      }
+    },
+    {
+      "round": 31,
+      "op": "ratify",
+      "entityId": "CERN-11",
+      "type": "CONCERN",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer said 'accept all' at round 41 frontmatter round. Ratifying the eleven still-draft Concerns as a batch under PERM-4."
+      },
+      "changedFields": [
+        "status"
+      ],
+      "provenance": {
+        "before": "draft",
+        "after": "ratified"
+      }
+    },
+    {
+      "round": 31,
+      "op": "ratify",
+      "entityId": "CERN-12",
+      "type": "CONCERN",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer said 'accept all' at round 41 frontmatter round. Ratifying the eleven still-draft Concerns as a batch under PERM-4."
+      },
+      "changedFields": [
+        "status"
+      ],
+      "provenance": {
+        "before": "draft",
+        "after": "ratified"
+      }
+    },
+    {
+      "round": 31,
+      "op": "ratify",
+      "entityId": "NCON-16",
+      "type": "NECESSARY_CONDITION",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer said 'accept all 5' at CERN-1 slice round 42. Ratifying NCON-16 as part of slice batch under PERM-4."
+      },
+      "changedFields": [
+        "ratificationStatus"
+      ],
+      "provenance": {
+        "ratificationText": "Ratified at CERN-1 slice round 42 as part of designer batch acceptance. Locks the slot-2 ratification packet shape: full element text plus surrounding context plus explicit three-option choice; no implicit consent permitted."
+      }
+    },
+    {
+      "round": 31,
+      "op": "ratify",
+      "entityId": "NCON-17",
+      "type": "NECESSARY_CONDITION",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer said 'accept all 5' at CERN-1 slice round 42. Ratifying NCON-17 as part of slice batch under PERM-4."
+      },
+      "changedFields": [
+        "ratificationStatus"
+      ],
+      "provenance": {
+        "ratificationText": "Ratified at CERN-1 slice round 42 as part of designer batch acceptance. Locks the Concern presentation discipline: Concerns at Phase 2 and slot 7 presented in full text with explicit ratify request; designer accept ratifies in the same round; PERM-1 covers the late-bundle path for Concerns reaching RC review still in draft."
+      }
+    },
+    {
+      "round": 31,
+      "op": "ratify",
+      "entityId": "NCON-18",
+      "type": "NECESSARY_CONDITION",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer said 'accept all 5' at CERN-1 slice round 42. Ratifying NCON-18 as part of slice batch under PERM-4."
+      },
+      "changedFields": [
+        "ratificationStatus"
+      ],
+      "provenance": {
+        "ratificationText": "Ratified at CERN-1 slice round 42 as part of designer batch acceptance. Locks the pre-call validation discipline: presentation layer checks every state-mutating call against RULE-18 before invoking; MCP refusal is a backstop against agent bugs, not a runtime fallback; compliance is a property of the call site."
+      }
+    },
+    {
+      "round": 31,
+      "op": "ratify",
+      "entityId": "NCON-19",
+      "type": "NECESSARY_CONDITION",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer said 'accept all 5' at CERN-1 slice round 42. Ratifying NCON-19 as part of slice batch under PERM-4."
+      },
+      "changedFields": [
+        "ratificationStatus"
+      ],
+      "provenance": {
+        "ratificationText": "Ratified at CERN-1 slice round 42 as part of designer batch acceptance. Locks the integrity-warning surfacing discipline: every warning translated from internal type code to plain language and surfaced in the same round it's generated; no silent absorption, batching across rounds, or deferral until closure."
+      }
+    },
+    {
+      "round": 31,
+      "op": "ratify",
+      "entityId": "NCON-20",
+      "type": "NECESSARY_CONDITION",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer said 'accept all 5' at CERN-1 slice round 42. Ratifying NCON-20 as part of slice batch under PERM-4."
+      },
+      "changedFields": [
+        "ratificationStatus"
+      ],
+      "provenance": {
+        "ratificationText": "Ratified at CERN-1 slice round 42 as part of designer batch acceptance. Locks the ratification-lifecycle navigation: text-accept (slot 4 authoring) and ratify-accept (slot 2 ratification) are two separate moments; designer revisions during slot 2 reset to authoring; draft NCs route to slot 2 per priority queue without auto-ratifying."
+      }
+    },
+    {
+      "round": 31,
+      "op": "ratify",
+      "entityId": "NCON-9",
+      "type": "NECESSARY_CONDITION",
+      "consent": {
+        "source": "designer",
+        "rationale": "Designer said 'accept' at CERN-2 slice round 44. Ratifying NCON-9 across both slices it addresses (CERN-2 and CERN-10) under PERM-4 slice-round bundling."
+      },
+      "changedFields": [
+        "ratificationStatus"
+      ],
+      "provenance": {
+        "ratificationText": "Ratified at CERN-2 slice round 44. Locks decision-venue construction as the structural shape of every round of the round cycle: agent-supplied research, framing, and drafted options; designer-supplied decision; no soliciting designer input that requires technical context the designer doesn't have. Multi-slice ratification — covers both CERN-2 (Decision venue construction) and CERN-10 (Round-cycle topic selection)."
       }
     }
   ],
