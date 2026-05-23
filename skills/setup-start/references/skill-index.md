@@ -7,14 +7,13 @@ task at hand, or when you need to look up what a named skill does.
 
 When multiple skills could apply, use this order:
 
-1. **Gate skills first** (`design-large-task`, `design-small-task`, `plan-build`, `execute-write`, `execute-verify-complete`, `finish-close-worktree`) — these define the overall pipeline stage and determine HOW to approach the task
+1. **Gate skills first** (`design-small-task`, `plan-build`, `execute-write`, `execute-verify-complete`, `finish-close-worktree`) — these define the overall pipeline stage and determine HOW to approach the task
 2. **Review skills second** (`plan-attack`, `plan-smell`, `util-codereview`) — these harden and validate the work
 3. **Behavioral skills third** (`execute-test`, `execute-prove`) — these guide specific execution disciplines
 4. **Utility skills fourth** (`util-worktree`, `util-dispatch`) — these support workflow mechanics
 
 ### Common Dispatch Patterns
 
-- "Let's build X with architectural choices" → `design-large-task` first, then `plan-build`.
 - "Quick design check for X" → `design-small-task` first, then `plan-build`.
 - "Convene the committee on X" / "ask the committee" / "get a multi-perspective read on X" → `design-committee` standalone (not pipeline-staged).
 
@@ -24,7 +23,6 @@ When multiple skills could apply, use this order:
 
 - `setup-start` — Entry point; establishes the pipeline and skill usage rules (this skill)
 - `start-bootstrap` — Mechanical session setup: config, sprint naming, dir creation, task reset, thinking history
-- `design-large-task` — Default structural design skill: five outer phases (Bootstrap, Parallel Context Exploration, Round One, Interview Loop, Closure). Inside the Interview Loop, an Understand Stage runs under a nine-dimension saturation MCP, then a Solve Stage builds a formal proof of necessary conditions. Closure writes the design brief (the proof envelope) and transitions to design-specify. Architecture choice lives in design-specify, not here.
 - `design-small-task` — Lightweight design conversation for well-bounded tasks. Surfaces considerations through structured Q&A, produces a brief for plan-build. No MCP, no spec step.
 - `design-committee` — Standalone (not pipeline-staged) six-role deliberation team for ad-hoc design consultations. Four-pole Cartesian debate (Conservator / Innovator / Pragmatist / Purist) plus Researcher (codebase, prior-art, industry, admin), with the calling agent as team-lead and the human as designer. Process-agnostic primitive — wrapping skills add sprint context, gates, or Clerk roles via the convening message only. Produces a three-section decision packet for the designer to adjudicate. Convene when framing bias is a real risk on a meta-architecture or charter call.
 - `design-specify` — Formalize an approved design brief into a durable spec document. Two-architect competing-architecture review on dispatcher-assigned axes (with F-A-C self-check), automated fidelity review, inline adversarial review, and automatic codebase ground-truth verification (skipped only for greenfield specs) before plan-build.
@@ -59,10 +57,4 @@ When multiple skills could apply, use this order:
 
 Brief templates are **not** standalone skills — they live inside each design skill as references:
 
-- `design-large-task/references/design-brief-template.md` — 8-section envelope (proof-driven briefs)
 - `design-small-task/references/design-brief-small-template.md` — 6-section lightweight (bounded-task briefs)
-
-### MCP Servers
-
-- `chester-design-proof` (invoked inside `design-large-task`) — Solve Stage proof of necessary conditions
-- `chester-design-understanding` (invoked inside `design-large-task`) — Understand Stage nine-dimension saturation scoring
