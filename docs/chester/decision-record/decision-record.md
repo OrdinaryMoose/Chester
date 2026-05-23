@@ -2310,3 +2310,141 @@ artifact_refs:
   - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-09/plan/sprint-02-bug-fix-09-plan-00.md
   - working/20260511-01-mp-redesign-proof-system/sprint-02-bug-fix-09/plan/sprint-02-bug-fix-09-plan-threat-report-00.md
 ---
+
+---
+id: dr-20260522-01-committee-convening-message-only-attach-point
+date: 2026-05-22
+sprint: 20260521-design-committee-update
+stage: design-large-task
+title: Convening message is the only legitimate attach point for committee skill overlays
+decision: A wrapping skill that invokes the general design-committee primitive (Mode B) may only attach its sprint-specific overlay — locked schemas, Clerk designation, gating rules, output-field additions — inside the team-lead's convening message; the convening message is the sole sanctioned injection site for any per-invocation context.
+rationale: The convening message is ephemeral (lives only in the session record) and arrives at every pole before any output is produced, so attaching the overlay there ensures every pole operates under the same context from the first dispatch and leaves no residue in any persistent artifact. All four committee poles converged on this attach point in R1 deliberation because every alternative attach point — agent files, the general SKILL.md, output-format field labels, a separate skill brief at a known path — either persists across invocations (contaminating future Mode A calls) or splits overlay across artifacts (defeating the mode-distinguishability test). Naming a single legitimate attach point makes the convening message the authoritative evidence of which mode any invocation is running in: a reader inspects the convening message and immediately knows Mode A from Mode B without needing to read any other file.
+alternatives:
+  - Attach overlays inside agent definition files (the pole .md files) — rejected because agent files persist across all invocations including Mode A general calls, and sprint-specific instructions accumulate as silent contamination that no Mode A reader can detect.
+  - Attach overlays inside the general design-committee SKILL.md — rejected because the SKILL.md is the floor document for both modes; any sprint-specific sentence there moves the floor for every future caller and erodes the process-agnostic primitive.
+  - Use a separate skill-overlay file at a known path that the team-lead reads on join — rejected because the brief becomes second-tier infrastructure that develops its own inheritance problem (briefs referencing prior briefs), and the overlay is split across two artifacts instead of one inspectable convening message.
+  - Inject overlays via per-round dispatch packets after deliberation has started — rejected because mid-deliberation injection may not reach all poles consistently and breaks the "every pole reads the same context from the start" property the convening message preserves.
+tags: [architecture, skill, governance, convention]
+supersedes: null
+artifact_refs:
+  - working/20260521-design-committee-update/design/r1-mode-separation-decision-00.md
+  - working/20260521-design-committee-update/design/general-committee-redesign-brief-00.md
+---
+
+---
+id: dr-20260522-02-committee-three-forbidden-attach-surfaces
+date: 2026-05-22
+sprint: 20260521-design-committee-update
+stage: design-large-task
+title: Three forbidden attach surfaces for committee skill overlays, enforced editorially
+decision: Three surfaces are explicitly forbidden as attach points for any wrapping skill's overlay on the general design-committee primitive: (1) the pole agent files, (2) the general design-committee SKILL.md, and (3) the output-format field labels defined by the poles; enforcement is editorial discipline only — no pre-commit hooks, no CI lint, no mechanical enforcement — applied via three guards (positive contract statement in SKILL.md, floor-not-ceiling rule on convening messages, breaking-interface-change scrutiny on the three surfaces).
+rationale: Each surface has a distinct contamination failure mode that motivates its prohibition. Agent files persist invisibly across invocations and accumulate sprint-specific clauses no Mode A reader can detect. The SKILL.md is the floor document for both modes and any sprint-specific edit there moves the floor for every future caller. Output-format field labels are the interface between deliberation and external readers; redefining a label like "Load-bearing trade-off" to carry a schema token makes the output illegible outside the wrapping-skill's context. Editorial-discipline enforcement was chosen over mechanical enforcement because the shipping cost is zero, there is no cleanup obligation, no per-session file writes, and the primitive remains visibly process-agnostic; the cost is that reviewers must catch weakening edits when they review committee-touching changes. Mechanical enforcement (hooks, lint) is explicitly deferred to a follow-up brief if editorial discipline proves insufficient.
+alternatives:
+  - Allow agent-file edits when convenient and rely on reviewer judgment to catch contamination — rejected because the failure mode is silent (no signal at edit time, no signal at next Mode A invocation), and the boundary between "lens definition" and "sprint-specific procedure" erodes incrementally with each individual edit looking cheap.
+  - Permit redefining existing output-format field labels when the wrapping skill needs richer semantics — rejected because the label's meaning is the contract with external readers; redefinition silently breaks any tool or reader consuming the output without the wrapping-skill's context.
+  - Install mechanical enforcement (pre-commit hooks scanning for sprint-specific phrases in agent files, CI lint on SKILL.md edits) — rejected as premature investment; editorial discipline is the zero-cost baseline, and mechanical enforcement is a follow-up brief item if discipline fails in practice.
+  - State the prohibition as a single "do not contaminate shared infrastructure" rule rather than enumerating three specific surfaces — rejected because the failure modes are distinct (agent-file drift, SKILL.md floor drift, field-label re-meaning) and each one needs its own named guard for editorial review to be effective.
+tags: [governance, convention, skill, architecture]
+supersedes: null
+artifact_refs:
+  - working/20260521-design-committee-update/design/r1-mode-separation-decision-00.md
+  - working/20260521-design-committee-update/design/general-committee-redesign-brief-00.md
+---
+
+---
+id: dr-20260522-03-committee-floor-not-ceiling-rule
+date: 2026-05-22
+sprint: 20260521-design-committee-update
+stage: design-large-task
+title: Floor-not-ceiling rule for committee primitive — wrapping skills may add, never weaken
+decision: The general design-committee SKILL.md states a positive contract (what the primitive promises) and an explicit negative contract (what the primitive does not promise), and any wrapping skill may add steps, fields, gates, or roles via its convening message but may never weaken, substitute, or override any item the general SKILL.md names as a consolidation contract (including the Translation Gate, the six-role roster, and the decision-packet delivery to the designer).
+rationale: The positive/negative contract pair makes the floor inspectable: a reader can ask "is this true for a Mode A call with no wrapping skill?" of every sentence in the SKILL.md, and any sentence that fails the test belongs in a wrapping skill, not in the floor. The floor-not-ceiling framing handles the asymmetric direction of legitimate variation — wrapping skills routinely need to add procedure (a Clerk, a locked schema, a gate condition), but no wrapping skill has legitimate reason to weaken the primitive's deliberation contract (skipping the Translation Gate, omitting a pole, bypassing consolidation). Stating the asymmetry explicitly converts a class of contamination ("I'll skip step X for my sprint") into a visible policy violation rather than a tacit shortcut. The pattern generalizes to any future Chester primitive that supports wrapping-skill overlays: name the floor explicitly with positive and negative contract statements, and frame the override authority as additive-only.
+alternatives:
+  - Allow wrapping skills to override individual steps when the skill's purpose requires it (e.g., a sprint that does not need the Translation Gate for code-only consumers) — rejected because override authority erodes the floor; once any step is overrideable, every step becomes overrideable in some future sprint, and the primitive's stable shape dissolves.
+  - State the contract as a single ceiling ("wrapping skills may not add anything not in this list") — rejected because legitimate wrapping skills routinely add useful procedure (Clerks, schemas, gates) that the general primitive correctly does not include; a ceiling forbids legitimate additions.
+  - Carry the contract as an implicit norm visible only in the SKILL.md's prose without an explicit positive/negative split — rejected because implicit norms have no Mode A test; a reader cannot tell which sentences are floor and which are commentary, and editorial review has nothing crisp to enforce.
+tags: [governance, architecture, skill, convention]
+supersedes: null
+artifact_refs:
+  - working/20260521-design-committee-update/design/r1-mode-separation-decision-00.md
+  - working/20260521-design-committee-update/design/general-committee-redesign-brief-00.md
+---
+
+---
+id: dr-20260522-04-committee-agent-files-colocated-under-skill
+date: 2026-05-22
+sprint: 20260521-design-committee-update
+stage: design-specify
+title: Co-locate committee agent files under skills/design-committee/agents/ via plugin.json manifest
+decision: The five live committee agent files (four poles plus Researcher) move from the top-level `agents/` directory into `skills/design-committee/agents/`, and `.claude-plugin/plugin.json` gains an explicit `agents: ["./agents/", "./skills/design-committee/agents/"]` field; the dispatch identifier `chester:design-committee-{role}` is preserved by construction because the plugin resolver registers the new path as a flat scan root with no further subfolders.
+rationale: Co-locating agent files alongside their owning skill makes the primitive readable as a unit — a reader opening `skills/design-committee/` sees the SKILL.md, the references, and the agent files in one subtree rather than having to navigate to a sibling top-level directory. Industry research against the official Anthropic plugin reference confirmed three load-bearing facts that gate the pattern: (1) the plugin resolver's `agents` manifest field replaces the default `agents/` scan rather than augmenting it, so both paths must be listed to preserve non-committee agents, (2) the scoped identifier for plugin agents is constructed from the file's path relative to the registered scan root, so a flat directory registered as a root produces an identifier with no subfolder segment, and (3) versions prior to Claude Code v2.1.140 produce no warning when a default `agents/` directory is silently bypassed by a manifest override. The pattern sets the cross-sprint precedent: when a skill owns a discrete set of agents that are not shared with other skills, those agent files may live under `skills/<skill>/agents/` provided `plugin.json` lists both `./agents/` and the new path. The footgun is named explicitly — the `agents` field is replace-not-add, so any future author adding a new co-located agent set must list both the existing paths and the new one.
+alternatives:
+  - Keep agent files at top-level `agents/` and rely on filename prefixes for skill association — rejected because the prefix convention does not produce a navigable unit; a reader sees five committee files mixed with unrelated agents and must filter by name to understand the committee's surface.
+  - Co-locate agent files at `skills/design-committee/agents/` without updating `plugin.json` — rejected because the plugin resolver only scans paths it is told about; agent files outside the registered scan roots simply do not resolve, and dispatch fails silently.
+  - List only the co-located path in the `agents` field (`./skills/design-committee/agents/`) — rejected because the manifest field replaces rather than augments, so omitting `./agents/` would make every non-committee plugin agent invisible to the resolver.
+  - Use subfolders inside the registered path to group committee roles (e.g., `skills/design-committee/agents/poles/conservator.md`) — rejected because subfolders below a registered scan root add path segments to the scoped identifier, which would change dispatch identifiers from `chester:design-committee-conservator` to `chester:design-committee:poles:conservator` and break every existing dispatch site.
+tags: [architecture, convention, skill]
+supersedes: null
+artifact_refs:
+  - working/20260521-design-committee-update/design/industry-research-plugin-resolver-00.md
+  - working/20260521-design-committee-update/design/general-committee-redesign-brief-00.md
+---
+
+---
+id: dr-20260522-05-arbiter-removal-no-backward-compatibility
+date: 2026-05-22
+sprint: 20260521-design-committee-update
+stage: design-specify
+title: Aggressive Arbiter removal across all seven cleanup sites with no backward-compatibility carve-outs
+decision: The Arbiter role is removed from the general design-committee primitive entirely: `agents/design-committee-arbiter.md` is deleted, the SKILL.md is rewritten with no Arbiter content, the three proof-session reference guides (arbiter-guide, team-lead-guide, researcher-guide) are deleted or archive-renamed with supersession headers, the four pole agent files have Arbiter-routing prohibitions rewritten to category-correct language ("no proof-state operations; this primitive does not include a proof-state custodian"), the Researcher agent file has Arbiter-routing language removed, and `skills/setup-start/references/skill-index.md` line 29 is updated to remove Arbiter from the role list; no backward-compatibility shim is retained anywhere, and previous proof-system sessions remain archive-only.
+rationale: The Arbiter was bound to the design-proof-system which has been deprecated; carrying the role forward in the general committee primitive would preserve a vestigial proof-state custodian with no live system to operate against, and the abstract Arbiter contract from sprint 20260517 was already a known source of binding leak (the StoryDesigner repo's Arbiter kept binding to the wrong proof system because the project CLAUDE.md still documented the older Committee convention as the default source). Aggressive cleanup across all seven Q5-identified sites in a single sprint is cheaper than incremental scrubs because every Arbiter reference must be re-read and re-justified at each touch point; one pass that eliminates the role removes the entire cognitive surface. The no-backward-compatibility ruling reflects the project's invariant that previous proof-system sessions are archive-only — no live caller depends on the Arbiter role, and the seven cleanup sites are all internal to the design-committee skill subtree (no cross-system reference is produced, per the design-proof-system boundary rule in root CLAUDE.md). This supersedes the prior Arbiter binding decision (`dr-20260517-26`) because that decision tightened the Arbiter contract whereas this decision removes the role from the primitive entirely.
+alternatives:
+  - Retain the Arbiter role with a "deprecated, no-op when invoked" shim — rejected because shims preserve the cognitive surface (every future reader must learn the role exists and is deprecated) while delivering zero functional value; deletion is honest.
+  - Scrub Arbiter incrementally across multiple follow-up sprints — rejected because the seven sites span agent files, SKILL.md, references, and skill-index.md, and partial scrubs would leave the committee in a state where some sites describe a six-role roster and others describe a five-role roster, causing readers to encounter contradictory descriptions until the cleanup completes.
+  - Delete only the Arbiter agent file and leave the reference guides intact — rejected because the proof-session reference guides (team-lead-guide, researcher-guide) are deeply Arbiter-contaminated and describe proof-session orchestration that has no analog in the general committee primitive; leaving them intact would silently advertise a workflow that no longer runs.
+  - Preserve Arbiter as an optional role wrapping skills can opt into via the convening message — rejected because the role's binding target (design-proof-system) is deprecated and there is no live system for the role to operate against; making Arbiter opt-in keeps the binding-leak failure mode alive without any benefit.
+tags: [revert, architecture, skill, convention]
+supersedes: dr-20260517-26-arbiter-explicit-default-binding-no-simulation
+artifact_refs:
+  - working/20260521-design-committee-update/design/r2-open-questions-decision-00.md
+  - working/20260521-design-committee-update/design/general-committee-redesign-brief-00.md
+---
+
+---
+id: dr-20260522-06-one-round-format-as-general-committee-deliberation-shape
+date: 2026-05-22
+sprint: 20260521-design-committee-update
+stage: design-large-task
+title: One-round-format as canonical lightweight deliberation shape for the general committee
+decision: The "one-round-format" is named and documented inside `skills/design-committee/SKILL.md` as a general committee deliberation shape available to any wrapping skill: each pole produces an initial position, sends exactly one peer question by direct DM to another pole, answers any incoming peer question with one direct response, then submits a final position to the team-lead; team-lead dispatches the round prompt to all poles in parallel and does not relay peer messages during the deliberation (poles DM peers directly), then consolidates after all final positions return.
+rationale: The shape emerged from live use in this sprint (R1 and R2 both ran in this protocol) and proved load-bearing for keeping deliberation cheap: a single round with bounded peer exchange surfaces enough cross-pole challenge to produce substantive R-decisions without the cost of multi-round iteration. Documenting it inside the general SKILL.md (rather than inside any specific wrapping skill) makes it a first-class committee deliberation primitive that every wrapping skill inherits by default; framing it as one of multiple possible shapes (multi-round protocols remain available) preserves the flexibility of the general primitive while giving designers a named cheap option. The compile-not-relay discipline (team-lead does not switchboard peer messages during the round) was explicitly chosen over a team-lead-mediated routing model because relay slows the round, costs team-lead context on every message, and creates the illusion of central coordination where none is needed; the designer's direct guidance during the sprint ("Agents send message direct to peers in parallel. Dont slow the process down") names the failure mode being avoided.
+alternatives:
+  - Document one-round-format only inside the design-architect-committee wrapping skill — rejected because the shape is not architect-specific; any future wrapping skill convening the committee may legitimately want the same lightweight protocol, and burying the spec inside one wrapping skill would force every other wrapping skill to either rediscover or duplicate it.
+  - Make the team-lead relay all peer messages so the team-lead sees every exchange in real time — rejected because the relay model slows the round, multiplies team-lead context cost, and reproduces the switchboard-operator failure mode the designer explicitly named during the sprint; compile-at-the-end preserves team-lead's role as consolidator without making it a real-time message router.
+  - Require multi-round protocols as the default and treat one-round as a degenerate case — rejected because the one-round shape is sufficient for most committee questions in practice (both R1 and R2 in this sprint converged in a single round), and naming it as default makes the cheap path the obvious path.
+  - Cap peer DM count at zero (no peer exchange, just initial positions and final consolidation) — rejected because the one peer-question-plus-one-response exchange is what makes positions revise meaningfully; without any peer challenge, initial positions are unrefined and consolidation has less to synthesize.
+tags: [convention, process, skill]
+supersedes: null
+artifact_refs:
+  - working/20260521-design-committee-update/design/r1-mode-separation-decision-00.md
+  - working/20260521-design-committee-update/design/general-committee-redesign-brief-00.md
+---
+
+---
+id: dr-20260522-07-researcher-no-file-writes-construction-time-constraint
+date: 2026-05-22
+sprint: 20260521-design-committee-update
+stage: design-specify
+title: Researcher produces findings as message output only — no file writes outside conversation record
+decision: The committee Researcher's tool surface preserves the full read-side toolkit (Read, Glob, Grep, Bash, WebSearch, WebFetch) but adds a construction-time prohibition in the agent file's Hard Prohibitions section: the Researcher produces findings as message output only and performs no file writes outside the conversation record; the constraint is encoded at the agent-file level (load-bearing) and summarized in the SKILL.md role description.
+rationale: The Researcher's role is to produce findings the team-lead consumes and synthesizes, so its output shape is "text to team-lead" rather than persistent artifacts; granting write authority outside the conversation record would introduce a state-mutation surface that is not coordinated with the team-lead's compile step, producing artifacts that exist outside the deliberation record and may shape downstream readers without appearing in any compile output. The full read-side toolkit is preserved (Option P in Q4 deliberation) because the general committee's broad mandate may legitimately require web access for industry research or external prior-art pulls; narrowing the surface bets that web access will rarely be needed, but the general primitive's process-agnostic design means designers may convene the Researcher precisely because they need external research. The middle-path constraint (full read surface, no write) keeps the validated tool surface while closing the state-mutation gap. Bash is retained in the read surface because read-mode shell access (find, grep variants, jq) is part of normal research workflow; the prohibition lives at the agent-file Hard Prohibitions level rather than via tool-surface narrowing because per-tool whitelisting at the Claude Code permission layer is coarser than the role-level discipline the agent file can encode.
+alternatives:
+  - Narrow the tool surface to exclude Bash and WebSearch/WebFetch (Option N in Q4) — rejected because the general committee's broad mandate may legitimately require web access for industry research, and taking that capability away forces designers to work around a constraint they did not ask for; the blast-radius concern is managed by the role prohibition on design opinion, not by tool-surface narrowing.
+  - Expand the Researcher to file-write authority for capturing findings as durable artifacts (Option E in Q4) — rejected because the read-side role's output shape is "text to team-lead" and write authority outside the conversation record introduces an uncoordinated state-mutation surface; the design smell is granting write authority to a role whose contract delivers via message output.
+  - Encode the no-file-write constraint only at the tool-surface layer (remove Write/Edit from the permitted tool list) — rejected because the agent-file Hard Prohibitions section is the canonical home for role-level discipline, and an agent-file prohibition is readable to any reviewer opening the file; per-tool whitelisting is coarser and harder to audit without opening the plugin manifest or permission configuration.
+tags: [convention, skill, governance]
+supersedes: null
+artifact_refs:
+  - working/20260521-design-committee-update/design/r2-open-questions-decision-00.md
+  - working/20260521-design-committee-update/design/general-committee-redesign-brief-00.md
+---
