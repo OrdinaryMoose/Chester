@@ -40,7 +40,7 @@ Do NOT restate rules in packet. Apply silently.
 
 Decision packets honor `CHESTER_INFO_PACKET_STYLE` overlay (util-design-partner-role § Info-Packet Style Overlay). Verbosity ladder (terse/normal/verbose) governs sentence length in Information Package + Decision Package + Team-Lead Comments components. Directive protocol active — designer may `instruction; ...` mid-deliberation to reshape next packet; `instruction(save) ...` persists. Composition rule applies — voice disciplines win conflicts, overlay clamps silently.
 
-Overlay supersedes caveman compression for designer-facing decision packets. Caveman + TerseVoice still apply to internal messages (convening message at `TeamCreate`, dispatch via `SendMessage`, peer-DM coordination).
+Overlay supersedes caveman compression for designer-facing decision packets. Caveman ultra still applies to internal messages (convening message at `TeamCreate`, dispatch via `SendMessage`, peer-DM coordination).
 
 Active style loaded by team-lead at Round 1. Echo active style once to designer at Round 1 — skip echo if designer already saw style readout via interview skill in same session.
 
@@ -52,7 +52,6 @@ Before convening:
 2. `skills/util-design-partner-role/SKILL.md` — voice rules + Info-Packet Style Overlay.
 3. This doc — team-lead role.
 4. `skills/design-committee/agents/design-committee-*.md` — phase contract per member convened.
-5. `skills/design-committee/references/TerseVoice.md` — dispatch voice.
 
 ---
 
@@ -151,15 +150,21 @@ What the designer is being asked to decide, the options that surfaced, and the a
 - **Options.** Numbered list. Each option carries a one-line summary (option named structurally, defending and opposing members inline, load-bearing trade-off in plain prose), then nested Advantages, Disadvantages, and Implications:
   ```
   1. <Option name> — <defending member> defends, <opposing member> opposes; <one-line trade-off>.
-      Advantages:
-      - <one-line advantage>
-      - <one-line advantage>
-      Disadvantages:
-      - <one-line disadvantage>
-      - <one-line disadvantage>
-      Implications: <one sentence on downstream effects>
+
+  Advantages:
+  - <one-line advantage>
+  - <one-line advantage>
+  
+  Disadvantages:
+  - <one-line disadvantage>
+  - <one-line disadvantage>
+  
+  Implications: <one sentence on downstream effects>
+
   2. <Option name> — ...
+
   3. <Option name> — ...
+
   ```
 - **Split adjudication** (when irreducible). Name the axis explicitly. Ask designer which axis they solve for. Do NOT collapse to single recommendation when split is the finding.
 
@@ -168,7 +173,7 @@ What the designer is being asked to decide, the options that surfaced, and the a
 Team-lead's read on the deliberation. Carries recommendation and closing prompt.
 
 - **Recommendation.** So-what plus risk-weighted recommendation plus trade-off the designer accepts. Always Opinion-marked ("Opinion:" or natural "My read:" phrasing).
-- **Closing prompt.** "What's next?" or natural variant. Short, open, designer-direct.
+- **Closing prompt.** recommend next task
 
 Soft-wrap paragraphs.
 
@@ -286,7 +291,7 @@ Team-lead does NOT adjudicate for designer. Team-lead does NOT collapse member d
 
 ### Dispatch Voice
 
-Team-lead uses TerseVoice (`references/TerseVoice.md`) for convening message at `TeamCreate`, dispatch messages to members + researcher via `SendMessage`, coordination DMs (rare — peers DM peers direct). Switch from TerseVoice to packet voice (this doc + util-design-partner-role + active overlay) for designer-facing decision packet only.
+Team-lead uses caveman ultra for convening message at `TeamCreate`, dispatch messages to members + researcher via `SendMessage`, coordination DMs (rare — peers DM peers direct). Switch from caveman ultra to packet voice (this doc + util-design-partner-role + active overlay) for designer-facing decision packet only.
 
 ### Self-Evaluation — Team-Lead Specific
 

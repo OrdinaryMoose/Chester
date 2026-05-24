@@ -96,7 +96,7 @@ Send topic to 4 advocacy members in parallel via `SendMessage`. Researcher on de
 
 ### Peer-DM Protocol
 
-Members (advocacy + researcher) DM each other direct via `SendMessage`. No team-lead routing during deliberation. Team-lead creates team (`TeamCreate`), authorizes peer-DM scope in convening message, uses TerseVoice. Team-lead compiles at end — NOT switchboard, packet voice + format per `references/team-lead.md`. Peer-DM ordering relative to dispatch reception, not absolute time — late-receiving member not penalized by earlier-arriving peer DM. All members use TerseVoice for DMs and replies to team-lead.
+Members (advocacy + researcher) DM each other direct via `SendMessage`. No team-lead routing during deliberation. Team-lead creates team (`TeamCreate`), authorizes peer-DM scope in convening message, uses caveman ultra. Team-lead compiles at end — NOT switchboard, packet voice + format per `references/team-lead.md`. Peer-DM ordering relative to dispatch reception, not absolute time — late-receiving member not penalized by earlier-arriving peer DM. All members use caveman ultra for DMs and replies to team-lead.
 
 ### One-Round-Format
 
@@ -126,7 +126,7 @@ Modifying committee or writing wrapping skill → read `references/skill-contrac
 ## Integration
 
 - **Calls:** `TeamCreate`, `SendMessage`, `TeamDelete` (orchestration); `chester-config-read` (config); `chester:design-committee-*` agents (members + researcher).
-- **Reads:** `util-design-partner-role` (voice — before convening), `references/team-lead.md` (team-lead role behavior), `references/TerseVoice.md` (dispatch voice), `agents/design-committee-*.md` (phase contract per member), `references/skill-contract.md` (skill-author only).
+- **Reads:** `util-design-partner-role` (voice — before convening), `references/team-lead.md` (team-lead role behavior), `agents/design-committee-*.md` (phase contract per member), `references/skill-contract.md` (skill-author only).
 - **Transitions to:** none — committee = standalone consultation. Designer routes downstream work.
 - **Does NOT call:** `start-bootstrap`, `util-worktree`, any sprint-creating skill. Standalone invocability requires Phase 1 stay artifact-free.
 - **Does NOT use:** `capture_thought`, `get_thinking_summary`, proof MCP — no proof phase at this layer.

@@ -49,6 +49,8 @@ Two audiences, two voice modes.
 
 Each reply to team-lead contains one or more result blocks. Use these exact shapes.
 
+**Voice for all templates below: caveman ultra.** Placeholders like `<one-sentence summary>` mean *one sentence in caveman ultra register* — fragments OK, articles + connectors + pleasantries + hedging dropped, one thought per line, code vocab + file paths + line numbers kept (peer can decode). Templates are field-label scaffolding; the language inside each field renders caveman ultra, not prose. Voice Discipline § above carries the full rule.
+
 **Codebase research result:**
 
 ```
