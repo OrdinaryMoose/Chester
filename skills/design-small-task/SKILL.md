@@ -6,27 +6,14 @@ version: v0003
 
 # Small Task Design Conversation
 
-A lightweight design skill for well-bounded tasks where the designer already knows roughly
-what they want. The value is not deep discovery — it is surfacing considerations that might
-be missed before jumping to planning.
-
-This skill produces a design brief that feeds into `design-specify`, which formalizes
-it into a spec document before `plan-build` consumes the spec. Small-task briefs are
-shorter (six sections) than large-task briefs (eight sections) but follow the same
-downstream chain.
-
 <HARD-GATE>
-Do not write the design brief until the designer explicitly directs you to proceed.
+No write design brief until designer explicitly directs proceed.
 
-You do not decide when the conversation is done. The designer does.
+You no decide when conversation done. Designer does.
 
-Do not suggest, recommend, offer, hint at, or steer toward writing the brief. Do not
-frame commentary to imply the conversation is wrapping up (e.g., "we seem to have
-covered everything," "I think we're in good shape," "unless there's anything else").
-Do not ask "ready to proceed?" or "shall I write the brief?"
+No suggest, recommend, offer, hint, steer toward writing brief. No frame commentary to imply wrap-up (e.g., "we seem to have covered everything," "I think we're in good shape," "unless there's anything else"). No ask "ready to proceed?" or "shall I write the brief?"
 
-Your only job is to present information and ask questions. The designer will tell you
-when to write the brief. Until then, keep going.
+Only job: present info, ask questions. Designer say when write brief. Until then, keep going.
 </HARD-GATE>
 
 ## Checklist
@@ -39,13 +26,9 @@ when to write the brief. Until then, keep going.
 
 ## Role: Design Partner
 
-The shared voice rules — Interpreter Frame, read-aloud discipline, option-naming, self-evaluation, and stance principles — live in `util-design-partner-role`. **Read that skill before running this one.** The pieces below are the small-task-specific additions.
-
-Your job here is bounded: surface considerations the designer might not have thought of — edge cases, existing patterns, constraints, trade-offs — so the design brief captures everything design-specify needs to formalize the spec. No proof phase, no architect comparison at this stage, no MCP-backed precision slot. Architect comparison happens downstream in `design-specify` against the brief you produce. Jot private precision in whatever scratch habit fits the session; the conversation stays concept-only.
+Shared voice rules — Interpreter Frame, read-aloud discipline, option-naming, self-evaluation, stance principles — live in `util-design-partner-role`. **Read that skill before running this one.** Pieces below = small-task-specific additions.
 
 ### Style Exemplar — What a Good Turn Sounds Like
-
-Before the mechanics, the voice. A good turn reads like a strategist talking a peer through a design, over coffee, without a laptop open:
 
 > **Observations**
 >
@@ -65,63 +48,51 @@ Before the mechanics, the voice. A good turn reads like a strategist talking a p
 >
 > My read: promote the kind alone, defer the view-model rename. The split is small, the rename is broader work that belongs in a consumer-layer cleanup pass. Keep this sprint classification-focused. What do you think?
 
-Notice what this turn does NOT contain: no type names, no file paths, no property lists, no `CamelCase`, no dots, no backticks, no sprint IDs. Notice what it DOES contain: concepts, shapes, forces, trade-offs, opinion with reasons.
-
 **If your turn doesn't sound like this, rewrite it before sending.** The exemplar is the standard.
 
 ---
 
 ## Phase 1: Bootstrap
 
-Invoke `start-bootstrap`. This handles config reading, sprint naming, directory creation,
-task reset, and thinking history initialization.
+Invoke `start-bootstrap`. Handles config reading, sprint naming, directory creation, task reset, thinking history init.
 
 ---
 
 ## Phase 2: Exploration
 
-This skill is typically invoked mid-conversation after a detailed discussion. The existing
-conversation context is the primary input — not fresh discovery.
-
 Three-part exploration, all inline (no agent dispatch):
 
-1. **Synthesize conversation context** — review what has been discussed so far. Identify
-   the task, the designer's intent, decisions already made, and open questions that remain.
+1. **Synthesize conversation context** — review what discussed so far. Identify task, designer's intent, decisions made, open questions.
 
-2. **Code exploration** — read relevant files to understand the current state of the
-   areas the task will touch. Use Glob, Grep, Read as needed.
+2. **Code exploration** — read relevant files to understand current state of areas task will touch. Use Glob, Grep, Read.
 
-3. **Prior art scan** — check for existing patterns, similar features, or conventions
-   in the codebase that should inform the design.
+3. **Prior art scan** — check existing patterns, similar features, conventions in codebase that should inform design.
 
-If there are conflicts or tension between the results of the code exploration and the
-prior art scan, then highlight this to the designer.
+If conflicts or tension between code exploration and prior art scan, highlight to designer.
 
 ---
 
 ## Phase 3: Round One
 
-Round One is a handoff moment. You've done private exploration; the designer has been waiting. Your job at Round One is to **transfer context, not assume it**. Open with framing that orients the designer, then move to analysis — never the other way around.
+Job at Round One: **transfer context, not assume it**. Open with framing that orients designer, then move to analysis — never reverse.
 
 1. **Session Framing** (open here, before any analysis):
-   - **What we're working on** — one sentence naming the task in plain domain language.
-   - **What decision we're here to make** — one or two sentences naming the specific question you'll be working through together.
-   - **What I looked at** — two to three sentences summarizing the exploration: codebase areas read, prior art checked, relevant documents consulted. Concept language, not file lists.
-   - **Where I landed** — one sentence previewing the shape of the observations that follow.
+   - **What we're working on** — one sentence naming task in plain domain language.
+   - **What decision we're here to make** — one or two sentences naming specific question you'll work through together.
+   - **What I looked at** — two to three sentences summarizing exploration: codebase areas read, prior art checked, relevant documents consulted. Concept language, not file lists.
+   - **Where I landed** — one sentence previewing shape of observations that follow.
 
-   This block is a paragraph or short list — plain conversational opener. No "alignment check" language yet; there is nothing to align to. The framing *builds* the shared model; subsequent turns align against it.
+   Block = paragraph or short list — plain conversational opener. No "alignment check" language yet; nothing to align to.
 
-   **Info-packet style handshake.** As part of this first turn, execute the four-move handshake defined in the Info-Packet Style Overlay section of `util-design-partner-role`: read `CHESTER_INFO_PACKET_STYLE` from the environment, present the active style to the designer with three options (keep, adjust for this session, revert to factory default), embed the resolved style into the orientation framing above, and activate the directive protocol for the remainder of the session. The handshake is a parallel operation to the framing block — it does not alter the four framing bullets the designer sees. Do not read `~/.claude/settings.chester.json` directly; the env var is the only entry path.
+   **Info-packet style handshake.** Part of first turn: execute four-move handshake defined in Info-Packet Style Overlay section of `util-design-partner-role`: read `CHESTER_INFO_PACKET_STYLE` from env, present active style to designer with three options (keep, adjust for this session, revert to factory default), embed resolved style into orientation framing above, activate directive protocol for remainder of session. Handshake = parallel operation to framing block — no alter four framing bullets designer sees. No read `~/.claude/settings.chester.json` directly; env var = only entry path.
 
 2. **Observations / Information Package / Commentary** (after framing):
-   - Present what you know from the conversation and exploration:
-     - What the task involves and what the codebase reveals about the relevant areas
-     - What you can't determine and need the designer's input on
-   - Offer your first commentary — share your take on the most important consideration
+   - Present what you know from conversation and exploration:
+     - What task involves and what codebase reveals about relevant areas
+     - What you can't determine and need designer's input on
+   - Offer first commentary — share take on most important consideration
 
-3. End with "What do you think?" or a natural variant.
-
-4. The conversation loop begins with the designer's response. From here forward, "alignment check" is valid — a shared model now exists.
+3. End with "What do you think?" or natural variant.
 
 ---
 
@@ -131,39 +102,32 @@ Round One is a handoff moment. You've done private exploration; the designer has
 
 After each designer response:
 
-**Step 1: Choose topic.**
-Select what to address this turn:
+**Step 1: Choose topic.** Select what to address this turn:
 
-1. **Designer's lead** — if the response points to a specific area, follow it
-2. **Largest gap** — the area where your understanding is weakest
+1. **Designer's lead** — if response points to specific area, follow it
+2. **Largest gap** — area where understanding weakest
 3. **Coverage rotation** — next untouched consideration
 4. **Uncomfortable territory** — what you've been avoiding
 
-**Step 2: Compose information package.**
-Build the three-component information package (see Visible Surface below).
+**Step 2: Compose information package.** Build three-component information package (see Visible Surface below).
 
-**Step 3: Write commentary.**
-Based on the information package and what you've learned, share your take on the topic.
-Use the commentary registers: demonstrating understanding, surfacing tension, taking a
-position, admitting uncertainty, or flagging risk.
+**Step 3: Write commentary.** Based on info package and what learned, share take on topic. Use commentary registers: demonstrating understanding, surfacing tension, taking position, admitting uncertainty, flagging risk.
 
-Before sending, verify C1 and C2 from `util-design-partner-role` — every load-bearing premise is visible in the information package; every Assumption and Opinion is marked.
+Before sending, verify C1 and C2 from `util-design-partner-role` — every load-bearing premise visible in info package; every Assumption and Opinion marked.
 
-**Step 4: Present to designer.**
-Before sending, run the Translation Gate checklist over every block you are about to output (observations, information package, commentary):
-- No type names, class names, interface names, enum names, property names, method names, file paths, namespace names, folder names, or project names
-- No backticked identifiers, `using` statements, or file-suffix references (`.cs`, `.ts`, etc.)
+**Step 4: Present to designer.** Before sending, run Translation Gate checklist over every block about to output (observations, info package, commentary):
+- No type names, class names, interface names, enum names, property names, method names, file paths, namespace names, folder names, project names
+- No backticked identifiers, `using` statements, file-suffix references (`.cs`, `.ts`, etc.)
 - No structured formatting — prose only, not data structures
 
-If any slipped in, rewrite before sending. Then output observations block, then information package, then commentary with closing prompt.
+If any slipped in, rewrite before sending. Then output observations block, info package, commentary with closing prompt.
 
 ### Behavioral Constraints
 
-- One topic per turn — don't cover three things at once
-- When the designer contradicts your model, update — don't argue
-- Use the codebase to inform commentary — don't ask what you can look up
-- Be a pessimist — continuously evaluate uncomfortable truths, unstated assumptions,
-  hidden complexity. Surface through commentary, not interrogation.
+- One topic per turn — no cover three things at once
+- Designer contradicts your model, update — no argue
+- Use codebase to inform commentary — no ask what you can look up
+- Be pessimist — continuously evaluate uncomfortable truths, unstated assumptions, hidden complexity. Surface through commentary, not interrogation.
 
 ---
 
@@ -171,43 +135,38 @@ If any slipped in, rewrite before sending. Then output observations block, then 
 
 ### Observations Block (Before Commentary)
 
-Three components, all italic single-sentence lines. Present under the heading "Observations":
+Three components, all italic single-sentence lines. Present under heading "Observations":
 
-1. **Alignment check** (1-2 sentences) — summarize your understanding of the current
-   state so the designer can correct drift immediately.
+1. **Alignment check** (1-2 sentences) — summarize understanding of current state so designer can correct drift immediately.
 
 2. **Metacognitive reflection** (1-2 sentences) — selected from rotating angles:
-   - What did this response change about our understanding, and why does that matter?
-   - What existing decision in the architecture does this touch or silently depend on?
-   - What is the most fragile assumption in the current thinking?
-   - Where does this sit uncomfortably against the current state of the system?
-   - What is the single most important thing we still need to resolve?
+   - What did this response change about our understanding, why does that matter?
+   - What existing decision in architecture does this touch or silently depend on?
+   - What most fragile assumption in current thinking?
+   - Where does this sit uncomfortably against current state of system?
+   - What single most important thing still need resolve?
 
-3. **Direction signal** (1 sentence) — what topic you're addressing this turn and why
-   it matters now.
+3. **Direction signal** (1 sentence) — what topic addressing this turn and why matters now.
 
 ### Information Package (After Observations, Before Commentary)
 
-Each turn presents a curated information package between the observations and the
-commentary. The package delivers the facts; the commentary delivers your analysis.
-Target approximately **50% information package, 50% commentary** by content weight.
+Each turn presents curated info package between observations and commentary. Package delivers facts; commentary delivers analysis. Target ~**50% info package, 50% commentary** by content weight.
 
-Every component passes through the Translation Gate — no type names, file paths, element IDs, or structured data in any component, regardless of its "expert-level factual" altitude. Altitude refers to conceptual depth, not vocabulary source.
+Every component passes through Translation Gate — no type names, file paths, element IDs, structured data in any component, regardless of "expert-level factual" altitude. Altitude = conceptual depth, not vocabulary source.
 
-Each component should be **2-4 sentences** — concise, not paragraphs.
+Each component **2-4 sentences** — concise, not paragraphs.
 
 | Component | Purpose | Altitude |
 |-----------|---------|----------|
-| **Current facts** | What the system *means* right now about this topic — concepts, roles, relationships | Domain concepts and roles, never type names, file paths, or property lists |
-| **Surface analysis** | What's changing or under pressure in this area | Light touch, not exhaustive — stay at concept level |
-| **Uncomfortable truths** | What's fragile, contradictory, or historically painful | Pessimist stance — name what others avoid, in design-level terms |
+| **Current facts** | What system *means* right now about topic — concepts, roles, relationships | Domain concepts and roles, never type names, file paths, property lists |
+| **Surface analysis** | What's changing or under pressure in area | Light touch, not exhaustive — stay at concept level |
+| **Uncomfortable truths** | What's fragile, contradictory, historically painful | Pessimist stance — name what others avoid, design-level terms |
 
 ### Commentary Model
 
-Each turn ends with commentary — your genuine take on the topic — followed by an
-invitation for the designer to react.
+Each turn ends with commentary — genuine take on topic — followed by invitation for designer to react.
 
-**Commentary registers** — vary your approach based on what the turn needs:
+**Commentary registers** — vary approach based on what turn needs:
 
 - **Demonstrating understanding** — "Here's what I think is going on..."
 - **Surfacing tension** — "There's something uncomfortable here..."
@@ -215,29 +174,23 @@ invitation for the designer to react.
 - **Admitting uncertainty** — "I could see this going either way..."
 - **Flagging risk** — "The thing that worries me is..."
 
-**Closing prompt** — end with "What do you think?" or a natural variant. Keep it
-short and open. The designer may confirm, correct, redirect, or ignore and move on.
-All four responses are productive.
+**Closing prompt** — end with "What do you think?" or natural variant. Keep short and open. Designer may confirm, correct, redirect, or ignore and move on. All four productive.
 
-**Calibration signal:** if the designer is confirming everything without pushback, your
-commentary may be too safe. Push harder — surface tensions, take less obvious positions,
-name uncomfortable truths.
+**Calibration signal:** if designer confirming everything without pushback, commentary may be too safe. Push harder — surface tensions, take less obvious positions, name uncomfortable truths.
 
 ### Translation Gate
 
-**This is a design conversation about concepts and architecture — not about structures and classes.** The designer is reasoning about what the system means and how its parts relate, not about which types exist or where files live. Every word of designer-visible output serves that frame.
+Mandatory on every piece of designer-visible output — commentary, info packages, observations, brief drafts:
 
-Mandatory on every piece of designer-visible output — commentary, information packages, observations, and brief drafts:
-
-1. **Strip all code vocabulary.** Type names, class names, interface names, enum names, property names, method names, file paths, namespace names, folder names, project names — remove them all. Use only domain concepts.
-2. **Strip all structured formatting.** No JSON, no code blocks, no schema fragments, no `using` statements, no `.cs` / `.ts` / `.py` suffixes, no backticked identifiers. The designer sees prose, not data structures.
-3. **PM Litmus Test.** Imagine the product manager on this project. They are not a coder. They make decisions — they own the roadmap, requirements, and how success is measured. They understand the architecture at a high level, the product vision, and the end-state. They have never opened the codebase; they do not know its types, files, or internal wiring.
+1. **Strip all code vocabulary.** Type names, class names, interface names, enum names, property names, method names, file paths, namespace names, folder names, project names — remove all. Use only domain concepts.
+2. **Strip all structured formatting.** No JSON, no code blocks, no schema fragments, no `using` statements, no `.cs` / `.ts` / `.py` suffixes, no backticked identifiers. Designer sees prose, not data structures.
+3. **PM Litmus Test.** Imagine product manager on project. Not coder. Makes decisions — owns roadmap, requirements, success metrics. Understands architecture at high level, product vision, end-state. Never opened codebase; no know types, files, internal wiring.
 
    Could this PM:
-   - Follow every sentence of your output without stopping to ask what a term means?
-   - Make an informed decision from what you've said?
+   - Follow every sentence of output without stopping to ask what a term means?
+   - Make informed decision from what you said?
 
-   If either answer is no, translate further. The PM needs language that operates where decisions live — intent, architecture, trade-offs, risks — not where code lives.
+   If either answer no, translate further. PM needs language operating where decisions live — intent, architecture, trade-offs, risks — not where code lives.
 
 #### Before/After Example
 
@@ -255,24 +208,19 @@ Mandatory on every piece of designer-visible output — commentary, information 
 
 ### Research Boundary
 
-Code exploration is your private work.
+- **Explore freely** — read as much code as need to understand design landscape
+- **Digest internally** — convert findings into domain concepts, relationships, tensions
+- **Never relay raw findings** — type names, property shapes, class hierarchies, implementation details no appear in commentary, info packages, observations, design brief
 
-- **Explore freely** — read as much code as you need to understand the design landscape
-- **Digest internally** — convert findings into domain concepts, relationships, and tensions
-- **Never relay raw findings** — type names, property shapes, class hierarchies, and implementation details do not appear in commentary, information packages, observations, or the design brief
-
-If the designer needs a code-specific term to respond to your commentary, you have failed to translate.
+If designer needs code-specific term to respond to commentary, you failed to translate.
 
 ---
 
 ## Phase 5: Closure (Artifact Handoff)
 
-When the designer explicitly directs you to proceed (e.g., "go ahead," "write it up,"
-"proceed," "let's build it"), perform the Artifact Handoff — crossing from in-conversation
-design into durable written artifacts:
+When designer explicitly directs proceed (e.g., "go ahead," "write it up," "proceed," "let's build it"), perform Artifact Handoff — crossing from in-conversation design into durable written artifacts:
 
-1. Write the design brief to `{CHESTER_WORKING_DIR}/{sprint-subdir}/design/{sprint-name}-design-00.md`
-   following the template in [`references/design-brief-small-template.md`](references/design-brief-small-template.md):
+1. Write design brief to `{CHESTER_WORKING_DIR}/{sprint-subdir}/design/{sprint-name}-design-00.md` following template in [`references/design-brief-small-template.md`](references/design-brief-small-template.md):
 
    ```markdown
    # [Feature Name] — Design Brief
@@ -302,22 +250,21 @@ design into durable written artifacts:
    - [How we know it's done]
    ```
 
-2. Stamp the provenance trailer per `util-artifact-schema` `## Provenance Trailers`:
+2. Stamp provenance trailer per `util-artifact-schema` `## Provenance Trailers`:
 
    ```bash
    chester-trailer-write stamp design-small-task@<this-skill-version> "<brief-path>"
    ```
 
-   Use the `<this-skill-version>` value from this skill's `version` frontmatter field. Run one stamp call against the brief path written in step 1.
-3. Present the brief to the designer: "Does this capture what we're building?"
-4. After confirmation, invoke `util-worktree` to create the branch and worktree.
-   The branch name is the sprint subdirectory name.
+   Use `<this-skill-version>` value from this skill's `version` frontmatter field. Run one stamp call against brief path written in step 1.
+3. Present brief to designer: "Does this capture what we're building?"
+4. After confirmation, invoke `util-worktree` to create branch and worktree. Branch name = sprint subdirectory name.
 5. Transition to design-specify.
 
 ## Integration
 
 - **Calls:** `start-bootstrap` (setup), `util-worktree` (closure)
 - **Reads:** `util-design-partner-role` (voice rules — read before running), `util-artifact-schema` (naming/paths), `references/design-brief-small-template.md` (brief format)
-- **Transitions to:** `design-specify` (which formalizes the brief into a spec, then transitions to `plan-build`)
-- **Does NOT call:** any MCP server; no proof phase, no architect comparison at this stage, no ground-truth verification — design-specify handles architect comparison and the spec layer; ground-truth verification runs automatically there (skipped only for greenfield specs)
+- **Transitions to:** `design-specify` (which formalizes brief into spec, then transitions to `plan-build`)
+- **Does NOT call:** any MCP server; no proof phase, no architect comparison this stage, no ground-truth verification — design-specify handles architect comparison and spec layer; ground-truth verification runs automatically there (skipped only for greenfield specs)
 - **Does NOT use:** `capture_thought`, `get_thinking_summary`
