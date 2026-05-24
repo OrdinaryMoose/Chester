@@ -1,12 +1,14 @@
 ---
 name: design-committee
 description: Convene six-role committee (team-lead + 4 members + researcher) for ad-hoc design consultations. Process-agnostic primitive. Use whenever designer wants independent multi-perspective review of meta-architecture, cross-cutting design choice, charter call, or any decision where framing bias risks outcome. Triggers on "convene the committee", "ask the committee", "committee deliberation", "four-member review", "/design-committee", and natural-language asks for structured multi-perspective consultation.
-version: v0007
+version: v0009
 ---
 
 # Design Committee
 
 Six-role deliberation primitive. Process-agnostic. Flexible skill — adapt round shape and dispatch to question.
+
+This SKILL.md owns orchestration: setup, dispatch, tear down, and common items every subagent needs. Team-lead role behavior (Round 1, conversation loop with designer, packet format, consolidation, presentation, closure) lives in `references/team-lead.md`. Member phase contracts live in `agents/design-committee-*.md`. Skill-author concerns live in `references/skill-contract.md`.
 
 ## When To Use
 
@@ -19,7 +21,7 @@ Four advocacy members organize as two opposing pairs. Each pair tensions one des
 - **Preserve ↔ Transform axis.** Conservator opposes Innovator. Tensions whether existing structure is signal or cost.
 - **Cost ↔ Integrity axis.** Pragmatist opposes Purist. Tensions whether shipping/runtime cost or compositional cleanliness wins when they conflict.
 
-Roster:
+Roster (six roles; five subagents created by `TeamCreate` = four advocacy + researcher; team-lead = calling agent; designer = human):
 
 - Team-Lead (calling agent). Dispatches, receives, compiles. No design opinion. NOT relay during deliberation — peers DM peers direct. Holds workflow thread. No proof mutations. Role: `references/team-lead.md`.
 - Conservator; `chester:design-committee-conservator`. Opposes Innovator. Defends existing structure, stasis, framing current patterns handle. Design history = signal until proven cost.
@@ -31,7 +33,7 @@ Roster:
 
 ## Translation Gate
 
-Every subagent self-enforces. Team-lead re-checks at consolidation. Apply before output reaches designer.
+Floor enforcement. Every subagent self-enforces. Team-lead re-checks at consolidation per `references/team-lead.md`. Apply before output reaches designer.
 
 - Read-aloud test. Can't say sentence aloud over coffee → rewrite. Catches code vocab, paths, dot-identifiers, type-theory jargon.
 - Option-naming. Name options by what they do structurally, not by type they introduce.
@@ -40,28 +42,31 @@ Every subagent self-enforces. Team-lead re-checks at consolidation. Apply before
 
 Full voice spec: `skills/util-design-partner-role/SKILL.md`. LOAD-BEARING citation. Touch util-design-partner-role → audit committee impact.
 
-## Peer-DM Protocol
+## Checklist
 
-Members DM each other direct via `SendMessage`. No team-lead routing during deliberation. Team-lead creates team (`TeamCreate`), authorizes peer-DM scope in convening message, uses TerseVoice. Team-lead compiles at end — NOT switchboard, packet voice + format per `references/team-lead.md`. Peer-DM ordering relative to dispatch reception, not absolute time — late-receiving member not penalized by earlier-arriving peer DM. All members use TerseVoice for DMs and replies to team-lead.
+1. **Bootstrap** — read env + config.
+2. **Capture Question** — one-sentence question + round shape.
+3. **Convene** — team-lead Round 1 confirmation + `TeamCreate` + convening message.
+4. **Deliberation** — dispatch + peer-DM + final positions.
+5. **Tear Down** — team-lead closure flow + `TeamDelete`.
 
-## One-Round-Format
+## Phase 1: Bootstrap
 
-Canonical shape. Available to wrapping skills via reference.
+Read environment + config. No sprint creation, no thinking history, no directory work. Preserves standalone invocability.
 
-1. Each member writes position covering dispatched questions.
-2. Each member sends 1 question direct-DM via `SendMessage` to chosen peer (any member, researcher, or team-lead).
-3. Each member answers incoming questions — 1 response per asker, direct-DM back.
-4. Each member submits final position to team-lead. Position MAY be revised post-Q&A, or sent as-is.
+1. Read `CHESTER_INFO_PACKET_STYLE` from environment. Cache value for team-lead Round 1 echo.
+2. Read Chester config: `eval "$(chester-config-read)"`. Use `CHESTER_WORKING_DIR` + `CHESTER_PLANS_DIR` only if wrapping skill requires artifact write.
+3. Do NOT invoke `start-bootstrap`. Sprint mechanics violate standalone invocability when no sprint exists.
 
-No team-lead relay during steps 2–3. Each Q&A private between asker and target.
-
-## Workflow
-
-### Step 1 — Capture Question
+## Phase 2: Capture Question
 
 Question (one sentence). Round shape (default one-round-format; custom = state in convening message).
 
-### Step 2 — Convene Team
+## Phase 3: Convene
+
+Team-lead runs Round 1 dispatch confirmation per `references/team-lead.md` before `TeamCreate` fires — confirms question, member roster, round shape, context packets with designer; echoes active info-packet style once. SKILL.md owns the orchestration calls below.
+
+### TeamCreate
 
 `TeamCreate` with five members:
 
@@ -75,40 +80,49 @@ chester:design-committee-researcher
 
 Team slug: `design-committee-<question-slug>`.
 
-Convening message carries captured question, context packets (linked or briefly quoted), round shape, other team-member names (for peer DM), Translation Gate self-enforcement reminder.
+### Convening Message
 
-### Step 3 — Dispatch
+Convening message carries captured question, context packets (linked or briefly quoted), round shape, other team-member names (for peer DM), resolved info-packet style (from team-lead handshake), Translation Gate self-enforcement reminder.
 
-Send topic to 4 members parallel via `SendMessage`. Researcher on demand — not on deliberation clock unless team-lead routes. Member replies follow phase contract from agent file.
+## Phase 4: Deliberation
 
-### Step 4 — Consolidate
+### Dispatch
 
-Team-lead reads all replies. Produces decision packet per `references/team-lead.md` (format, consolidation rules, marker discipline).
+Send topic to 4 advocacy members in parallel via `SendMessage`. Researcher on demand — not on deliberation clock unless team-lead routes. Member replies follow phase contract from agent file.
 
-### Step 5 — Present to Designer
+### Peer-DM Protocol
 
-Team-lead presents packet. Presentation rules per `references/team-lead.md` — no adjudication, no collapsing irreducible splits. Designer asks another round → loop Step 1 with updated inputs.
+Members (advocacy + researcher) DM each other direct via `SendMessage`. No team-lead routing during deliberation. Team-lead creates team (`TeamCreate`), authorizes peer-DM scope in convening message, uses TerseVoice. Team-lead compiles at end — NOT switchboard, packet voice + format per `references/team-lead.md`. Peer-DM ordering relative to dispatch reception, not absolute time — late-receiving member not penalized by earlier-arriving peer DM. All members use TerseVoice for DMs and replies to team-lead.
 
-### Step 6 — Tear Down
+### One-Round-Format
 
-`TeamDelete` on designer closure signal ("we're done", "decision made", "shelve this"). MANDATORY — stranded teams leak context across unrelated future invocations. Decision packet stays in conversation record independent of team lifecycle.
+Canonical shape. Available to wrapping skills via reference.
+
+1. Each member writes position covering dispatched questions.
+2. Each member sends 1 question direct-DM via `SendMessage` to chosen peer (any member, researcher, or team-lead).
+3. Each member answers incoming questions — 1 response per asker, direct-DM back.
+4. Each member submits final position to team-lead. Position MAY be revised post-Q&A, or sent as-is.
+
+No team-lead relay during steps 2–3. Each Q&A private between asker and target.
+
+## Phase 5: Tear Down
+
+Team-lead runs consolidation, presentation, and artifact placement per `references/team-lead.md` Closure section. SKILL.md owns the `TeamDelete` call after team-lead signals closure complete.
+
+`TeamDelete` on team-lead closure signal (after designer adjudicates and artifact placement resolved). MANDATORY — stranded teams leak context across unrelated future invocations. Decision packet stays in conversation record independent of team lifecycle.
 
 ## Standalone Invocability
 
-No entry condition. No sprint context. No config. Convene from any context. Other Chester skills wrap committee calls without inheriting sprint state.
-
-## Reading Order (Team-Lead)
-
-Before convening:
-
-1. This SKILL.md.
-2. `skills/util-design-partner-role/SKILL.md` — voice. LOAD-BEARING.
-3. `references/team-lead.md` — packet format, consolidation, presentation.
-4. Each `agents/design-committee-*.md` for members + researcher convened — phase contract, output format.
-5. `references/TerseVoice.md` — dispatch + DM voice.
-
-`skills/util-dispatch/SKILL.md` describes one-shot `Task` parallel dispatch — NOT orchestration pattern here. Committee runs as `TeamCreate`-named persistent team with `SendMessage` routing.
+No entry condition. No sprint context required. Convene from any context. Other Chester skills wrap committee calls without inheriting sprint state. Phase 1 bootstrap reads environment + config but creates no artifacts — standalone invocability preserved.
 
 ## For Skill Authors
 
 Modifying committee or writing wrapping skill → read `references/skill-contract.md`. Carries contract floor, three forbidden attach surfaces, member-agent rationale, deferred roadmap. NOT runtime reading.
+
+## Integration
+
+- **Calls:** `TeamCreate`, `SendMessage`, `TeamDelete` (orchestration); `chester-config-read` (config); `chester:design-committee-*` agents (members + researcher).
+- **Reads:** `util-design-partner-role` (voice — before convening), `references/team-lead.md` (team-lead role behavior), `references/TerseVoice.md` (dispatch voice), `agents/design-committee-*.md` (phase contract per member), `references/skill-contract.md` (skill-author only).
+- **Transitions to:** none — committee = standalone consultation. Designer routes downstream work.
+- **Does NOT call:** `start-bootstrap`, `util-worktree`, any sprint-creating skill. Standalone invocability requires Phase 1 stay artifact-free.
+- **Does NOT use:** `capture_thought`, `get_thinking_summary`, proof MCP — no proof phase at this layer.
