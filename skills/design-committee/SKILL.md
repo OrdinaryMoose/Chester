@@ -1,7 +1,7 @@
 ---
 name: design-committee
 description: Convene six-role committee (team-lead + 4 members + researcher) for ad-hoc design consultations. Process-agnostic primitive. Use whenever designer wants independent multi-perspective review of meta-architecture, cross-cutting design choice, charter call, or any decision where framing bias risks outcome. Triggers on "convene the committee", "ask the committee", "committee deliberation", "four-member review", "/design-committee", and natural-language asks for structured multi-perspective consultation.
-version: v0009
+version: v0010
 ---
 
 # Design Committee
@@ -16,18 +16,22 @@ Convene only when directed; "convene committee", "look at this with committee". 
 
 ## Six Members
 
-Four advocacy members organize as two opposing pairs. Each pair tensions one design axis — opposition structural, not preference. Pair convergence = signal to designer; pair split = irreducible trade-off team-lead surfaces.
+Four advocacy members occupy a shared deliberation space. All pairwise interactions among the four are live — every advocacy member challenges every other with evidence. Researcher + team-lead = supporting roles, not in the deliberation grid. Researcher serves on demand. Team-lead orchestrates + reports, no lens.
 
-- **Preserve ↔ Transform axis.** Conservator opposes Innovator. Tensions whether existing structure is signal or cost.
-- **Cost ↔ Integrity axis.** Pragmatist opposes Purist. Tensions whether shipping/runtime cost or compositional cleanliness wins when they conflict.
+Two axes structure how team-lead reports convergence and split back to designer:
+
+- **Preserve ↔ Transform.** Conservator and Innovator. Tensions whether existing structure is signal or cost.
+- **Cost ↔ Integrity.** Pragmatist and Purist. Tensions whether shipping/runtime cost or compositional cleanliness wins when they conflict.
+
+Axes = team-lead's reporting lens at consolidation. Members do NOT scope peer-DMs by axis. Pair convergence = strongest signal team-lead reports; cross-axis splits = often the surprising design space.
 
 Roster (six roles; five subagents created by `TeamCreate` = four advocacy + researcher; team-lead = calling agent; designer = human):
 
 - Team-Lead (calling agent). Dispatches, receives, compiles. No design opinion. NOT relay during deliberation — peers DM peers direct. Holds workflow thread. No proof mutations. Role: `references/team-lead.md`.
-- Conservator; `chester:design-committee-conservator`. Opposes Innovator. Defends existing structure, stasis, framing current patterns handle. Design history = signal until proven cost.
-- Innovator; `chester:design-committee-innovator`. Opposes Conservator. Pushes new framings, structural alternatives. Existing structure = choice re-makeable.
-- Pragmatist; `chester:design-committee-pragmatist`. Opposes Purist. Weighs op cost vs benefit. Defends simplest sufficient. Shipping + runtime cost = first-class trade-offs.
-- Purist; `chester:design-committee-purist`. Opposes Pragmatist. Tests category boundaries, compositional integrity. Ambiguous categories = failure mode.
+- Conservator; `chester:design-committee-conservator`. Defends existing structure, stasis, framing current patterns handle. Design history = signal until proven cost.
+- Innovator; `chester:design-committee-innovator`. Pushes new framings, structural alternatives. Existing structure = choice re-makeable.
+- Pragmatist; `chester:design-committee-pragmatist`. Weighs op cost vs benefit. Defends simplest sufficient. Shipping + runtime cost = first-class trade-offs.
+- Purist; `chester:design-committee-purist`. Tests category boundaries, compositional integrity. Ambiguous categories = failure mode.
 - Researcher; `chester:design-committee-researcher`. Tools: Read, Glob, Grep, Bash, WebSearch, WebFetch. Owns codebase, prior-art, industry research, doc reading, multi-source consolidation, absence findings. Hard prohibitions: no design opinion, no proof-state ops, no file writes outside conversation record.
 - Designer (human, non-dispatched). Adjudicates all decisions. Sets meta-rules. Authorizes charter changes. Never spawned as subagent.
 
