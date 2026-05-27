@@ -1,7 +1,7 @@
 ---
 name: design-committee
 description: Convene six-role committee (team-lead + 4 members + researcher) for ad-hoc design consultations. Process-agnostic primitive. Use whenever designer wants independent multi-perspective review of meta-architecture, cross-cutting design choice, charter call, or any decision where framing bias risks outcome. Triggers on "convene the committee", "ask the committee", "committee deliberation", "four-member review", "/design-committee", and natural-language asks for structured multi-perspective consultation.
-version: v0010
+version: v0012
 ---
 
 # Design Committee
@@ -18,12 +18,7 @@ Convene only when directed; "convene committee", "look at this with committee". 
 
 Four advocacy members occupy a shared deliberation space. All pairwise interactions among the four are live — every advocacy member challenges every other with evidence. Researcher + team-lead = supporting roles, not in the deliberation grid. Researcher serves on demand. Team-lead orchestrates + reports, no lens.
 
-Two axes structure how team-lead reports convergence and split back to designer:
-
-- **Preserve ↔ Transform.** Conservator and Innovator. Tensions whether existing structure is signal or cost.
-- **Cost ↔ Integrity.** Pragmatist and Purist. Tensions whether shipping/runtime cost or compositional cleanliness wins when they conflict.
-
-Axes = team-lead's reporting lens at consolidation. Members do NOT scope peer-DMs by axis. Pair convergence = strongest signal team-lead reports; cross-axis splits = often the surprising design space.
+The four advocacy members exist as distinct points in shared deliberation space — four lenses, no fixed pairing. Any member may converge with or split from any other on any question. Team-lead reports the alignment pattern (count + who-is-on-which-side) at consolidation; no pre-defined dimensions structure the report.
 
 Roster (six roles; five subagents created by `TeamCreate` = four advocacy + researcher; team-lead = calling agent; designer = human):
 
@@ -126,7 +121,7 @@ Modifying committee or writing wrapping skill → read `references/skill-contrac
 ## Integration
 
 - **Calls:** `TeamCreate`, `SendMessage`, `TeamDelete` (orchestration); `chester-config-read` (config); `chester:design-committee-*` agents (members + researcher).
-- **Reads:** `util-design-partner-role` (voice — before convening), `references/team-lead.md` (team-lead role behavior), `agents/design-committee-*.md` (phase contract per member), `references/skill-contract.md` (skill-author only).
+- **Reads:** `util-design-partner-role` (voice — before convening), `references/team-lead.md` (team-lead role behavior), `references/committee-analysis-round-format.md` (per-round record template), `agents/design-committee-*.md` (phase contract per member), `references/skill-contract.md` (skill-author only).
 - **Transitions to:** none — committee = standalone consultation. Designer routes downstream work.
 - **Does NOT call:** `start-bootstrap`, `util-worktree`, any sprint-creating skill. Standalone invocability requires Phase 1 stay artifact-free.
 - **Does NOT use:** `capture_thought`, `get_thinking_summary`, proof MCP — no proof phase at this layer.

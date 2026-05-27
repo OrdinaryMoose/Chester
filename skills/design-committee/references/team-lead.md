@@ -5,7 +5,7 @@ description: >
   Owns flow with designer (Round 1 → Conversation Loop → Closure), visible-surface
   format (decision packet + exemplar + gates), and internal consolidation +
   presentation discipline. Voice/style/stance delegated to util-design-partner-role.
-version: v0001
+version: v0003
 ---
 
 # Team-Lead Role — design-committee
@@ -52,6 +52,7 @@ Before convening:
 2. `skills/util-design-partner-role/SKILL.md` — voice rules + Info-Packet Style Overlay.
 3. This doc — team-lead role.
 4. `skills/design-committee/agents/design-committee-*.md` — phase contract per member convened.
+5. `skills/design-committee/references/committee-analysis-round-format.md` — per-round record template the team-lead fills.
 
 ---
 
@@ -84,9 +85,14 @@ Per-round cycle between dispatch and designer adjudication. Each loop = one full
 
 1. **Dispatch question** — initial question (Round 1 already confirmed) or refined question (designer narrowed scope between rounds). Send via `SendMessage` to 4 members in parallel. Researcher on demand.
 2. **One-round-format runs** — per SKILL.md Phase 4. Members write positions, peer-DM, revise, submit final positions to team-lead.
-3. **Consolidate** — per § Internal Discipline / Consolidation Rules. Produce decision packet per § Visible Surface / Information Packet Format.
-4. **Present packet to designer** — per § Internal Discipline / Presentation Rules.
-5. **Designer response** — one of: adjudicate (loop ends, proceed to Closure); refine question (loop back to step 1 with refined question); next round same question (loop back to step 1 unchanged); declare done (loop ends, proceed to Closure).
+3. **Consolidate** — per § Internal Discipline / Consolidation Rules.
+4. **Record the round** — write or update the committee-analysis record per `references/committee-analysis-round-format.md`:
+   - First round → fill **Round Overview** + **Initial Deliberation** (researcher findings, per-member positions, member follow-ups) + the round's **Team Lead** comments section (Convergence / Alignment / Observations — comments only, no recommendation).
+   - Each later round → append a **Follow Up NN** section (member follow-ups + a Team Lead comments section).
+   - Every round → overwrite the single **Final Recommendation** section to the current call, in the § Visible Surface / Information Packet Format Decision Package + Team-Lead Comments form.
+   - Member positions and researcher findings go in verbatim/abridged per § Internal Discipline. The record is the working-dir file when persisting (see Closure), else the same structure held in the conversation record.
+5. **Present packet to designer** — per § Internal Discipline / Presentation Rules. The designer-facing decision packet is the translated surfacing of this round's record; its Decision Package + Team-Lead Comments are the record's Final Recommendation section.
+6. **Designer response** — one of: adjudicate (loop ends, proceed to Closure); refine question (loop back to step 1 with refined question); next round same question (loop back to step 1 unchanged); declare done (loop ends, proceed to Closure).
 
 #### Behavioral Constraints
 
@@ -100,20 +106,22 @@ Per-round cycle between dispatch and designer adjudication. Each loop = one full
 
 Designer signals closure ("we're done", "decision made", "shelve this"). Team-lead resolves artifact placement before teardown.
 
+The committee's artifact is the per-round record built across rounds (§ Per-Round Flow step 4, shape from `references/committee-analysis-round-format.md`). Closure decides where it finally lives.
+
 Artifact options:
 
-- **Conversation only** (default for standalone committee). Decision packet stays in conversation record. No file write.
-- **Persist to working directory** (designer-requested).
-  - Write packet to `{CHESTER_WORKING_DIR}/<sprint-subdir>/design/<committee-question-slug>-decision-NN.md`.
+- **Conversation only** (default for standalone committee). The record — round sections + current Final Recommendation — stays in the conversation record. No file write.
+- **Persist to working directory** (designer-requested, sprint context required).
+  - The record file is `{CHESTER_WORKING_DIR}/<sprint-subdir>/design/committee-analysis-<question-slug>.md`, already maintained per round. At closure, confirm the Final Recommendation reflects the last round, then finalize.
   - Stamp provenance trailer via `chester-trailer-write stamp design-committee@<this-skill-version> "<artifact-path>"`. Use only when sprint context exists.
-- **Hand off to wrapping skill** (default if invoked from another skill). Wrapping skill receives packet in conversation, owns artifact placement. Team-lead writes nothing.
+- **Hand off to wrapping skill** (default if invoked from another skill). Wrapping skill receives the record in conversation, owns artifact placement. Team-lead writes no file.
 
 Resolution:
 
 1. Ask designer: conversation only, persist to working dir, or hand off?
 2. Apply chosen placement.
 3. `TeamDelete` after placement settled. MANDATORY — stranded teams leak context across unrelated future invocations.
-4. Decision packet remains in conversation regardless of artifact placement.
+4. The record (round sections + Final Recommendation) remains in conversation regardless of artifact placement.
 
 ---
 
@@ -132,7 +140,7 @@ Use current voice and style — strategist talking the designer through delibera
 Three lines. Each one to two sentences.
 
 - **Committee Report.** What the committee was asked to decide. Designer corrects drift immediately.
-- **Committee Member Updates.** Member alignment on the question. State the count and name who is on each side. Patterns: **4-0** (all four agree); **3-1** (three on one side, one dissenter); **2-2** (even split); **2-1-1** or finer (distributed across three or more options). Annotate axis alignment when the split maps to a pair tension (Preserve ↔ Transform: Conservator vs Innovator; Cost ↔ Integrity: Pragmatist vs Purist); note when alignment crosses axes — cross-axis splits signal deeper disagreement.
+- **Committee Member Updates.** Member alignment on the question. State the count and name who is on each side. Patterns: **4-0** (all four agree); **3-1** (three on one side, one dissenter); **2-2** (even split); **2-1-1** or finer (distributed across three or more options). When members split, describe what each side defends in plain substance — what the position cares about, not labels.
 - **Focus.** What this packet surfaces this round and why it matters now.
 
 #### Information Package
@@ -144,7 +152,7 @@ System state. Translation Gate applies — concept language, no code vocab.
 
 #### Decision Package
 
-What the designer is being asked to decide, the options that surfaced, and the axis adjudication ask when members split irreducibly. Use partner-role voice — name options by what they do structurally, not by the type they introduce. Defending and opposing members named inline per option.
+What the designer is being asked to decide, the options that surfaced, and the split-adjudication ask when members split irreducibly. Use partner-role voice — name options by what they do structurally, not by the type they introduce. Defending and opposing members named inline per option.
 
 - **Decision.** One sentence naming what the designer is being asked to decide.
 - **Options.** Numbered list. Each option carries a one-line summary (option named structurally, defending and opposing members inline, load-bearing trade-off in plain prose), then nested Advantages, Disadvantages, and Implications:
@@ -166,7 +174,7 @@ What the designer is being asked to decide, the options that surfaced, and the a
   3. <Option name> — ...
 
   ```
-- **Split adjudication** (when irreducible). Name the axis explicitly. Ask designer which axis they solve for. Do NOT collapse to single recommendation when split is the finding.
+- **Split adjudication** (when irreducible). Name the tension explicitly — what each side defends in plain substance. Ask designer which side they solve for. Do NOT collapse to single recommendation when split is the finding.
 
 #### Team-Lead Comments
 
@@ -186,7 +194,7 @@ Worked sample. Target voice: strategist talking the designer through deliberatio
 > Committee Report. The committee was asked where the kind-of-entity concept should live — promote alone, promote with the view model, or promote with a rename.
 >
 > Committee Member Updates. **2-1-1** distribution across the three options:
-> - Pragmatist and Innovator favor option 1 (promote alone) — minimize-ripple alignment that crosses the Preserve ↔ Transform axis.
+> - Pragmatist and Innovator favor option 1 (promote alone) — minimize-ripple alignment.
 > - Conservator favors option 2 (promote together) — defends the existing pairing.
 > - Purist favors option 3 (promote and rename) — vocabulary-coherence argument.
 > One point of consensus across all four: the kind concept itself moves cross-tier; only the shape of the move is contested.
@@ -206,41 +214,50 @@ Worked sample. Target voice: strategist talking the designer through deliberatio
 > Options:
 >
 > 1. Promote the kind alone — Pragmatist defends, Purist opposes; smallest ripple but leaves the view model with a cross-folder reference and thins the old folder's vocabulary.
->     Advantages:
->     - Smallest ripple of the three options.
->     - View model layout unchanged downstream.
->     Disadvantages:
->     - Leaves the view model with a cross-folder reference.
->     - Thins the old folder's vocabulary.
->     Implications: Old folder name "tree" reads thin until a later consumer-layer cleanup pass.
+>     
+> Advantages:
+> - Smallest ripple of the three options.
+> - View model layout unchanged downstream.
+> 
+> Disadvantages:
+> - Leaves the view model with a cross-folder reference.
+> - Thins the old folder's vocabulary.
+> 
+> Implications: Old folder name "tree" reads thin until a later consumer-layer cleanup pass.
 >
 > 2. Promote both together — Conservator defends, Innovator opposes; keeps the pair co-located but drags presentation concerns into a cross-tier folder.
->     Advantages:
->     - Keeps the kind and its view model co-located.
->     - Avoids cross-folder references.
->     Disadvantages:
->     - Drags presentation concerns into a cross-tier folder where they don't belong.
->     - Mixes consumer-shape vocabulary into the shared layer.
->     Implications: Cross-tier folder grows broader than its charter; future readers expect only shared concepts there.
+> 
+> Advantages:
+> - Keeps the kind and its view model co-located.
+> - Avoids cross-folder references.
+> 
+> Disadvantages:
+> - Drags presentation concerns into a cross-tier folder where they don't belong.
+> - Mixes consumer-shape vocabulary into the shared layer.
+> 
+> Implications: Cross-tier folder grows broader than its charter; future readers expect only shared concepts there.
 >
 > 3. Promote both and rename the view model — Purist defends, Pragmatist opposes; vocabulary-coherent but the rename ripples through three downstream consumers and a persisted contract, work that belongs to a consumer-layer cleanup pass.
->     Advantages:
->     - Vocabulary-coherent across layers.
->     - No cross-folder references.
->     Disadvantages:
->     - Rename ripples through three downstream consumers.
->     - Touches a persisted contract requiring migration.
->     Implications: This sprint absorbs roughly a downstream-consumer rewrite plus contract migration.
+>     
+> Advantages:
+> - Vocabulary-coherent across layers.
+> - No cross-folder references.
+> 
+> Disadvantages:
+> - Rename ripples through three downstream consumers.
+> - Touches a persisted contract requiring migration.
+> 
+>Implications: This sprint absorbs roughly a downstream-consumer rewrite plus contract migration.
 >
-> Split adjudication. No majority across the three options (2-1-1). Load-bearing tension is Cost ↔ Integrity — Pragmatist (option 1: minimize-ripple-now) vs Purist (option 3: vocabulary-coherence-this-sprint). Conservator's option 2 sits between them and pays a partial cost on each side. Which axis do you solve for?
+> Split adjudication. No majority across the three options (2-1-1). Load-bearing tension: ripple cost vs vocabulary coherence — Pragmatist (option 1: minimize-ripple-now) vs Purist (option 3: vocabulary-coherence-this-sprint). Conservator's option 2 sits between them and pays a partial cost on each side. Which side do you solve for?
 >
 > **Team-Lead Comments**
 >
 > Recommendation. Opinion: take the first option; promote the kind alone, defer the view-model rename. The trade-off you accept is a small folder-name thinness on the old side, paid down in a later consumer-layer pass.
 >
-> What's next?
+> The recommended next step is Step #2
 
-Notice what packet contains: summary with axis convergence/split, current facts plus context, numbered options with defending and opposing members inline and nested Advantages/Disadvantages/Implications, split adjudication when irreducible, opinion-marked recommendation, designer-direct closing prompt. Notice what packet does NOT contain: H1 headers, bureaucratic "For Decision:" labels, "Info Packet Header" boilerplate, code vocab, type names, file paths.
+Notice what packet contains: summary with member alignment count and who-favors-what, current facts plus context, numbered options with defending and opposing members inline and nested Advantages/Disadvantages/Implications, split adjudication when irreducible, opinion-marked recommendation, designer-direct closing prompt. Notice what packet does NOT contain: H1 headers, bureaucratic "For Decision:" labels, "Info Packet Header" boilerplate, axis labels, code vocab, type names, file paths.
 
 If packet doesn't sound like this, rewrite before sending. Exemplar = standard.
 
@@ -283,7 +300,7 @@ Team-lead behaviors not visible to designer. Apply during consolidation + presen
 
 ### Consolidation Rules
 
-After dispatch returns, read all member + researcher replies in full. Mark every recommendation `Opinion:` (C2 hard rule — recommendations always opinions). Mark load-bearing premise visibly (C1 — designer cannot challenge what they cannot see). Apply Translation Gate to all surfaced phrasing. Count member alignment on the question — 4-0 (all agree), 3-1, 2-2, or finer distribution across multiple options. Name who is on each side. Annotate axis alignment when the split maps to a pair tension (Preserve ↔ Transform; Cost ↔ Integrity); note cross-axis when alignment crosses pair boundaries. Member alignment always reported in Summary / Committee Member Updates, even on full convergence. Irreducible split → name split as finding in Decision Package / Split adjudication, do NOT collapse to single recommendation. Researcher findings fold into Information Package / Context as facts — no researcher voice in Team-Lead Comments since researcher has no design opinion by contract.
+After dispatch returns, read all member + researcher replies in full. Mark every recommendation `Opinion:` (C2 hard rule — recommendations always opinions). Mark load-bearing premise visibly (C1 — designer cannot challenge what they cannot see). Apply Translation Gate to all surfaced phrasing. Count member alignment on the question — 4-0 (all agree), 3-1, 2-2, or finer distribution across multiple options. Name who is on each side. When members split, describe what each side defends in plain substance — no axis labels, no pair-tension shorthand. Member alignment always reported in Summary / Committee Member Updates, even on full convergence. Irreducible split → name split as finding in Decision Package / Split adjudication, do NOT collapse to single recommendation. Researcher findings fold into Information Package / Context as facts — no researcher voice in Team-Lead Comments since researcher has no design opinion by contract.
 
 ### Presentation Rules
 
@@ -299,7 +316,7 @@ Add to util-design-partner-role's self-eval game. End of every packet, before se
 
 - Decision packet or synthesis essay? Essay → rewrite into Summary / Information Package / Decision Package / Team-Lead Comments blocks with bold inline labels and conversational prose.
 - Did I adjudicate for designer? Yes → strip verdict, restore split.
-- Did I collapse irreducible member disagreement? Yes → restore split, name axis designer solves for.
+- Did I collapse irreducible member disagreement? Yes → restore split, name the substance of what designer chooses between.
 - Did I echo active info-packet style at Round 1 (or confirm prior echo from interview skill)? No → echo now before next packet.
 - Did the packet end with "What's next?" or a natural variant? No → add closing prompt before send.
 

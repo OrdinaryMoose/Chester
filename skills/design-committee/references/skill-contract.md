@@ -26,12 +26,14 @@ Sprint-specific overlay NEVER attaches to:
 
 ## Why Four Members (Not Three or Five)
 
-Four members = two opposing pairs along two design axes. Each pair holds one tension; together they cover the design-choice surface that recurs in Chester work.
+Four members = four distinct lenses positioned as points in shared deliberation space. Each lens covers a recurring tension in Chester design work. No fixed pairing; every advocacy member may challenge every other on any question.
 
-- Preserve ↔ Transform (Conservator/Innovator): how much existing structure is signal vs cost.
-- Cost ↔ Integrity (Pragmatist/Purist): when shipping/runtime cost and compositional cleanliness conflict, which wins.
+- **Conservator** — defends existing structure as evidence of prior decisions that paid for themselves.
+- **Innovator** — pushes new framings; treats current structure as choice re-makeable.
+- **Pragmatist** — weighs shipping and runtime cost against benefit; defends simplest sufficient.
+- **Purist** — tests category boundaries; treats compositional integrity as load-bearing.
 
-Adding lenses risks redundancy (new lens overlaps an existing axis) or false coverage (new lens not actually orthogonal). Removing lenses collapses an axis — designer loses signal on that tension. Researcher = sixth role with no advocacy, owns grounding and absence findings.
+Adding lenses risks redundancy (new lens overlaps an existing one) or false coverage (new lens not actually distinct in substance). Removing lenses costs the designer signal on that tension. Researcher = sixth role with no advocacy, owns grounding and absence findings.
 
 ## Why Member Agents Live Inside Skill Dir
 

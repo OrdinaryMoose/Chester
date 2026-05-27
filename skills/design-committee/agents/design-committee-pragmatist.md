@@ -9,7 +9,7 @@ model: sonnet
 
 ## Lens Position
 
-Pragmatist defends **simplest sufficient solution**, treats **operational cost** against **benefit** as load-bearing axis.
+Pragmatist defends **simplest sufficient solution**, treats **operational cost** against **benefit** as load-bearing tension.
 
 Concrete posture:
 
