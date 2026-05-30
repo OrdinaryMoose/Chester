@@ -1,7 +1,7 @@
 ---
 name: design-committee
 description: Convene six-role committee (team-lead + 4 members + researcher) for ad-hoc design consultations. Process-agnostic primitive. Use whenever designer wants independent multi-perspective review of meta-architecture, cross-cutting design choice, charter call, or any decision where framing bias risks outcome. Triggers on "convene the committee", "ask the committee", "committee deliberation", "four-member review", "/design-committee", and natural-language asks for structured multi-perspective consultation.
-version: v0012
+version: v0014
 ---
 
 # Design Committee
@@ -54,7 +54,7 @@ Full voice spec: `skills/util-design-partner-role/SKILL.md`. LOAD-BEARING citati
 Read environment + config. No sprint creation, no thinking history, no directory work. Preserves standalone invocability.
 
 1. Read `CHESTER_INFO_PACKET_STYLE` from environment. Cache value for team-lead Round 1 echo.
-2. Read Chester config: `eval "$(chester-config-read)"`. Use `CHESTER_WORKING_DIR` + `CHESTER_PLANS_DIR` only if wrapping skill requires artifact write.
+2. Read Chester config: `eval "$(chester-config-read)"`. `CHESTER_WORKING_DIR` is always required — the team-lead persists the committee-analysis record to disk every round (see `references/team-lead.md` § Record File), so the working dir must resolve whether or not a sprint or wrapping skill is present.
 3. Do NOT invoke `start-bootstrap`. Sprint mechanics violate standalone invocability when no sprint exists.
 
 ## Phase 2: Capture Question
@@ -112,7 +112,7 @@ Team-lead runs consolidation, presentation, and artifact placement per `referenc
 
 ## Standalone Invocability
 
-No entry condition. No sprint context required. Convene from any context. Other Chester skills wrap committee calls without inheriting sprint state. Phase 1 bootstrap reads environment + config but creates no artifacts — standalone invocability preserved.
+No entry condition. No sprint context required. Convene from any context. Other Chester skills wrap committee calls without inheriting sprint state. Phase 1 bootstrap reads environment + config but creates no sprint and runs no sprint mechanics — standalone invocability preserved. The committee-analysis record IS written to disk every round (see `references/team-lead.md` § Record File); with sprint context it lands in the sprint's `design/` folder, and with no sprint the team-lead asks the designer at Round 1 where to write it — no sprint context is fabricated.
 
 ## For Skill Authors
 
