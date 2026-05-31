@@ -1,7 +1,7 @@
 ---
 name: execute-write
 description: Use when you have a written implementation plan to execute — reads the plan's `Execution mode` header field (subagent or inline) and runs the matching section, with review checkpoints
-version: v0005
+version: v0006
 ---
 
 # execute-write
@@ -83,6 +83,14 @@ If the field was missing or unrecognized, say so explicitly so the user can inte
 
 This is the recommended execution mode. Each task is dispatched to a fresh subagent, then reviewed in two stages.
 
+**On entry, announce fork-mode state.** Print one line before the first dispatch:
+
+```
+Fork mode: {on | off} (CLAUDE_CODE_FORK_SUBAGENT). Off → per-task reviewers run cold (higher token cost).
+```
+
+The isolated reviewers (spec, quality) never fork by design; with fork mode off the implementer is also cold, so the whole per-task cost model is higher. Surfacing it lets the operator see which regime they are in — the cost story silently inverts otherwise.
+
 ### 2.1 Dispatch Pattern
 
 For each task in order:
@@ -111,13 +119,23 @@ For each task in order:
    the chosen response.
 
 3. **Dispatch spec compliance reviewer** as `chester:execute-write-spec-reviewer` (template at `execute-write/references/spec-reviewer.md`)
+   - **Non-dialable floor — runs for EVERY task, always.** The quality reviewer in step 4 may be skipped; spec compliance is never skipped, gated, or tiered. Spec drift (the wrong thing built, or a silent miss) is the unrecoverable failure class; it is cheap relative to the implementation it checks.
    - Provide the full task requirements AND the implementer's report
    - Include BASE_SHA and HEAD_SHA for commit verification
    - If reviewer finds issues: fix them (re-dispatch implementer or fix inline) and re-review
    - **Fork policy: isolated.** Named subagent — never forks. Independence from the implementer's framing is the safeguard.
 
 4. **Dispatch code quality reviewer** as `chester:execute-write-quality-reviewer` (template at `execute-write/references/quality-reviewer.md`)
-   - Only dispatch after spec compliance passes
+   - Only dispatch after spec compliance passes.
+   - **Skip gate (depth dial).** This reviewer is the one tier-eligible per-task check. Read the implementer's own report (already in hand from step 1 — no extra dispatch). **Skip the quality reviewer for this task only when ALL of these hold:**
+     - Status is `DONE` (not `DONE_WITH_CONCERNS`, `BLOCKED`, or `NEEDS_CONTEXT`)
+     - Files Changed is exactly one file
+     - no new file was created (edit-only)
+     - the Tests section is present and every listed test Pass
+     - the changed module does **not** import another layer or package
+
+     Otherwise, run the quality reviewer as normal. Do not use a lines-of-code threshold — file-count, new-vs-edit, the concerns flag, and the cross-layer test are the reliable cheap signals.
+   - **Cross-layer carve-out (hard exception — never skipped).** If the change touches a module that imports another layer or package, the quality reviewer ALWAYS runs, regardless of the four conditions above. It owns the real-import integration check (see `quality-reviewer.md`) — the one quality duty that catches a small change silently breaking cross-layer wiring.
    - Handle severity-based results:
      - **Critical:** Must fix before proceeding
      - **Important:** Should fix; use judgment on whether to fix now or defer
@@ -126,6 +144,8 @@ For each task in order:
 
 5. **Record HEAD_SHA** after task is complete and all reviews pass
 6. **Update TodoWrite** — mark task DONE, move next task to IN_PROGRESS
+
+**Re-dispatch ceiling (applies across steps 2–4).** The fix-and-re-review loops — implementer returning a non-DONE status, spec review failing, or quality review returning Critical — are bounded. After **2 re-dispatches on the same task**, stop auto-retrying: route the decision back to the user (via the step-2 think gate) with what was attempted and what is still failing. Escalate, never silently drop the task and never loop a third time on autopilot. A genuinely hard task is a user decision, not an unbounded spend.
 
 ### 2.2 Model Selection Guidance
 
@@ -178,6 +198,8 @@ When revisiting: fix the issue, re-run all tests, update the commit, and note wh
 ## Section 4: Code Review Dispatch
 
 After all tasks are complete (or at any checkpoint where you want a full review), dispatch a code review.
+
+**Mandatory and unconditional.** This final review runs every sprint — it is the only cross-task integration net. The per-task reviewers in Section 2 each see one task in isolation (cold context, one diff) and structurally cannot catch bugs that emerge from how tasks combine; this pass reads the whole `BASE_SHA..HEAD_SHA` range and is where those surface. It is NOT gated by task count, plan size, or whether per-task reviews passed — the per-task skip gate (§2.1 step 4) governs only the per-task quality reviewer, never this pass.
 
 ### 4.1 Getting SHA Range
 
@@ -258,6 +280,9 @@ steps and ask "Want to proceed?" — just proceed.
 - Implementer reporting DONE suspiciously quickly on complex tasks
 - Spec reviewer rubber-stamping without reading code
 - Skipping spec review and going straight to code quality review
+- Skipping the quality reviewer when the skip gate's conditions don't ALL hold, or skipping it on a cross-layer change (the carve-out forbids that)
+- Gating, skipping, or tiering the spec reviewer — it is a non-dialable floor; only the quality reviewer is skip-eligible
+- Looping implementer↔reviewer a third time on one task instead of escalating to the user after 2 re-dispatches
 - Reusing a subagent across multiple tasks instead of dispatching fresh
 - Implementer splitting or restructuring files without plan guidance
 
