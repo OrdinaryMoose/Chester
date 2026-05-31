@@ -5,7 +5,7 @@ description: >
   Owns flow with designer (Round 1 → Conversation Loop → Closure), visible-surface
   format (decision packet + exemplar + gates), and internal consolidation +
   presentation discipline. Voice/style/stance delegated to util-design-partner-role.
-version: v0005
+version: v0006
 ---
 
 # Team-Lead Role — design-committee
@@ -52,7 +52,7 @@ Before convening:
 2. `skills/util-design-partner-role/SKILL.md` — voice rules + Info-Packet Style Overlay.
 3. This doc — team-lead role.
 4. `skills/design-committee/agents/design-committee-*.md` — phase contract per member convened.
-5. `skills/design-committee/references/committee-analysis-round-format.md` — per-round record template the team-lead fills.
+5. `skills/design-committee/references/committee-analysis-round-format.md` — per-question record template the team-lead fills.
 
 ---
 
@@ -86,27 +86,29 @@ Per-round cycle between dispatch and designer adjudication. Each loop = one full
 
 #### Record File
 
-The committee-analysis record is **always a working-dir file** — one file per question, built across rounds, shape from `references/committee-analysis-round-format.md`. Resolve its path **once at Round 1** (§ Flow with Designer / Round 1) and reuse it every round:
+The committee-analysis record is **always a working-dir file** — **one file per designer question**, built across that question's deliberation rounds, shape from `references/committee-analysis-round-format.md`. Resolve the **folder** once at Round 1 (§ Flow with Designer / Round 1) and lock it for the whole consultation; within that folder, open a **new numbered file per designer question**:
 
-- **Sprint context exists** (committee wrapped by a sprint skill, or a sprint is active): `{CHESTER_WORKING_DIR}/<sprint-subdir>/design/committee-analysis-<question-slug>.md`. Under Master Plan Mode `<sprint-subdir>` is the sub-sprint dir. No need to ask — this is the path.
-- **No sprint context (standalone):** there is no sprint `design/` folder to default to, so **ask the designer** at Round 1 where the record should be written. Use the designer's answer verbatim as the target folder; append `committee-analysis-<question-slug>.md`. Create the folder if absent. Do not invent a location.
+- **Filename:** `committee-analysis-NN.md`, where `NN` is the zero-padded order the designer asked the question (01, 02, …). No slug, no sprint name — the sprint is already encoded by the `design/` directory. A new designer question opens the next number; additional rounds on the *same* question append a `## Follow Up NN` section to that question's file, never a new file.
+- **Sprint context exists** (committee wrapped by a sprint skill, or a sprint is active): the folder is `{CHESTER_WORKING_DIR}/<sprint-subdir>/design/`. Under Master Plan Mode `<sprint-subdir>` is the sub-sprint dir. No need to ask — this is the folder.
+- **No sprint context (standalone):** there is no sprint `design/` folder to default to, so **ask the designer** at Round 1 which folder the records go in. Use the designer's answer verbatim as the target folder. Create it if absent. Do not invent a location.
 
-Lock the resolved path at Round 1 and reuse the exact same file for every round — the `<question-slug>` and folder do not drift mid-consultation. There is no conversation-only mode. The file exists on disk from the first round onward; the conversation holds the same content for free, but disk is the source of truth.
+Lock the folder at Round 1 and reuse it for every question and round. A given question's file is locked when that question opens and reused for all of that question's rounds; the next designer question opens the next numbered file. There is no conversation-only mode. The file exists on disk from the question's first round onward; the conversation holds the same content for free, but disk is the source of truth.
 
 #### Per-Round Flow
 
 1. **Dispatch question** — initial question (Round 1 already confirmed) or refined question (designer narrowed scope between rounds). Send via `SendMessage` to 4 members in parallel. Researcher on demand.
 2. **One-round-format runs** — per SKILL.md Phase 4. Members write positions, peer-DM, revise, submit final positions to team-lead.
 3. **Persist returns FIRST** — before any consolidation or synthesis, write the verbatim/abridged member positions and researcher findings to the record file (§ Record File), per `references/committee-analysis-round-format.md`:
-   - First round → fill **Round Overview** + **Initial Deliberation** (researcher findings, per-member positions, member follow-ups).
-   - Each later round → append a **Follow Up NN** section's member follow-ups.
+   - First round **of a question** → open that question's `committee-analysis-NN.md` and fill **Round Overview** + **Initial Deliberation** (researcher findings, per-member positions, member follow-ups).
+   - Each later round **on the same question** → append a **Follow Up NN** section's member follow-ups to that file.
+   - A **new designer question** → open the next numbered file (`committee-analysis-NN.md`) and start again at Round Overview + Initial Deliberation. Do not append a new question into the prior question's file.
    - This write is unconditional and is the persist-before-adjudicate floor: the proven verbatim texture reaches disk before synthesis, team-delete, or any context shift can reshape or lose it. Not a deferred TODO.
 4. **Consolidate** — per § Internal Discipline / Consolidation Rules.
 5. **Complete the record** — write the consolidation back into the same file:
    - The round's **Team Lead** comments section (Convergence / Alignment / Observations — comments only, no recommendation).
    - Overwrite the single **Final Recommendation** section to the current call, in the § Visible Surface / Information Packet Format Decision Package + Team-Lead Comments form.
 6. **Present packet to designer** — per § Internal Discipline / Presentation Rules. The designer-facing decision packet is the translated surfacing of this round's record; its Decision Package + Team-Lead Comments are the record's Final Recommendation section.
-7. **Designer response** — one of: adjudicate (loop ends, proceed to Closure); refine question (loop back to step 1 with refined question); next round same question (loop back to step 1 unchanged); declare done (loop ends, proceed to Closure).
+7. **Designer response** — one of: adjudicate (loop ends, proceed to Closure); refine question (loop back to step 1 with refined question); next round same question (loop back to step 1 unchanged); declare done (loop ends, proceed to Closure). File behavior per § Record File: a refinement that narrows the *same* question stays in that question's file as a Follow Up; a distinct *new* question opens the next numbered file.
 
 #### Behavioral Constraints
 
@@ -118,12 +120,12 @@ Lock the resolved path at Round 1 and reuse the exact same file for every round 
 
 ### Closure — Finalize the Record
 
-Designer signals closure ("we're done", "decision made", "shelve this"). The committee's artifact — the per-round record (§ Record File, shape from `references/committee-analysis-round-format.md`) — is **already on disk**, written and updated every round. Closure finalizes it; it does not decide whether to persist.
+Designer signals closure ("we're done", "decision made", "shelve this"). The committee's artifacts — the per-question record file(s) (§ Record File, shape from `references/committee-analysis-round-format.md`), one per designer question — are **already on disk**, written and updated every round. Closure finalizes them; it does not decide whether to persist.
 
 Resolution:
 
-1. **Confirm the record is current.** Verify the last round's positions and the single **Final Recommendation** section reflect the final state. Write any pending update to the record file before teardown.
-2. **Stamp provenance.** `chester-trailer-write stamp design-committee@<this-skill-version> "<record-file-path>"`.
+1. **Confirm each question's record is current.** For every `committee-analysis-NN.md`, verify the last round's positions and that file's single **Final Recommendation** section reflect the final state. Write any pending update before teardown.
+2. **Stamp provenance.** Stamp each question's record file: `chester-trailer-write stamp design-committee@<this-skill-version> "<record-file-path>"` for every `committee-analysis-NN.md`.
 3. **Wrapping-skill handoff** (when invoked from another skill). The wrapping skill owns where the record finally lives — it may relocate or rename the on-disk file. The committee's job is done once the record is written and current; the per-round disk write is never skipped because a wrapping skill will relocate it later.
 4. `TeamDelete` after the record is finalized. MANDATORY — stranded teams leak context across unrelated future invocations.
 

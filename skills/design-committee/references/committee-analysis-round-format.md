@@ -33,11 +33,16 @@ separate **decision packet** in `team-lead.md` § Information Packet Format. Wri
 
 ## How To Use
 
-1. Copy the template block below into the consultation's file:
-   `{CHESTER_WORKING_DIR}/<sprint-subdir>/design/committee-analysis-<question-slug>.md`.
+1. Copy the template block below into the question's file:
+   `{CHESTER_WORKING_DIR}/<sprint-subdir>/design/committee-analysis-NN.md`, where `NN` is the
+   zero-padded order the designer asked the question (01, 02, …). No slug, no sprint name — the
+   sprint is already encoded by the `design/` directory the file sits in. **One file per designer
+   question:** a new designer question opens a new numbered file; the rounds below are the
+   deliberation passes *within* that one question.
 2. Replace every `<…>` placeholder with content; delete the `(guidance…)` notes once filled.
-3. Each new deliberation round is **appended** as a `## Follow Up NN` section — the rounds
-   above are append-only record, never back-edited.
+3. Each additional deliberation pass on the *same* question is **appended** as a `## Follow Up NN`
+   section — the rounds above are append-only record, never back-edited. (A new designer question
+   does not append here — it opens the next numbered file.)
 4. **Final Recommendation is the one mutable section.** When a follow-up shifts the call,
    the team-lead **overwrites it in place** so it always reflects the latest recommendation,
    not a history of calls. Note in its **Basis** line which round settled it and what it
@@ -65,7 +70,7 @@ separate **decision packet** in `team-lead.md` § Information Packet Format. Wri
 
 ```markdown
 # Committee Analysis — <one-line topic>
-# File: committee-analysis-<question-slug>.md dtd <YYYY-MM-DD>
+# File: committee-analysis-NN.md dtd <YYYY-MM-DD>
 # Master: <master-sprint-name> · Sub-sprint: <sub-sprint-name>
 
 ## Round Overview
