@@ -1,7 +1,7 @@
 ---
 name: execute-write
 description: Use when you have a written implementation plan to execute — reads the plan's `Execution mode` header field (subagent or inline) and runs the matching section, with review checkpoints
-version: v0006
+version: v0007
 ---
 
 # execute-write
@@ -135,6 +135,7 @@ For each task in order:
      - the changed module does **not** import another layer or package
 
      Otherwise, run the quality reviewer as normal. Do not use a lines-of-code threshold — file-count, new-vs-edit, the concerns flag, and the cross-layer test are the reliable cheap signals.
+   - **Prose-only skip path (independent of the conditions above).** Also skip the quality reviewer when the implementer's report shows EVERY changed file is a documentation / prose file — a non-code extension such as `.md`, `.markdown`, `.rst`, or `.txt` — and none is source, script, or config, regardless of file-count or new-vs-edit. A pure-prose change has no code-quality surface for the reviewer to inspect (the cross-layer carve-out below is vacuous when no code changed). The spec reviewer (step 3) still runs. This path keys on the OBSERVED report (what actually changed), not on the plan's task `Type` — if any changed file is code, script, or config, the path does not apply and you fall back to the conditions above.
    - **Cross-layer carve-out (hard exception — never skipped).** If the change touches a module that imports another layer or package, the quality reviewer ALWAYS runs, regardless of the four conditions above. It owns the real-import integration check (see `quality-reviewer.md`) — the one quality duty that catches a small change silently breaking cross-layer wiring.
    - Handle severity-based results:
      - **Critical:** Must fix before proceeding
@@ -280,7 +281,8 @@ steps and ask "Want to proceed?" — just proceed.
 - Implementer reporting DONE suspiciously quickly on complex tasks
 - Spec reviewer rubber-stamping without reading code
 - Skipping spec review and going straight to code quality review
-- Skipping the quality reviewer when the skip gate's conditions don't ALL hold, or skipping it on a cross-layer change (the carve-out forbids that)
+- Skipping the quality reviewer when neither skip path qualifies — the 5 observed-simple conditions, or the prose-only path (every changed file is documentation) — or skipping it on a cross-layer code change (the carve-out forbids that)
+- Skipping the quality reviewer on the prose path when any changed file is source, script, or config — the prose path is documentation-only, keyed on the observed diff, never on the plan's task `Type` label
 - Gating, skipping, or tiering the spec reviewer — it is a non-dialable floor; only the quality reviewer is skip-eligible
 - Looping implementer↔reviewer a third time on one task instead of escalating to the user after 2 re-dispatches
 - Reusing a subagent across multiple tasks instead of dispatching fresh
