@@ -20,6 +20,13 @@ subagent loop, Section 3 inline loop) must be rebuilt into a single per-task dis
 Section 4 reconciled against a mixed run. That is an architecture change, not a field-read,
 and deserves its own design + plan + threat pass rather than riding on the depth gate. No
 current evidence a concrete plan needs per-task topology mixing (Pragmatist's YAGNI gate).
+**RESOLVED 2026-05-31 (sprint 20260531-02-fix-write-task-topology):** CLOSED as a no-build. A
+follow-up committee rejected per-task topology (per-task inline lands on the floor-protected
+implementer-presence axis; escalate-up relocates rather than dissolves the breach). The designer
+then reframed away from inline entirely (never used in practice) onto the review-level axis; the
+real want was satisfied by a one-clause prose-skip in execute-write v0007 (skip quality review
+when every changed file is documentation, keyed on the observed diff). See
+`plans/20260531-02-fix-write-task-topology/design/committee-analysis-per-task-topology.md`.
 
 ## DI-2 — Dangling `Type` consumer in plan-build (doc-drift bug)
 
