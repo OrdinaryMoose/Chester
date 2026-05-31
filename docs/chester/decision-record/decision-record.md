@@ -2552,3 +2552,54 @@ supersedes: null
 artifact_refs:
   - working/20260531-01-update-execute-write/design/committee-analysis-execute-write-granularity.md
 ---
+
+---
+id: dr-20260531-07-di-1-per-task-topology-closed-rejected
+date: 2026-05-31
+sprint: 20260531-02-fix-write-task-topology
+stage: design-committee
+title: DI-1 per-task execution topology closed and rejected, not built
+decision: Per-task inline-vs-subagent execution topology (DI-1) is closed as rejected — execution topology stays the whole-plan subagent|inline binary, the per-task inline point is not built, and DI-1's deferral is resolved as a no-build.
+rationale: The committee re-examined DI-1 and found per-task inline lands on the implementer-presence axis (who writes the code), which is floor-protected because wrong isolation is undetectable — no test catches it — so converting that enforcement property into per-task configuration is a violation, not a risk. Escalate-up only relocates the floor breach to "next task forward"; it cannot repair the current task because the implementer is already spawned inline before any review, so there is no mid-task re-isolation primitive. The designer then reframed away from inline entirely (refactor work never selects inline), which removed the topology question from the table rather than answering it in DI-1's favor. DI-1 thus closes as a deliberate no-build; future per-task-topology proposals must re-clear the presence-axis floor objection before being reconsidered.
+alternatives:
+  - Build per-task inline topology with execute-write escalating inline→subagent on a sprawling observed diff — rejected because escalate-up relocates rather than dissolves the presence-axis floor breach and cannot un-author an already-inline task.
+  - Keep DI-1 as an open deferred item for a future sprint — rejected because the reframe removed inline as a real option, so there is no remaining demand to defer.
+tags: [architecture, skill, governance, process]
+supersedes: dr-20260531-04-independence-stays-whole-plan-binary-separate-from-depth
+artifact_refs:
+  - working/20260531-02-fix-write-task-topology/design/committee-analysis-per-task-topology.md
+---
+
+---
+id: dr-20260531-08-no-implementer-decided-review-streamline
+date: 2026-05-31
+sprint: 20260531-02-fix-write-task-topology
+stage: design-committee
+title: Implementer-decided review streamlining rejected; orchestrator owns the review decision
+decision: Letting the implementer self-certify or drive its own review streamlining is rejected outright; the decision to skip or reduce a review stays with the orchestrator reading the implementer's observed report, never with the author of the change.
+rationale: Moving the review decision from the orchestrator to the implementer makes the author certify its own work, which is rubber-stamping — the same presence-axis violation as DI-1 relocated onto the review-decision axis. The researcher grounded the rejection in prior art: Chrome's auto-reviewer and CI path-filters all auto-detect skip conditions from the diff and never let the author self-certify. The orchestrator-owned, observed-report-driven gate keeps the author and the gatekeeper separate, which is the property that makes the skip safe. Future review-streamlining work keeps the skip decision orchestrator-side and diff-derived; no self-certification path may be introduced.
+alternatives:
+  - Allow the implementer to streamline or self-certify its own review for tasks it deems simple — rejected as author-as-own-gatekeeper rubber-stamping, the presence violation relocated to the review-decision axis.
+  - Add a general full-vs-streamlined review switch set per task at plan time — rejected because "obviously simple" rots like "middle" as contract wording and only concrete observed conditions are admissible.
+tags: [governance, skill, process]
+supersedes: null
+artifact_refs:
+  - working/20260531-02-fix-write-task-topology/design/committee-analysis-per-task-topology.md
+---
+
+---
+id: dr-20260531-09-prose-skip-keyed-on-observed-diff
+date: 2026-05-31
+sprint: 20260531-02-fix-write-task-topology
+stage: execute-write
+title: Quality review skips pure-prose changes keyed on the observed diff, not the plan Type
+decision: Execute-write (v0007) adds a second independent quality-reviewer skip path that fires when the implementer's observed report shows every changed file is documentation/prose (.md, .rst, .txt, ...) and none is source/script/config, keyed on the observed changed-file extensions rather than the plan's Type label.
+rationale: This reinforces the observed-over-forecast precedent the first execute-write committee settled: the prose signal is already in the implementer's returned report, so the skip needs no new per-task plan-field read and cannot be gamed by a mislabeled plan. The committee rejected the Type-AND-observed variant precisely because the Type half would make execute-write the first consumer of an author-estimated plan field and is redundant for safety once the observed check exists. The skip touches only the quality reviewer — the spec-compliance floor still runs every task, the cross-layer carve-out is vacuous when no code changed, and Section 4 is untouched. Future docs-skip and review-scaling work keys on the observed diff; a prose-accuracy reviewer, if ever wanted, is a new reviewer to design rather than a reason to keep the code-oriented quality reviewer running on markdown.
+alternatives:
+  - Type-AND-observed trigger (skip when the plan says docs and the diff is all-prose) — rejected because it requires execute-write's first per-task plan-field read, adds a plan-intent permission layer, and the Type half is redundant for safety once the observed check is present.
+  - Do nothing and let multi-file prose tasks run a no-op quality reviewer — rejected because it wastes a full cold review dispatch on changes the code-oriented reviewer has nothing to check.
+tags: [architecture, skill, process]
+supersedes: null
+artifact_refs:
+  - working/20260531-02-fix-write-task-topology/design/committee-analysis-per-task-topology.md
+---
