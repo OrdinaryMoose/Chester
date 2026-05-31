@@ -2448,3 +2448,107 @@ artifact_refs:
   - working/20260521-design-committee-update/design/r2-open-questions-decision-00.md
   - working/20260521-design-committee-update/design/general-committee-redesign-brief-00.md
 ---
+
+---
+id: dr-20260531-01-committee-persist-before-adjudicate
+date: 2026-05-31
+sprint: 20260531-00-fix-committee-persistence
+stage: design-committee
+title: Committee persists each round's record to disk before synthesis
+decision: The design-committee team-lead writes the round's verbatim member and researcher returns to a working-dir file unconditionally and before consolidation every round, with closure reduced to finalize-and-stamp rather than a persistence decision.
+rationale: The skill previously built the round record in conversation but gated its disk write behind a closure-time, designer-opt-in choice that defaulted to conversation-only, so the verbatim texture often never reached disk before teardown could reshape it. That default-and-gate model contradicted the standing persist-before-adjudicate rule, which requires raw returns durable on disk before any synthesis, team-delete, or context shift. The fix splits the per-round flow so verbatim returns persist first and the team-lead's read is written on top, making persistence an operational floor rather than a deferred TODO. Future committee work and any wrapping skill inherit unconditional per-round persistence; closure no longer chooses placement.
+alternatives:
+  - Keep persistence as a closure-time designer opt-in defaulting to conversation-only — rejected because it is the reported bug: the round record lived only in memory and the persist-before-adjudicate rule was violated whenever the designer did not opt in.
+  - Persist once at closure after consolidation — rejected because synthesis can reshape verbatim returns before they reach disk, defeating the rule's purpose of protecting raw texture.
+tags: [skill, process, governance, convention]
+supersedes: null
+artifact_refs: []
+---
+
+---
+id: dr-20260531-02-committee-standalone-record-path-asks-designer
+date: 2026-05-31
+sprint: 20260531-00-fix-committee-persistence
+stage: design-committee
+title: Standalone committee with no sprint asks the designer where to write
+decision: When the committee is convened with sprint context the round record lands at the sprint working-dir design/ folder, and when convened standalone with no sprint the team-lead asks the designer at Round 1 where to write and uses that answer verbatim for all rounds, fabricating no folder.
+rationale: Making per-round persistence unconditional forced the standalone no-sprint case to resolve a real disk path, which the sprint-assuming path template did not supply. A synthetic per-question container was first chosen for zero designer friction but rejected in favor of asking, so the tool never guesses where a designer's work lands. The ask is wired into Round 1, where the designer is already confirming question, roster, and scope before TeamCreate, so the path locks before the first persist with no mid-deliberation prompt and no path drift. The ask uses plain prose, not a numbered menu, per the standing no-numbered-menus rule.
+alternatives:
+  - Synthesize a per-question container {WORKING_DIR}/committee-<slug>/design/ as a sprint-subdir stand-in — rejected because it invents a folder for the designer rather than asking, and the project's adjudicate-everything posture favors a Round-1 question over a guessed target.
+  - Flat {WORKING_DIR}/design/ for all standalone committees — rejected for slug-collision risk and no per-question isolation.
+  - Synthesize a fake sprint name (date-NN-verb-noun-noun) — rejected because it would trip sprint mechanics and pollute sprint numbering despite the committee creating no sprint.
+  - Refuse to persist when standalone — rejected because it reintroduces the original conversation-only bug, just relocated.
+tags: [skill, convention, governance]
+supersedes: null
+artifact_refs: []
+---
+
+---
+id: dr-20260531-03-execute-write-review-depth-keys-on-observed-report
+date: 2026-05-31
+sprint: 20260531-01-update-execute-write
+stage: design-committee
+title: Execute-write review depth keys on the observed implementer report
+decision: Per-task review intensity in execute-write is gated by a consumer-side predicate inside Section 2 that reads the implementer's own returned report (status, files changed, new-file flag, tests, cross-layer import) rather than any plan-declared or plan-time-forecast field.
+rationale: This is the a-posteriori-over-a-priori principle: review depth is a posterior only knowable after the implementer returns, so gating on the observed diff is ground truth available free at gate time, while plan-time effort forecasts inherit the documented a-priori failure mode (plan-time sizing can never name all complexity, and underestimation bias grows under uncertainty). The committee also established that no per-task plan field has a live execute-time consumer today and the claimed Type consumer is a dangling reference, so gating on a plan-declared field would make execute-write the first real consumer of an author-estimated, never-validated value. The predicate is written literally into the execute-write SKILL.md body so it is auditable, deterministic per run, and not a floating ad-hoc knob. Future review-scaling work in execute-write keys on the observed report, not on forecast fields; escalation may only raise depth, never lower it.
+alternatives:
+  - A new per-task Review-effort / Execution-mode-tier field set at plan time — rejected because it inherits the untested author-forecast accuracy problem (worse here, since depth would depend on the grade), adds a second routing dimension under a category-ambiguous label, and makes execute-write the first consumer of a never-validated field.
+  - Derive depth at execute time from existing plan fields (Type, decision-budget, file-count) — rejected because it still reads plan-author forecasts (thin coupling to plan schema) and the consumer-side observed-report gate touches zero upstream surface.
+tags: [architecture, skill, process]
+supersedes: null
+artifact_refs:
+  - working/20260531-01-update-execute-write/design/committee-analysis-execute-write-granularity.md
+---
+
+---
+id: dr-20260531-04-independence-stays-whole-plan-binary-separate-from-depth
+date: 2026-05-31
+sprint: 20260531-01-update-execute-write
+stage: design-committee
+title: Independence stays a whole-plan binary, separate from review depth
+decision: Execution topology / reviewer independence remains the whole-plan subagent|inline binary set once at plan-build, kept architecturally separate from review depth, which is the only axis that scales per task; the proposed per-task three-level inline|middle|full scale is rejected.
+rationale: The committee decomposed the designer's single proposed dial into two orthogonal axes: independence presence (does a cold reviewer read the real diff — an irreducibly runtime enforcement property, genuinely binary with one safe pole) and scrutiny depth (forecastable, the only axis with a real middle). Collapsing them into one ordinal label is unauditable because a planner writing middle cannot say which axis they mean, and middle has no asymmetric-cost safety anchor, inviting operators to dodge full-subagent cost and silently erode the floor. A per-task inline point would let plan-build set independence-presence to zero for a task — a planner deciding a runtime property it cannot enforce because it never sees the diff — which is the category error. Plan may recommend or floor topology but may not waive on, and execute-write retains the right to escalate topology up on a bad observed report, never down; future work keeps these two axes and their two loci separate.
+alternatives:
+  - Replace the subagent|inline binary with a per-task three-level inline|middle|full scale — rejected because middle sits on no single nameable axis, is net-new with no precedent, has no asymmetric-cost anchor, and lets the planner zero out an independence property it cannot enforce.
+  - Move both axes wholesale to plan-build and make execute-write a fully plan-directed scaled executor — rejected because per-task topology mixing requires a hybrid executor that does not exist (a large unnamed ship), and depth cannot be plan-directed since the plan never sees the diff.
+  - Emit per-task topology by stopping plan-build's collapse of already-computed per-task signals — acknowledged as a real but net-new and expensive future unlock and deferred (DI-1), not adopted now.
+tags: [architecture, skill, process]
+supersedes: null
+artifact_refs:
+  - working/20260531-01-update-execute-write/design/committee-analysis-execute-write-granularity.md
+  - working/20260531-01-update-execute-write/plan/deferred-items-00.md
+---
+
+---
+id: dr-20260531-05-spec-review-non-dialable-floor
+date: 2026-05-31
+sprint: 20260531-01-update-execute-write
+stage: design-committee
+title: Spec-compliance review is a non-dialable floor; only the quality reviewer is skip-eligible
+decision: In execute-write Section 2, the spec-compliance reviewer runs full depth on every task and is never gated, skipped, or tiered; the per-task skip gate governs only the quality reviewer, which may be skipped when the observed report is provably trivial except across a layer boundary.
+rationale: Spec drift is the unrecoverable failure class, so spec review is the load-bearing check that must never be cheapened, whereas quality findings are severity-tiered and deferrable, making the quality reviewer the sole skip-eligible step. The principle is gate the redundant check, never the load-bearing one. The floor is stated explicitly in the skill body so a future edit cannot accidentally tier the spec check, and a cross-layer carve-out forces the quality reviewer to always run when the changed module imports another layer or package, since that reviewer owns the real-import integration check that catches a small change silently breaking wiring. Future review-scaling work treats spec review as a fixed floor and may tune only quality-review depth, never to zero across a layer boundary.
+alternatives:
+  - Allow the spec reviewer to be tiered or skipped on trivial tasks alongside the quality reviewer — rejected because spec-miss is unrecoverable and cheap relative to implementation cost, so it must run every task.
+  - Allow the quality reviewer to skip on any single-file tested edit including cross-layer ones — rejected because cross-layer imports are exactly the integration-bug class the quality reviewer's real-import check exists to catch.
+tags: [governance, skill, process]
+supersedes: null
+artifact_refs:
+  - working/20260531-01-update-execute-write/design/committee-analysis-execute-write-granularity.md
+---
+
+---
+id: dr-20260531-06-re-dispatch-ceiling-escalate-not-drop
+date: 2026-05-31
+sprint: 20260531-01-update-execute-write
+stage: design-committee
+title: Execute-write re-dispatch ceiling escalates to the user rather than silently dropping
+decision: Execute-write caps each task's find-issues / fix / re-review loop at two re-dispatches, after which it stops auto-retrying and escalates to the user through the existing think-gate rather than silently continuing or dropping the task.
+rationale: The implementer-returns-non-DONE, spec-FAIL, and quality-Critical loops were uncapped, so a pathological task could ping-pong indefinitely, each round a full cold dispatch and an unbounded spend tail independent of the granularity gate. A bounded retry that escalates to the user weakens no review guarantee — it is a pure additive safety and cost guard — whereas a silent drop would breach the safe default by leaving a task unreviewed. Escalate-not-drop is the operative rule: the cap hands control back explicitly, it does not abandon work. Future execute-write loops inherit a bounded-retry-then-escalate shape rather than uncapped auto-retry.
+alternatives:
+  - Leave the re-dispatch loops uncapped — rejected because a pathological task can spend unbounded tokens ping-ponging through full cold dispatches.
+  - Cap and silently drop the task after the ceiling — rejected because dropping leaves a task unreviewed, breaching the safe-default floor; the cap must escalate to the user instead.
+tags: [process, governance, skill]
+supersedes: null
+artifact_refs:
+  - working/20260531-01-update-execute-write/design/committee-analysis-execute-write-granularity.md
+---
