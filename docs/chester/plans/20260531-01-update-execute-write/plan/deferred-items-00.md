@@ -33,6 +33,9 @@ lines are stale and should be cut.
 **Why deferred:** Out of scope for this sprint (a plan-build/plan-template doc fix, not an
 execute-write change). Needs a decision on which way to resolve: build the consumer, or
 delete the claim.
+**RESOLVED 2026-05-31:** Chose delete. Cut the false "execute-write's trigger-checks key off
+this field" claim from `plan-build/SKILL.md` and `plan-template.md`; both now describe `Type`'s
+real consumer (plan-build's Execution Mode Selection, condition 4). plan-build v0004→v0005.
 
 ## DI-3 — Conditional Section 4 (token-saving variant, declined this round)
 

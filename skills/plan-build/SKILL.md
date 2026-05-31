@@ -1,7 +1,7 @@
 ---
 name: plan-build
 description: Use when you have a spec or requirements for a multi-step task, before touching code
-version: v0004
+version: v0005
 ---
 
 # Chester Build Plan
@@ -51,8 +51,8 @@ The plan is NOT committed here — `finish-archive-artifacts` copies all artifac
 - **Task ID** — a stable identifier (`Task 1`, `Task 2`, …) used by
   execute-write for progress tracking and by plan-attack for cross-referencing.
 - **Type** — one of `code-producing`, `docs-producing`, or `config-producing`.
-  execute-write's trigger-checks key off this field (different task types
-  warrant different verification gates).
+  Consumed by the Execution Mode Selection heuristic below (condition 4 keys on
+  whether any code-producing task touches multiple files).
 - **Implements** — the list of spec acceptance-criterion IDs (e.g. `AC-1.2`,
   `AC-3.1`) this task satisfies. This is the trace back to the spec; every
   AC in the spec must be implemented by at least one task.

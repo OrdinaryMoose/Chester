@@ -93,8 +93,8 @@ git commit -m "feat: add specific feature"
   renumber after the plan is written; execute-write and plan-attack both
   reference tasks by ID.
 - **Type** — one of `code-producing`, `docs-producing`, `config-producing`.
-  execute-write's trigger-check applicability keys off this field (a
-  docs-producing task doesn't warrant the full test-run gate).
+  Consumed by plan-build's Execution Mode Selection (the multi-file-code-task
+  condition); execute-write does not read this field.
 - **Implements** — list of AC IDs from the spec that this task satisfies.
   Traces each task back to spec criteria. Every AC in the spec must be
   covered by at least one task's `Implements` list.
