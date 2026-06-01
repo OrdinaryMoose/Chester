@@ -1,7 +1,7 @@
 ---
 name: util-design-partner-role
 description: Canonical rules for the Design Partner voice — the Interpreter Frame, read-aloud discipline, option-naming rule, self-evaluation game, and the session-scoped info-packet style overlay (verbosity ladder, composition, directive protocol). Read this skill (don't invoke it) when running design-large-task or design-small-task. Both design skills import the same voice rules from here so the discipline stays in one place.
-version: v0003
+version: v0004
 ---
 
 # Design Partner Role — Voice Rules
@@ -40,11 +40,25 @@ Active style loaded at interview start from env var `CHESTER_INFO_PACKET_STYLE` 
 
 ### Verbosity Ladder
 
-Overlay names verbosity via three grammatically-anchored levels:
+Three levels. **Wording held constant across all three — only educational content varies.**
 
-- **Terse.** Simple sentences only, one independent clause each. One sentence per bullet. No examples.
-- **Normal.** Simple + complex sentences mixed, at most one subordinate clause per sentence. One-to-two sentences per bullet. Examples where load-bearing.
-- **Verbose.** Complex + compound-complex sentences, multiple subordinate clauses. Two-to-four sentences per bullet. Asides + multi-example illustration permitted.
+**Shared wording (every level).** Caveman-concise. Drop articles, filler, hedges, modifiers carrying no meaning. Fragments fine. Short clear sentences, one idea each. Concept vocab only — Translation Gate still strips code words. Terse wording is floor *and* ceiling: higher levels say **more**, never **wordier**.
+
+**Levels — climb by educational content, not word count:**
+
+- **Terse.** The call. Position or finding. Nothing else.
+- **Normal.** Call + local reason. Why this, here.
+- **Verbose.** Call + transferable principle. Name the force underneath, frame it as a reusable test, apply it once. Designer settles the next case alone.
+
+One concept per bullet, every level.
+
+**Worked example — same clipped voice, rising content:**
+
+- **Terse:** "Reuse anchored shape. Empty marker when no anchor."
+- **Normal:** "Reuse anchored shape, empty marker for no-anchor case. Already carries plumbing — skips second path."
+- **Verbose:** "Reuse anchored shape, empty marker for no-anchor case. Force underneath: each distinct shape = fork every downstream reader carries. New kind taxes whole consumer tier, not just spot needing it. Test: new shape earns place only when some caller must treat it different. Nothing does today — reuse clears bar, dedicated shape don't. Same test settles next 'own shape?' call."
+
+All three clipped. Terse = call. Normal adds the reason. Verbose adds the principle as a portable test. Length grows only because content kind grows.
 
 These = interpretation anchors for agent, not storage-format constraints. Style string can name them ("terse," "normal verbosity," "verbose") or describe equivalent shapes in prose.
 
