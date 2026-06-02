@@ -20,7 +20,7 @@ Wrapping skills MAY add steps, fields, gates, roles via convening message. Wrapp
 
 Sprint-specific overlay NEVER attaches to:
 
-1. **Agent files** (`skills/design-committee/agents/*.md`). Edits persist invisibly across invocations, drift accumulates silently. Agent files carry lens, voice, phase contract only. No sprint refs, no schemas, no product names, no gating conditions.
+1. **Agent files** (`agents/design-committee-*.md`, plugin top-level). Edits persist invisibly across invocations, drift accumulates silently. Agent files carry lens, voice, phase contract only. No sprint refs, no schemas, no product names, no gating conditions.
 2. **`SKILL.md`.** Persistent floor doc. Contamination = most durable category drift. Audits compare against this file; corrupted floor breaks audit.
 3. **Output-format field labels.** Interface between deliberation and external readers. Wrapping skills MAY append fields; MAY NOT redefine existing label meaning. Redefinition makes output illegible outside wrapping context.
 
@@ -35,9 +35,9 @@ Four members = four distinct lenses positioned as points in shared deliberation 
 
 Adding lenses risks redundancy (new lens overlaps an existing one) or false coverage (new lens not actually distinct in substance). Removing lenses costs the designer signal on that tension. Researcher = sixth role with no advocacy, owns grounding and absence findings.
 
-## Why Member Agents Live Inside Skill Dir
+## Why Member Agents Live in the Plugin Top-Level `agents/`
 
-Member agent files at `skills/design-committee/agents/design-committee-{member}.md` declare committee-specific phase contract: solution-space discussion permitted, peer-DM enabled, decision-packet output expected. Lens + voice imported from `util-design-partner-role`. Co-location with skill keeps phase contract beside skill that uses it. Other deliberation skills wanting different phase contract write own parallel agent files; do NOT mutate committee's.
+Member agent files at `agents/design-committee-{member}.md` (plugin top-level) declare committee-specific phase contract: solution-space discussion permitted, peer-DM enabled, decision-packet output expected. Lens + voice imported from `util-design-partner-role`. Placement is forced by registration, not preference: Claude Code's plugin resolver scans only the top-level `agents/` directory — agent files in skill-local `agents/` subdirs never register and dispatch fails silently. The `chester:design-committee-{role}` naming convention (filename encodes the originating skill) keeps the phase contract traceable to this skill without co-location. Other deliberation skills wanting different phase contract write own parallel `agents/{skill}-*.md` files; do NOT mutate committee's.
 
 ## util-design-partner-role Coupling
 

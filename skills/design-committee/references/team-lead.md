@@ -51,7 +51,7 @@ Before convening:
 1. `skills/design-committee/SKILL.md` — committee mechanics floor.
 2. `skills/util-design-partner-role/SKILL.md` — voice rules + Info-Packet Style Overlay.
 3. This doc — team-lead role.
-4. `skills/design-committee/agents/design-committee-*.md` — phase contract per member convened.
+4. `agents/design-committee-*.md` (plugin top-level) — phase contract per member convened; loads as each member's system prompt on dispatch.
 5. `skills/design-committee/references/committee-analysis-round-format.md` — per-question record template the team-lead fills.
 
 ---
