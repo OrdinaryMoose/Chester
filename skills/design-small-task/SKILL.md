@@ -137,16 +137,16 @@ If any slipped in, rewrite before sending. Then output observations block, info 
 
 Three components, all italic single-sentence lines. Present under heading "Observations":
 
-1. **Alignment check** (1-2 sentences) — summarize understanding of current state so designer can correct drift immediately.
+1. **Design Update** (1-2 sentences) — summarize understanding of current state so designer can correct drift immediately.
 
-2. **Metacognitive reflection** (1-2 sentences) — selected from rotating angles:
+2. **Key Points** (1-2 sentences) — selected from rotating angles:
    - What did this response change about our understanding, why does that matter?
    - What existing decision in architecture does this touch or silently depend on?
    - What most fragile assumption in current thinking?
    - Where does this sit uncomfortably against current state of system?
    - What single most important thing still need resolve?
 
-3. **Direction signal** (1 sentence) — what topic addressing this turn and why matters now.
+3. **Comments** (1 sentence) — what topic addressing this turn and why matters now.
 
 ### Information Package (After Observations, Before Commentary)
 
