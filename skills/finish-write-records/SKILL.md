@@ -1,306 +1,131 @@
 ---
 name: finish-write-records
 description: >
-  Produces session documentation after any Chester work session — session summaries,
-  reasoning audits, and cache analysis. Handles both feature work (sprint pipeline) and
-  refactoring work (standalone). Use when the user says things like: "summarize what we
-  did", "write the summary", "session report", "reasoning audit", "write a refactor
-  summary", "document this session", or when a major unit of work has just completed.
-  Also trigger proactively at natural session end points.
-version: v0003
+  Produces session documentation after Chester work session — session summary
+  and reasoning audit. Use when: "summarize what we did", "write the summary",
+  "session report", "reasoning audit", "document this session", or at natural
+  session end points. Also trigger proactively.
+version: v0004
 ---
 
 # Session Records
 
-Produces documentation about what happened during a work session: what was done, what
-decisions were made, and why. This is one skill with two modes depending on what kind
-of work was performed.
+Two artifacts: session summary + reasoning audit. Sprint pipeline work only.
 
-## Mode Selection
-
-### Feature Mode (sprint pipeline)
-
-Use when the work followed the Chester pipeline (design → spec → plan → execute) or
-any feature development, bug fix, or migration work driven by a sprint.
-
-**Artifacts produced:**
-- Session summary (`{sprint-name}-summary-{nn}.md`)
-- Reasoning audit (`{sprint-name}-audit-{nn}.md`)
-- Cache analysis (optional)
-
-**Output directory:** `{CHESTER_WORKING_DIR}/{sprint-subdir}/summary/`
-
-### Refactor Mode
-
-Use when the work was refactoring — simplifications, rationalizations, tech debt cleanup,
-dependency upgrades, performance optimizations. Refactors don't start with a spec or
-plan; they start with an observation and end with a simpler state.
-
-**Artifacts produced:**
-- Evaluation brief (`{slug}-brief-{nn}.md`) — unique to refactors
-- Session summary (`{slug}-summary-{nn}.md`)
-- Reasoning audit (`{slug}-audit-{nn}.md`)
-
-**Output directory:** `docs/refactor/{slug}/`
-
-If the output directory doesn't exist, create it. Confirm the slug with the user:
-"I'll create `docs/refactor/{slug}/` — does that slug capture it?"
-
-### How to Choose
-
-If the work has a sprint subdirectory in `CHESTER_WORKING_DIR` → feature mode.
-If the user says "refactor summary" or the work was cleanup/simplification → refactor mode.
-If ambiguous, ask.
-
-## Step 1: Determine Output Location
-
-### Feature Mode
+## Step 1: Output Location
 
 ```bash
 eval "$(chester-config-read)"
 ```
 
-Determine the sprint subdirectory from context (plan file path, conversation, or most
-recent sprint directory under `{CHESTER_WORKING_DIR}/`). If it cannot be determined, ask.
+Determine sprint subdir from context — plan file path, conversation, or most recent dir under `{CHESTER_WORKING_DIR}/`. Unknown → ask.
 
-Check for existing summary/audit files to determine version number — use `00` if none
-exist, otherwise increment. See `util-artifact-schema` for versioning rules.
+Check existing files in `summary/` for version number — `00` if none, else increment. See `util-artifact-schema`.
 
-### Refactor Mode
+Output path: `{CHESTER_WORKING_DIR}/{sprint-subdir}/summary/`
 
-Create a slug following the refactor naming convention (see `util-artifact-schema`):
-`YYYYMMDD-##-word-word-word` (3-5 words).
+## Step 2: Source Mode
 
-```bash
-ls docs/refactor/ 2>/dev/null | grep "^$(date +%Y%m%d)" | sort | tail -1
-```
+**Context Mode (default)** — session was planning, design, analysis, or discussion. Summarize from conversation only. No bash commands.
 
-## Step 2: Select Source Mode
+**Deep Scan Mode** — user explicitly requests ("deep scan", "full scan") or session had silent file changes not in conversation.
 
-### Context Mode (default)
-
-Use when:
-- The session was planning, design, analysis, or discussion
-- Files changed were discussed in conversation
-- The user says "summarize" with no qualifiers
-
-Summarize from conversation context only. Do not run bash commands or read files.
-
-### Deep Scan Mode
-
-Use only when the user explicitly requests it ("deep scan", "full scan", "check the
-files too") or when the session involved silent file changes not reflected in conversation.
-
-Run discovery before writing:
 ```bash
 find . -name "*.md" -newer . -not -path "*/obj/*" -not -path "*/.git/*" | sort
 find . -name "*.cs" -newer . -not -path "*/obj/*" | sort
-find . -name "*.log" -not -path "*/obj/*" | sort
 ```
 
-Look for: intent (sprint folder, NorthStar doc), decisions (ADRs, decision headings),
-open items (TODO, FIXME, BLOCKED, `- [ ]`), build/test results (log files).
+Scan for: intent (sprint folder, NorthStar doc), decisions (ADRs), open items (TODO/FIXME/BLOCKED/`- [ ]`), build/test results.
 
 ## Step 3: Write Artifacts
 
-Write all applicable artifacts without asking for confirmation first. If context is
-ambiguous, note the ambiguity inside the artifact rather than blocking on it.
+Write without asking confirmation. Note ambiguity inside artifact — don't block.
 
-Read `references/record-formats.md` for all file naming, header structure, section order,
-and formatting conventions. Do not invent or reconstruct formats from scratch.
+Read `references/record-formats.md` for naming, headers, section order, formatting. Don't reconstruct from scratch.
 
-### Harvest the Skill-Version Chain (both modes)
+### Harvest Skill Versions
 
-Before writing the summary, collect the deduped, ordered `<!-- produced-by ... -->`
-trailers stamped onto every artifact produced earlier in the sprint. This is the
-sole consumer of `chester-trailer-write harvest` — its output is embedded verbatim
-under a `## Session Skill Versions` section in the summary (see
-`references/record-formats.md`).
-
-**Feature mode** — harvest the sprint subdirectory under `CHESTER_WORKING_DIR`:
+Collect deduped `<!-- produced-by ... -->` trailers from sprint artifacts. Embed verbatim under `## Session Skill Versions` in summary.
 
 ```bash
 chester-trailer-write harvest "$CHESTER_WORKING_DIR/{sprint-subdir}"
 ```
 
-**Refactor mode** — harvest the slug directory under `docs/refactor/`:
-
-```bash
-chester-trailer-write harvest "docs/refactor/{slug}"
-```
-
-Capture the output and embed it verbatim under `## Session Skill Versions` in the
-session summary. See `util-artifact-schema` `## Provenance Trailers` for the
-convention.
-
-### Session Summary (both modes)
+### Session Summary
 
 Extract from conversation or deep scan:
-1. What was the goal?
-2. What was decided or completed?
-3. What was produced (documents, plans, code)?
-4. What is deferred or left open?
-5. What does the next session need to know?
+1. Goal
+2. Decided or completed
+3. Produced (documents, plans, code)
+4. Deferred or open
+5. What next session needs
 
-Skip sections where no evidence exists. Do not invent content.
+Skip sections with no evidence. Don't invent.
 
-After writing the summary file, stamp it (see `util-artifact-schema`
-`## Provenance Trailers`):
-
+Stamp after writing:
 ```bash
-chester-trailer-write stamp finish-write-records@v0003 "<summary-path>"
+chester-trailer-write stamp finish-write-records@v0004 "<summary-path>"
 ```
 
-### Reasoning Audit and Decision Records (both modes — parallel fork)
+### Reasoning Audit
 
-**Source:** the session JSONL transcript is the authoritative source for both outputs, not conversation context. Locate it once on the primary agent:
+Source: session JSONL transcript. Locate:
 
 ```bash
 SESSION_DIR="$HOME/.claude/projects/$(echo "$PWD" | sed 's|/|-|g; s|^-||')"
 LATEST_JSONL=$(ls -t "$SESSION_DIR"/*.jsonl 2>/dev/null | head -1)
 ```
 
-After resolving the path, dispatch **two subagents in parallel** in a single message — both inherit the parent transcript via `CLAUDE_CODE_FORK_SUBAGENT=1`. Each fork applies its own discrimination filter over the same JSONL source; filters are independent and may select different decisions.
+JSONL resolution fails → abort, report error, don't write audit.
 
-**Fork A — Reasoning Audit.** Applies the audit-altitude filter described below; writes `summary/<sprint>-audit-NN.md` with the existing Reasoning Audit Format from `references/record-formats.md`; stamps a provenance trailer.
+Parse chronologically. Identify 4-12 non-trivial decision points — real choice among alternatives. For each: context, information used, alternatives, decision, rationale, confidence.
 
-**Fork B — Decision Records.** Applies the records-altitude filter from `references/decision-record-filter.md`; appends one or more YAML-frontmatter record blocks to `docs/chester/decision-record/decision-record.md` (the cross-sprint corpus); does NOT stamp a provenance trailer (the corpus is cross-sprint, not a sprint artifact).
+Order by significance (most consequential first).
 
-The two outputs are parallel, not sequenced. A decision selected by one fork need not be selected by the other.
-
-#### Audit-altitude filter (Fork A guidance)
-
-Parse chronologically. Identify 4-12 non-trivial decision points — moments where the agent made a real choice among alternatives. For each, reconstruct: context, information used, alternatives considered, decision, rationale, and confidence level.
-
-Order entries by significance (most consequential first), not chronologically.
-
-**What qualifies:**
+**Qualifies:**
 - Deviation from plan
-- Implementation detail choice among alternatives
-- Information-driven choice (read/grepped then chose based on findings)
-- Explicit rejection of an approach
+- Implementation choice among alternatives
+- Information-driven choice (read/grep → chose)
+- Explicit rejection of approach
 
-**What does not qualify:**
-- Mechanical execution with only one reasonable choice
+**Does not qualify:**
+- Mechanical execution, one reasonable choice
 - Tool calls with no decision content
 - Trivial style choices
 
-After Fork A writes the audit file, it stamps the trailer:
-
+Stamp after writing:
 ```bash
-chester-trailer-write stamp finish-write-records@v0003 "<audit-path>"
+chester-trailer-write stamp finish-write-records@v0004 "<audit-path>"
 ```
 
-#### Records-altitude filter (Fork B guidance)
+## Step 4: Copy Plan
 
-See `references/decision-record-filter.md` for the full discrimination criteria, canonical tag list, id format, and supersession discovery procedure. Summary: a decision belongs in the cross-sprint corpus when it sets cross-sprint precedent, makes an architectural commitment, adopts a constraint, deletes/deprecates a capability, or rejects a substantive alternative.
+Find plan in `{CHESTER_WORKING_DIR}/{sprint-subdir}/plan/`. Copy most recent file into summary dir.
 
-The records corpus path is fixed at `docs/chester/decision-record/decision-record.md`. New records append at the end; older records are never modified. Each record carries the eleven structured fields documented in `references/record-formats.md` (Decision Record Format section).
+No plan found → reconstruct from conversation and note. No plan at all → skip and note.
 
-Fork B does NOT stamp a provenance trailer on the corpus file.
+Authoritative plan stays in `plan/`. Convenience copy only.
 
-#### Partial-failure handling (primary)
+## Step 5: Offer State Update
 
-After both forks return, the primary collects status:
-
-- **Both succeed:** continue to Step 4.
-- **One fails, one succeeds:** report which output exists, which is missing, why the failed fork errored. The succeeded artifact is not rolled back. The user can rerun the failing fork manually.
-- **Both fail:** report both errors. No partial state to roll back.
-- **JSONL transcript path resolution fails (before forking):** abort, report the resolution failure, do not dispatch either fork.
-
-### Evaluation Brief (refactor mode only)
-
-The brief answers: *why was this refactor justified?*
-
-**Required sections:**
-- **Scope** — what was in/out of scope
-- **Decision** — what was changed and why (most important section)
-- **Artifacts** — what was produced
-
-**Flexible sections** (include whichever apply):
-- **Hypothesis** — for benchmark-driven refactors
-- **Methodology** — how evaluation was conducted
-- **Key Data** — tables, metrics, timing data
-- **Origin** — what triggered this refactor
-- **Migration Notes** — for dependency upgrades
-- **Before/After** — for simplification work
-
-After writing the brief file, stamp it (see `util-artifact-schema`
-`## Provenance Trailers`):
-
-```bash
-chester-trailer-write stamp finish-write-records@v0003 "<brief-path>"
-```
-
-### Cache Analysis (optional, both modes)
-
-Parse the current session's JSONL for cache hit metrics:
-
-```bash
-jq -r 'select(.type == "assistant" and .message.usage) |
-  [.message.usage.input_tokens // 0,
-   .message.usage.cache_creation_input_tokens // 0,
-   .message.usage.cache_read_input_tokens // 0] |
-  @csv' "$LATEST_JSONL"
-```
-
-Compute and display as a table with per-call and overall cache hit rates. Write to
-`cache-analysis.md` in the output directory.
-
-This is best-effort. If jq parsing fails, report the error and skip.
-
-If the cache-analysis file was written, stamp it (see `util-artifact-schema`
-`## Provenance Trailers`):
-
-```bash
-chester-trailer-write stamp finish-write-records@v0003 "<cache-analysis-path>"
-```
-
-## Step 4: Copy Implementation Plan (feature mode only)
-
-Look for the plan that drove this session in `{CHESTER_WORKING_DIR}/{sprint-subdir}/plan/`.
-Copy the most recent plan file into the summary output directory for cross-reference.
-
-If no plan file is found, reconstruct from conversation context and note it was
-reconstructed. If no plan exists at all, skip and note its absence.
-
-Note: this creates a convenience copy alongside the summary. The authoritative plan
-remains in `plan/` and is archived separately by `finish-archive-artifacts`.
-
-## Step 5: Offer Session State Update
-
-If a strategy document or session state file exists for the current work, offer to
-update it:
+Strategy doc or session state file exists → offer:
 
 > "I can also update the Session State section in [filename] to reflect what was
 > completed this session. Would you like me to do that?"
 
-Do not update session state files automatically.
+Don't update automatically.
 
-## Step 6: Commit (refactor mode only)
+## Principles
 
-Refactor artifacts are committed directly since they don't go through the archive flow:
-
-```bash
-git add docs/refactor/{slug}/
-git commit -m "chore: add refactor artifacts — {short description}"
-```
-
-Feature mode artifacts stay in the working directory — `finish-archive-artifacts`
-handles committing them.
-
-## Core Principles
-
-- **Context is evidence.** If the conversation describes what happened, that IS the record.
-- **Reconstruct, don't invent.** Every claim must be traceable to conversation or artifact.
-- **Signal over noise.** Extract pass/fail counts from logs. Don't narrate build output.
-- **Honest about gaps.** If something can't be determined, say so rather than guessing.
-- **Causal, not chronological.** Audit entries ordered by significance, not sequence.
-- **Calibrated confidence.** Each audit entry carries High/Medium/Low reflecting how
-  clearly the decision and rationale are supported by evidence.
+- Context is evidence. Conversation describes what happened → that IS record.
+- Reconstruct, don't invent. Every claim traceable to conversation or artifact.
+- Signal over noise. Extract pass/fail counts. Don't narrate build output.
+- Honest about gaps. Can't determine → say so.
+- Causal, not chronological. Audit ordered by significance, not sequence.
+- Calibrated confidence. Each audit entry carries High/Medium/Low.
 
 ## Integration
 
-- **Called after:** `execute-verify-complete` (feature mode) or standalone (refactor mode)
-- **Leads to:** `finish-archive-artifacts` (feature mode) or done (refactor mode)
-- **Reads:** `util-artifact-schema` for naming and paths
+- After: `execute-verify-complete`
+- Leads to: `finish-archive-artifacts`
+- Reads: `util-artifact-schema` for naming and paths
