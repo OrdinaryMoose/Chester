@@ -106,9 +106,9 @@ No team-lead relay during steps 2–3. Each Q&A private between asker and target
 
 ## Phase 5: Tear Down
 
-Team-lead runs consolidation, presentation, and artifact placement per `references/team-lead.md` Closure section. SKILL.md owns the `TeamDelete` call after team-lead signals closure complete.
+Team-lead runs consolidation, presentation, and artifact placement per `references/team-lead.md` Closure section. Designer owns the decision to terminate the Committee. SKILL.md owns the `TeamDelete` call after team-lead signals closure complete.
 
-`TeamDelete` on team-lead closure signal (after designer adjudicates and artifact placement resolved). MANDATORY — stranded teams leak context across unrelated future invocations. Decision packet stays in conversation record independent of team lifecycle.
+`TeamDelete` on team-lead closure signal (after designer approval and artifact placement resolved). MANDATORY — stranded teams leak context across unrelated future invocations. Decision packet stays in conversation record independent of team lifecycle.
 
 ## Standalone Invocability
 

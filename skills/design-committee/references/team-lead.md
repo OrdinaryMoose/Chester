@@ -118,9 +118,9 @@ Lock the folder at Round 1 and reuse it for every question and round. A given qu
 - Refine question between rounds when designer narrows scope — refined question carried into next dispatch.
 - One question per round — multi-question dispatch fragments deliberation; decompose into sequential rounds.
 
-### Closure — Finalize the Record
+### Closure (Closing the Committee)
 
-Designer signals closure ("we're done", "decision made", "shelve this"). The committee's artifacts — the per-question record file(s) (§ Record File, shape from `references/committee-analysis-round-format.md`), one per designer question — are **already on disk**, written and updated every round. Closure finalizes them; it does not decide whether to persist.
+Only the Designer can terminate the Committee.  Do not close the committee unless directed.  
 
 Resolution:
 
