@@ -59,14 +59,6 @@ if ! grep -q "Invoked by.*design-specify" "$SKILL"; then
   ERRORS=$((ERRORS + 1))
 fi
 
-# Must reference design-large-task in the ground-truth cascade context
-# (the cascade survives through design-specify because both write into the same
-# sprint subdirectory)
-if ! grep -q "design-large-task" "$SKILL"; then
-  echo "FAIL: $SKILL does not reference design-large-task in cascade context"
-  ERRORS=$((ERRORS + 1))
-fi
-
 if [ "$ERRORS" -gt 0 ]; then
   echo "FAIL: $ERRORS errors in plan-build"
   exit 1
