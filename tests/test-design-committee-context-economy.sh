@@ -27,11 +27,21 @@ assert_consolidator() {
   _check "consolidator does NOT inherit synthesizing-the-sources license" "! grep -qi 'synthesizing the sources' '$f'"
   _check "consolidator writes its own output file" "grep -q 'consolidator-output.md' '$f'"
 }
+assert_advocacy_agents() {
+  for m in conservator innovator pragmatist purist; do
+    local f="$AG/design-committee-$m.md"
+    _check "$m grants Write" "grep -qE '^tools:.*Write' '$f'"
+    _check "$m write scoped to committee/" "grep -q 'committee/' '$f'"
+    _check "$m cites member-protocol" "grep -q 'member-protocol' '$f'"
+    _check "$m no Mode A/B" "! grep -qE 'Mode [AB]' '$f'"
+  done
+}
 # === END ASSERTION FUNCTIONS ===
 
 # === RUN — later tasks insert new assert_* calls in this region, ABOVE the gate ===
 assert_member_protocol
 assert_consolidator
+assert_advocacy_agents
 # === END RUN ===
 
 # --- final gate: nothing executable may be added below this line ---
