@@ -76,7 +76,7 @@ Each sprint gets four subdirectories under the working directory:
 
 ```
 {CHESTER_WORKING_DIR}/{sprint-subdir}/
-├── design/     ← design briefs (proof envelope), thinking summaries, process evidence
+├── design/     ← design briefs (proof envelope)
 ├── spec/       ← specification documents, spec-stage ground-truth reports (automatic; skipped only for greenfield)
 ├── plan/       ← implementation plans, threat reports, deferred items
 └── summary/    ← session summaries, reasoning audits, cache analysis
@@ -226,7 +226,7 @@ The following skills do **not** stamp:
 
 ### Sidecar artifacts
 
-Sidecars (threat reports, smell reports, audits, thinking files) carry
+Sidecars (threat reports, smell reports, audits) carry
 **independent** trailer chains. A skill that produces both a primary
 artifact and a sidecar in the same run calls `stamp` once on each, with
 the artifact paths kept distinct.
