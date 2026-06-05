@@ -1,13 +1,11 @@
 # Lightweight Design Brief Template
 
 Lightweight design brief template for bounded tasks. Read this file when writing the
-design brief artifact from `design-small-task`. Six sections instead of the eight-section
-envelope used by `design-large-task` — optimized for design-specify consumption without
-multi-brief coordination overhead.
+design brief artifact from `design-small-task`. Six sections — optimized for
+design-specify consumption without multi-brief coordination overhead.
 
 This document defines the structure for design brief artifacts produced by
-`design-small-task`. It is the lightweight counterpart to design-large-task's
-`references/design-brief-template.md`.
+`design-small-task`.
 
 ## When to Use This Template
 
@@ -16,12 +14,6 @@ Use this template when:
 - The design conversation was 2-5 rounds, not 10-20
 - There are no companion briefs or multi-brief dependency chains
 - The brief feeds directly into plan-build (no intermediate spec step)
-
-Use the full `design-large-task template (`../../design-large-task/references/design-brief-template.md`)` when:
-- The task is complex or ambiguous
-- Multiple briefs interact (companion briefs, prior art chains)
-- The brief is produced by design-large-task and must match its 9-section envelope+point structure (see `design-large-task template (`../../design-large-task/references/design-brief-template.md`)`)
-- Infrastructure dependencies need operational status tracking
 
 ## Guiding Principle
 
@@ -135,10 +127,9 @@ Same guidance as the full template: criteria must be verifiable, not subjective.
 
 ## Sections Deliberately Omitted
 
-These sections exist in the full `design-large-task template (`../../design-large-task/references/design-brief-template.md`)` and are omitted here
-with rationale:
+These heavier sections are deliberately omitted from this template, with rationale:
 
-| Full template section | Why omitted |
+| Omitted section | Why omitted |
 |---|---|
 | Header (Status, Date, Sprint, Parent, Companion) | Sprint context inherited from directory path. No companion briefs for bounded tasks. |
 | Logic Trail | No formal proof system — no derivation chain to capture. |
@@ -149,7 +140,7 @@ with rationale:
 | Follow-on Work | Bounded tasks don't typically enable dependency chains. |
 
 If a bounded task turns out to need any of these sections, that may be a signal the
-task is not actually bounded and should use the full template with `design-large-task`.
+task is not actually bounded and should be reconsidered before proceeding.
 
 ---
 

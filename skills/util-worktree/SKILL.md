@@ -1,7 +1,7 @@
 ---
 name: util-worktree
 description: Use when starting feature work that needs isolation from current workspace or before executing implementation plans - creates isolated git worktrees with smart directory selection and safety verification
-version: v0001
+version: v0002
 ---
 
 # Using Git Worktrees
@@ -196,7 +196,6 @@ go test ./...
 ## Integration
 
 **Called by:**
-- **design-large-task** (Archival stage) - REQUIRED when design is approved and implementation follows
 - **design-small-task** (Closure) - REQUIRED when brief is approved and implementation follows
 - **execute-write** - REQUIRED before executing any tasks
 - Any skill needing isolated workspace
