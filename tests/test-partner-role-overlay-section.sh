@@ -28,8 +28,8 @@ if grep -q 'bullet list, normal verbosity, Product Manager voice' "$SKILL"; then
   echo "FAIL: factory default literal restated in SKILL.md (should be by-reference only)" >&2; FAIL=1
 fi
 
-# Version at v0004 (overlay landed at v0002; later bumps: directive protocol, verbosity-ladder re-anchor).
-grep -q '^version: v0004$' "$SKILL" || { echo "FAIL: version not v0004" >&2; FAIL=1; }
+# Version at v0005 (overlay landed at v0002; later bumps: directive protocol, verbosity-ladder re-anchor, design-large-task scrub).
+grep -q '^version: v0005$' "$SKILL" || { echo "FAIL: version not v0005" >&2; FAIL=1; }
 
 # skill-index entry mentions the overlay so the description stays in sync.
 # Pin to the specific phrase used in the SKILL.md description, not just "overlay" —
