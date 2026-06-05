@@ -163,7 +163,7 @@ do not characterize which side is stronger.>
 
 ```markdown
 # Committee Analysis — <one-line topic> — roundNN
-# Sub-sprint: <sub-sprint-name> dtd <YYYY-MM-DD>
+# Sub-sprint: <sub-sprint-name> · dtd <YYYY-MM-DD> · HEAD <commit>
 
 ## Round Overview
 
@@ -213,7 +213,7 @@ Disadvantages:
 
 Implications: <one sentence on downstream effects>
 
-**Split adjudication** (include ONLY when irreducible). <Name the tension in plain substance —
+**Split adjudication** (OPTIONAL — include ONLY when irreducible; drop this block entirely on a unanimous round). <Name the tension in plain substance —
 what each side defends; name who is on each side; ask which side the designer solves for. Do not
 collapse to a single recommendation.>
 
