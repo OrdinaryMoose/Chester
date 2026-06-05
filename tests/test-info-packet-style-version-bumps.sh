@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# Cross-cutting check: all four affected SKILL.md files have been version-bumped
-# per the add-interview-instructions spec.
+# Cross-cutting check: the affected SKILL.md files carry the add-interview-instructions
+# edits. The original spec touched four skills; design-large-task was later removed from
+# the repo, so its check is dropped here. The live targets' versions have advanced past
+# the original floor — these pins track current state.
 set -euo pipefail
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
@@ -15,9 +17,8 @@ check() {
   fi
 }
 
-check "skills/util-design-partner-role/SKILL.md" "v0002"
+check "skills/util-design-partner-role/SKILL.md" "v0004"
 check "skills/start-bootstrap/SKILL.md"           "v0002"
-check "skills/design-large-task/SKILL.md"         "v0014"
 check "skills/design-small-task/SKILL.md"         "v0003"
 
 # Sanity: the design-small-task SKILL.md mentions the handshake step (the test for this task's edit).
