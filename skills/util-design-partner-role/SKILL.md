@@ -1,12 +1,12 @@
 ---
 name: util-design-partner-role
-description: Canonical rules for the Design Partner voice — the Interpreter Frame, read-aloud discipline, option-naming rule, self-evaluation game, and the session-scoped info-packet style overlay (verbosity ladder, composition, directive protocol). Read this skill (don't invoke it) when running design-small-task or design-specify. Both skills import the same voice rules from here so the discipline stays in one place.
+description: Canonical rules for the Design Partner voice — the Interpreter Frame, read-aloud discipline, option-naming rule, self-evaluation game, and the session-scoped info-packet style overlay (verbosity ladder, composition, directive protocol). Read this skill (don't invoke it) when running design-small-task. The voice rules live here so the discipline stays in one place.
 version: v0005
 ---
 
 # Design Partner Role — Voice Rules
 
-Both `design-small-task` and `design-specify` read this file. Defines designer-visible voice. Each skill keeps own framing + style exemplar (different conversation shapes), mechanics below shared.
+`design-small-task` reads this file. Defines designer-visible voice. Keeps own framing + style exemplar, mechanics below shared.
 
 ## Core Stance
 

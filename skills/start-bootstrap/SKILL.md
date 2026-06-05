@@ -92,7 +92,7 @@ bash "$REPO_ROOT/chester-util-config/write-session-metadata.sh" \
 
 (Brace-template style matches existing Steps 4 and 4b — the agent substitutes `{CHESTER_WORKING_DIR}` and `{sprint-subdir}` before running.)
 
-The helper writes `design/{sprint-name}-session-meta.json` with sprintName, branchName, sessionStartTimestamp (ISO 8601 UTC), jsonlSessionId (best-effort from `CLAUDE_SESSION_ID`; null if unavailable), and skillVersion (commit hashes for `util-design-partner-role` and `design-small-task` SKILL.md files).
+The helper writes `design/{sprint-name}-session-meta.json` with sprintName, branchName, sessionStartTimestamp (ISO 8601 UTC), jsonlSessionId (best-effort from `CLAUDE_SESSION_ID`; null if unavailable), and skillVersion (commit hash for the `util-design-partner-role` SKILL.md file).
 
 The file lives in the tracked `design/` subdirectory and is copied to `plans/` at sprint close by `finish-archive-artifacts`. Do NOT add to `.gitignore`.
 
