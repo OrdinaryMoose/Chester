@@ -3,9 +3,10 @@ name: start-bootstrap
 description: >
   Mechanical session setup for pipeline skills. Invoke this skill at the start of any
   pipeline skill that needs a sprint context — config reading, sprint naming, directory
-  creation, task reset, and thinking history initialization. Called by design-large-task
-  and execute-write (standalone).
-version: v0002
+  creation, task reset, and thinking history initialization. Called by design-small-task
+  (always, at the start of a design sprint) and by design-specify and execute-write
+  (standalone, when invoked without a prior design phase).
+version: v0003
 ---
 
 # Session Bootstrap
@@ -16,9 +17,11 @@ skill resumes with a fully prepared sprint environment.
 
 ## When to Call
 
-- **Always:** `design-large-task` (starts fresh sprints)
-- **Standalone only:** `execute-write` (when invoked without a prior
-  design phase, it needs sprint context created; when invoked mid-pipeline, sprint
+- **Always:** `design-small-task` (the entry-point design skill — starts fresh sprints
+  at the head of the canonical sequence design-small-task → design-specify → plan-build →
+  execute-write)
+- **Standalone only:** `design-specify` and `execute-write` (when invoked without a prior
+  design phase, they need sprint context created; when invoked mid-pipeline, sprint
   context already exists)
 
 ## What It Does
@@ -89,7 +92,7 @@ bash "$REPO_ROOT/chester-util-config/write-session-metadata.sh" \
 
 (Brace-template style matches existing Steps 4 and 4b — the agent substitutes `{CHESTER_WORKING_DIR}` and `{sprint-subdir}` before running.)
 
-The helper writes `design/{sprint-name}-session-meta.json` with sprintName, branchName, sessionStartTimestamp (ISO 8601 UTC), jsonlSessionId (best-effort from `CLAUDE_SESSION_ID`; null if unavailable), and skillVersion (commit hashes for `util-design-partner-role` and `design-large-task` SKILL.md files).
+The helper writes `design/{sprint-name}-session-meta.json` with sprintName, branchName, sessionStartTimestamp (ISO 8601 UTC), jsonlSessionId (best-effort from `CLAUDE_SESSION_ID`; null if unavailable), and skillVersion (commit hash for the `util-design-partner-role` SKILL.md file).
 
 The file lives in the tracked `design/` subdirectory and is copied to `plans/` at sprint close by `finish-archive-artifacts`. Do NOT add to `.gitignore`.
 

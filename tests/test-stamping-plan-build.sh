@@ -10,9 +10,9 @@ COUNT=$(grep -c 'chester-trailer-write stamp' "$SKILL" || true)
 
 grep -q 'util-artifact-schema' "$SKILL" || fail "does not cite util-artifact-schema"
 grep -qi 'Provenance Trailers' "$SKILL" || fail "does not reference Provenance Trailers"
-# plan-build is at v0005 (post drop-false-Type-consumer-claim).
+# plan-build is at v0006 (post scrub-design-large-task-refs).
 CUR_VER="$(awk '/^version:/ {print $2; exit}' "$SKILL")"
-[ "$CUR_VER" = "v0005" ] || fail "version not at v0005 (got $CUR_VER)"
+[ "$CUR_VER" = "v0006" ] || fail "version not at v0006 (got $CUR_VER)"
 
 if [ "$ERRORS" -gt 0 ]; then echo "FAIL: $ERRORS"; exit 1; fi
 echo "PASS: plan-build wired"

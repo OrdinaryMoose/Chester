@@ -65,7 +65,6 @@ Session type examples: `Planning and adversarial review`, `Full-stack implementa
 
    *(populated by `chester-trailer-write harvest`; see `util-artifact-schema` `## Provenance Trailers`)*
 
-   <!-- produced-by design-large-task@vNNNN -->
    <!-- produced-by design-specify@vNNNN -->
    <!-- produced-by plan-build@vNNNN -->
    <!-- ... -->
@@ -190,7 +189,7 @@ Each record is a YAML frontmatter block separated from neighbors by exactly one 
 id: dr-YYYYMMDD-NN-<slug>
 date: YYYY-MM-DD
 sprint: YYYYMMDD-##-verb-noun-noun
-stage: design-large-task | design-small-task | design-specify | plan-build | execute-write | finish-write-records
+stage: design-small-task | design-specify | plan-build | execute-write | finish-write-records
 title: Short noun phrase
 decision: One sentence capturing what was decided
 rationale: Two-to-four sentences explaining why
@@ -210,7 +209,7 @@ artifact_refs:
 - **id** — globally unique, follows `dr-YYYYMMDD-NN-<slug>` (see `decision-record-filter.md`).
 - **date** — emission date (ISO 8601, `YYYY-MM-DD`).
 - **sprint** — the sprint in which the decision was made.
-- **stage** — the skill where the decision crystallized (e.g., the design-large-task Solve Stage round, or the plan-build task-mapping step).
+- **stage** — the skill where the decision crystallized (e.g., the plan-build task-mapping step).
 - **title** — short noun phrase (5-10 words). Not a sentence.
 - **decision** — one declarative sentence. Active voice. No hedging.
 - **rationale** — two-to-four sentences. Explains why the decision was made; references constraints, evidence, prior art if relevant.
@@ -226,7 +225,7 @@ artifact_refs:
 id: dr-20260501-01-fork-pattern-emission
 date: 2026-05-01
 sprint: 20260501-01-fix-decision-record
-stage: design-large-task
+stage: finish-write-records
 title: Audit-time records emission via parallel fork
 decision: Records are emitted at finish-write-records Step 3 via a second forked subagent that inherits the parent's JSONL transcript and applies an independent records-altitude filter.
 rationale: The audit fork already discriminates substantive decisions from the JSONL transcript. Forking a second subagent from the same parent reuses the discrimination machinery while letting each filter tune to its own altitude. Avoids MCP cost (RULE-9) and TDD-loop participation (RULE-11).

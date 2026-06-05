@@ -1,7 +1,7 @@
 ---
 name: execute-write
 description: Use when you have a written implementation plan to execute — reads the plan's `Execution mode` header field (subagent or inline) and runs the matching section, with review checkpoints
-version: v0007
+version: v0008
 ---
 
 # execute-write
@@ -20,7 +20,7 @@ Before executing in either mode, complete these setup steps.
 ### 1.2 Verify Worktree
 
 - Verify that a worktree already exists. In the canonical sequence
-  (`design-large-task` | `design-small-task` → `design-specify` → `plan-build` → execute-write), the worktree is created upstream during the design phase (by `design-large-task` at Archival or `design-small-task` at Closure) and inherited through `design-specify` and `plan-build` unchanged.
+  (`design-small-task` → `design-specify` → `plan-build` → execute-write), the worktree is created upstream during the design phase (by `design-small-task` at Closure) and inherited through `design-specify` and `plan-build` unchanged.
 - Check: run `git worktree list` and confirm a worktree is active for the current branch.
 - If no worktree exists (e.g., execute-write invoked standalone without a prior design phase), invoke `util-worktree` to create one as a fallback.
 - All implementation happens in the worktree, not the main tree.

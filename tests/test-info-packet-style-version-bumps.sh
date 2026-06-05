@@ -17,8 +17,8 @@ check() {
   fi
 }
 
-check "skills/util-design-partner-role/SKILL.md" "v0004"
-check "skills/start-bootstrap/SKILL.md"           "v0002"
+check "skills/util-design-partner-role/SKILL.md" "v0005"
+check "skills/start-bootstrap/SKILL.md"           "v0003"
 check "skills/design-small-task/SKILL.md"         "v0003"
 
 # Sanity: the design-small-task SKILL.md mentions the handshake step (the test for this task's edit).

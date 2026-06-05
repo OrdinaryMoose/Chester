@@ -53,17 +53,9 @@ if ! grep -q -i "verified anchor\|skip-list\|plan-specific additions" "$SKILL"; 
 fi
 
 # Must list design-specify as the primary invoker (canonical sequence:
-# design-large-task | design-small-task -> design-specify -> plan-build)
+# design-small-task -> design-specify -> plan-build)
 if ! grep -q "Invoked by.*design-specify" "$SKILL"; then
   echo "FAIL: $SKILL does not list design-specify as invoker"
-  ERRORS=$((ERRORS + 1))
-fi
-
-# Must reference design-large-task in the ground-truth cascade context
-# (the cascade survives through design-specify because both write into the same
-# sprint subdirectory)
-if ! grep -q "design-large-task" "$SKILL"; then
-  echo "FAIL: $SKILL does not reference design-large-task in cascade context"
   ERRORS=$((ERRORS + 1))
 fi
 

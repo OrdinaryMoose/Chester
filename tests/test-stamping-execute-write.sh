@@ -7,9 +7,9 @@ fail() { echo "FAIL: $1" >&2; ERRORS=$((ERRORS + 1)); }
 grep -q 'chester-trailer-write stamp' "$SKILL" || fail "no stamp invocation"
 grep -q 'util-artifact-schema' "$SKILL" || fail "does not cite util-artifact-schema"
 grep -qi 'Provenance Trailers' "$SKILL" || fail "does not reference Provenance Trailers"
-# execute-write is at v0007 (post pure-prose quality-skip + cross-layer carve-out).
+# execute-write is at v0008 (post design-large-task removal — worktree-creation re-pointed to design-small-task).
 CUR_VER="$(awk '/^version:/ {print $2; exit}' "$SKILL")"
-[ "$CUR_VER" = "v0007" ] || fail "version not at v0007 (got $CUR_VER)"
+[ "$CUR_VER" = "v0008" ] || fail "version not at v0008 (got $CUR_VER)"
 
 if [ "$ERRORS" -gt 0 ]; then echo "FAIL: $ERRORS"; exit 1; fi
 echo "PASS: execute-write wired"

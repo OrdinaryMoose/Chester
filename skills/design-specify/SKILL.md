@@ -1,7 +1,7 @@
 ---
 name: design-specify
-description: "Formalize an approved design brief into a durable spec document. Use when a design brief exists (from design-large-task, design-small-task, a whiteboard, a previous session, or a human-written brief) and needs to be written as a formal spec with competing-architecture review, automated fidelity review, and codebase ground-truth verification before plan-build."
-version: v0003
+description: "Formalize an approved design brief into a durable spec document. Use when a design brief exists (from design-small-task, a whiteboard, a previous session, or a human-written brief) and needs to be written as a formal spec with competing-architecture review, automated fidelity review, and codebase ground-truth verification before plan-build."
+version: v0004
 ---
 
 # Build Spec
@@ -15,7 +15,7 @@ Do NOT invoke plan-build or any implementation skill until the spec has passed a
 ## Entry Condition
 
 A design exists — either:
-- A design brief from `design-large-task` or `design-small-task` at `{CHESTER_WORKING_DIR}/{sprint-subdir}/design/{sprint-name}-design-00.md`
+- A design brief from `design-small-task` at `{CHESTER_WORKING_DIR}/{sprint-subdir}/design/{sprint-name}-design-00.md`
 - A human-written brief or design from an external source
 - A design described in conversation context
 
@@ -45,7 +45,7 @@ The three reviews chain without user stops between them. Stops happen only when 
 
 ## Standalone Invocation
 
-When invoked without a prior `design-large-task` or `design-small-task` session, invoke `start-bootstrap` to set up the sprint context (config, naming, directories, task reset).
+When invoked without a prior `design-small-task` session, invoke `start-bootstrap` to set up the sprint context (config, naming, directories, task reset).
 
 ## Competing Architectures + Prior Art
 
@@ -232,7 +232,7 @@ After the user approves the spec, it remains in the working directory. The spec 
 
 - **Calls:** `start-bootstrap` (standalone only)
 - **Dispatches:** spec-document-reviewer subagent (single pass, fidelity), ground-truth-reviewer subagent (automatic, after fidelity + adversarial pass; skipped only for greenfield specs)
-- **Reads:** `references/adversarial-spec-review.md` (inline adversarial review pattern, modeled on `chester:plan-attack`), `util-artifact-schema` (naming/paths), the upstream brief's source template: `../design-large-task/references/design-brief-template.md` (9-section envelope including Concerns and Resolve Conditions) or `../design-small-task/references/design-brief-small-template.md` (6-section lightweight) — read whichever matches the upstream design skill that produced the brief
-- **Invoked by:** `design-large-task` or `design-small-task` (mandatory in the canonical sequence), or user directly (standalone)
+- **Reads:** `references/adversarial-spec-review.md` (inline adversarial review pattern, modeled on `chester:plan-attack`), `util-artifact-schema` (naming/paths), the upstream brief's source template: `../design-small-task/references/design-brief-small-template.md` (6-section lightweight)
+- **Invoked by:** `design-small-task` (mandatory in the canonical sequence), or user directly (standalone)
 - **Transitions to:** `plan-build`
 - **Does NOT invoke as a separate skill flow:** plan-attack (used inline only — spec stage), plan-smell (deferred to plan-build's hardening gate), or any implementation skill
