@@ -1,3 +1,6 @@
 .worktrees/
 docs/chester/working/
 **/node_modules/
+.idea/
+.claude/scheduled_tasks.lock
+.claude/worktrees/
