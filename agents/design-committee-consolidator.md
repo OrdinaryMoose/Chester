@@ -51,6 +51,7 @@ Write `committee/roundNN/consolidator-output.md` using these exact field labels.
 - Innovator: <one line — headline position this round>
 - Pragmatist: <one line — headline position this round>
 - Purist: <one line — headline position this round>
+- Researcher: <one line — factual findings this round, if the researcher served; else omit>
 
 ## Notable quotes
 - Conservator: "<verbatim sentence, exact words>"

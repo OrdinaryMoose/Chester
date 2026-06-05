@@ -60,10 +60,11 @@ committee/
 
 ## How To Use
 
-1. Create the round folder:
-   `{CHESTER_WORKING_DIR}/<sprint-subdir>/committee/roundNN/`, where `NN` is the
-   zero-padded round number (`01`, `02`, …). The sprint is already encoded by the
-   `<sprint-subdir>` the `committee/` directory sits in.
+1. Create the round folder `committee/roundNN/`, where `NN` is the zero-padded round
+   number (`01`, `02`, …). The `committee/` root resolves per `references/member-protocol.md`
+   § Committee root resolution (sprint-subdir when sprint context exists, else the
+   designer-asked location locked at Round 1) — that section is the single authority;
+   do not restate the fork here.
 2. Each member writes their own `<member>-transcript.md`; the researcher writes
    `researcher-findings.md`. Replace every `<…>` placeholder; delete the `(guidance…)`
    notes once filled.
