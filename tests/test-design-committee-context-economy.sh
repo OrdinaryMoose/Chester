@@ -36,12 +36,19 @@ assert_advocacy_agents() {
     _check "$m no Mode A/B" "! grep -qE 'Mode [AB]' '$f'"
   done
 }
+assert_researcher_agent() {
+  local f="$AG/design-committee-researcher.md"
+  _check "researcher grants Write" "grep -qE '^tools:.*Write' '$f'"
+  _check "researcher prohibition narrowed to committee tree" "grep -qi 'committee/' '$f'"
+  _check "researcher cites member-protocol" "grep -q 'member-protocol' '$f'"
+}
 # === END ASSERTION FUNCTIONS ===
 
 # === RUN — later tasks insert new assert_* calls in this region, ABOVE the gate ===
 assert_member_protocol
 assert_consolidator
 assert_advocacy_agents
+assert_researcher_agent
 # === END RUN ===
 
 # --- final gate: nothing executable may be added below this line ---
