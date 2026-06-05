@@ -6,7 +6,7 @@ description: >
   find, or reference a Chester artifact — design briefs, specs, plans, summaries, audits,
   or any other sprint artifact. If you're about to write a file path or filename for a
   Chester artifact, check here first.
-version: v0002
+version: v0003
 ---
 
 # Artifact Schema
@@ -104,9 +104,7 @@ mkdir -p "{CHESTER_WORKING_DIR}/{sprint-subdir}/design" \
 
 | Artifact | Directory | Purpose | Produced by |
 |----------|-----------|---------|-------------|
-| `design` | `design/` | Design brief — proof envelope (goal, necessary conditions, rules, permissions, evidence, industry context, risks, acceptance criteria). Templates live in each design skill: `design-large-task/references/design-brief-template.md` (8-section envelope) and `design-small-task/references/design-brief-small-template.md` (6-section lightweight). | `design-large-task` (8-section envelope), `design-small-task` (6-section lightweight) |
-| `thinking` | `design/` | Thinking summary — decision history of how the proof reached its necessary conditions | `design-large-task` |
-| `process` | `design/` | Process evidence — operational narrative (Understand Stage saturation history, Stage Transition timing, Solve Stage length) | `design-large-task` |
+| `design` | `design/` | Design brief — proof envelope (goal, necessary conditions, rules, permissions, evidence, industry context, risks, acceptance criteria). Template lives in the design skill: `design-small-task/references/design-brief-small-template.md` (6-section lightweight). | `design-small-task` (6-section lightweight) |
 | `spec` | `spec/` | Specification document — architecture chosen from the brief's envelope, component structure, reuse profile, trade-off profile | `design-specify` |
 | `spec-ground-truth-report` | `spec/` | Ground-truth findings — codebase verification of spec claims about existing code (automatic review; skipped only for greenfield specs) | `design-specify` (ground-truth review stage) |
 | `plan` | `plan/` | Implementation plan — task-by-task build instructions | `plan-build` |
@@ -203,7 +201,6 @@ chester-trailer-write harvest <sprint-dir>
 The following skills invoke `stamp` at every artifact-write site they
 own:
 
-- `design-large-task` (design briefs, thinking files)
 - `design-small-task` (design briefs)
 - `design-specify` (specs, ground-truth reports)
 - `plan-build` (plans, threat reports — `plan-build` writes the combined
