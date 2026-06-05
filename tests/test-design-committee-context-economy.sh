@@ -49,6 +49,15 @@ assert_round_format() {
   _check "round-format separates team-lead Final Recommendation" "grep -qi 'Final Recommendation' '$f'"
   _check "round-format retires per-question-file-in-design framing" "! grep -qiE 'design/committee-analysis|one file per .*question' '$f'"
 }
+assert_team_lead() {
+  local f="$SK/references/team-lead.md"
+  _check "team-lead Record File uses committee/roundNN" "grep -q 'committee/round' '$f'"
+  _check "team-lead dispatches Consolidator" "grep -qi 'consolidator' '$f'"
+  _check "team-lead reads consolidator-output, writes own Final Rec" "grep -qi 'consolidator-output' '$f'"
+  _check "team-lead maintains ledger" "grep -q 'ledger' '$f'"
+  _check "team-lead reading order cites member-protocol" "grep -q 'member-protocol' '$f'"
+  _check "team-lead version bumped past v0006" "grep -qE '^version: v00(0[7-9]|[1-9][0-9])' '$f'"
+}
 # === END ASSERTION FUNCTIONS ===
 
 # === RUN — later tasks insert new assert_* calls in this region, ABOVE the gate ===
@@ -57,6 +66,7 @@ assert_consolidator
 assert_advocacy_agents
 assert_researcher_agent
 assert_round_format
+assert_team_lead
 # === END RUN ===
 
 # --- final gate: nothing executable may be added below this line ---
