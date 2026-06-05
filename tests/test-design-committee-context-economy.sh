@@ -69,6 +69,15 @@ assert_skill_md() {
   _check "SKILL no Mode A/B" "! grep -qE 'Mode [AB]' '$f'"
   _check "SKILL version bumped past v0016" "grep -qE '^version: v00(1[7-9]|[2-9][0-9])' '$f'"
 }
+assert_scope_and_vocab() {
+  # design-architect-committee untouched by this sprint's commits
+  _check "no design-architect-committee file modified in this sprint" \
+    "! git -C \"$ROOT\" diff --name-only main...HEAD | grep -q 'design-architect-committee'"
+  # vocabulary ban across all touched committee files
+  for f in "$SK/SKILL.md" "$SK/references/team-lead.md" "$SK/references/committee-analysis-round-format.md" "$SK/references/member-protocol.md" "$AG"/design-committee-{conservator,innovator,pragmatist,purist,researcher,consolidator}.md; do
+    _check "no Mode A/B in $(basename "$f")" "! grep -qE 'Mode [AB]' '$f'"
+  done
+}
 # === END ASSERTION FUNCTIONS ===
 
 # === RUN — later tasks insert new assert_* calls in this region, ABOVE the gate ===
@@ -79,6 +88,7 @@ assert_researcher_agent
 assert_round_format
 assert_team_lead
 assert_skill_md
+assert_scope_and_vocab
 # === END RUN ===
 
 # --- final gate: nothing executable may be added below this line ---
