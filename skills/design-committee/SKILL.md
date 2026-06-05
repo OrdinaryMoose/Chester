@@ -1,7 +1,7 @@
 ---
 name: design-committee
 description: Convene six-role committee (team-lead + 4 members + researcher) for ad-hoc design consultations. Process-agnostic primitive. Use whenever designer wants independent multi-perspective review of meta-architecture, cross-cutting design choice, charter call, or any decision where framing bias risks outcome. Triggers on "convene the committee", "ask the committee", "committee deliberation", "four-member review", "/design-committee", and natural-language asks for structured multi-perspective consultation.
-version: v0016
+version: v0017
 ---
 
 # Design Committee
@@ -51,11 +51,12 @@ Full voice spec: `skills/util-design-partner-role/SKILL.md`. LOAD-BEARING citati
 
 ## Phase 1: Bootstrap
 
-Read environment + config. No sprint creation, no thinking history, no directory work. Preserves standalone invocability.
+Read environment + config, then establish the `committee/` work-product tree. No sprint creation, no thinking history. Preserves standalone invocability.
 
 1. Read `CHESTER_INFO_PACKET_STYLE` from environment. Cache value for team-lead Round 1 echo.
-2. Read Chester config: `eval "$(chester-config-read)"`. `CHESTER_WORKING_DIR` is always required — the team-lead persists the committee-analysis record to disk every round (see `references/team-lead.md` § Record File), so the working dir must resolve whether or not a sprint or wrapping skill is present.
-3. Do NOT invoke `start-bootstrap`. Sprint mechanics violate standalone invocability when no sprint exists.
+2. Read Chester config: `eval "$(chester-config-read)"`. `CHESTER_WORKING_DIR` is always required — committee work product is written to disk under `committee/`, so the working dir must resolve whether or not a sprint or wrapping skill is present.
+3. Create the `committee/` tree. Resolve its root per `references/member-protocol.md` § Committee root resolution — that section is the single authority for the resolution rule; do not restate the sprint/no-sprint fork here. The reserved artifact directories `design/ spec/ plan/ summary/` are for formal Chester artifacts only; all committee work product lives exclusively under `committee/`.
+4. Do NOT invoke `start-bootstrap`. Sprint mechanics violate standalone invocability when no sprint exists.
 
 ## Phase 2: Capture Question
 
@@ -79,6 +80,14 @@ chester:design-committee-researcher
 
 Team slug: `design-committee-<question-slug>`.
 
+### Round Folders
+
+Before the first dispatch, create `committee/round01/`. Each later round opens the next `committee/roundNN/` (zero-padded) before its dispatch. Members and the researcher write their transcripts into the current round folder per `references/member-protocol.md`.
+
+### Consolidator
+
+`chester:design-committee-consolidator` is an agent this skill uses, dispatched once per round to enumerate the round's positions. It is an EPHEMERAL per-round dispatch — spawned for the round and gone after. It is NOT a member of the `TeamCreate` roster; never add it to the five-member team. A single-round consult therefore incurs exactly one extra Consolidator spawn.
+
 ### Convening Message
 
 Convening message carries captured question, context packets (linked or briefly quoted), round shape, other team-member names (for peer DM), resolved info-packet style (from team-lead handshake), Translation Gate self-enforcement reminder.
@@ -100,7 +109,7 @@ Canonical shape. Available to wrapping skills via reference.
 1. Each member writes position covering dispatched questions.
 2. Each member sends 1 question direct-DM via `SendMessage` to chosen peer (any member, researcher, or team-lead).
 3. Each member answers incoming questions — 1 response per asker, direct-DM back.
-4. Each member submits final position to team-lead. Position MAY be revised post-Q&A, or sent as-is.
+4. Each member writes its full position to its round-folder transcript, then sends the team-lead a digest (see `references/member-protocol.md`); full position text is not sent via messaging. Position MAY be revised post-Q&A, or written as-is.
 
 No team-lead relay during steps 2–3. Each Q&A private between asker and target.
 
@@ -112,16 +121,20 @@ Team-lead runs consolidation, presentation, and artifact placement per `referenc
 
 ## Standalone Invocability
 
-No entry condition. No sprint context required. Convene from any context. Other Chester skills wrap committee calls without inheriting sprint state. Phase 1 bootstrap reads environment + config but creates no sprint and runs no sprint mechanics — standalone invocability preserved. The committee-analysis record IS written to disk every round (see `references/team-lead.md` § Record File); with sprint context it lands in the sprint's `design/` folder, and with no sprint the team-lead asks the designer at Round 1 where to write it — no sprint context is fabricated.
+No entry condition. No sprint context required. Convene from any context. Other Chester skills wrap committee calls without inheriting sprint state. Phase 1 bootstrap reads environment + config and establishes the `committee/` tree, but creates no sprint and runs no sprint mechanics — standalone invocability preserved. Committee work product is written to disk under `committee/roundNN/` every round; the `committee/` root resolves per `references/member-protocol.md` § Committee root resolution — no sprint context is fabricated.
+
+There is one unconditional path. There is no cutover, no multi-round gate, no degrade-to-no-op: every consult writes round-folder transcripts and dispatches the Consolidator the same way. A single-round consult simply incurs one extra Consolidator spawn.
 
 ## For Skill Authors
 
 Modifying committee or writing wrapping skill → read `references/skill-contract.md`. Carries contract floor, three forbidden attach surfaces, member-agent rationale, deferred roadmap. NOT runtime reading.
 
+Generic base-skill role-contract edits to the member agent files — clarifications that apply to every invocation of the committee — are permitted. Only sprint-specific overlay is forbidden (see `references/skill-contract.md`).
+
 ## Integration
 
-- **Calls:** `TeamCreate`, `SendMessage`, `TeamDelete` (orchestration); `chester-config-read` (config); `chester:design-committee-*` agents (members + researcher).
-- **Reads:** `util-design-partner-role` (voice — before convening), `references/team-lead.md` (team-lead role behavior), `references/committee-analysis-round-format.md` (per-question record template), `references/skill-contract.md` (skill-author only). Member phase contracts are not read here — they load as each `chester:design-committee-*` agent's own system prompt on dispatch.
+- **Calls:** `TeamCreate`, `SendMessage`, `TeamDelete` (orchestration); `chester-config-read` (config); `chester:design-committee-*` agents (members + researcher); `chester:design-committee-consolidator` (ephemeral per-round consolidation dispatch, not on the `TeamCreate` roster).
+- **Reads:** `util-design-partner-role` (voice — before convening), `references/team-lead.md` (team-lead role behavior), `references/member-protocol.md` (digest shape, transcript/round-folder discipline, committee-root resolution), `references/committee-analysis-round-format.md` (round-folder record layout), `references/skill-contract.md` (skill-author only). Member phase contracts are not read here — they load as each `chester:design-committee-*` agent's own system prompt on dispatch.
 - **Transitions to:** none — committee = standalone consultation. Designer routes downstream work.
 - **Does NOT call:** `start-bootstrap`, `util-worktree`, any sprint-creating skill. Standalone invocability requires Phase 1 stay artifact-free.
 - **Does NOT use:** `capture_thought`, `get_thinking_summary`, proof MCP — no proof phase at this layer.

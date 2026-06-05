@@ -58,6 +58,17 @@ assert_team_lead() {
   _check "team-lead reading order cites member-protocol" "grep -q 'member-protocol' '$f'"
   _check "team-lead version bumped past v0006" "grep -qE '^version: v00(0[7-9]|[1-9][0-9])' '$f'"
 }
+assert_skill_md() {
+  local f="$SK/SKILL.md"
+  _check "SKILL creates committee/ tree" "grep -q 'committee/' '$f'"
+  _check "SKILL finals step = write transcript + digest" "grep -qi 'digest' '$f'"
+  _check "SKILL integration adds consolidator" "grep -qi 'consolidator' '$f'"
+  _check "SKILL integration reads member-protocol" "grep -q 'member-protocol' '$f'"
+  _check "SKILL affirmative generic-edit clause present" "grep -qiE 'generic .*role-contract|base-skill .*clarification' '$f'"
+  _check "SKILL Standalone Invocability no stale design/ record location" "! grep -qi 'lands in the sprint' '$f'"
+  _check "SKILL no Mode A/B" "! grep -qE 'Mode [AB]' '$f'"
+  _check "SKILL version bumped past v0016" "grep -qE '^version: v00(1[7-9]|[2-9][0-9])' '$f'"
+}
 # === END ASSERTION FUNCTIONS ===
 
 # === RUN — later tasks insert new assert_* calls in this region, ABOVE the gate ===
@@ -67,6 +78,7 @@ assert_advocacy_agents
 assert_researcher_agent
 assert_round_format
 assert_team_lead
+assert_skill_md
 # === END RUN ===
 
 # --- final gate: nothing executable may be added below this line ---
