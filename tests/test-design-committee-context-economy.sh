@@ -42,6 +42,13 @@ assert_researcher_agent() {
   _check "researcher prohibition narrowed to committee tree" "grep -qi 'committee/' '$f'"
   _check "researcher cites member-protocol" "grep -q 'member-protocol' '$f'"
 }
+assert_round_format() {
+  local f="$SK/references/committee-analysis-round-format.md"
+  _check "round-format uses committee/roundNN layout" "grep -q 'committee/round' '$f'"
+  _check "round-format has a distinct Consolidator output section" "grep -qi 'consolidator-output' '$f'"
+  _check "round-format separates team-lead Final Recommendation" "grep -qi 'Final Recommendation' '$f'"
+  _check "round-format retires per-question-file-in-design framing" "! grep -qiE 'design/committee-analysis|one file per .*question' '$f'"
+}
 # === END ASSERTION FUNCTIONS ===
 
 # === RUN — later tasks insert new assert_* calls in this region, ABOVE the gate ===
@@ -49,6 +56,7 @@ assert_member_protocol
 assert_consolidator
 assert_advocacy_agents
 assert_researcher_agent
+assert_round_format
 # === END RUN ===
 
 # --- final gate: nothing executable may be added below this line ---
