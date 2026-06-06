@@ -64,8 +64,11 @@ assert_round_format() {
   local f="$SK/references/committee-analysis-round-format.md"
   _check "round-format uses committee/roundNN layout" "grep -q 'committee/round' '$f'"
   _check "round-format has a distinct Consolidator output section" "grep -qi 'consolidator-output' '$f'"
-  _check "round-format separates team-lead Final Recommendation" "grep -qi 'Final Recommendation' '$f'"
+  _check "round-format separates team-lead verdict from enumeration" "grep -qi 'verdict' '$f' && grep -qi 'consolidator' '$f'"
   _check "round-format retires per-question-file-in-design framing" "! grep -qiE 'design/committee-analysis|one file per .*question' '$f'"
+  _check "round-format lists alignment-map.md" "grep -qi 'alignment-map' '$f'"
+  _check "round-format lists verdict.md" "grep -qi 'verdict.md' '$f'"
+  _check "round-format removes superseded committee-analysis" "! grep -qi 'committee-analysis' '$f'"
 }
 assert_team_lead() {
   local f="$SK/references/team-lead.md"
