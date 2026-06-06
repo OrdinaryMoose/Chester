@@ -90,13 +90,17 @@ assert_team_lead() {
 assert_skill_md() {
   local f="$SK/SKILL.md"
   _check "SKILL creates committee/ tree" "grep -q 'committee/' '$f'"
-  _check "SKILL finals step = write transcript + digest" "grep -qi 'digest' '$f'"
+  _check "SKILL members send typed routing signal (not digest)" "grep -qi 'routing signal' '$f'"
+  _check "SKILL no stale digest-shape reference" "! grep -qi 'digest shape' '$f'"
+  _check "SKILL defines one-round / two-round modes" "grep -qi 'one-round' '$f' && grep -qi 'two-round' '$f'"
+  _check "SKILL flow includes synthesize+converge+scribe steps" "grep -qi 'alignment-map' '$f' && grep -qi 'verdict' '$f' && grep -qi 'scribe' '$f'"
+  _check "SKILL enforces disk-artifact checkpoint between steps" "grep -qiE 'checkpoint|prior artifact path' '$f'"
   _check "SKILL integration adds consolidator" "grep -qi 'consolidator' '$f'"
   _check "SKILL integration reads member-protocol" "grep -q 'member-protocol' '$f'"
   _check "SKILL affirmative generic-edit clause present" "grep -qiE 'generic .*role-contract|base-skill .*clarification' '$f'"
   _check "SKILL Standalone Invocability no stale design/ record location" "! grep -qi 'lands in the sprint' '$f'"
   _check "SKILL no Mode A/B" "! grep -qE 'Mode [AB]' '$f'"
-  _check "SKILL version bumped past v0016" "grep -qE '^version: v00(1[7-9]|[2-9][0-9])' '$f'"
+  _check "SKILL version bumped past v0017" "grep -qE '^version: v00(1[8-9]|[2-9][0-9])' '$f'"
 }
 assert_scope_and_vocab() {
   # design-architect-committee untouched by this sprint's commits
