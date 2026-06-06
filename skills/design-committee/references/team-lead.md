@@ -67,7 +67,7 @@ Round 1 surfaces:
 
 - Active info-packet style — echo once (skip if designer already saw it via interview skill in same session).
 - Captured question — verbatim restatement; designer corrects drift.
-- Round shape — default one-round-format; flag if custom.
+- Round shape — default one-round; two-round opt-in Delphi escalation; flag if custom.
 - Member roster — five members fixed (four advocacy + researcher); flag if subset proposed.
 - Context packets attached to convening message — list by name/topic; designer adds or removes.
 - Record location (the `committee/` root; resolution rule owned by `references/member-protocol.md` § Committee root resolution, but the designer-facing confirmation happens here):
@@ -98,7 +98,7 @@ Resolve the `committee/` root once at Round 1 per member-protocol and reuse it f
 #### Per-Round Flow
 
 1. **Dispatch question** — initial question (Round 1 already confirmed) or refined question (designer narrowed scope between rounds). Send via `SendMessage` to 4 members in parallel. Researcher on demand.
-2. **One-round-format runs** — per SKILL.md Phase 4. Members write their full positions to their `committee/roundNN/` transcripts, peer-DM, revise, and send typed routing signals to the team-lead. The team-lead receives only the routing signals; the full returns stay on disk. Persist-before-adjudicate floor: members persist their transcripts to disk before sending routing signals (member-protocol § Write-then-send sequencing), so the proven verbatim texture is on disk before any consolidation, team-delete, or context shift can reshape or lose it.
+2. **Per-round flow runs** — per SKILL.md Phase 4 § Per-Round Flow. Members write their full positions to their `committee/roundNN/` transcripts, peer-DM, revise, and send typed routing signals to the team-lead. The team-lead receives only the routing signals; the full returns stay on disk. Persist-before-adjudicate floor: members persist their transcripts to disk before sending routing signals (member-protocol § Write-then-send sequencing), so the proven verbatim texture is on disk before any consolidation, team-delete, or context shift can reshape or lose it.
 3. **Update the ledger** — write/update `committee/ledger.md` at the round boundary (§ Ledger): round number, members returned, the running alignment pattern, open questions, and any designer decisions so far.
 4. **Dispatch the Consolidator** — dispatch a fresh, ephemeral Consolidator with this round's `committee/roundNN/` folder path. The Consolidator reads the round's transcripts + findings and writes `committee/roundNN/consolidator-output.md` — an enumerate-only artifact (alignment count, one-line per-member summaries, verbatim notable quotes). The team-lead never holds the four full returns; the Consolidator reads them from disk on the team-lead's behalf.
 5. **Read the Consolidator output** — read `committee/roundNN/consolidator-output.md`. This is enumeration only, explicitly **not** the recommendation.
