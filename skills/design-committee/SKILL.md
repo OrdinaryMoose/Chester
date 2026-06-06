@@ -1,7 +1,7 @@
 ---
 name: design-committee
 description: Convene six-role committee (team-lead + 4 members + researcher) for ad-hoc design consultations. Process-agnostic primitive. Use whenever designer wants independent multi-perspective review of meta-architecture, cross-cutting design choice, charter call, or any decision where framing bias risks outcome. Triggers on "convene the committee", "ask the committee", "committee deliberation", "four-member review", "/design-committee", and natural-language asks for structured multi-perspective consultation.
-version: v0017
+version: v0018
 ---
 
 # Design Committee
@@ -46,7 +46,7 @@ Full voice spec: `skills/util-design-partner-role/SKILL.md`. LOAD-BEARING citati
 1. **Bootstrap** — read env + config.
 2. **Capture Question** — one-sentence question + round shape.
 3. **Convene** — team-lead Round 1 confirmation + `TeamCreate` + convening message.
-4. **Deliberation** — dispatch + peer-DM + final positions.
+4. **Deliberation** — per-round flow: dispatch → members write + signal → consolidate → synthesize → converge → author → present.
 5. **Tear Down** — team-lead closure flow + `TeamDelete`.
 
 ## Phase 1: Bootstrap
@@ -60,7 +60,7 @@ Read environment + config, then establish the `committee/` work-product tree. No
 
 ## Phase 2: Capture Question
 
-Question (one sentence). Round shape (default one-round-format; custom = state in convening message).
+Question (one sentence). Mode: **one-round** (default — single pass; assumed when unspecified) or **two-round** (opt-in Delphi escalation — a revision pass after synthesis). State the mode in the convening message.
 
 ## Phase 3: Convene
 
@@ -88,6 +88,10 @@ Before the first dispatch, create `committee/round01/`. Each later round opens t
 
 `chester:design-committee-consolidator` is an agent this skill uses, dispatched once per round to enumerate the round's positions. It is an EPHEMERAL per-round dispatch — spawned for the round and gone after. It is NOT a member of the `TeamCreate` roster; never add it to the five-member team. A single-round consult therefore incurs exactly one extra Consolidator spawn.
 
+### Scribe
+
+`chester:design-committee-scribe` is an agent this skill uses, dispatched once per round after convergence to author the round's designer-facing decision-packet from the verdict, alignment map, and consolidator output — following `references/artifact-template.md`, whose path the team-lead provides at dispatch. Like the Consolidator, it is an EPHEMERAL per-round dispatch — NOT a member of the `TeamCreate` roster; never add it to the five-member team.
+
 ### Convening Message
 
 Convening message carries captured question, context packets (linked or briefly quoted), round shape, other team-member names (for peer DM), resolved info-packet style (from team-lead handshake), Translation Gate self-enforcement reminder.
@@ -102,16 +106,27 @@ Send topic to 4 advocacy members in parallel via `SendMessage`. Researcher on de
 
 Members (advocacy + researcher) DM each other direct via `SendMessage`. No team-lead routing during deliberation. Team-lead creates team (`TeamCreate`), authorizes peer-DM scope in convening message, uses caveman ultra. Team-lead compiles at end — NOT switchboard, packet voice + format per `references/team-lead.md`. Peer-DM ordering relative to dispatch reception, not absolute time — late-receiving member not penalized by earlier-arriving peer DM. All members use caveman ultra for DMs and replies to team-lead.
 
-### One-Round-Format
+### Per-Round Flow
 
-Canonical shape. Available to wrapping skills via reference.
+The canonical per-round sequence (spec §5). Steps 1–3 are member-side; steps 4–8 are team-lead-side (detail in `references/team-lead.md`). Each step writes its artifact to the round folder before the next begins — available to wrapping skills via reference.
 
-1. Each member writes position covering dispatched questions.
-2. Each member sends 1 question direct-DM via `SendMessage` to chosen peer (any member, researcher, or team-lead).
-3. Each member answers incoming questions — 1 response per asker, direct-DM back.
-4. Each member writes its full position to its round-folder transcript, then sends the team-lead a digest (see `references/member-protocol.md`); full position text is not sent via messaging. Position MAY be revised post-Q&A, or written as-is.
+1. **Dispatch** — send the topic to the 4 advocacy members in parallel; the researcher serves on demand.
+2. **Members write** — each member writes its full position to its round-folder transcript, ending in a `## Final Position` (schema per `references/member-protocol.md` § Final Position). Peer Q&A runs per the Peer-DM Protocol; a position may be revised post-Q&A or written as-is.
+3. **Members signal** — each member sends the team-lead a typed routing signal (per `references/member-protocol.md` § Routing signal) — not the full position, not a prose summary. The full position text stays on disk; it is never sent via messaging.
+4. **Consolidate** — dispatch the ephemeral Consolidator; it reads only each transcript's `## Final Position` and writes `consolidator-output.md` (enumerate-only).
+5. **Synthesize** — the team-lead writes `committee/roundNN/alignment-map.md`, then evicts it from context.
+6. **Converge** — the team-lead reads the alignment map and writes `committee/roundNN/verdict.md`, then evicts it.
+7. **Author** — the team-lead dispatches the ephemeral scribe with the verdict, the artifact-template path, the consolidator output, and the alignment map; the scribe writes the round's designer-facing decision-packet.
+8. **Present** — the team-lead reads the scribe's artifact once and presents it to the designer; the read IS the review.
 
-No team-lead relay during steps 2–3. Each Q&A private between asker and target.
+**Checkpoint between steps.** Each step's dispatch carries the prior step's artifact path as a required input; absence of that artifact blocks the next dispatch. Disk is the handoff — no step proceeds on in-context prose alone.
+
+No team-lead relay during step 2's peer Q&A — each exchange is private between asker and target.
+
+### Modes
+
+- **one-round** (default, assumed when unspecified) — a single pass through the eight steps.
+- **two-round** (opt-in Delphi escalation) — after Synthesize, the alignment map is fed back to the members for one revision pass; the round re-consolidates, then converges. Name the mode in the convening message.
 
 ## Phase 5: Tear Down
 
@@ -133,8 +148,8 @@ Generic base-skill role-contract edits to the member agent files — clarificati
 
 ## Integration
 
-- **Calls:** `TeamCreate`, `SendMessage`, `TeamDelete` (orchestration); `chester-config-read` (config); `chester:design-committee-*` agents (members + researcher); `chester:design-committee-consolidator` (ephemeral per-round consolidation dispatch, not on the `TeamCreate` roster).
-- **Reads:** `util-design-partner-role` (voice — before convening), `references/team-lead.md` (team-lead role behavior), `references/member-protocol.md` (digest shape, transcript/round-folder discipline, committee-root resolution), `references/committee-analysis-round-format.md` (round-folder record layout), `references/skill-contract.md` (skill-author only). Member phase contracts are not read here — they load as each `chester:design-committee-*` agent's own system prompt on dispatch.
+- **Calls:** `TeamCreate`, `SendMessage`, `TeamDelete` (orchestration); `chester-config-read` (config); `chester:design-committee-*` agents (members + researcher); `chester:design-committee-consolidator` (ephemeral per-round consolidation dispatch, not on the `TeamCreate` roster); `chester:design-committee-scribe` (ephemeral per-round authoring dispatch, not on the `TeamCreate` roster).
+- **Reads:** `util-design-partner-role` (voice — before convening), `references/team-lead.md` (team-lead role behavior), `references/member-protocol.md` (Final Position schema, routing-signal discipline, transcript/round-folder discipline, committee-root resolution), `references/committee-analysis-round-format.md` (round-folder record layout), `references/artifact-template.md` (scribe artifact structure), `references/skill-contract.md` (skill-author only). Member phase contracts are not read here — they load as each `chester:design-committee-*` agent's own system prompt on dispatch.
 - **Transitions to:** none — committee = standalone consultation. Designer routes downstream work.
 - **Does NOT call:** `start-bootstrap`, `util-worktree`, any sprint-creating skill. Standalone invocability requires Phase 1 create no sprint — no `start-bootstrap`, no sprint directory. (Phase 1 does create the `committee/` work-product tree; that is the committee's own artifact root, not sprint scaffolding.)
 - **Does NOT use:** `capture_thought`, `get_thinking_summary`, proof MCP — no proof phase at this layer.
