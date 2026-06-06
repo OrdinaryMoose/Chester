@@ -30,6 +30,9 @@ assert_consolidator() {
   _check "consolidator prohibits interpretation" "grep -qiE '(not|never|no) .*characterize' '$f' && grep -qiE '(not|never|no) .*weight' '$f' && grep -qiE '(not|never|no) .*synthesi' '$f'"
   _check "consolidator does NOT inherit synthesizing-the-sources license" "! grep -qi 'synthesizing the sources' '$f'"
   _check "consolidator writes its own output file" "grep -q 'consolidator-output.md' '$f'"
+  _check "consolidator reads only Final Position section" "grep -qi 'Final Position' '$f'"
+  _check "consolidator cites member-protocol for schema" "grep -qi 'member-protocol' '$f'"
+  _check "consolidator copies fields verbatim" "grep -qi 'verbatim' '$f'"
 }
 assert_advocacy_agents() {
   for m in conservator innovator pragmatist purist; do
