@@ -94,6 +94,13 @@ assert_scope_and_vocab() {
     _check "no stale digest-shape vocab in $(basename "$f")" "! grep -qi 'digest shape' '$f'"
   done
 }
+assert_artifact_template() {
+  local f="$SK/references/artifact-template.md"
+  _check "artifact template exists" "[ -f '$f' ]"
+  _check "artifact template has Dissent Record header" "grep -qE '^#+ .*Dissent Record' '$f'"
+  _check "artifact template marks Dissent Record mandatory" "grep -qiE 'Dissent Record' '$f' && grep -qiE 'mandatory|required|MUST appear' '$f'"
+  _check "artifact template MANDATORY marker sits in the Dissent Record annotation" "grep -qE '^<!-- MANDATORY' '$f'"
+}
 # === END ASSERTION FUNCTIONS ===
 
 # === RUN — later tasks insert new assert_* calls in this region, ABOVE the gate ===
@@ -105,6 +112,7 @@ assert_round_format
 assert_team_lead
 assert_skill_md
 assert_scope_and_vocab
+assert_artifact_template
 # === END RUN ===
 
 # --- final gate: nothing executable may be added below this line ---
