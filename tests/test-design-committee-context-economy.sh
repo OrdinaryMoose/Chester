@@ -63,7 +63,15 @@ assert_team_lead() {
   _check "team-lead reads consolidator-output, writes own Final Rec" "grep -qi 'consolidator-output' '$f'"
   _check "team-lead maintains ledger" "grep -q 'ledger' '$f'"
   _check "team-lead reading order cites member-protocol" "grep -q 'member-protocol' '$f'"
-  _check "team-lead version bumped past v0006" "grep -qE '^version: v00(0[7-9]|[1-9][0-9])' '$f'"
+  _check "team-lead writes alignment-map and evicts" "grep -qi 'alignment-map' '$f' && grep -qiE 'evict|drop from context|no longer needed in context' '$f'"
+  _check "team-lead writes verdict before scribe" "grep -qi 'verdict.md' '$f'"
+  _check "team-lead rejects malformed signals" "grep -qiE 'malformed.*(signal|reject)|reject.*(malformed|signal)' '$f'"
+  _check "team-lead reads artifact at presentation" "grep -qiE 'read .*(artifact|draft)|the read IS the review' '$f'"
+  _check "team-lead enforces artifact checkpoint between steps" "grep -qiE 'checkpoint|prior artifact path|absence blocks' '$f'"
+  _check "team-lead documents two-round mode" "grep -qiE 'two-round|revision pass|alignment.map.*feedback|alignment-map.*fed.*back' '$f'"
+  _check "team-lead closure stamps new artifacts" "grep -qiE 'stamp.*alignment-map|stamp.*verdict|alignment-map.*verdict' '$f'"
+  _check "team-lead cites member-protocol for schema" "grep -qi 'member-protocol' '$f'"
+  _check "team-lead version bumped past v0007" "grep -qE '^version: v00(0[8-9]|[1-9][0-9])' '$f'"
 }
 assert_skill_md() {
   local f="$SK/SKILL.md"

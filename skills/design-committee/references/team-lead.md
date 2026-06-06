@@ -5,7 +5,7 @@ description: >
   Owns flow with designer (Round 1 → Conversation Loop → Closure), visible-surface
   format (decision packet + exemplar + gates), and internal consolidation +
   presentation discipline. Voice/style/stance delegated to util-design-partner-role.
-version: v0007
+version: v0008
 ---
 
 # Team-Lead Role — design-committee
@@ -89,7 +89,7 @@ Per-round cycle between dispatch and designer adjudication. Each loop = one full
 
 The committee record lives under the **`committee/` root**. Resolution of that root is owned by `references/member-protocol.md` § Committee root resolution — the team-lead **cites** that section and does not restate the sprint-vs-designer-ask fork. There is one authority for the rule, and it is member-protocol.
 
-Within the `committee/` root, **records are organized by round, not by designer question.** Each deliberation round is one folder, `committee/roundNN/` (`NN` zero-padded — `round01/`, `round02/`, …), holding that round's per-member transcripts, the researcher findings, the Consolidator output, and the team-lead's `committee-analysis.md` (Round Overview + Final Recommendation). Shape from `references/committee-analysis-round-format.md`. A follow-up round opens the **next** `roundNN/` folder; prior round folders are immutable record and are never back-edited.
+Within the `committee/` root, **records are organized by round, not by designer question.** Each deliberation round is one folder, `committee/roundNN/` (`NN` zero-padded — `round01/`, `round02/`, …), holding that round's per-member transcripts, the researcher findings, the Consolidator output (`consolidator-output.md`), the team-lead's `alignment-map.md` and `verdict.md`, and the scribe's decision-packet artifact. Shape from `references/committee-analysis-round-format.md`. A follow-up round opens the **next** `roundNN/` folder; prior round folders are immutable record and are never back-edited.
 
 A `committee/ledger.md` file lives at the `committee/` root (alongside the round folders) and is maintained across rounds (§ Ledger).
 
@@ -98,13 +98,16 @@ Resolve the `committee/` root once at Round 1 per member-protocol and reuse it f
 #### Per-Round Flow
 
 1. **Dispatch question** — initial question (Round 1 already confirmed) or refined question (designer narrowed scope between rounds). Send via `SendMessage` to 4 members in parallel. Researcher on demand.
-2. **One-round-format runs** — per SKILL.md Phase 4. Members write their full positions to their `committee/roundNN/` transcripts, peer-DM, revise, and send digests to the team-lead. The team-lead receives only the digests; the full returns stay on disk. Persist-before-adjudicate floor: members persist their transcripts to disk before sending digests (member-protocol § Write-then-send sequencing), so the proven verbatim texture is on disk before any consolidation, team-delete, or context shift can reshape or lose it.
+2. **One-round-format runs** — per SKILL.md Phase 4. Members write their full positions to their `committee/roundNN/` transcripts, peer-DM, revise, and send typed routing signals to the team-lead. The team-lead receives only the routing signals; the full returns stay on disk. Persist-before-adjudicate floor: members persist their transcripts to disk before sending routing signals (member-protocol § Write-then-send sequencing), so the proven verbatim texture is on disk before any consolidation, team-delete, or context shift can reshape or lose it.
 3. **Update the ledger** — write/update `committee/ledger.md` at the round boundary (§ Ledger): round number, members returned, the running alignment pattern, open questions, and any designer decisions so far.
 4. **Dispatch the Consolidator** — dispatch a fresh, ephemeral Consolidator with this round's `committee/roundNN/` folder path. The Consolidator reads the round's transcripts + findings and writes `committee/roundNN/consolidator-output.md` — an enumerate-only artifact (alignment count, one-line per-member summaries, verbatim notable quotes). The team-lead never holds the four full returns; the Consolidator reads them from disk on the team-lead's behalf.
 5. **Read the Consolidator output** — read `committee/roundNN/consolidator-output.md`. This is enumeration only, explicitly **not** the recommendation.
-6. **Write the round's Final Recommendation** — apply risk-weighted judgment (§ Internal Discipline / Consolidation Rules) and write the round's `committee/roundNN/committee-analysis.md`: Round Overview, then the **Final Recommendation** — the team-lead's risk-weighted decision, written downstream of and distinct from `consolidator-output.md`, in the § Visible Surface / Information Packet Format Decision Package + Team-Lead Comments form.
-7. **Present packet to designer** — per § Internal Discipline / Presentation Rules. The designer-facing decision packet is the translated surfacing of this round's `committee-analysis.md`; its Decision Package + Team-Lead Comments are that file's Final Recommendation.
-8. **Designer response** — one of: adjudicate (loop ends, proceed to Closure); refine question (loop back to step 1 with refined question); next round (loop back to step 1); declare done (loop ends, proceed to Closure). Each new round opens the next `committee/roundNN/` folder per § Record File; prior round folders are never back-edited.
+6. **Synthesize** — apply risk-weighted judgment (§ Internal Discipline / Consolidation Rules) downstream of the enumerated baseline, and write `committee/roundNN/alignment-map.md`: the alignment pattern + the full option set + the positions-discarded-with-reason. Then **evict** the alignment map from context — drop it from context; it is no longer needed in context, disk is the source of truth. *(Two-round mode only:* feed the alignment map back to the members; each member gets one revision pass; return to the Consolidator step (step 4) to consolidate a second round before converging.)
+7. **Converge** — read `committee/roundNN/alignment-map.md`, then write `committee/roundNN/verdict.md`: the team-lead's risk-weighted decision, specific and one-sentence-minimum (an ambiguous verdict cannot proceed). Then **evict** it from context.
+8. **Dispatch the scribe** — dispatch the scribe with `committee/roundNN/verdict.md` + the **artifact-template path** + `committee/roundNN/consolidator-output.md` (plus the prior round's artifact when revising). The template path is provided at dispatch, NOT hardcoded in the scribe (committee ruling F8). The scribe authors the round's decision-packet artifact — including its `Dissent Record` — consuming member-authored fields per `references/member-protocol.md` § Final Position (the schema lives there; do not restate the field names here).
+9. **Present to designer** — read the scribe's artifact once; **the read IS the review**. Presenting from the artifact guarantees the `Dissent Record` is seen. The designer-facing surface follows § Visible Surface / Information Packet Format and § Internal Discipline / Presentation Rules.
+10. **Checkpoint between steps** — each step's dispatch carries the prior step's artifact path as a required input; absence of that prior artifact path blocks the next dispatch. The disk artifact is the handoff between steps — no step proceeds on in-context prose alone.
+11. **Designer response** — one of: adjudicate (loop ends, proceed to Closure); refine question (loop back to step 1 with refined question); next round (loop back to step 1); declare done (loop ends, proceed to Closure). Each new round opens the next `committee/roundNN/` folder per § Record File; prior round folders are never back-edited.
 
 #### Ledger
 
@@ -119,6 +122,7 @@ The ledger is what lets a later session rehydrate the consultation without re-re
 - Do NOT run more rounds than designer authorizes.
 - Refine question between rounds when designer narrows scope — refined question carried into next dispatch.
 - One question per round — multi-question dispatch fragments deliberation; decompose into sequential rounds.
+- Reject malformed member signals unread. A routing signal that omits a field or breaks the schema is malformed — issue one correction prompt naming the required schema (member-authored fields per `references/member-protocol.md` § Final Position), and do NOT incorporate malformed content into consolidation or synthesis.
 
 ### Closure (Closing the Committee)
 
@@ -126,8 +130,8 @@ Only the Designer can terminate the Committee.  Do not close the committee unles
 
 Resolution:
 
-1. **Confirm each round's record is current.** For every `committee/roundNN/`, verify that round's transcripts, `consolidator-output.md`, and `committee-analysis.md` Final Recommendation reflect the final state, and that `committee/ledger.md` covers the last round. Write any pending update before teardown.
-2. **Stamp provenance.** Stamp each round's analysis and the ledger: `chester-trailer-write stamp design-committee@<this-skill-version> "<record-file-path>"` for every `committee/roundNN/committee-analysis.md` and for `committee/ledger.md`.
+1. **Confirm each round's record is current.** For every `committee/roundNN/`, verify that round's transcripts, `consolidator-output.md`, `alignment-map.md`, `verdict.md`, and the scribe's decision-packet artifact reflect the final state, and that `committee/ledger.md` covers the last round. Write any pending update before teardown.
+2. **Stamp provenance** (committee ruling F3c). Stamp each round's new artifacts and the ledger: `chester-trailer-write stamp design-committee@<this-skill-version> "<record-file-path>"` for every `committee/roundNN/alignment-map.md`, `committee/roundNN/verdict.md`, and the round's scribe decision-packet artifact, plus `committee/ledger.md`.
 3. **Wrapping-skill handoff** (when invoked from another skill). The wrapping skill owns where the record finally lives — it may relocate or rename the on-disk committee record (the round-folder tree). The committee's job is done once the record is written and current; the per-round disk write is never skipped because a wrapping skill will relocate it later.
 4. `TeamDelete` after the record is finalized. MANDATORY — stranded teams leak context across unrelated future invocations.
 
