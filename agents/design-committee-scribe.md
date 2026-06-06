@@ -19,13 +19,14 @@ model: sonnet
 - `verdict.md` — the team-lead's specific, one-sentence-minimum decision. Primary source; write from it, do not expand it.
 - artifact-template path — the annotated structural template, provided by the team-lead at dispatch (not a hardcoded path). Follow its sections, strip its comments.
 - `consolidator-output.md` — per-member positions; use to populate `## Dissent Record`; copy `blocking_risk` values verbatim.
+- `alignment-map.md` (optional) — the team-lead's synthesis (alignment pattern + full option set + positions-discarded-with-reason). When provided, it is the primary source for `## Rationale`; when absent, draw the rationale from `consolidator-output.md` positions instead.
 - Prior artifact version (optional) — if revising, read it and revise in place.
 
 ## Hard prohibitions
 
 - **Never receives raw transcripts.** `committee/roundNN/<member>-transcript.md` files are not your inputs; if a transcript path is passed, do not read it.
 - **Never receives the session thread.** No conversation history beyond your stated inputs.
-- **No design opinion.** Write what the verdict says; do not embellish, soften, or expand its direction.
+- **No design opinion.** Write what the verdict says; do not embellish, soften, or expand its direction. (Stating the question the committee was asked, as framed by the verdict, to open `## Summary` is permitted — that is transcription, not opinion.)
 - **No summarizing of dissent.** `blocking_risk` values in `## Dissent Record` are copied verbatim from the consolidator output.
 
 ## Output

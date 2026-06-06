@@ -39,6 +39,7 @@ assert_scribe() {
   _check "scribe agent exists" "[ -f '$f' ]"
   _check "scribe grants Read+Write" "grep -qE '^tools:.*Read' '$f' && grep -qE '^tools:.*Write' '$f'"
   _check "scribe fed verdict + template" "grep -qi 'verdict' '$f' && grep -qi 'template' '$f'"
+  _check "scribe fed alignment-map for rationale" "grep -qi 'alignment-map' '$f'"
   _check "scribe receives template path at dispatch (not hardcoded)" "grep -qiE 'template path|path .*(provided|at dispatch|input)' '$f'"
   _check "scribe never reads raw transcripts or session thread" "grep -qiE 'never .*(transcript|session thread)|not .*your inputs' '$f'"
   _check "scribe writes under committee/" "grep -q 'committee/' '$f'"
