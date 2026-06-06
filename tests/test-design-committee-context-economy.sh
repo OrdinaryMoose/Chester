@@ -11,11 +11,15 @@ _check() { if eval "$2"; then echo "PASS: $1"; else echo "FAIL: $1"; fail=1; fi;
 assert_member_protocol() {
   local f="$SK/references/member-protocol.md"
   _check "member-protocol exists" "[ -f '$f' ]"
-  _check "member-protocol defines digest fields" "grep -qi 'headline position' '$f' && grep -qi 'transcript path' '$f' && grep -qi 'confidence' '$f'"
-  _check "member-protocol defines write-then-send sequencing" "grep -q '## Write-then-send' '$f'"
+  _check "member-protocol mandates Final Position section" "grep -q '## Final Position' '$f'"
+  _check "member-protocol is sole Final Position schema authority" "grep -qi 'position' '$f' && grep -qi 'rationale' '$f' && grep -qi 'blocking_risk' '$f'"
+  _check "member-protocol caps Final Position at 200 words" "grep -qiE '200[ -]?word' '$f'"
+  _check "member-protocol defines typed routing signal" "grep -qi 'routing signal' '$f' && grep -qiE 'malformed.*reject|reject.*malformed' '$f'"
+  _check "member-protocol routing-signal fields" "grep -qi 'status' '$f' && grep -q 'transcript' '$f'"
+  _check "member-protocol caps peer-DM exchanges" "grep -qiE 'peer.?dm' '$f' && grep -qiE '2 (exchanges|per pair)|max 2' '$f'"
   _check "member-protocol names round-folder transcript path" "grep -q 'committee/round' '$f'"
-  _check "member-protocol has citable section headings" "grep -q '## Digest shape' '$f' && grep -q '## Committee root resolution' '$f'"
   _check "member-protocol owns committee-root resolution (M1)" "grep -qiE 'sprint-subdir|ask the designer' '$f'"
+  _check "member-protocol has citable section headings" "grep -q '## Committee root resolution' '$f'"
 }
 assert_consolidator() {
   local f="$AG/design-committee-consolidator.md"
@@ -76,6 +80,7 @@ assert_scope_and_vocab() {
   # vocabulary ban across all touched committee files
   for f in "$SK/SKILL.md" "$SK/references/team-lead.md" "$SK/references/committee-analysis-round-format.md" "$SK/references/member-protocol.md" "$AG"/design-committee-{conservator,innovator,pragmatist,purist,researcher,consolidator}.md; do
     _check "no Mode A/B in $(basename "$f")" "! grep -qE 'Mode [AB]' '$f'"
+    _check "no stale digest-shape vocab in $(basename "$f")" "! grep -qi 'digest shape' '$f'"
   done
 }
 # === END ASSERTION FUNCTIONS ===
