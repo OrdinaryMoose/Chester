@@ -34,6 +34,16 @@ assert_consolidator() {
   _check "consolidator cites member-protocol for schema" "grep -qi 'member-protocol' '$f'"
   _check "consolidator copies fields verbatim" "grep -qi 'verbatim' '$f'"
 }
+assert_scribe() {
+  local f="$AG/design-committee-scribe.md"
+  _check "scribe agent exists" "[ -f '$f' ]"
+  _check "scribe grants Read+Write" "grep -qE '^tools:.*Read' '$f' && grep -qE '^tools:.*Write' '$f'"
+  _check "scribe fed verdict + template" "grep -qi 'verdict' '$f' && grep -qi 'template' '$f'"
+  _check "scribe receives template path at dispatch (not hardcoded)" "grep -qiE 'template path|path .*(provided|at dispatch|input)' '$f'"
+  _check "scribe never reads raw transcripts or session thread" "grep -qiE 'never .*(transcript|session thread)|not .*your inputs' '$f'"
+  _check "scribe writes under committee/" "grep -q 'committee/' '$f'"
+  _check "scribe no Mode A/B" "! grep -qE 'Mode [AB]' '$f'"
+}
 assert_advocacy_agents() {
   for m in conservator innovator pragmatist purist; do
     local f="$AG/design-committee-$m.md"
@@ -89,7 +99,7 @@ assert_scope_and_vocab() {
   _check "no design-architect-committee file modified in this sprint" \
     "! git -C \"$ROOT\" diff --name-only main...HEAD | grep -q 'design-architect-committee'"
   # vocabulary ban across all touched committee files
-  for f in "$SK/SKILL.md" "$SK/references/team-lead.md" "$SK/references/committee-analysis-round-format.md" "$SK/references/member-protocol.md" "$AG"/design-committee-{conservator,innovator,pragmatist,purist,researcher,consolidator}.md; do
+  for f in "$SK/SKILL.md" "$SK/references/team-lead.md" "$SK/references/committee-analysis-round-format.md" "$SK/references/member-protocol.md" "$AG"/design-committee-{conservator,innovator,pragmatist,purist,researcher,consolidator,scribe}.md; do
     _check "no Mode A/B in $(basename "$f")" "! grep -qE 'Mode [AB]' '$f'"
     _check "no stale digest-shape vocab in $(basename "$f")" "! grep -qi 'digest shape' '$f'"
   done
@@ -106,6 +116,7 @@ assert_artifact_template() {
 # === RUN — later tasks insert new assert_* calls in this region, ABOVE the gate ===
 assert_member_protocol
 assert_consolidator
+assert_scribe
 assert_advocacy_agents
 assert_researcher_agent
 assert_round_format
