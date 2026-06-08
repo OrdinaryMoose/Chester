@@ -66,8 +66,58 @@ emit_agent() {
   mv "$tmp" "$dest"
 }
 
+emit_catalog() {
+  [ "$(jq -r '.catalog' "$MANIFEST")" != "null" ] || return 0
+  local out tmpl tmpl_abs dest list glob
+  out="$(jq -r '.catalog.output' "$MANIFEST")"
+  tmpl="$(jq -r '.catalog.template' "$MANIFEST")"
+  tmpl_abs="$CHESTER_ROOT/$tmpl"
+  glob="$(jq -r '.catalog.scan_glob' "$MANIFEST")"
+  dest="$OUT_DIR/$out"; mkdir -p "$(dirname "$dest")"
+  [ -f "$tmpl_abs" ] || { echo "catalog template not found: $tmpl_abs" >&2; exit 4; }
+  # Build the flat, alphabetically-sorted list of "- **name** — description" from each SKILL.md frontmatter.
+  list="$(
+    for f in "$CHESTER_ROOT"/$glob; do
+      [ -f "$f" ] || continue
+      local name desc
+      name="$(awk '/^---$/{c++; next} c==1 && /^name:/{sub(/^name:[ ]*/,""); print; exit}' "$f")"
+      # description may be inline ("description: text", optionally quoted) OR a YAML
+      # folded/literal block scalar ("description: >" / "| " then indented continuation
+      # lines). 9 of Chester's SKILL.md files use the folded form, so fold the
+      # continuation lines into one space-joined line for the catalog entry.
+      desc="$(awk '
+        /^---$/ { c++; next }
+        c==1 && /^description:/ {
+          val = $0; sub(/^description:[ \t]*/, "", val)
+          if (val ~ /^[>|]/) {
+            d = ""
+            while ((getline line) > 0) {
+              if (line ~ /^---$/) break
+              if (line ~ /^[ \t]*$/) continue
+              if (line !~ /^[ \t]/) break
+              sub(/^[ \t]+/, "", line)
+              d = (d == "" ? line : d " " line)
+            }
+            print d
+          } else {
+            gsub(/^["'"'"']|["'"'"']$/, "", val); print val
+          }
+          exit
+        }
+      ' "$f")"
+      [ -n "$name" ] && printf '%s\t%s\n' "$name" "$desc"
+    done | LC_ALL=C sort | awk -F'\t' '{printf "- **%s** — %s\n", $1, $2}'
+  )"
+  # Splice the list into the template slot (replace the CATALOG_SLOT marker line).
+  local tmp; tmp="$(mktemp)"
+  awk -v list="$list" '/<!-- CATALOG_SLOT -->/{print list; next} {print}' "$tmpl_abs" > "$tmp"
+  mv "$tmp" "$dest"
+}
+
 if [ "$MODE" = "all" ] || [ "$MODE" = "agents" ]; then
   count="$(jq -r '.agents | length' "$MANIFEST")"
   for (( n=0; n<count; n++ )); do emit_agent "$n"; done
 fi
-# catalog mode added in Task 2
+if [ "$MODE" = "all" ] || [ "$MODE" = "catalog" ]; then
+  emit_catalog
+fi
