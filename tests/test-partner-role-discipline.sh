@@ -62,4 +62,10 @@ ST_BLOCK=$(awk '/Step 3: Write commentary/,/Step 4:/' "$SMALL" | head -100)
 echo "$ST_BLOCK" | grep -qE 'C1.*C2|C2.*C1' || { echo "FAIL AC-4.2: Phase 4 Step 3 missing C1/C2 cross-reference"; exit 1; }
 echo "$ST_BLOCK" | grep -qi "util-design-partner-role" || { echo "FAIL AC-4.2: Phase 4 Step 3 cross-reference does not name util-design-partner-role"; exit 1; }
 
-echo "PASS: AC-1.1, AC-1.2, AC-1.3, AC-1.4, AC-1.5, AC-4.2, AC-5.1, AC-5.2 (AC-4.1 retired — design-large-task removed)"
+# AC-7.1: PM Litmus Test + Research Boundary canonical sections present
+grep -qE '^## PM Litmus Test' "$PARTNER" || { echo "FAIL AC-7.1: PM Litmus Test section heading missing"; exit 1; }
+grep -qE '^## Research Boundary' "$PARTNER" || { echo "FAIL AC-7.1: Research Boundary section heading missing"; exit 1; }
+grep -qi "product manager" "$PARTNER" || { echo "FAIL AC-7.1: PM Litmus body (product manager) missing"; exit 1; }
+grep -qi "never relay raw findings\|digest internally" "$PARTNER" || { echo "FAIL AC-7.1: Research Boundary body missing"; exit 1; }
+
+echo "PASS: AC-1.1, AC-1.2, AC-1.3, AC-1.4, AC-1.5, AC-4.2, AC-5.1, AC-5.2, AC-7.1 (AC-4.1 retired — design-large-task removed)"
