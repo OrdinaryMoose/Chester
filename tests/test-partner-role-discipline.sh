@@ -68,4 +68,12 @@ grep -qE '^## Research Boundary' "$PARTNER" || { echo "FAIL AC-7.1: Research Bou
 grep -qi "product manager" "$PARTNER" || { echo "FAIL AC-7.1: PM Litmus body (product manager) missing"; exit 1; }
 grep -qi "never relay raw findings\|digest internally" "$PARTNER" || { echo "FAIL AC-7.1: Research Boundary body missing"; exit 1; }
 
+# AC-7.1: consumers cite the canonical home, do not restate the rule body
+# $SMALL is already defined earlier (around line 60) — reuse it. Only $LEAD is new.
+LEAD="$REPO_ROOT/skills/design-committee/references/team-lead.md"
+grep -q "util-design-partner-role" "$SMALL" || { echo "FAIL AC-7.1: design-small-task does not cite util-design-partner-role"; exit 1; }
+grep -q "util-design-partner-role" "$LEAD" || { echo "FAIL AC-7.1: team-lead.md does not cite util-design-partner-role"; exit 1; }
+grep -qi "owns roadmap, requirements" "$SMALL" && { echo "FAIL AC-7.1: design-small-task still restates the PM Litmus body"; exit 1; }
+grep -qi "owns roadmap, requirements, success measurement" "$LEAD" && { echo "FAIL AC-7.1: team-lead.md still restates the PM Litmus body"; exit 1; }
+
 echo "PASS: AC-1.1, AC-1.2, AC-1.3, AC-1.4, AC-1.5, AC-4.2, AC-5.1, AC-5.2, AC-7.1 (AC-4.1 retired — design-large-task removed)"

@@ -1,7 +1,7 @@
 ---
 name: design-small-task
 description: "Lightweight design conversation for well-bounded tasks. Use when the task is clear but you want to surface considerations before jumping to planning. Holds an interactive Q&A loop with structured information packages — the agent presents observations and asks questions, never suggests proceeding. The designer explicitly directs when to write the brief. Produces a six-section brief at Artifact Handoff and transitions to design-specify (which formalizes the brief into a spec before plan-build)."
-version: v0003
+version: v0004
 ---
 
 # Small Task Design Conversation
@@ -184,13 +184,7 @@ Mandatory on every piece of designer-visible output — commentary, info package
 
 1. **Strip all code vocabulary.** Type names, class names, interface names, enum names, property names, method names, file paths, namespace names, folder names, project names — remove all. Use only domain concepts.
 2. **Strip all structured formatting.** No JSON, no code blocks, no schema fragments, no `using` statements, no `.cs` / `.ts` / `.py` suffixes, no backticked identifiers. Designer sees prose, not data structures.
-3. **PM Litmus Test.** Imagine product manager on project. Not coder. Makes decisions — owns roadmap, requirements, success metrics. Understands architecture at high level, product vision, end-state. Never opened codebase; no know types, files, internal wiring.
-
-   Could this PM:
-   - Follow every sentence of output without stopping to ask what a term means?
-   - Make informed decision from what you said?
-
-   If either answer no, translate further. PM needs language operating where decisions live — intent, architecture, trade-offs, risks — not where code lives.
+3. **PM Litmus Test.** Apply the PM Litmus Test from `util-design-partner-role` (§ PM Litmus Test): could a product manager who has never opened the codebase follow every sentence and make an informed decision? If not, translate further.
 
 #### Before/After Example
 
@@ -208,11 +202,7 @@ Mandatory on every piece of designer-visible output — commentary, info package
 
 ### Research Boundary
 
-- **Explore freely** — read as much code as need to understand design landscape
-- **Digest internally** — convert findings into domain concepts, relationships, tensions
-- **Never relay raw findings** — type names, property shapes, class hierarchies, implementation details no appear in commentary, info packages, observations, design brief
-
-If designer needs code-specific term to respond to commentary, you failed to translate.
+Follow the Research Boundary in `util-design-partner-role` (§ Research Boundary): explore the code freely, digest it into domain concepts, and never relay raw findings (type names, property shapes, hierarchies) into designer-facing output.
 
 ---
 
