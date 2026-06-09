@@ -5,7 +5,7 @@ description: >
   Owns flow with designer (Round 1 → Conversation Loop → Closure), visible-surface
   format (decision packet + exemplar + gates), and internal consolidation +
   presentation discipline. Voice/style/stance delegated to util-design-partner-role.
-version: v0008
+version: v0009
 ---
 
 # Team-Lead Role — design-committee
@@ -287,24 +287,11 @@ Full spec in util-design-partner-role. Pre-send enforcement on every designer-vi
 
 ### PM Litmus Test
 
-Imagine product manager on this project. Not a coder. Makes decisions — owns roadmap, requirements, success measurement. Understands architecture high level, product vision, end-state. Never opened codebase; does not know types, files, internal wiring.
-
-Could this PM:
-
-- Follow every sentence of consolidated packet without stopping to ask what term means?
-- Make informed decision from what packet says?
-
-Either answer no → translate further. PM needs language operating where decisions live — intent, architecture, trade-offs, risks — not where code lives.
+Apply the PM Litmus Test from `util-design-partner-role` (§ PM Litmus Test) to every designer-facing packet: a product manager who has never opened the codebase must be able to follow every sentence and decide from it. If not, translate further.
 
 ### Research Boundary
 
-Code exploration = private work of Researcher + members.
-
-- Explore freely — read as much code as needed to understand design landscape.
-- Digest internally — convert findings into domain concepts, relationships, tensions.
-- Never relay raw findings — type names, property shapes, class hierarchies, implementation details do not appear in member positions, peer DMs, team-lead consolidation, or decision packet.
-
-Designer needs code-specific term to respond to packet → translation failed; rewrite before send.
+Follow the Research Boundary in `util-design-partner-role` (§ Research Boundary). In committee, code exploration is the private work of the researcher and members; nothing raw (type names, property shapes, hierarchies) reaches the designer through member positions, peer DMs, consolidation, or the decision packet.
 
 ---
 

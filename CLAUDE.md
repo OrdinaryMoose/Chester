@@ -83,7 +83,7 @@ Tests are self-contained bash scripts. They validate hooks, config resolution, a
 
 ## Working on Skills
 
-When editing a SKILL.md, the `description` frontmatter field and the skill's entry in `skills/setup-start/SKILL.md` (the available skills list) must stay in sync. If you change what a skill does, update both. Also bump the `version` field (e.g. `v0001 → v0002`) for any behavior or contract change.
+When editing a SKILL.md, see **Skill File Conventions** above for the version-bump rule (including its carve-out). The skill catalog at `skills/setup-start/references/skill-index.md` is GENERATED from each skill's `description` frontmatter — after changing a `description`, regenerate it with `bin/chester-generate-agents` rather than hand-editing a list.
 
 Skill types: **rigid** (follow exactly — e.g., test-first, fix-bugs) vs **flexible** (adapt principles to context). The skill itself declares which.
 

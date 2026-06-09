@@ -62,4 +62,21 @@ ST_BLOCK=$(awk '/Step 3: Write commentary/,/Step 4:/' "$SMALL" | head -100)
 echo "$ST_BLOCK" | grep -qE 'C1.*C2|C2.*C1' || { echo "FAIL AC-4.2: Phase 4 Step 3 missing C1/C2 cross-reference"; exit 1; }
 echo "$ST_BLOCK" | grep -qi "util-design-partner-role" || { echo "FAIL AC-4.2: Phase 4 Step 3 cross-reference does not name util-design-partner-role"; exit 1; }
 
-echo "PASS: AC-1.1, AC-1.2, AC-1.3, AC-1.4, AC-1.5, AC-4.2, AC-5.1, AC-5.2 (AC-4.1 retired — design-large-task removed)"
+# AC-7.1: PM Litmus Test + Research Boundary canonical sections present
+grep -qE '^## PM Litmus Test' "$PARTNER" || { echo "FAIL AC-7.1: PM Litmus Test section heading missing"; exit 1; }
+grep -qE '^## Research Boundary' "$PARTNER" || { echo "FAIL AC-7.1: Research Boundary section heading missing"; exit 1; }
+grep -qi "product manager" "$PARTNER" || { echo "FAIL AC-7.1: PM Litmus body (product manager) missing"; exit 1; }
+grep -qi "never relay raw findings\|digest internally" "$PARTNER" || { echo "FAIL AC-7.1: Research Boundary body missing"; exit 1; }
+
+# AC-7.1: consumers cite the canonical home, do not restate the rule body
+# $SMALL is already defined earlier (around line 60) — reuse it. Only $LEAD is new.
+LEAD="$REPO_ROOT/skills/design-committee/references/team-lead.md"
+grep -q "util-design-partner-role" "$SMALL" || { echo "FAIL AC-7.1: design-small-task does not cite util-design-partner-role"; exit 1; }
+grep -q "util-design-partner-role" "$LEAD" || { echo "FAIL AC-7.1: team-lead.md does not cite util-design-partner-role"; exit 1; }
+# Broad sentinel: matches both the old removed wording ("owns roadmap, requirements")
+# and a future canonical-copy ("owns the roadmap, the requirements"); the current
+# citations contain neither, so this fires only on a genuine restatement.
+grep -qiE "owns.*roadmap.*requirement" "$SMALL" && { echo "FAIL AC-7.1: design-small-task still restates the PM Litmus body"; exit 1; }
+grep -qiE "owns.*roadmap.*requirement" "$LEAD" && { echo "FAIL AC-7.1: team-lead.md still restates the PM Litmus body"; exit 1; }
+
+echo "PASS: AC-1.1, AC-1.2, AC-1.3, AC-1.4, AC-1.5, AC-4.2, AC-5.1, AC-5.2, AC-7.1 (AC-4.1 retired — design-large-task removed)"

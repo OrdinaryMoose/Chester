@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Architecture review — Chester (write-once, inject-as-needed)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module">
+      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+      mermaid.initialize({ startOnLoad: true, theme: "neutral", securityLevel: "loose" });
+    </script>
+    <style>
+      .seam { stroke-dasharray: 4 4; }
+      .leak { stroke: #dc2626; }
+      .deep { background: linear-gradient(135deg, #0f172a, #1e293b); }
+      .copy { background: repeating-linear-gradient(45deg,#fff,#fff 8px,#fef2f2 8px,#fef2f2 16px); }
+      .lbl { font-size: .65rem; letter-spacing: .08em; text-transform: uppercase; }
+      mark { background: #fde68a; padding: 0 .15rem; border-radius: 2px; }
+    </style>
+  </head>
+  <body class="bg-stone-50 text-slate-900 font-sans antialiased">
+    <main class="max-w-5xl mx-auto px-6 py-12 space-y-14">
+
+      <!-- HEADER -->
+      <header class="space-y-4 border-b border-slate-200 pb-8">
+        <p class="lbl text-slate-500">Architecture review · deepening opportunities</p>
+        <h1 class="font-serif text-4xl text-slate-900">Chester — write once, inject as needed</h1>
+        <p class="text-slate-600 max-w-3xl">
+          Audit lens: an instruction or process written <em>once</em> and cited from N places is a
+          <strong>deep module</strong> — one interface, high <strong>leverage</strong>, full
+          <strong>locality</strong> (fix it in one spot). The same rule copy-pasted into N files is
+          N <strong>shallow</strong> duplicates with no locality; drift is the symptom.
+          Each candidate below applies the <strong>deletion test</strong>: delete one copy — does the
+          rule reappear across callers? If yes, it never earned its keep as a standalone copy and wants a
+          <strong>seam</strong>.
+        </p>
+        <div class="flex flex-wrap gap-4 text-xs text-slate-600 pt-2">
+          <span class="flex items-center gap-2"><span class="inline-block w-5 h-4 border-2 border-slate-700"></span> module</span>
+          <span class="flex items-center gap-2"><svg width="34" height="6"><line x1="0" y1="3" x2="34" y2="3" class="seam" stroke="#475569" stroke-width="2"/></svg> seam (citation)</span>
+          <span class="flex items-center gap-2"><svg width="34" height="6"><line x1="0" y1="3" x2="34" y2="3" class="leak" stroke-width="2"/></svg> duplicated rule (leak)</span>
+          <span class="flex items-center gap-2"><span class="inline-block w-5 h-4 deep"></span> deep module</span>
+          <span class="flex items-center gap-2"><span class="inline-block w-5 h-4 copy border border-red-200"></span> copy / drift-prone</span>
+        </div>
+        <p class="text-xs text-slate-400 pt-2">Chester plugin · 23 skills, 13 named subagents · generated 2026-06-07</p>
+      </header>
+
+      <section id="candidates" class="space-y-12">
+
+        <!-- ============ CANDIDATE 1 ============ -->
+        <article class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <div class="p-6 space-y-5">
+            <div class="flex items-start justify-between gap-4">
+              <h2 class="font-serif text-2xl">1 · Collapse the reviewer disciplines into one cited module</h2>
+              <div class="flex flex-col items-end gap-2 shrink-0">
+                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">Strong</span>
+                <span class="px-2 py-0.5 rounded text-[11px] font-mono bg-slate-100 text-slate-600">in-process</span>
+              </div>
+            </div>
+
+            <p class="font-mono text-sm text-slate-500 leading-relaxed">
+              agents/plan-build-plan-attacker.md · agents/plan-build-plan-smeller.md ·
+              agents/execute-write-spec-reviewer.md · agents/execute-write-quality-reviewer.md ·
+              skills/plan-attack/SKILL.md · skills/plan-smell/SKILL.md · skills/util-codereview/SKILL.md
+            </p>
+
+            <!-- before/after -->
+            <div class="grid md:grid-cols-2 gap-4">
+              <div class="rounded-lg border border-slate-200 bg-white p-4">
+                <p class="lbl text-slate-400 mb-2">Before — every reviewer carries its own copy</p>
+                <pre class="mermaid">
+flowchart TB
+  subgraph R[" "]
+    A[plan-attacker]:::c
+    B[plan-smeller]:::c
+    C[spec-reviewer]:::c
+    D[quality-reviewer]:::c
+    E[plan-attack skill]:::c
+    F[plan-smell skill]:::c
+    G[util-codereview]:::c
+  end
+  d1{{"cite real evidence"}}:::r
+  d2{{"&ge;80 confidence ladder"}}:::r
+  d3{{"don't trust the report"}}:::r
+  A -.-> d1 & d2 & d3
+  B -.-> d1
+  C -.-> d1 & d2 & d3
+  D -.-> d1 & d2
+  E -.-> d1
+  F -.-> d1
+  G -.-> d1
+  classDef c fill:#fff,stroke:#94a3b8;
+  classDef r fill:#fef2f2,stroke:#dc2626,stroke-width:2px;
+                </pre>
+                <p class="text-xs text-slate-500 mt-2">Three disciplines re-stated across 7 files. Wording already drifts: "evidence from the codebase" vs "plan text / class names" vs "file and line number(s)".</p>
+              </div>
+              <div class="rounded-lg border border-slate-200 bg-white p-4">
+                <p class="lbl text-slate-400 mb-2">After — one deep module, thin citations</p>
+                <pre class="mermaid">
+flowchart TB
+  M["references/review-discipline.md<br/>evidence · confidence · independence"]:::deep
+  A[plan-attacker]:::c --> M
+  B[plan-smeller]:::c --> M
+  C[spec-reviewer]:::c --> M
+  D[quality-reviewer]:::c --> M
+  E[plan-attack]:::c --> M
+  F[plan-smell]:::c --> M
+  G[util-codereview]:::c --> M
+  classDef c fill:#fff,stroke:#94a3b8;
+  classDef deep fill:#0f172a,color:#fff,stroke:#0f172a;
+                </pre>
+                <p class="text-xs text-slate-500 mt-2">Each reviewer's interface keeps only its <em>domain</em> (what to attack / smell / spec-check) and reads the shared discipline.</p>
+              </div>
+            </div>
+
+            <dl class="grid sm:grid-cols-2 gap-x-8 gap-y-3 text-sm pt-2">
+              <div><dt class="lbl text-slate-400">Problem</dt><dd>The same three reviewer rules live in 7 files and have already drifted in wording — no locality.</dd></div>
+              <div><dt class="lbl text-slate-400">Solution</dt><dd>One <span class="font-mono text-xs">references/review-discipline.md</span>; reviewers cite it load-bearing, like <span class="font-mono text-xs">util-design-partner-role</span>.</dd></div>
+            </dl>
+            <ul class="grid sm:grid-cols-2 gap-x-8 gap-y-1 text-sm text-slate-700 list-disc list-inside">
+              <li>locality: the ≥80 rule has one home</li>
+              <li>leverage: one interface, 7 call sites</li>
+              <li>drift becomes impossible, not just discouraged</li>
+              <li>interface shrinks; each reviewer keeps only its lens</li>
+            </ul>
+            <div class="rounded-md bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900">
+              <strong>Seam caveat:</strong> SKILL.md consumers inject by <em>reading</em> the reference at run time. Subagent <span class="font-mono">.md</span> files are the prompt — they can't "read" a sibling unless instructed to as a first action. Decide per-consumer: run-time read (skills) vs first-action read or authoring-time template (agents). Same problem as Candidate 2.
+            </div>
+          </div>
+        </article>
+
+        <!-- ============ CANDIDATE 2 ============ -->
+        <article class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <div class="p-6 space-y-5">
+            <div class="flex items-start justify-between gap-4">
+              <h2 class="font-serif text-2xl">2 · Parameterize the committee member template</h2>
+              <div class="flex flex-col items-end gap-2 shrink-0">
+                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">Strong</span>
+                <span class="px-2 py-0.5 rounded text-[11px] font-mono bg-slate-100 text-slate-600">in-process</span>
+              </div>
+            </div>
+            <p class="font-mono text-sm text-slate-500">
+              agents/design-committee-{conservator,innovator,pragmatist,purist}.md — 103 lines each, identical
+            </p>
+
+            <!-- mass diagram: four blocks mostly shared -->
+            <div class="grid md:grid-cols-2 gap-4">
+              <div class="rounded-lg border border-slate-200 bg-white p-4">
+                <p class="lbl text-slate-400 mb-3">Before — four files, one skeleton woven with a lens</p>
+                <div class="flex gap-2 justify-center" style="height:300px">
+                  <!-- four columns, shared (dark) + lens (amber) bands -->
+                  <!-- pattern repeats x4 -->
+                  <div class="flex flex-col w-1/4 text-center text-white text-[9px]">
+                    <div class="bg-slate-800 py-1">Phase Contract</div>
+                    <div class="bg-amber-500 py-1 text-slate-900">lens</div>
+                    <div class="bg-slate-800 py-1 mt-px">Hard Prohibitions</div>
+                    <div class="bg-slate-800 py-2 mt-px">Voice Discipline</div>
+                    <div class="bg-amber-500 py-1 text-slate-900 mt-px">C1/C2 lens</div>
+                    <div class="bg-slate-800 py-2 mt-px">Output Format</div>
+                    <p class="text-slate-500 mt-1">conservator</p>
+                  </div>
+                  <div class="flex flex-col w-1/4 text-center text-white text-[9px]">
+                    <div class="bg-slate-800 py-1">Phase Contract</div>
+                    <div class="bg-amber-500 py-1 text-slate-900">lens</div>
+                    <div class="bg-slate-800 py-1 mt-px">Hard Prohibitions</div>
+                    <div class="bg-slate-800 py-2 mt-px">Voice Discipline</div>
+                    <div class="bg-amber-500 py-1 text-slate-900 mt-px">C1/C2 lens</div>
+                    <div class="bg-slate-800 py-2 mt-px">Output Format</div>
+                    <p class="text-slate-500 mt-1">innovator</p>
+                  </div>
+                  <div class="flex flex-col w-1/4 text-center text-white text-[9px]">
+                    <div class="bg-slate-800 py-1">Phase Contract</div>
+                    <div class="bg-amber-500 py-1 text-slate-900">lens</div>
+                    <div class="bg-slate-800 py-1 mt-px">Hard Prohibitions</div>
+                    <div class="bg-slate-800 py-2 mt-px">Voice Discipline</div>
+                    <div class="bg-amber-500 py-1 text-slate-900 mt-px">C1/C2 lens</div>
+                    <div class="bg-slate-800 py-2 mt-px">Output Format</div>
+                    <p class="text-slate-500 mt-1">pragmatist</p>
+                  </div>
+                  <div class="flex flex-col w-1/4 text-center text-white text-[9px]">
+                    <div class="bg-slate-800 py-1">Phase Contract</div>
+                    <div class="bg-amber-500 py-1 text-slate-900">lens</div>
+                    <div class="bg-slate-800 py-1 mt-px">Hard Prohibitions</div>
+                    <div class="bg-slate-800 py-2 mt-px">Voice Discipline</div>
+                    <div class="bg-amber-500 py-1 text-slate-900 mt-px">C1/C2 lens</div>
+                    <div class="bg-slate-800 py-2 mt-px">Output Format</div>
+                    <p class="text-slate-500 mt-1">purist</p>
+                  </div>
+                </div>
+                <p class="text-xs text-slate-500 mt-2">Dark bands (~70%) are identical across all four. Amber (~30%) is the lens. Editing a dark band = four edits in lockstep.</p>
+              </div>
+              <div class="rounded-lg border border-slate-200 bg-white p-4">
+                <p class="lbl text-slate-400 mb-3">After — one template + four lens blocks</p>
+                <div class="flex flex-col items-center justify-center gap-3" style="height:300px">
+                  <div class="w-2/3 deep text-white text-center text-[10px] rounded">
+                    <div class="py-1">Phase Contract</div>
+                    <div class="py-1 border-t border-slate-600">Hard Prohibitions</div>
+                    <div class="py-2 border-t border-slate-600">Voice Discipline</div>
+                    <div class="py-2 border-t border-slate-600">Output Format</div>
+                    <p class="py-1 lbl text-slate-300">committee-member-template.md</p>
+                  </div>
+                  <div class="flex gap-1 w-2/3">
+                    <div class="flex-1 bg-amber-500 text-slate-900 text-[9px] text-center py-1 rounded">conservator lens</div>
+                    <div class="flex-1 bg-amber-500 text-slate-900 text-[9px] text-center py-1 rounded">innovator lens</div>
+                    <div class="flex-1 bg-amber-500 text-slate-900 text-[9px] text-center py-1 rounded">pragmatist lens</div>
+                    <div class="flex-1 bg-amber-500 text-slate-900 text-[9px] text-center py-1 rounded">purist lens</div>
+                  </div>
+                </div>
+                <p class="text-xs text-slate-500 mt-2">Scaffold concentrates in one deep module; each agent file shrinks to its lens.</p>
+              </div>
+            </div>
+
+            <dl class="grid sm:grid-cols-2 gap-x-8 gap-y-3 text-sm pt-2">
+              <div><dt class="lbl text-slate-400">Problem</dt><dd>Four 103-line files share ~70% skeleton; a scaffold change is four lockstep edits, drift latent.</dd></div>
+              <div><dt class="lbl text-slate-400">Solution</dt><dd>Hoist scaffold to <span class="font-mono text-xs">references/committee-member-template.md</span>; keep four short lens blocks.</dd></div>
+            </dl>
+            <ul class="grid sm:grid-cols-2 gap-x-8 gap-y-1 text-sm text-slate-700 list-disc list-inside">
+              <li>locality: Hard Prohibitions / Output Format in one place</li>
+              <li>leverage: one scaffold, four lenses</li>
+              <li>a fifth lens becomes a small block, not a 103-line clone</li>
+              <li>researcher + consolidator stay separate (genuinely distinct)</li>
+            </ul>
+            <div class="rounded-md bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900">
+              <strong>Seam caveat:</strong> these are dispatched subagents — the file <em>is</em> the prompt. Runtime injection needs each agent to <em>Read</em> the template as step one; otherwise this is an <strong>authoring-time</strong> template (one adapter = the generator). Confirm which before building — a single-adapter seam is just indirection.
+            </div>
+          </div>
+        </article>
+
+        <!-- ============ CANDIDATE 3 ============ -->
+        <article id="cand3" class="rounded-xl border-2 border-emerald-300 bg-white shadow-sm overflow-hidden">
+          <div class="p-6 space-y-5">
+            <div class="flex items-start justify-between gap-4">
+              <h2 class="font-serif text-2xl">3 · Single-source the skill catalog; remove the phantom pointer</h2>
+              <div class="flex flex-col items-end gap-2 shrink-0">
+                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">Strong</span>
+                <span class="px-2 py-0.5 rounded text-[11px] font-mono bg-slate-100 text-slate-600">in-process</span>
+              </div>
+            </div>
+            <p class="font-mono text-sm text-slate-500">
+              skills/*/SKILL.md (frontmatter ×23) · skills/setup-start/references/skill-index.md · CLAUDE.md:86 · skills/CLAUDE.md:33
+            </p>
+
+            <div class="grid md:grid-cols-2 gap-4">
+              <div class="rounded-lg border border-slate-200 bg-white p-4">
+                <p class="lbl text-slate-400 mb-2">Before — two descriptions per skill + a broken sync rule</p>
+                <pre class="mermaid">
+flowchart TB
+  FM["skill frontmatter<br/>(23 descriptions)"]:::c
+  IX["skill-index.md<br/>(20 listed, 3 missing)"]:::r
+  RULE["CLAUDE.md: 'keep in sync with<br/>setup-start/SKILL.md list'"]:::r
+  SS["setup-start/SKILL.md"]:::c
+  FM -. "must match" .- IX
+  RULE -. "points at" .-> SS
+  SS -. "no list here&mdash;<br/>only a pointer" .-> IX
+  classDef c fill:#fff,stroke:#94a3b8;
+  classDef r fill:#fef2f2,stroke:#dc2626,stroke-width:2px;
+                </pre>
+                <p class="text-xs text-slate-500 mt-2">The sync rule names a list that doesn't exist where it says. 3 skills absent. <span class="font-mono">design-small-task</span> says both "transitions to design-specify" <em>and</em> "no spec step".</p>
+              </div>
+              <div class="rounded-lg border border-slate-200 bg-white p-4">
+                <p class="lbl text-slate-400 mb-2">After — frontmatter is canonical; index derives</p>
+                <pre class="mermaid">
+flowchart TB
+  FM["skill frontmatter<br/>= single source of truth"]:::deep
+  IX["skill-index.md<br/>role grouping + pointers only"]:::c
+  RULE["sync rule&rarr; 'index is generated;<br/>edit frontmatter'"]:::c
+  FM --> IX
+  RULE --> FM
+  classDef c fill:#fff,stroke:#94a3b8;
+  classDef deep fill:#0f172a,color:#fff,stroke:#0f172a;
+                </pre>
+                <p class="text-xs text-slate-500 mt-2">Index stops re-describing skills (it groups + points). Descriptions exist once. Contradiction can't recur.</p>
+              </div>
+            </div>
+
+            <div class="rounded-md bg-stone-100 border border-stone-200 p-3 text-xs font-mono text-slate-700 space-y-1">
+              <p><mark>frontmatter</mark> design-small-task: "…transitions to design-specify (which formalizes the brief into a spec…)"</p>
+              <p><mark>skill-index</mark> design-small-task: "…produces a brief for plan-build. No MCP, <strong>no spec step</strong>."</p>
+            </div>
+
+            <dl class="grid sm:grid-cols-2 gap-x-8 gap-y-3 text-sm pt-2">
+              <div><dt class="lbl text-slate-400">Problem</dt><dd>Each trigger description is written twice and has drifted into a live contradiction; the sync instruction points at a phantom list.</dd></div>
+              <div><dt class="lbl text-slate-400">Solution</dt><dd>Frontmatter = canonical. Reduce <span class="font-mono text-xs">skill-index.md</span> to role grouping + name pointers (or generate it). Fix both CLAUDE.md sync rules to name the real file.</dd></div>
+            </dl>
+            <ul class="grid sm:grid-cols-2 gap-x-8 gap-y-1 text-sm text-slate-700 list-disc list-inside">
+              <li>locality: one description per skill</li>
+              <li>the phantom-pointer maintenance trap disappears</li>
+              <li>3 missing skills can't silently fall out of a derived index</li>
+              <li>leverage: registry, index, and Skill-tool list agree by construction</li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- ============ CANDIDATE 4 ============ -->
+        <article class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <div class="p-6 space-y-5">
+            <div class="flex items-start justify-between gap-4">
+              <h2 class="font-serif text-2xl">4 · Deduplicate the two CLAUDE.md rule statements</h2>
+              <div class="flex flex-col items-end gap-2 shrink-0">
+                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">Worth exploring</span>
+                <span class="px-2 py-0.5 rounded text-[11px] font-mono bg-slate-100 text-slate-600">in-process</span>
+              </div>
+            </div>
+            <p class="font-mono text-sm text-slate-500">CLAUDE.md · skills/CLAUDE.md</p>
+
+            <!-- cross section -->
+            <div class="rounded-lg border border-slate-200 bg-white p-4">
+              <p class="lbl text-slate-400 mb-3">Versioning rule — same module, two implementations, already drifted</p>
+              <div class="grid md:grid-cols-2 gap-3 text-xs">
+                <div class="border-l-4 border-red-400 pl-3 py-2 bg-red-50">
+                  <p class="font-mono text-slate-700">CLAUDE.md:31</p>
+                  <p class="text-slate-600">"Bump it on any meaningful change… <mark>not on typo fixes or comment-only edits</mark>."</p>
+                </div>
+                <div class="border-l-4 border-red-400 pl-3 py-2 bg-red-50">
+                  <p class="font-mono text-slate-700">skills/CLAUDE.md:29</p>
+                  <p class="text-slate-600">"Bump on any behavior or contract change." <em>(carve-out dropped)</em></p>
+                </div>
+              </div>
+            </div>
+
+            <dl class="grid sm:grid-cols-2 gap-x-8 gap-y-3 text-sm pt-2">
+              <div><dt class="lbl text-slate-400">Problem</dt><dd>The vNNNN rule and the description-sync rule are stated in both files; the version carve-out already drifted.</dd></div>
+              <div><dt class="lbl text-slate-400">Solution</dt><dd>Root CLAUDE.md = canonical for repo-wide rules; <span class="font-mono text-xs">skills/CLAUDE.md</span> points up instead of restating.</dd></div>
+            </dl>
+            <ul class="grid sm:grid-cols-2 gap-x-8 gap-y-1 text-sm text-slate-700 list-disc list-inside">
+              <li>locality: one statement of each rule</li>
+              <li>removes the drift already present</li>
+            </ul>
+            <div class="rounded-md bg-stone-100 border border-stone-200 p-3 text-xs text-slate-600">
+              <strong>Note — already clean:</strong> the artifact directory tree in CLAUDE.md is a <em>summary + "See util-artifact-schema for the full reference"</em>. That is the correct two-tier pattern, not a violation — leave it.
+            </div>
+          </div>
+        </article>
+
+        <!-- ============ CANDIDATE 5 ============ -->
+        <article class="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <div class="p-6 space-y-5">
+            <div class="flex items-start justify-between gap-4">
+              <h2 class="font-serif text-2xl">5 · A shared review-loop control flow</h2>
+              <div class="flex flex-col items-end gap-2 shrink-0">
+                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-200 text-slate-700">Speculative</span>
+                <span class="px-2 py-0.5 rounded text-[11px] font-mono bg-slate-100 text-slate-600">in-process</span>
+              </div>
+            </div>
+            <p class="font-mono text-sm text-slate-500">skills/plan-build/SKILL.md:110–220 · skills/execute-write/SKILL.md:121–229</p>
+
+            <div class="rounded-lg border border-slate-200 bg-white p-4">
+              <pre class="mermaid">
+flowchart LR
+  subgraph PB[plan-build]
+    p1[dispatch reviewer] --> p2[collect] --> p3[gate on risk level] --> p4[revise] --> p2
+  end
+  subgraph EW[execute-write]
+    e1[dispatch reviewer] --> e2[collect] --> e3[gate on severity] --> e4[revise] --> e2
+  end
+              </pre>
+              <p class="text-xs text-slate-500 mt-2">Same <em>shape</em> (dispatch → collect → gate → revise → escalate after N). Different <em>parameters</em>: risk-level vs Critical/Important/Minor; whole-plan vs per-task; human-gate vs auto-escalate.</p>
+            </div>
+
+            <dl class="grid sm:grid-cols-2 gap-x-8 gap-y-3 text-sm pt-2">
+              <div><dt class="lbl text-slate-400">Problem</dt><dd>Two orchestrators re-specify a review loop with the same skeleton independently.</dd></div>
+              <div><dt class="lbl text-slate-400">Solution</dt><dd>Possibly one <span class="font-mono text-xs">references/review-loop.md</span> stating the skeleton; each skill supplies its gate vocabulary.</dd></div>
+            </dl>
+            <div class="rounded-md bg-amber-50 border border-amber-200 p-3 text-xs text-amber-900">
+              <strong>Deletion-test warning:</strong> the shared core may be too thin to earn a seam. If extracting leaves the skeleton ("dispatch, collect, gate, revise") but each skill still defines its own severity scheme, ceiling, and escalation, the seam carries little <strong>leverage</strong> — <em>one adapter, not two</em>. Verify the shared part is load-bearing before extracting; otherwise it's indirection.
+            </div>
+          </div>
+        </article>
+
+      </section>
+
+      <!-- ============ NON-VIOLATIONS ============ -->
+      <section class="rounded-xl border border-slate-200 bg-stone-100 p-6 space-y-3">
+        <h2 class="font-serif text-xl">Already deep — leave these alone</h2>
+        <ul class="text-sm text-slate-700 space-y-1 list-disc list-inside">
+          <li><span class="font-mono text-xs">eval "$(chester-config-read)"</span> in 6 skills — the one-liner is an <strong>adapter call</strong> to a real deep module (<span class="font-mono text-xs">bin/chester-config-read</span>). Not duplication.</li>
+          <li><span class="font-mono text-xs">util-artifact-schema</span>, <span class="font-mono text-xs">util-design-partner-role</span>, <span class="font-mono text-xs">start-bootstrap</span> — clean single sources with load-bearing "Read this skill" citations. The <em>positive</em> pattern to copy.</li>
+          <li>Fork-policy: brief inline "Fork policy: X" decision at each dispatch + one authority doc — correct local-decision-plus-pointer pattern.</li>
+          <li><span class="font-mono text-xs">mkdir design/spec/plan/summary</span> appears in 2 files — minor; fold into start-bootstrap if Candidate 3 work is open, else ignore.</li>
+        </ul>
+      </section>
+
+      <!-- ============ TOP RECOMMENDATION ============ -->
+      <section id="top-recommendation" class="rounded-xl deep text-white p-8 space-y-3">
+        <p class="lbl text-slate-300">Top recommendation</p>
+        <h2 class="font-serif text-3xl">Start with <a href="#cand3" class="underline decoration-emerald-400">Candidate 3 — single-source the skill catalog</a></h2>
+        <p class="text-slate-200 max-w-3xl">
+          It is the only candidate with <strong>live, confirmed friction</strong>, not just latent risk: a self-contradicting
+          description (<span class="font-mono text-sm">design-small-task</span>), a sync rule pointing at a list that
+          doesn't exist where it claims, and 3 skills silently missing from the index. Cheapest fix, highest certainty,
+          and it most directly serves the brief — a description should be <strong>written once and injected</strong>, not
+          maintained in two hand-synced copies.
+        </p>
+        <p class="text-slate-300 text-sm">
+          Then <strong>Candidate 1</strong> for the most <strong>leverage</strong> (7 call sites behind one discipline module).
+          <strong>Candidate 2</strong> next — but first resolve the agent-injection seam question it shares with Candidate 1:
+          subagent files are prompts, so "inject" means <em>read-as-first-action</em> or <em>authoring-time template</em>, not a
+          run-time citation. That seam decision governs three of the five candidates.
+        </p>
+      </section>
+
+    </main>
+  </body>
+</html>

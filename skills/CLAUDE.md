@@ -26,11 +26,11 @@ version: v####
 ```
 
 - `description` must clearly state WHEN to invoke. It is the routing signal.
-- `version` is `v` + four-digit zero-padded counter. Bump on any behavior or contract change. New skills start at `v0001`.
+- `version` — see root `CLAUDE.md` § Skill File Conventions for the bump rule (with its carve-out).
 
-## Two-place sync
+## Catalog sync
 
-`description` field + the matching entry in `skills/setup-start/SKILL.md`'s available-skills list must stay in lockstep. Change one, change the other.
+The `description` field feeds the GENERATED catalog at `skills/setup-start/references/skill-index.md`. After changing a `description`, regenerate the catalog with `bin/chester-generate-agents` (see root `CLAUDE.md`). Do not hand-edit the catalog.
 
 ## Skill type declaration
 
