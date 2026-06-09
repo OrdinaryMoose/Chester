@@ -6,6 +6,9 @@ GEN="$SCRIPT_DIR/bin/chester-generate-agents"
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
 ERRORS=0; fail() { echo "FAIL: $1" >&2; ERRORS=$((ERRORS+1)); }
 
+grep -q 'emit_agent' "$SCRIPT_DIR/chester-util-config/chester-generate-agents.sh" && fail "generator still defines emit_agent — agent-mode not stripped"
+grep -q 'extract_section' "$SCRIPT_DIR/chester-util-config/chester-generate-agents.sh" && fail "generator still defines extract_section — agent-mode not stripped"
+
 mkdir -p "$TMP/agents/sources" "$TMP/skills/bravo" "$TMP/skills/alpha" "$TMP/skills/charlie" "$TMP/skills/delta" "$TMP/skills/setup-start/references"
 printf -- '---\nname: bravo\ndescription: Does bravo things.\nversion: v0001\n---\n# x\n' > "$TMP/skills/bravo/SKILL.md"
 printf -- '---\nname: alpha\ndescription: Does alpha things.\nversion: v0001\n---\n# x\n' > "$TMP/skills/alpha/SKILL.md"
@@ -23,7 +26,7 @@ cat > "$TMP/agents/manifest.json" <<'JSON'
     "template": "agents/sources/catalog-template.md" } }
 JSON
 
-"$GEN" --root "$TMP" --catalog-only
+"$GEN" --root "$TMP"
 
 OUT="$(cat "$TMP/skills/setup-start/references/skill-index.md")"
 echo "$OUT" | grep -q 'HEADER LINE' || fail "template header missing"
