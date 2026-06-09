@@ -17,9 +17,9 @@ check() {
   fi
 }
 
-check "skills/util-design-partner-role/SKILL.md" "v0005"
+check "skills/util-design-partner-role/SKILL.md" "v0006"
 check "skills/start-bootstrap/SKILL.md"           "v0003"
-check "skills/design-small-task/SKILL.md"         "v0003"
+check "skills/design-small-task/SKILL.md"         "v0004"
 
 # Sanity: the design-small-task SKILL.md mentions the handshake step (the test for this task's edit).
 grep -qi 'info-packet style handshake' "$REPO_ROOT/skills/design-small-task/SKILL.md" || {

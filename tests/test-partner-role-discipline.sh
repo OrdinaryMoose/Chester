@@ -73,7 +73,10 @@ grep -qi "never relay raw findings\|digest internally" "$PARTNER" || { echo "FAI
 LEAD="$REPO_ROOT/skills/design-committee/references/team-lead.md"
 grep -q "util-design-partner-role" "$SMALL" || { echo "FAIL AC-7.1: design-small-task does not cite util-design-partner-role"; exit 1; }
 grep -q "util-design-partner-role" "$LEAD" || { echo "FAIL AC-7.1: team-lead.md does not cite util-design-partner-role"; exit 1; }
-grep -qi "owns roadmap, requirements" "$SMALL" && { echo "FAIL AC-7.1: design-small-task still restates the PM Litmus body"; exit 1; }
-grep -qi "owns roadmap, requirements, success measurement" "$LEAD" && { echo "FAIL AC-7.1: team-lead.md still restates the PM Litmus body"; exit 1; }
+# Broad sentinel: matches both the old removed wording ("owns roadmap, requirements")
+# and a future canonical-copy ("owns the roadmap, the requirements"); the current
+# citations contain neither, so this fires only on a genuine restatement.
+grep -qiE "owns.*roadmap.*requirement" "$SMALL" && { echo "FAIL AC-7.1: design-small-task still restates the PM Litmus body"; exit 1; }
+grep -qiE "owns.*roadmap.*requirement" "$LEAD" && { echo "FAIL AC-7.1: team-lead.md still restates the PM Litmus body"; exit 1; }
 
 echo "PASS: AC-1.1, AC-1.2, AC-1.3, AC-1.4, AC-1.5, AC-4.2, AC-5.1, AC-5.2, AC-7.1 (AC-4.1 retired — design-large-task removed)"
