@@ -1,0 +1,8 @@
+{
+  "agents": [],
+  "catalog": {
+    "output": "skills/setup-start/references/skill-index.md",
+    "scan_glob": "skills/*/SKILL.md",
+    "template": "agents/sources/catalog-template.md"
+  }
+}
