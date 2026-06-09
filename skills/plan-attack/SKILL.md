@@ -7,7 +7,7 @@ description: >
   plan hardening gate. Can also be invoked manually via: "attack this plan",
   "adversarial review", "red-team this", "find the weaknesses", "stress test
   the plan", "what could go wrong", "/plan-attack".
-version: v0002
+version: v0003
 ---
 
 # Adversarial Review
@@ -36,8 +36,9 @@ Read the full plan. Understand what it proposes before attacking it. Identify:
 
 ### Step 2 — Attack the plan
 
-Read the relevant parts of the existing codebase that the plan references. You need
-to verify the plan's claims against what actually exists.
+Only search the Main Branch and the current Worktree.
+Read the relevant parts of the existing codebase that the plan references. 
+You need to verify the plan's claims against what actually exists.
 
 Then attack the plan across these dimensions:
 
