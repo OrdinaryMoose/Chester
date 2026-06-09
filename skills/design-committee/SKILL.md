@@ -1,14 +1,17 @@
 ---
 name: design-committee
 description: Convene six-role committee (team-lead + 4 members + researcher) for ad-hoc design consultations. Process-agnostic primitive. Use whenever designer wants independent multi-perspective review of meta-architecture, cross-cutting design choice, charter call, or any decision where framing bias risks outcome. Triggers on "convene the committee", "ask the committee", "committee deliberation", "four-member review", "/design-committee", and natural-language asks for structured multi-perspective consultation.
-version: v0018
+version: v0019
 ---
 
 # Design Committee
 
 Six-role deliberation primitive. Process-agnostic. Flexible skill — adapt round shape and dispatch to question.
 
-This SKILL.md owns orchestration: setup, dispatch, tear down, and common items every subagent needs. Team-lead role behavior (Round 1, conversation loop with designer, packet format, consolidation, presentation, closure) lives in `references/team-lead.md`. Member phase contracts are the registered `chester:design-committee-*` agents — defined in the plugin's top-level `agents/` directory per the repo agent convention, and loaded automatically as each member's system prompt on dispatch. Skill-author concerns live in `references/skill-contract.md`.
+- This SKILL.md owns orchestration: setup, dispatch, tear down, and common items every subagent needs. 
+- Team-lead role behavior (Round 1, conversation loop with designer, packet format, consolidation, presentation, closure) lives in `references/team-lead.md`. 
+- Member phase contracts are the registered `chester:design-committee-*` agents — defined in the plugin's top-level `agents/` directory per the repo agent convention, and loaded automatically as each member's system prompt on dispatch. 
+- Skill-author concerns live in `references/skill-contract.md`.
 
 ## When To Use
 
