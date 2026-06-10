@@ -314,11 +314,19 @@ Team-lead behaviors not visible to designer. Apply during consolidation + presen
 
 ### Consolidation Rules
 
-After the round runs, the team-lead reads the Consolidator output (`committee/roundNN/consolidator-output.md`) — the alignment count, per-member summaries, and verbatim notable quotes — NOT the raw member returns (those stay on disk in the transcripts; the Consolidator reads them off-thread). The team-lead applies risk-weighted judgment from that enumerated baseline. Mark every recommendation `Opinion:` (C2 hard rule — recommendations always opinions). Mark load-bearing premise visibly (C1 — designer cannot challenge what they cannot see). Apply Translation Gate to all surfaced phrasing. Count member alignment on the question — 4-0 (all agree), 3-1, 2-2, or finer distribution across multiple options. Name who is on each side. When members split, describe what each side defends in plain substance — no axis labels, no pair-tension shorthand. Member alignment always reported in Summary / Committee Member Updates, even on full convergence. Irreducible split → name split as finding in Decision Package / Split adjudication, do NOT collapse to single recommendation. Researcher findings fold into Information Package / Context as facts — no researcher voice in Team-Lead Comments since researcher has no design opinion by contract.
+After the round runs, the team-lead reads the Consolidator output (`committee/roundNN/consolidator-output.md`) — the alignment count, per-member summaries, and verbatim notable quotes — NOT the raw member returns (those stay on disk in the transcripts; the Consolidator reads them off-thread). The team-lead applies risk-weighted judgment from that enumerated baseline. Mark every recommendation `Opinion:` (C2 hard rule — recommendations always opinions). Mark load-bearing premise visibly (C1 — designer cannot challenge what they cannot see). Apply Translation Gate to all surfaced phrasing. Count member alignment on the question — 4-0 (all agree), 3-1, 2-2, or finer distribution across multiple options. Name who is on each side. When members split, describe what each side defends in plain substance — no axis labels, no pair-tension shorthand. Member alignment always reported in Summary / Committee Member Updates, even on full convergence. A standing split is surfaced as the round's answer in its preserved-split shape — named in Decision Package / Split adjudication — never collapsed to a single recommendation except on a displayed warrant that defeats the other side. Researcher findings fold into Information Package / Context as facts — no researcher voice in Team-Lead Comments since researcher has no design opinion by contract.
+
+**Authority Guard.** The team-lead holds no design opinion, yet it authors the answer. These rules keep it honest:
+
+- **Warrant test.** Every answer-body assertion must carry a warrant — evidence, logic, or an in-scope designer premise. An assertion with no warrant is not written as answer content; it is demoted to a gap. Assert only what can be warranted; everything else is a gap.
+- **Count-not-a-warrant.** Alignment count is never a warrant. A majority does not license collapse; a warranted minority survives as a preserved split.
+- **C2 firewall.** The Information Package and Decision Package carry warranted assertions only. Opinion lives solely in the fenced, `Opinion:`-marked Recommendation block — never in the fact or option surfaces.
+- **C1 audit.** Any collapse of a split must display its warrant in the packet, so the designer can inspect and overturn a wrong inference.
+- **Warrants on disk.** The warrant record and the answer-shape marker are written into the team-lead's own `committee/roundNN/alignment-map.md` and `committee/roundNN/verdict.md` — auditable on disk, not held only in context. No new artifact file is introduced; the warrants ride the existing team-lead-owned artifacts.
 
 ### Presentation Rules
 
-Team-lead does NOT adjudicate for designer. Team-lead does NOT collapse member disagreement when disagreement is the finding. Surface options, not verdict. Recommendations remain opinions, marked.
+Team-lead does NOT adjudicate for designer. Team-lead does NOT collapse member disagreement when disagreement is the finding. **Deliver the most-informative answer — which may be a preserved split — not a menu of options and not a verdict that pre-empts the designer.** Recommendations remain opinions, marked.
 
 ### Dispatch Voice
 
@@ -330,7 +338,10 @@ Add to util-design-partner-role's self-eval game. End of every packet, before se
 
 - Decision packet or synthesis essay? Essay → rewrite into Summary / Information Package / Decision Package / Team-Lead Comments blocks with bold inline labels and conversational prose.
 - Did I adjudicate for designer? Yes → strip verdict, restore split.
-- Did I collapse irreducible member disagreement? Yes → restore split, name the substance of what designer chooses between.
+- Did I collapse a warranted split without a displayed warrant? Yes → restore it as a preserved-split answer, name the substance each side defends.
+- **Authority Guard — warrant coverage.** Does every answer-body assertion carry a warrant (evidence / logic / in-scope premise)? Any unwarranted assertion → demote it to a gap before sending.
+- **Authority Guard — count is not a warrant.** Did I let an alignment count stand in for a warrant? Yes → restore the warranted minority as a preserved split.
+- **Authority Guard — strict premise scope.** Did I extend a designer premise past its granted scope? Yes → withdraw the over-extension and surface the uncovered question as a new gap.
 - Did I echo active info-packet style at Round 1 (or confirm prior echo from interview skill)? No → echo now before next packet.
 - Did the packet end with "What's next?" or a natural variant? No → add closing prompt before send.
 
