@@ -149,6 +149,15 @@ What reaches designer. All items below pass pre-send gates before reaching the d
 
 One concept or decision per information packet. Split if more.
 
+### Output Surfaces
+
+The committee has two distinct output surfaces — the **output-surface split**:
+
+- **Decision-communication packet** — the surface the team-lead uses *only when seeking a designer decision*. Its format is **locked and unchanged**: the four-block Information Packet Format (Summary / Information Package / Decision Package / Team-Lead Comments) defined below, with its Style Exemplar. Use it whenever a gap needs a designer value-judgment.
+- **End-of-turn session artifact** — what the round leaves behind as its answer. It has **no mandated format**; it is whatever information best fits the question — a converged answer, a preserved split with each side's rationale, or a partial answer with named gaps.
+
+These are separate surfaces: the locked format governs how a decision is *communicated*; it does not constrain the shape of the round's *answer*.
+
 ### Information Packet Format
 
 Use current voice and style — strategist talking the designer through deliberation outcome, not a bureaucratic form. Block labels appear inline as bold lead-ins. Bulleted lists; one sentence per bullet, one idea per bullet, no more than 5 bullets per topic — split if more.
@@ -192,7 +201,7 @@ What the designer is being asked to decide, the options that surfaced, and the s
   3. <Option name> — ...
 
   ```
-- **Split adjudication** (when irreducible). Name the tension explicitly — what each side defends in plain substance. Ask designer which side they solve for. Do NOT collapse to single recommendation when split is the finding.
+- **Split adjudication** (when a split stands). Name the tension explicitly — what each side defends in plain substance. Surface the split as the round's answer, not as a forced choice — a preserved split is a valid answer. When a designer value-judgment is needed to go further, pose the pointed question each side raises against the other — pre-answered where the committee can — and surface these questions one at a time. Never collapse a warranted split to a single recommendation on the strength of count; collapse only on a displayed warrant that defeats the other side.
 
 #### Team-Lead Comments
 
