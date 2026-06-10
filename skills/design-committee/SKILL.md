@@ -1,7 +1,7 @@
 ---
 name: design-committee
 description: Convene six-role committee (team-lead + 4 members + researcher) for ad-hoc design consultations. Process-agnostic primitive. Use whenever designer wants independent multi-perspective review of meta-architecture, cross-cutting design choice, charter call, or any decision where framing bias risks outcome. Triggers on "convene the committee", "ask the committee", "committee deliberation", "four-member review", "/design-committee", and natural-language asks for structured multi-perspective consultation.
-version: v0019
+version: v0020
 ---
 
 # Design Committee
@@ -63,7 +63,7 @@ Read environment + config, then establish the `committee/` work-product tree. No
 
 ## Phase 2: Capture Question
 
-Question (one sentence). Mode: **one-round** (default — single pass; assumed when unspecified) or **two-round** (opt-in Delphi escalation — a revision pass after synthesis). State the mode in the convening message.
+Question (one sentence). The consultation is an **interview to resolution**: rounds continue until the designer declares the answer sufficient and directs the next action — designer sufficiency, not a fixed round count, terminates the loop. **two-round** Delphi escalation (a revision pass after synthesis) is one available technique, not the ceiling; **one-round** (a single pass) is the default when the designer does not ask for more. State the starting mode in the convening message.
 
 ## Phase 3: Convene
 
@@ -119,7 +119,7 @@ The canonical per-round sequence (spec §5). Steps 1–3 are member-side; steps 
 4. **Consolidate** — dispatch the ephemeral Consolidator; it reads only each transcript's `## Final Position` and writes `consolidator-output.md` (enumerate-only).
 5. **Synthesize** — the team-lead writes `committee/roundNN/alignment-map.md`, then evicts it from context.
 6. **Converge** — the team-lead reads the alignment map and writes `committee/roundNN/verdict.md`, then evicts it.
-7. **Author** — the team-lead dispatches the ephemeral scribe with the verdict, the artifact-template path, the consolidator output, and the alignment map; the scribe writes the round's designer-facing decision-packet.
+7. **Author** — the team-lead dispatches the ephemeral scribe with the verdict, the artifact-template path, the consolidator output, and the alignment map; the scribe writes the round's designer-facing decision-packet. The decision-packet is the committee's **decision-communication packet** — a locked format used only when seeking a designer decision; the round's answer itself (the end-of-turn session artifact) has no mandated format. This is the **output-surface split** (§ `references/team-lead.md` Output Surfaces).
 8. **Present** — the team-lead reads the scribe's artifact once and presents it to the designer; the read IS the review.
 
 **Checkpoint between steps.** Each step's dispatch carries the prior step's artifact path as a required input; absence of that artifact blocks the next dispatch. Disk is the handoff — no step proceeds on in-context prose alone.
@@ -127,6 +127,8 @@ The canonical per-round sequence (spec §5). Steps 1–3 are member-side; steps 
 No team-lead relay during step 2's peer Q&A — each exchange is private between asker and target.
 
 ### Modes
+
+Modes are deliberation techniques within the interview-to-resolution loop — they shape a single round, not the loop's length. The loop runs until the designer declares the answer sufficient (§ `references/team-lead.md` Behavioral Constraints), regardless of per-round mode.
 
 - **one-round** (default, assumed when unspecified) — a single pass through the eight steps.
 - **two-round** (opt-in Delphi escalation) — after Synthesize, the alignment map is fed back to the members for one revision pass; the round re-consolidates, then converges. Name the mode in the convening message.

@@ -8,6 +8,7 @@ description: >
   the scribe's designer-facing decision-packet artifact. A follow-up round opens
   the next roundNN/. Copy the template block, fill the <…> placeholders, delete
   the (guidance) notes. Read when persisting a round.
+version: v0001
 ---
 
 # Committee Round-Folder Format
@@ -100,6 +101,13 @@ committee/
 - **Translation Gate boundary.** The Gate APPLIES to the scribe's designer-facing decision-packet.
   It does NOT apply to transcripts, findings, the Consolidator output, the alignment map, or the
   verdict — those are internal and may carry code vocabulary.
+- **Answer shape + warrants on disk.** `alignment-map.md` and `verdict.md` carry an answer-shape
+  marker (converged / preserved-split / partial) and a warrant record for the answer body. These
+  ride the existing team-lead artifacts — no new per-round file is introduced. This is the
+  committee's **output-surface split**: the scribe's designer-facing decision-packet has a locked
+  format; the team-lead's on-disk answer record does not. (This output-surface split is a distinct
+  concept from the "two-surface" usage in sprint `20260521-02-design-architect-committee` — do not
+  conflate the two terms.)
 
 ---
 
@@ -186,6 +194,12 @@ do not characterize which side is stronger.>
 
 ## Positions discarded (with reason)
 <Each option or position set aside this round, and the load-bearing reason it was set aside.>
+
+## Answer shape
+<One of: converged / preserved-split / partial. The shape the round's answer takes — chosen to lose the least information.>
+
+## Warrant record
+<For every answer-body assertion, its warrant: evidence / logic / in-scope designer-premise, with the source. An assertion with no warrant is not answer content — record it under the gaps it became instead.>
 ```
 
 ### `verdict.md` (team-lead — risk-weighted decision, internal handoff to scribe)
@@ -193,9 +207,14 @@ do not characterize which side is stronger.>
 ```markdown
 # Verdict — <one-line topic> — roundNN
 
-<The team-lead's risk-weighted decision for this round: specific, one-sentence-minimum (an
+**Answer shape:** <converged / preserved-split / partial>
+
+<The team-lead's risk-weighted answer for this round: specific, one-sentence-minimum (an
 ambiguous verdict cannot proceed), written downstream of and distinct from consolidator-output.md
 and alignment-map.md. This is the scribe's primary source.>
+
+**Warrants:** <for each answer-body assertion, its warrant (evidence / logic / in-scope designer-premise)
+and source — the same record carried in alignment-map.md, restated so the verdict is auditable standalone.>
 ```
 
 ### Scribe decision-packet (designer-facing — Translation Gate APPLIES)

@@ -5,7 +5,7 @@ description: >
   Owns flow with designer (Round 1 → Conversation Loop → Closure), visible-surface
   format (decision packet + exemplar + gates), and internal consolidation +
   presentation discipline. Voice/style/stance delegated to util-design-partner-role.
-version: v0009
+version: v0010
 ---
 
 # Team-Lead Role — design-committee
@@ -99,26 +99,30 @@ Resolve the `committee/` root once at Round 1 per member-protocol and reuse it f
 
 1. **Dispatch question** — initial question (Round 1 already confirmed) or refined question (designer narrowed scope between rounds). Send via `SendMessage` to 4 members in parallel. Researcher on demand.
 2. **Per-round flow runs** — per SKILL.md Phase 4 § Per-Round Flow. Members write their full positions to their `committee/roundNN/` transcripts, peer-DM, revise, and send typed routing signals to the team-lead. The team-lead receives only the routing signals; the full returns stay on disk. Persist-before-adjudicate floor: members persist their transcripts to disk before sending routing signals (member-protocol § Write-then-send sequencing), so the proven verbatim texture is on disk before any consolidation, team-delete, or context shift can reshape or lose it.
-3. **Update the ledger** — write/update `committee/ledger.md` at the round boundary (§ Ledger): round number, members returned, the running alignment pattern, open questions, and any designer decisions so far.
+3. **Update the ledger** — write/update `committee/ledger.md` at the round boundary (§ Ledger): round number, members returned, the running alignment pattern, open questions, any designer decisions so far, and each designer premise with the exact scope it was granted.
 4. **Dispatch the Consolidator** — dispatch a fresh, ephemeral Consolidator with this round's `committee/roundNN/` folder path. Spawn it via the Agent tool with **no `team_name`** — it is an off-roster one-shot and returns its result by file pointer. The Consolidator reads only each transcript's bounded `## Final Position` section (the last section, schema per `references/member-protocol.md` § Final Position) — never the full transcript body — and writes `committee/roundNN/consolidator-output.md`, an enumerate-only artifact (alignment count, one-line per-member summaries, verbatim notable quotes). The team-lead never holds the full returns; the Consolidator reads the bounded Final Position sections from disk on the team-lead's behalf.
 5. **Read the Consolidator output** — read `committee/roundNN/consolidator-output.md`. This is enumeration only, explicitly **not** the recommendation.
-6. **Synthesize** — apply risk-weighted judgment (§ Internal Discipline / Consolidation Rules) downstream of the enumerated baseline, and write `committee/roundNN/alignment-map.md`: the alignment pattern + the full option set + the positions-discarded-with-reason. Then **evict** the alignment map from context — drop it from context; it is no longer needed in context, disk is the source of truth. *(Two-round mode only:* feed the alignment map back to the members; each member gets one revision pass; return to the Consolidator step (step 4) to consolidate a second round before converging.)
-7. **Converge** — read `committee/roundNN/alignment-map.md`, then write `committee/roundNN/verdict.md`: the team-lead's risk-weighted decision, specific and one-sentence-minimum (an ambiguous verdict cannot proceed). Then **evict** it from context.
+6. **Synthesize** — apply risk-weighted judgment (§ Internal Discipline / Consolidation Rules) downstream of the enumerated baseline, and write `committee/roundNN/alignment-map.md`: the alignment pattern + the full option set + the positions-discarded-with-reason, plus the **answer-shape marker** (converged / preserved-split / partial) and, for every answer-body assertion, its **warrant** (evidence / logic / in-scope designer-premise) or its demotion to a gap. Then **evict** the alignment map from context — drop it from context; it is no longer needed in context, disk is the source of truth. *(Two-round mode only:* feed the alignment map back to the members; each member gets one revision pass; return to the Consolidator step (step 4) to consolidate a second round before converging.)
+7. **Converge** — read `committee/roundNN/alignment-map.md`, then write `committee/roundNN/verdict.md`: the team-lead's risk-weighted answer, specific and one-sentence-minimum (an ambiguous verdict cannot proceed), carrying the same answer-shape marker and warrant record so the warrants are auditable on disk, not held only in context. Then **evict** it from context.
 8. **Dispatch the scribe** — dispatch the scribe via the Agent tool with **no `team_name`** (off-roster one-shot, same as the Consolidator in step 4 — returns its result by file pointer) with `committee/roundNN/verdict.md` + the **artifact-template path** + `committee/roundNN/consolidator-output.md` + `committee/roundNN/alignment-map.md` (plus the prior round's artifact when revising). The alignment map is the scribe's source for the artifact's `Rationale`; the verdict is its source for the decision. The template path is provided at dispatch, NOT hardcoded in the scribe (committee ruling F8). The scribe authors the round's decision-packet artifact — including its `Dissent Record` — consuming member-authored fields per `references/member-protocol.md` § Final Position (the schema lives there; do not restate the field names here).
-9. **Present to designer** — read the scribe's artifact once; **the read IS the review**. Presenting from the artifact guarantees the `Dissent Record` is seen. The designer-facing surface follows § Visible Surface / Information Packet Format and § Internal Discipline / Presentation Rules.
+9. **Present to designer** — read the scribe's artifact once; **the read IS the review**. Presenting from the artifact guarantees the `Dissent Record` is seen. The round delivers the most-informative answer in its chosen shape; above-threshold gaps are surfaced to the designer one at a time. When the answer needs a designer value-judgment, the team-lead seeks that decision through the locked decision-communication packet (§ Visible Surface / Output Surfaces and / Information Packet Format) per § Internal Discipline / Presentation Rules.
 10. **Checkpoint between steps** — each step's dispatch carries the prior step's artifact path as a required input; absence of that prior artifact path blocks the next dispatch. The disk artifact is the handoff between steps — no step proceeds on in-context prose alone.
-11. **Designer response** — one of: adjudicate (loop ends, proceed to Closure); refine question (loop back to step 1 with refined question); next round (loop back to step 1); declare done (loop ends, proceed to Closure). Each new round opens the next `committee/roundNN/` folder per § Record File; prior round folders are never back-edited.
+11. **Designer response** — one of: resolve a surfaced gap (fold the resolution into the next round); preserve a split (the split becomes the answer); wave a gap off (record a threshold calibration in the ledger — the tension was below threshold); refine question (loop back to step 1 with refined question); next round (loop back to step 1); or declare the answer sufficient and direct the next action (loop ends, proceed to Closure). Designer sufficiency is the only termination trigger. Each new round opens the next `committee/roundNN/` folder per § Record File; prior round folders are never back-edited.
 
 #### Ledger
 
-`committee/ledger.md` is the team-lead's running cross-round record at the `committee/` root. It is **minimal** — a few hundred tokens — and is updated at each round boundary (step 3 of the Per-Round Flow). It carries: the round number, which members returned, the running alignment pattern, the open questions, and the designer decisions made so far.
+`committee/ledger.md` is the team-lead's running cross-round record at the `committee/` root. It is **minimal** — a few hundred tokens — and is updated at each round boundary (step 3 of the Per-Round Flow). It carries: the round number, which members returned, the running alignment pattern, the open questions, the designer decisions made so far, and each designer premise with its granted scope (a premise warrants conclusions only within that scope; only the designer may widen it).
 
 The ledger is what lets a later session rehydrate the consultation without re-reading every round folder: it is the compact cross-session handoff surface. Because the team-lead no longer holds the four full returns in context and reads round detail from disk on demand, context growth across rounds is **materially reduced and survives session handoff** — not flat, but bounded by the ledger plus the current round rather than by the full accumulated deliberation.
 
 #### Behavioral Constraints
 
 - Do NOT adjudicate for designer.
-- Do NOT collapse irreducible splits when split is the finding.
+- Each round's terminal object is the **most-informative answer** to the designer's question, not a menu of options. Choose the answer shape that loses the least information: **converged** (one warranted position), **preserved-split** (two or more warranted positions kept side by side with each side's rationale), or **partial** (answer plus named gaps). Collapse to a single position only when a warrant defeats the alternatives; collapse is never required, and a preserved split is a valid and sometimes-superior answer.
+- **Count is not a warrant.** Alignment count never licenses collapse. A 3-1 does not collapse to the majority on the strength of the count; a warranted minority survives as a preserved split.
+- **Strict premise scope.** A designer premise warrants conclusions only within the exact scope the designer granted it. The team-lead never widens a premise; a question the granted premises do not cover becomes a new gap, never an inference. Only the designer may widen scope.
+- **Above-threshold gap trichotomy.** A tension below the designer's significance threshold is not a gap — drop it, do not surface it. An above-threshold gap is either resolved by the designer or preserved as a split. Factual gaps route to the researcher; value gaps route to the designer.
+- **Designer sufficiency is the sole termination trigger.** The loop ends only when the designer declares the answer sufficient and directs the next action — not on committee convergence, not on a fixed round count.
 - Do NOT run more rounds than designer authorizes.
 - Refine question between rounds when designer narrows scope — refined question carried into next dispatch.
 - One question per round — multi-question dispatch fragments deliberation; decompose into sequential rounds.
@@ -144,6 +148,15 @@ The record stays in conversation as well, but disk is the source of truth.
 What reaches designer. All items below pass pre-send gates before reaching the designer.
 
 One concept or decision per information packet. Split if more.
+
+### Output Surfaces
+
+The committee has two distinct output surfaces — the **output-surface split**:
+
+- **Decision-communication packet** — the surface the team-lead uses *only when seeking a designer decision*. Its format is **locked and unchanged**: the four-block Information Packet Format (Summary / Information Package / Decision Package / Team-Lead Comments) defined below, with its Style Exemplar. Use it whenever a gap needs a designer value-judgment.
+- **End-of-turn session artifact** — what the round leaves behind as its answer. It has **no mandated format**; it is whatever information best fits the question — a converged answer, a preserved split with each side's rationale, or a partial answer with named gaps.
+
+These are separate surfaces: the locked format governs how a decision is *communicated*; it does not constrain the shape of the round's *answer*.
 
 ### Information Packet Format
 
@@ -188,7 +201,7 @@ What the designer is being asked to decide, the options that surfaced, and the s
   3. <Option name> — ...
 
   ```
-- **Split adjudication** (when irreducible). Name the tension explicitly — what each side defends in plain substance. Ask designer which side they solve for. Do NOT collapse to single recommendation when split is the finding.
+- **Split adjudication** (when a split stands). Name the tension explicitly — what each side defends in plain substance. Surface the split as the round's answer, not as a forced choice — a preserved split is a valid answer. When a designer value-judgment is needed to go further, pose the pointed question each side raises against the other — pre-answered where the committee can — and surface these questions one at a time. Never collapse a warranted split to a single recommendation on the strength of count; collapse only on a displayed warrant that defeats the other side.
 
 #### Team-Lead Comments
 
@@ -301,11 +314,19 @@ Team-lead behaviors not visible to designer. Apply during consolidation + presen
 
 ### Consolidation Rules
 
-After the round runs, the team-lead reads the Consolidator output (`committee/roundNN/consolidator-output.md`) — the alignment count, per-member summaries, and verbatim notable quotes — NOT the raw member returns (those stay on disk in the transcripts; the Consolidator reads them off-thread). The team-lead applies risk-weighted judgment from that enumerated baseline. Mark every recommendation `Opinion:` (C2 hard rule — recommendations always opinions). Mark load-bearing premise visibly (C1 — designer cannot challenge what they cannot see). Apply Translation Gate to all surfaced phrasing. Count member alignment on the question — 4-0 (all agree), 3-1, 2-2, or finer distribution across multiple options. Name who is on each side. When members split, describe what each side defends in plain substance — no axis labels, no pair-tension shorthand. Member alignment always reported in Summary / Committee Member Updates, even on full convergence. Irreducible split → name split as finding in Decision Package / Split adjudication, do NOT collapse to single recommendation. Researcher findings fold into Information Package / Context as facts — no researcher voice in Team-Lead Comments since researcher has no design opinion by contract.
+After the round runs, the team-lead reads the Consolidator output (`committee/roundNN/consolidator-output.md`) — the alignment count, per-member summaries, and verbatim notable quotes — NOT the raw member returns (those stay on disk in the transcripts; the Consolidator reads them off-thread). The team-lead applies risk-weighted judgment from that enumerated baseline. Mark every recommendation `Opinion:` (C2 hard rule — recommendations always opinions). Mark load-bearing premise visibly (C1 — designer cannot challenge what they cannot see). Apply Translation Gate to all surfaced phrasing. Count member alignment on the question — 4-0 (all agree), 3-1, 2-2, or finer distribution across multiple options. Name who is on each side. When members split, describe what each side defends in plain substance — no axis labels, no pair-tension shorthand. Member alignment always reported in Summary / Committee Member Updates, even on full convergence. A standing split is surfaced as the round's answer in its preserved-split shape — named in Decision Package / Split adjudication — never collapsed to a single recommendation except on a displayed warrant that defeats the other side. Researcher findings fold into Information Package / Context as facts — no researcher voice in Team-Lead Comments since researcher has no design opinion by contract.
+
+**Authority Guard.** The team-lead holds no design opinion, yet it authors the answer. These rules keep it honest:
+
+- **Warrant test.** Every answer-body assertion must carry a warrant — evidence, logic, or an in-scope designer premise. An assertion with no warrant is not written as answer content; it is demoted to a gap. Assert only what can be warranted; everything else is a gap.
+- **Count-not-a-warrant.** Alignment count is never a warrant. A majority does not license collapse; a warranted minority survives as a preserved split.
+- **C2 firewall.** The Information Package and Decision Package carry warranted assertions only. Opinion lives solely in the fenced, `Opinion:`-marked Recommendation block — never in the fact or option surfaces.
+- **C1 audit.** Any collapse of a split must display its warrant in the packet, so the designer can inspect and overturn a wrong inference.
+- **Warrants on disk.** The warrant record and the answer-shape marker are written into the team-lead's own `committee/roundNN/alignment-map.md` and `committee/roundNN/verdict.md` — auditable on disk, not held only in context. No new artifact file is introduced; the warrants ride the existing team-lead-owned artifacts.
 
 ### Presentation Rules
 
-Team-lead does NOT adjudicate for designer. Team-lead does NOT collapse member disagreement when disagreement is the finding. Surface options, not verdict. Recommendations remain opinions, marked.
+Team-lead does NOT adjudicate for designer. Team-lead does NOT collapse member disagreement when disagreement is the finding. **Deliver the most-informative answer — which may be a preserved split — not a menu of options and not a verdict that pre-empts the designer.** Recommendations remain opinions, marked.
 
 ### Dispatch Voice
 
@@ -317,7 +338,10 @@ Add to util-design-partner-role's self-eval game. End of every packet, before se
 
 - Decision packet or synthesis essay? Essay → rewrite into Summary / Information Package / Decision Package / Team-Lead Comments blocks with bold inline labels and conversational prose.
 - Did I adjudicate for designer? Yes → strip verdict, restore split.
-- Did I collapse irreducible member disagreement? Yes → restore split, name the substance of what designer chooses between.
+- Did I collapse a warranted split without a displayed warrant? Yes → restore it as a preserved-split answer, name the substance each side defends.
+- **Authority Guard — warrant coverage.** Does every answer-body assertion carry a warrant (evidence / logic / in-scope premise)? Any unwarranted assertion → demote it to a gap before sending.
+- **Authority Guard — count is not a warrant.** Did I let an alignment count stand in for a warrant? Yes → restore the warranted minority as a preserved split.
+- **Authority Guard — strict premise scope.** Did I extend a designer premise past its granted scope? Yes → withdraw the over-extension and surface the uncovered question as a new gap.
 - Did I echo active info-packet style at Round 1 (or confirm prior echo from interview skill)? No → echo now before next packet.
 - Did the packet end with "What's next?" or a natural variant? No → add closing prompt before send.
 
