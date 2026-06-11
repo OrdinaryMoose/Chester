@@ -1,7 +1,7 @@
 ---
 name: design-committee
 description: Convene six-role committee (team-lead + 4 members + researcher) for ad-hoc design consultations. Process-agnostic primitive. Use whenever designer wants independent multi-perspective review of meta-architecture, cross-cutting design choice, charter call, or any decision where framing bias risks outcome. Triggers on "convene the committee", "ask the committee", "committee deliberation", "four-member review", "/design-committee", and natural-language asks for structured multi-perspective consultation.
-version: v0021
+version: v0022
 ---
 
 # Design Committee
@@ -26,10 +26,10 @@ The four advocacy members exist as distinct points in shared deliberation space 
 Roster (six roles; five subagents created by `TeamCreate` = four advocacy + researcher; team-lead = calling agent; designer = human):
 
 - Team-Lead (calling agent). Dispatches, receives, compiles. No design opinion. NOT relay during deliberation — peers DM peers direct. Holds workflow thread. No proof mutations. Role: `references/team-lead.md`.
-- Conservator; `chester:design-committee-conservator`. Defends existing structure, stasis, framing current patterns handle. Design history = signal until proven cost.
-- Innovator; `chester:design-committee-innovator`. Pushes new framings, structural alternatives. Existing structure = choice re-makeable.
-- Pragmatist; `chester:design-committee-pragmatist`. Weighs op cost vs benefit. Defends simplest sufficient. Shipping + runtime cost = first-class trade-offs.
-- Purist; `chester:design-committee-purist`. Tests category boundaries, compositional integrity. Ambiguous categories = failure mode.
+- Conservator; `chester:design-committee-conservator`. Advocacy member (full lens in agent file).
+- Innovator; `chester:design-committee-innovator`. Advocacy member (full lens in agent file).
+- Pragmatist; `chester:design-committee-pragmatist`. Advocacy member (full lens in agent file).
+- Purist; `chester:design-committee-purist`. Advocacy member (full lens in agent file).
 - Researcher; `chester:design-committee-researcher`. Tools: Read, Glob, Grep, Bash, WebSearch, WebFetch, Write. Owns codebase, prior-art, industry research, doc reading, multi-source consolidation, absence findings. Hard prohibitions: no design opinion, no proof-state ops, no file writes outside the `committee/` tree and the conversation record (writes findings to its round-folder findings file).
 - Designer (human, non-dispatched). Adjudicates all decisions. Sets meta-rules. Authorizes charter changes. Never spawned as subagent.
 
@@ -37,10 +37,7 @@ Roster (six roles; five subagents created by `TeamCreate` = four advocacy + rese
 
 Floor enforcement. Every subagent self-enforces. Team-lead re-checks at consolidation per `references/team-lead.md`. Apply before output reaches designer.
 
-- Read-aloud test. Can't say sentence aloud over coffee → rewrite. Catches code vocab, paths, dot-identifiers, type-theory jargon.
-- Option-naming. Name options by what they do structurally, not by type they introduce.
-- C1 Externalized Coverage. Load-bearing premise must surface in output before counting toward shared understanding.
-- C2 Fact Default with Marked Departures. Default = verified fact. Mark `Assumption:` for unverified premise. Mark `Opinion:` for stance. Recommendations always opinions.
+- Floor rules: read-aloud test, Option-naming, C1 Externalized Coverage, C2 Fact Default with Marked Departures — full spec in the citation below.
 
 Full voice spec: `skills/util-design-partner-role/SKILL.md`. LOAD-BEARING citation. Touch util-design-partner-role → audit committee impact.
 
@@ -136,7 +133,7 @@ The canonical per-round sequence (spec §5). Steps 1–3 are member-side; steps 
 4. **Consolidate** — dispatch the ephemeral Consolidator; it reads only each transcript's `## Final Position` and writes `consolidator-output.md` (enumerate-only).
 5. **Synthesize** — the team-lead writes `committee/roundNN/alignment-map.md`, then evicts it from context.
 6. **Converge** — the team-lead reads the alignment map and writes `committee/roundNN/verdict.md`, then evicts it.
-7. **Author** — the team-lead dispatches the ephemeral scribe with the verdict, the artifact-template path, the consolidator output, and the alignment map; the scribe writes the round's designer-facing decision-packet. The decision-packet is the committee's **decision-communication packet** — a locked format used only when seeking a designer decision; the round's answer itself (the end-of-turn session artifact) has no mandated format. This is the **output-surface split** (§ `references/team-lead.md` Output Surfaces).
+7. **Author** — the team-lead dispatches the ephemeral scribe with the verdict, the artifact-template path, the consolidator output, and the alignment map; the scribe writes the round's designer-facing decision-packet. The output-surface split governs format — see § `references/team-lead.md` Output Surfaces.
 8. **Present** — the team-lead reads the scribe's artifact once and presents it to the designer; the read IS the review.
 
 **Checkpoint between steps.** Each step's dispatch carries the prior step's artifact path as a required input; absence of that artifact blocks the next dispatch. Disk is the handoff — no step proceeds on in-context prose alone.
@@ -170,8 +167,8 @@ Generic base-skill role-contract edits to the member agent files — clarificati
 
 ## Integration
 
-- **Calls:** `TeamCreate`, `SendMessage`, `TeamDelete` (orchestration); `chester-config-read` (config); `chester:design-committee-*` agents (members + researcher); `chester:design-committee-consolidator` (ephemeral per-round consolidation dispatch, not on the `TeamCreate` roster); `chester:design-committee-scribe` (ephemeral per-round authoring dispatch, not on the `TeamCreate` roster).
+- **Calls:** `TeamCreate`, `SendMessage`, `TeamDelete` (orchestration); `chester-config-read` (config); `chester:design-committee-*` agents (members + researcher); `chester:design-committee-consolidator` and `chester:design-committee-scribe` (ephemeral off-roster dispatches — see § Consolidator, § Scribe).
 - **Reads:** `util-design-partner-role` (voice — before convening), `references/team-lead.md` (team-lead role behavior), `references/member-protocol.md` (Final Position schema, routing-signal discipline, transcript/round-folder discipline, committee-root resolution), `references/committee-analysis-round-format.md` (round-folder record layout), `references/artifact-template.md` (scribe artifact structure), `references/skill-contract.md` (skill-author only). Member phase contracts are not read here — they load as each `chester:design-committee-*` agent's own system prompt on dispatch.
 - **Transitions to:** none — committee = standalone consultation. Designer routes downstream work.
-- **Does NOT call:** `start-bootstrap`, `util-worktree`, any sprint-creating skill. Standalone invocability requires Phase 1 create no sprint — no `start-bootstrap`, no sprint directory. (Phase 1 does create the `committee/` work-product tree; that is the committee's own artifact root, not sprint scaffolding.)
+- **Does NOT call:** `start-bootstrap`, `util-worktree`, any sprint-creating skill — see § Standalone Invocability.
 - **Does NOT use:** `capture_thought`, `get_thinking_summary`, proof MCP — no proof phase at this layer.
