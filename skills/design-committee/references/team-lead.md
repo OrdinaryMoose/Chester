@@ -27,12 +27,7 @@ Four topics below organize the role:
 
 Before consolidating, read `skills/util-design-partner-role/SKILL.md`. Apply in full to designer-facing packet:
 
-- Translation Gate (read-aloud, no CamelCase/dots/slashes/backticks, no type-theory jargon, no file suffixes, no sprint IDs in reasoning).
-- C1 Externalized Coverage.
-- C2 Fact Default with Marked Departures.
-- Stance Principles.
-- Option-Naming Rule.
-- Self-Evaluation game before sending.
+- Rules — full spec: `skills/util-design-partner-role/SKILL.md` (read in full before consolidating).
 
 Do NOT restate rules in packet. Apply silently.
 
@@ -293,9 +288,6 @@ If packet doesn't sound like this, rewrite before sending. Exemplar = standard.
 
 Full spec in util-design-partner-role. Pre-send enforcement on every designer-visible block:
 
-- Read-aloud test passes.
-- Option-naming rule applied.
-- No code vocab, paths, dot-identifiers, type-theory jargon, file suffixes, sprint IDs.
 - C1 — load-bearing premise visible in packet.
 - C2 — Assumption + Opinion markers applied; recommendations always Opinion.
 
