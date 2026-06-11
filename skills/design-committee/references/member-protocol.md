@@ -85,10 +85,10 @@ Requirements:
 - **200-word cap** — the whole section is at most 200 words.
 - **Member-authored** — the member writes every field; no other role composes or
   edits it.
-- **Schema** — exactly these three fields:
+- **Schema** — exactly these four fields:
 
 ```
-{position, rationale, blocking_risk}
+{position, rationale, blocking_risk, warrant}
 ```
 
 - `position` — the option the member lands on, named by what it does
@@ -97,6 +97,19 @@ Requirements:
 - `blocking_risk` — the member's own ~20-word articulation of the hardest
   objection to the options it did *not* choose. It is the member's reasoning in
   its own words, **not a label and not a paraphrase** of someone else's point.
+- `warrant` — the ground under the member's load-bearing claim, in two parts: a
+  `type` (one of `evidence | logic | in-scope designer-premise`) and a `source`
+  (the citation for `evidence`, the inference step for `logic`, or the designer
+  statement that granted the premise for `in-scope designer-premise`). It is the
+  member's own ground for the claim, **not** a restatement of `rationale`.
+  Member-authored, within the 200-word cap.
+
+The `warrant` is a **content** extension to the Final Position, not a mechanics
+change. It does not alter the routing signal schema, the Consolidator's
+enumerate-only boundary, round-folder discipline, or write-then-send sequencing —
+those remain frozen. The warrant lives only in the on-disk `## Final Position`; it
+never travels in the routing signal, and the team-lead reads it from disk on
+demand when verifying.
 
 No other file restates these fields. Downstream steps read this section directly.
 
