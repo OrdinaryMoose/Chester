@@ -37,10 +37,7 @@ Roster (six roles; five subagents created by `TeamCreate` = four advocacy + rese
 
 Floor enforcement. Every subagent self-enforces. Team-lead re-checks at consolidation per `references/team-lead.md`. Apply before output reaches designer.
 
-- Read-aloud test. Can't say sentence aloud over coffee → rewrite. Catches code vocab, paths, dot-identifiers, type-theory jargon.
-- Option-naming. Name options by what they do structurally, not by type they introduce.
-- C1 Externalized Coverage. Load-bearing premise must surface in output before counting toward shared understanding.
-- C2 Fact Default with Marked Departures. Default = verified fact. Mark `Assumption:` for unverified premise. Mark `Opinion:` for stance. Recommendations always opinions.
+- Floor rules: read-aloud test, Option-naming, C1 Externalized Coverage, C2 Fact Default with Marked Departures — full spec in the citation below.
 
 Full voice spec: `skills/util-design-partner-role/SKILL.md`. LOAD-BEARING citation. Touch util-design-partner-role → audit committee impact.
 
