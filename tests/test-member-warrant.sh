@@ -39,4 +39,24 @@ done
 # researcher untouched: pointer absent
 ! grep -qF "$INSTR" "$AGENTS_DIR/design-committee-researcher.md"; check "researcher agent has no warrant pointer" $?
 
+# --- Task 3: team-lead verification reword + version + invariants ---
+TL="$ROOT/skills/design-committee/references/team-lead.md"
+UDP="$ROOT/skills/util-design-partner-role/SKILL.md"
+grep -q '^version: v0011' "$TL"; check "team-lead.md bumped to v0011" $?
+grep -qi 'team-lead .*verifies' "$TL"; check "warrant test uses verify framing" $?
+grep -qi 'member-supplied warrant' "$TL"; check "warrant test names member-supplied warrant" $?
+grep -qi 'does not originate a warrant on the member' "$TL"; check "warrant test forbids team-lead origination" $?
+grep -qi 'trace to a member-supplied warrant' "$TL"; check "self-eval warrant-coverage reworded (unique self-eval phrase)" $?
+grep -q 'in-scope designer-premise' "$TL"; check "team-lead third warrant type hyphenation reconciled" $?
+# doctrine intact (AC-3.3)
+grep -qi 'Count-not-a-warrant' "$TL"; check "doctrine: count-not-a-warrant intact" $?
+grep -qi 'C2 firewall' "$TL"; check "doctrine: C2 firewall intact" $?
+grep -qi 'C1 audit' "$TL"; check "doctrine: C1 audit intact" $?
+grep -qi 'strict premise scope' "$TL"; check "doctrine: strict premise scope intact" $?
+# locked decision packet intact (AC-4.1)
+grep -q 'Information Package' "$TL" && grep -q 'Decision Package' "$TL" && grep -q 'Team-Lead Comments' "$TL"; check "locked four-block packet headings present" $?
+grep -q 'What a Good Decision Packet Sounds Like' "$TL"; check "locked decision-packet Style Exemplar intact (distinctive anchor)" $?
+# voice spec present/untouched anchor (AC-4.1)
+grep -qi 'Translation Gate' "$UDP"; check "util-design-partner-role intact (anchor present)" $?
+
 exit $fail
