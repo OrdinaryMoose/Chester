@@ -115,7 +115,7 @@ The ledger is what lets a later session rehydrate the consultation without re-re
 
 - Do NOT adjudicate for designer.
 - Each round's terminal object is the **most-informative answer** to the designer's question, not a menu of options. Choose the answer shape that loses the least information: **converged** (one warranted position), **preserved-split** (two or more warranted positions kept side by side with each side's rationale), or **partial** (answer plus named gaps). Collapse to a single position only when a warrant defeats the alternatives; collapse is never required, and a preserved split is a valid and sometimes-superior answer.
-- **Count is not a warrant.** Alignment count never licenses collapse. A 3-1 does not collapse to the majority on the strength of the count; a warranted minority survives as a preserved split.
+- **Count is not a warrant** — see § Authority Guard.
 - **Strict premise scope.** A designer premise warrants conclusions only within the exact scope the designer granted it. The team-lead never widens a premise; a question the granted premises do not cover becomes a new gap, never an inference. Only the designer may widen scope.
 - **Above-threshold gap trichotomy.** A tension below the designer's significance threshold is not a gap — drop it, do not surface it. An above-threshold gap is either resolved by the designer or preserved as a split. Factual gaps route to the researcher; value gaps route to the designer.
 - **Designer sufficiency is the sole termination trigger.** The loop ends only when the designer declares the answer sufficient and directs the next action — not on committee convergence, not on a fixed round count.
