@@ -1,7 +1,7 @@
 ---
 name: design-committee
 description: Convene six-role committee (team-lead + 4 members + researcher) for ad-hoc design consultations. Process-agnostic primitive. Use whenever designer wants independent multi-perspective review of meta-architecture, cross-cutting design choice, charter call, or any decision where framing bias risks outcome. Triggers on "convene the committee", "ask the committee", "committee deliberation", "four-member review", "/design-committee", and natural-language asks for structured multi-perspective consultation.
-version: v0020
+version: v0021
 ---
 
 # Design Committee
@@ -83,6 +83,20 @@ chester:design-committee-researcher
 
 Team slug: `design-committee-<question-slug>`.
 
+### Dispatch Discipline
+
+Two dispatch tools, one discriminator.
+Both take same `chester:design-committee-*` identifiers; neither errors on wrong choice — identifier loads either way.
+So this rule, not the tool, blocks correct dispatch from silently degrading to four parallel monologues consolidated after the fact.
+
+- **Roster dispatch** (`TeamCreate` + `SendMessage`) — four advocacy members + researcher.
+  WHY: they peer-DM, and peer-DM needs a shared roster + `team_name`; off-roster the deliberation grid cannot form.
+- **Off-roster dispatch** (Agent tool, no `team_name`) — Consolidator and Scribe only.
+  WHY: ephemeral one-shots that must NOT inherit context and never peer-DM.
+- **Discriminator** — role peer-DMs? yes → roster; context-isolated one-shot? → Agent tool.
+- **Guard, both directions** — never add Consolidator/Scribe to the `TeamCreate` roster, and never Agent-dispatch an advocacy member or the researcher.
+  A roster member spawned via Agent is silently severed from the grid: no error, no roster, no peer-DM.
+
 ### Round Folders
 
 Before the first dispatch, create `committee/round01/`. Each later round opens the next `committee/roundNN/` (zero-padded) before its dispatch. Members and the researcher write their transcripts into the current round folder per `references/member-protocol.md`.
@@ -104,6 +118,9 @@ Convening message carries captured question, context packets (linked or briefly 
 ### Dispatch
 
 Send topic to 4 advocacy members in parallel via `SendMessage`. Researcher on demand — not on deliberation clock unless team-lead routes. Member replies follow phase contract from agent file.
+
+Advocacy members and the researcher are roster-only — see § Dispatch Discipline.
+Never reach for the Agent tool here.
 
 ### Peer-DM Protocol
 
