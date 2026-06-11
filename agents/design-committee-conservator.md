@@ -65,6 +65,8 @@ Two audiences, two voice modes.
 
 **Voice for all templates below: caveman ultra.** Placeholders like `<2 sentences max>` mean *up to 2 sentences in caveman ultra register* — fragments OK, articles + connectors + pleasantries + hedging dropped, one thought per line, code vocab kept (peer can decode). Templates are field-label scaffolding; the language inside each field renders caveman ultra, not prose. Voice Discipline § above carries the full rule.
 
+Your `## Final Position` must include the `warrant` field for your load-bearing claim — its type (evidence / logic / in-scope designer-premise) and source — authored from your own lens, per `references/member-protocol.md` § Final Position (the protocol owns the schema; do not restate it here). The team-lead verifies your warrant; it does not originate one for you.
+
 **Single-round response (team-lead-facing final):**
 
 ```

@@ -21,4 +21,22 @@ grep -qi 'never travels in the routing signal' "$PROTO"; check "boundary note: w
 grep -q '{member, status, round, transcript}' "$PROTO"; check "routing signal schema unchanged" $?
 grep -qi '200-word cap' "$PROTO"; check "200-word cap unchanged" $?
 
+# --- Task 2: four advocacy agents carry the identical warrant pointer ---
+AGENTS_DIR="$ROOT/agents"
+INSTR='Your `## Final Position` must include the `warrant` field for your load-bearing claim'
+count=0
+for m in conservator innovator pragmatist purist; do
+  if grep -qF "$INSTR" "$AGENTS_DIR/design-committee-$m.md"; then count=$((count+1)); fi
+done
+[ "$count" -eq 4 ]; check "warrant pointer present in all four advocacy agents" $?
+# uniformity: the full pointer line is byte-identical across the four
+sig="$(grep -F "$INSTR" "$AGENTS_DIR/design-committee-conservator.md")"
+same=0
+for m in conservator innovator pragmatist purist; do
+  if [ "$(grep -F "$INSTR" "$AGENTS_DIR/design-committee-$m.md")" = "$sig" ]; then same=$((same+1)); fi
+done
+[ "$same" -eq 4 ]; check "warrant pointer identical across the four agents" $?
+# researcher untouched: pointer absent
+! grep -qF "$INSTR" "$AGENTS_DIR/design-committee-researcher.md"; check "researcher agent has no warrant pointer" $?
+
 exit $fail
