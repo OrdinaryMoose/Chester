@@ -42,7 +42,7 @@ done
 # --- Task 3: team-lead verification reword + version + invariants ---
 TL="$ROOT/skills/design-committee/references/team-lead.md"
 UDP="$ROOT/skills/util-design-partner-role/SKILL.md"
-grep -q '^version: v0011' "$TL"; check "team-lead.md bumped to v0011" $?
+grep -q '^version: v0012' "$TL"; check "team-lead.md bumped to v0012" $?
 grep -qi 'team-lead .*verifies' "$TL"; check "warrant test uses verify framing" $?
 grep -qi 'member-supplied warrant' "$TL"; check "warrant test names member-supplied warrant" $?
 grep -qi 'does not originate a warrant on the member' "$TL"; check "warrant test forbids team-lead origination" $?
