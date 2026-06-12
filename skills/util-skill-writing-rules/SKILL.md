@@ -6,7 +6,7 @@ description: >
   SKILL.md, a references/*.md, an agents/*.md, or an artifact template. If you're about
   to wrap prose to a column width in an agent-read Markdown file, check here first. Also
   defines the companion authoring rule: one concept is one sentence.
-version: v0002
+version: v0003
 ---
 
 # Skill Writing Rules — Line Format
@@ -20,7 +20,11 @@ These rules govern Markdown that Chester loads whole into an agent's context: `S
 They do not govern human-read archive prose such as summaries and audits, though following them there costs nothing.
 Structural elements are exempt everywhere: frontmatter, headings, code fences, tables, and the checkbox syntax (`- [ ]`) that `execute-write` parses.
 
-## The rule: one sentence, one line
+## Verbosity rule
+
+Use `terse` verbosity defined in `skills/util-design-partner-role/SKILL.md`.
+
+## Formatting rule: one sentence, one line
 
 Format prose one sentence per physical line.
 Markdown collapses consecutive non-blank lines into a single rendered paragraph, so one-sentence-per-line renders identically to wrapped prose — the rule costs nothing on screen and buys everything mechanical.
