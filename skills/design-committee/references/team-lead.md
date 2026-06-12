@@ -45,7 +45,7 @@ Before convening:
 
 1. `skills/design-committee/SKILL.md` — committee mechanics floor.
 2. `skills/util-design-partner-role/SKILL.md` — voice rules + Info-Packet Style Overlay.
-3. This doc — team-lead role.
+3. `references/team-lead.md` - This doc — team-lead role.
 4. `agents/design-committee-*.md` (plugin top-level) — phase contract per member convened; loads as each member's system prompt on dispatch.
 5. `skills/design-committee/references/member-protocol.md` — shared member/researcher protocol; the single authority for committee-root resolution the team-lead cites.
 6. `skills/design-committee/references/committee-analysis-round-format.md` — round-folder record model the team-lead fills.
