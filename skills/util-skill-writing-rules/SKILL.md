@@ -12,7 +12,7 @@ version: v0003
 # Skill Writing Rules — Line Format
 
 This is a **flexible** reference: read it, don't invoke it.
-It defines one mechanical rule for how prose is laid out across physical lines in the Markdown files Chester feeds to agents.
+It defines the rules for writing the Markdown files Chester feeds to agents: line format, sentence authoring, and verbosity.
 
 ## Scope
 
