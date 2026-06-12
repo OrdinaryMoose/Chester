@@ -41,6 +41,7 @@ When multiple skills could apply, use this order:
 - **util-dispatch** — Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies
 - **util-handoff** — Compact the current conversation into a handoff document for another agent to pick up.
 - **util-improve-codebase** — Find deepening opportunities in a codebase, informed by the domain language in CONTEXT.md and the decisions in docs/adr/. Use when the user wants to improve architecture, find refactoring opportunities, consolidate tightly-coupled modules, or make a codebase more testable and AI-navigable.
+- **util-skill-writing-rules** — Line-format rules for Chester skill files and references that get read whole into an agent's context. Read this skill (don't invoke it) before writing or reflowing a SKILL.md, a references/*.md, an agents/*.md, or an artifact template. If you're about to wrap prose to a column width in an agent-read Markdown file, check here first.
 - **util-worktree** — Use when starting feature work that needs isolation from current workspace or before executing implementation plans - creates isolated git worktrees with smart directory selection and safety verification
 
 Brief templates are **not** standalone skills — they live inside each design skill as references:
