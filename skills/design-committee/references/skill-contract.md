@@ -43,6 +43,16 @@ Member agent files at `agents/design-committee-{member}.md` (plugin top-level) d
 
 `skills/util-design-partner-role/SKILL.md` carries voice spec. Cited from `SKILL.md` as LOAD-BEARING. Touching util-design-partner-role → audit committee impact. Drop citation only with explicit justification, never as simplification.
 
+## Teardown Scope (cross-session, cross-project)
+
+The team registry is user-global: `~/.claude/teams/<name>/` and `~/.claude/tasks/<name>/` live under `$HOME`, shared across every project on the account.
+The committee team slug (`design-committee-<question-slug>`) carries no project token, so committees from different projects sit side by side in one registry and can collide on an identical question-slug.
+In-flow teardown stays correctly scoped on its own: the Phase 5 `TeamDelete` keys off the current session's team context, so it can only remove the committee this session convened.
+The hazard is out-of-band cleanup — a "dismiss the committee" meant as sweeping strays — which must NEVER reach another project's teams.
+The project discriminator is each team's recorded `members[].cwd` in `config.json`, resolved to repo identity: compare `git -C <cwd> rev-parse --git-common-dir` against the current repo's, so a worktree session resolves back to its main repo instead of mis-bucketing as a different project.
+Cross-session strays of the same project may be swept only after the repo-identity match AND a not-live check (dead `leadSessionId`, zero non-empty `tmuxPaneId`), and only on explicit user confirmation — `rm` here is irreversible and cross-session.
+A `design-committee-*` name alone never licenses deletion; project-namespacing the slug was considered and rejected as awkward inside the project, since `cwd` already carries the difference.
+
 ## Deferred Roadmap
 
 Out of scope for current committee skill, candidates for future work:
@@ -50,3 +60,4 @@ Out of scope for current committee skill, candidates for future work:
 - Multi-round protocol round-by-round transcript schema.
 - Member-only sub-invocations (e.g. `--member=conservator`).
 - Mechanical enforcement of three forbidden surfaces (pre-commit hooks, CI checks).
+- Project-scoped team listing and dismissal tooling keyed on the `cwd` → `git-common-dir` discriminator (see § Teardown Scope).
