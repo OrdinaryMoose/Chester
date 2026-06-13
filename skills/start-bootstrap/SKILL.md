@@ -4,9 +4,9 @@ description: >
   Mechanical session setup for pipeline skills. Invoke this skill at the start of any
   pipeline skill that needs a sprint context — config reading, sprint naming, directory
   creation, task reset, and thinking history initialization. Called by design-small-task
-  (always, at the start of a design sprint) and by design-specify and execute-write
+  (always, at the start of a design sprint) and by spec-architect, spec-write, spec-harden, and execute-write
   (standalone, when invoked without a prior design phase).
-version: v0003
+version: v0004
 ---
 
 # Session Bootstrap
@@ -18,11 +18,11 @@ skill resumes with a fully prepared sprint environment.
 ## When to Call
 
 - **Always:** `design-small-task` (the entry-point design skill — starts fresh sprints
-  at the head of the canonical sequence design-small-task → design-specify → plan-build →
-  execute-write)
-- **Standalone only:** `design-specify` and `execute-write` (when invoked without a prior
-  design phase, they need sprint context created; when invoked mid-pipeline, sprint
-  context already exists)
+  at the head of the canonical sequence design-small-task → spec-architect → spec-write →
+  spec-harden → plan-build → execute-write)
+- **Standalone only:** `spec-architect`, `spec-write`, `spec-harden`, and `execute-write`
+  (when invoked without a prior design phase, they need sprint context created; when
+  invoked mid-pipeline, sprint context already exists)
 
 ## What It Does
 
