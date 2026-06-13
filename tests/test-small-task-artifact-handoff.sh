@@ -14,9 +14,9 @@ if ! grep -q "plan-build" "$SKILL"; then
   ERRORS=$((ERRORS + 1))
 fi
 
-# design-small-task now transitions to design-specify (which then chains into plan-build)
-if ! grep -q "design-specify" "$SKILL"; then
-  echo "FAIL: $SKILL does not reference design-specify (the new downstream skill)"
+# design-small-task now transitions to spec-architect (which then chains into plan-build)
+if ! grep -q "spec-architect" "$SKILL"; then
+  echo "FAIL: $SKILL does not reference spec-architect (the new downstream skill)"
   ERRORS=$((ERRORS + 1))
 fi
 

@@ -1,7 +1,7 @@
 ---
 name: design-small-task
-description: "Lightweight design conversation for well-bounded tasks. Use when the task is clear but you want to surface considerations before jumping to planning. Holds an interactive Q&A loop with structured information packages — the agent presents observations and asks questions, never suggests proceeding. The designer explicitly directs when to write the brief. Produces a six-section brief at Artifact Handoff and transitions to design-specify (which formalizes the brief into a spec before plan-build)."
-version: v0004
+description: "Lightweight design conversation for well-bounded tasks. Use when the task is clear but you want to surface considerations before jumping to planning. Holds an interactive Q&A loop with structured information packages — the agent presents observations and asks questions, never suggests proceeding. The designer explicitly directs when to write the brief. Produces a six-section brief at Artifact Handoff and transitions to spec-architect (which settles architecture, then spec-write authors and spec-harden hardens the spec before plan-build)."
+version: v0005
 ---
 
 # Small Task Design Conversation
@@ -22,7 +22,7 @@ Only job: present info, ask questions. Designer say when write brief. Until then
 2. **Exploration** — synthesize conversation context, inline code exploration, inline prior art scan
 3. **Round one** — present gap map and first commentary
 4. **Conversation loop** — per-turn cycle until designer says proceed
-5. **Closure** — write design brief, invoke util-worktree, transition to design-specify
+5. **Closure** — write design brief, invoke util-worktree, transition to spec-architect
 
 ## Role: Design Partner
 
@@ -249,12 +249,12 @@ When designer explicitly directs proceed (e.g., "go ahead," "write it up," "proc
    Use `<this-skill-version>` value from this skill's `version` frontmatter field. Run one stamp call against brief path written in step 1.
 3. Present brief to designer: "Does this capture what we're building?"
 4. After confirmation, invoke `util-worktree` to create branch and worktree. Branch name = sprint subdirectory name.
-5. Transition to design-specify.
+5. Transition to spec-architect.
 
 ## Integration
 
 - **Calls:** `start-bootstrap` (setup), `util-worktree` (closure)
 - **Reads:** `util-design-partner-role` (voice rules — read before running), `util-artifact-schema` (naming/paths), `references/design-brief-small-template.md` (brief format)
-- **Transitions to:** `design-specify` (which formalizes brief into spec, then transitions to `plan-build`)
-- **Does NOT call:** any MCP server; no proof phase, no architect comparison this stage, no ground-truth verification — design-specify handles architect comparison and spec layer; ground-truth verification runs automatically there (skipped only for greenfield specs)
+- **Transitions to:** `spec-architect` (which settles architecture, then chains to `spec-write` → `spec-harden` → `plan-build`)
+- **Does NOT call:** any MCP server; no proof phase, no architect comparison this stage, no ground-truth verification — spec-architect handles architect comparison and spec-harden runs ground-truth verification (skipped only for greenfield specs)
 - **Does NOT use:** `capture_thought`, `get_thinking_summary`
