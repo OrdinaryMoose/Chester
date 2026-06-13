@@ -65,7 +65,8 @@ Session type examples: `Planning and adversarial review`, `Full-stack implementa
 
    *(populated by `chester-trailer-write harvest`; see `util-artifact-schema` `## Provenance Trailers`)*
 
-   <!-- produced-by design-specify@vNNNN -->
+   <!-- produced-by spec-write@vNNNN -->
+   <!-- produced-by spec-harden@vNNNN -->
    <!-- produced-by plan-build@vNNNN -->
    <!-- ... -->
    ```
@@ -189,7 +190,7 @@ Each record is a YAML frontmatter block separated from neighbors by exactly one 
 id: dr-YYYYMMDD-NN-<slug>
 date: YYYY-MM-DD
 sprint: YYYYMMDD-##-verb-noun-noun
-stage: design-small-task | design-specify | plan-build | execute-write | finish-write-records
+stage: design-small-task | spec-architect | spec-write | spec-harden | plan-build | execute-write | finish-write-records
 title: Short noun phrase
 decision: One sentence capturing what was decided
 rationale: Two-to-four sentences explaining why
@@ -230,8 +231,8 @@ title: Audit-time records emission via parallel fork
 decision: Records are emitted at finish-write-records Step 3 via a second forked subagent that inherits the parent's JSONL transcript and applies an independent records-altitude filter.
 rationale: The audit fork already discriminates substantive decisions from the JSONL transcript. Forking a second subagent from the same parent reuses the discrimination machinery while letting each filter tune to its own altitude. Avoids MCP cost (RULE-9) and TDD-loop participation (RULE-11).
 alternatives:
-  - Per-decision MCP capture at each substantive moment in design-specify and plan-build — rejected because it requires new skill steps at every decision point and duplicates the audit's discrimination judgment.
-  - Single-fork emission at end of design-specify only — rejected because it fragments capture across skill points and misses execute-write decisions.
+  - Per-decision MCP capture at each substantive moment in spec-write and plan-build — rejected because it requires new skill steps at every decision point and duplicates the audit's discrimination judgment.
+  - Single-fork emission at end of spec-write only — rejected because it fragments capture across skill points and misses execute-write decisions.
 tags: [architecture, capture, mcp]
 supersedes: null
 artifact_refs:
