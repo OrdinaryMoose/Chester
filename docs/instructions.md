@@ -28,7 +28,7 @@ Chester then enforces discipline during implementation: tests before code, root 
 Chester skills fall into two categories:
 
 - **Rigid skills** — follow the process exactly. These have Iron Laws and explicit anti-rationalization sections. Deviating from the process is treated as a process violation, not a reasonable adaptation. Skills in this category: `execute-test`, `execute-prove`.
-- **Flexible skills** — adapt the principles to context. These provide frameworks and structure, but the agent uses judgment about how to apply them. Skills in this category: `design-small-task`, `design-specify`, `plan-build`, `execute-write`.
+- **Flexible skills** — adapt the principles to context. These provide frameworks and structure, but the agent uses judgment about how to apply them. Skills in this category: `design-small-task`, `spec-architect`, `spec-write`, `spec-harden`, `plan-build`, `execute-write`.
 
 When you are using a rigid skill and find yourself thinking "just this once" or "this is different because…" — that is rationalization. The skill documentation says so explicitly. Follow the process.
 
@@ -113,7 +113,11 @@ setup-start (session load)
     ↓
 design-small-task
     ↓
-design-specify
+spec-architect
+    ↓
+spec-write
+    ↓
+spec-harden
     ↓
 plan-build
     (plan-attack + plan-smell run automatically as part of plan hardening)
@@ -154,7 +158,7 @@ You do not call most of these manually — they chain automatically. The pipelin
 
 **What it does:** Mechanical session initialization for pipeline skills. Reads config, derives the sprint name in `YYYYMMDD-##-verb-noun-noun` format, creates the working directory and sprint subdirectory, resets the task list from any prior skill, and loads the top lessons from `~/.chester/thinking.md`.
 
-**When it runs:** Called internally by `design-small-task` and `design-specify` (standalone). You do not invoke this directly.
+**When it runs:** Called internally by `design-small-task`, `spec-architect`, `spec-write`, and `spec-harden` (standalone). You do not invoke this directly.
 
 **Tips:**
 - The sprint name format is the branch name. Three words: a verb (the action) followed by two nouns (the target). Example: `20260412-01-add-user-auth`.
@@ -164,7 +168,7 @@ You do not call most of these manually — they chain automatically. The pipelin
 
 ### `chester:design-small-task`
 
-**What it does:** The entry-point design skill. A lightweight design conversation for well-bounded tasks where you already know roughly what you want. Runs as a single continuous Q&A loop — the agent presents observations and asks questions, surfacing edge cases, existing patterns, and constraints. The agent can read and write freely throughout, and code vocabulary is permitted in commentary. Produces a six-section design brief that transitions to `design-specify` for formalization into a spec before planning.
+**What it does:** The entry-point design skill. A lightweight design conversation for well-bounded tasks where you already know roughly what you want. Runs as a single continuous Q&A loop — the agent presents observations and asks questions, surfacing edge cases, existing patterns, and constraints. The agent can read and write freely throughout, and code vocabulary is permitted in commentary. Produces a six-section design brief that transitions to `spec-architect` (which settles architecture; then `spec-write` authors and `spec-harden` hardens) before planning.
 
 **When to invoke:** Before any creative work — adding a feature, modifying behavior, or implementing a well-understood extension. Just describe what you want to build; the agent reads the codebase and walks you through a structured conversation.
 
@@ -173,42 +177,56 @@ You do not call most of these manually — they chain automatically. The pipelin
 - The agent can read and write freely throughout — no Plan Mode
 - Code vocabulary is permitted in commentary, so you can reference specific files, classes, and patterns directly
 - You control when the brief is written — the agent never suggests proceeding
-- Hands the brief to `design-specify`, which formalizes it into a reviewed spec before `plan-build`
+- Hands the brief to `spec-architect`, which settles architecture, then `spec-write` authors and `spec-harden` hardens the spec before `plan-build`
 
 **Hard gate:** The agent will never suggest writing the brief or wrapping up the conversation. You explicitly direct it to proceed ("go ahead," "write it up," "let's build it"). Until you do, it keeps asking questions.
 
 **Tips:**
 - Use this to get a checklist of considerations before planning — edge cases, existing patterns, and constraints made explicit.
 - Because the agent can use code vocabulary, you can reference specific files, classes, and patterns directly.
-- The six-section brief (Goal, Prior Art, Scope, Key Decisions, Constraints, Acceptance Criteria) is designed to be self-contained enough that `design-specify` can dispatch its architects from the brief alone.
+- The six-section brief (Goal, Prior Art, Scope, Key Decisions, Constraints, Acceptance Criteria) is designed to be self-contained enough that `spec-architect` can dispatch its architects from the brief alone.
 
 ---
 
-### `chester:design-specify`
+### `chester:spec-architect`
 
-**What it does:** Formalizes an approved design into a durable spec document. Takes the design brief from `design-small-task` (or a human-written brief) and produces a spec that `plan-build` can use.
+**What it does:** Settles the architecture for a design that is not yet FAC-complete (Functionally, Architecturally, and Conceptually complete). Dispatches two competing architect agents — each with a different trade-off profile — plus a prior-art explorer, runs F-A-C self-checks on the candidates, and presents the directions for you to choose. Runs only on the small-task path; the committee path already arrives with settled architecture, so it skips straight to `spec-write`.
 
-The key feature: before writing the spec, four agents run in parallel — three architect agents each with a different trade-off profile (minimal changes, clean architecture, pragmatic balance), plus a prior art explorer. You pick the architecture direction, and the spec is built from that choice.
+**When to invoke:** Automatically after `design-small-task`. Can also be invoked standalone if you have a design brief from a whiteboard, conversation, or previous session and the architecture is still open.
 
-After the spec is written, an automated fidelity review loop runs (up to 2 iterations) to verify the spec faithfully addresses the design brief. Optionally, a ground-truth review verifies spec claims against the actual codebase.
-
-**When to invoke:** Automatically after `design-small-task`. Can also be invoked standalone if you have a design brief from a whiteboard, conversation, or previous session.
-
-**How to use:** After `design-small-task` transitions to this, it runs automatically. You see a comparison of three architecture approaches and pick one (or ask for a hybrid). Then you review the spec and approve it before planning begins.
-
-**Architecture comparison:**
-| Agent | Lens |
-|-------|------|
-| Architect 1 | Minimal changes — maximize reuse, smallest diff |
-| Architect 2 | Clean architecture — maintainability, clear boundaries |
-| Architect 3 | Pragmatic balance — speed vs. quality trade-offs |
-
-**Ground-truth review:** Recommended when the spec references existing types, APIs, or file paths. Dispatches a subagent that reads source files to verify every claim the spec makes. HIGH and MEDIUM findings are fixed before user review.
+**How to use:** After `design-small-task` transitions to this, it runs automatically. You see a comparison of the competing architecture approaches and pick one (or ask for a hybrid). The chosen direction becomes the settled architecture.
 
 **Tips:**
-- The architecture comparison is the most valuable moment in this skill. Read all three options carefully. The prior art context often reveals that one approach depends on infrastructure that a previous sprint found non-functional.
-- If the fidelity review loops more than twice, it escalates to you. This usually means the design brief had ambiguities that the spec inherited.
+- The architecture comparison is the most valuable moment on the small-task path. Read both options carefully. The prior-art context often reveals that one approach depends on infrastructure that a previous sprint found non-functional.
+- Once you pick a direction, the design is FAC-complete and transitions to `spec-write`.
+
+---
+
+### `chester:spec-write`
+
+**What it does:** Authors the spec from a FAC-complete design — either a committee verdict or the output of `spec-architect`. Extracts the eight-field FAC-complete-design contract, quotes the chosen architecture back to you for confirmation, and fills the spec template. It authors only; it runs no review passes.
+
+**When to invoke:** Automatically after `spec-architect` (or directly after a committee verdict, which is already FAC-complete). Can also be invoked standalone with a FAC-complete design brief.
+
+**How to use:** It confirms the architecture it read by quoting it back, then writes the spec into the working directory. Once the spec is authored, it transitions to `spec-harden`.
+
+**Tips:**
+- The confirmation read-back is your checkpoint that the right architecture was carried forward. If the quoted architecture is wrong, correct it before the spec is filled in.
 - The spec is not committed here — it stays in the working directory until `finish-archive-artifacts`.
+
+---
+
+### `chester:spec-harden`
+
+**What it does:** Hardens an authored spec through three review passes, in order — **fidelity** (does the spec faithfully address the design?), **adversarial** (what gaps and unstated assumptions does it carry?), and **ground-truth** (do its claims hold against the actual codebase?) — followed by the user approval gate. It is independently callable ad-hoc on any spec.
+
+**When to invoke:** Automatically after `spec-write`. Can also be invoked standalone against any existing spec or requirements document you want hardened before planning.
+
+**How to use:** The three passes run in sequence. HIGH and MEDIUM findings are addressed before the spec reaches you for approval. After you approve, it transitions to `plan-build`.
+
+**Tips:**
+- Ground-truth is most valuable when the spec references existing types, APIs, or file paths — the pass reads source files to verify every claim.
+- If the fidelity pass keeps surfacing the same gap, it usually means the design itself had an ambiguity the spec inherited.
 
 ---
 
@@ -218,7 +236,7 @@ After the spec is written, an automated fidelity review loop runs (up to 2 itera
 
 The plan is written for an engineer with zero codebase context — every task has exact paths, complete code (not stubs), the exact test command with expected output, and a commit step.
 
-**When to invoke:** After `design-specify` approves the spec. Can also be invoked standalone with any spec or requirements document.
+**When to invoke:** After `spec-harden` approves the spec. Can also be invoked standalone with any spec or requirements document.
 
 **Plan structure:** Every plan task follows Red-Green-Refactor:
 1. Write failing test (with code)
@@ -531,13 +549,13 @@ The brief template is not a standalone skill — it lives as a reference file in
 
 - `skills/design-small-task/references/design-brief-small-template.md` — 6-section lightweight brief (Goal, Prior Art, Scope, Key Decisions, Constraints, Acceptance Criteria). Read by `design-small-task` before writing the brief at Closure.
 
-**Tip:** Design briefs are written in domain language — no type names, file paths, or implementation details. The self-containment test is whether `design-specify` can dispatch architects from the brief alone.
+**Tip:** Design briefs are written in domain language — no type names, file paths, or implementation details. The self-containment test is whether `spec-architect` can dispatch architects from the brief alone.
 
 ---
 
-### `chester:design-specify` (standalone invocation)
+### `chester:spec-architect` (standalone invocation)
 
-When invoked without a prior design session, `design-specify` runs `start-bootstrap` itself to set up the sprint context. Provide a design brief from any source: a document path, a whiteboard description, or a conversation summary.
+When invoked without a prior design session, `spec-architect` runs `start-bootstrap` itself to set up the sprint context. Provide a design brief from any source: a document path, a whiteboard description, or a conversation summary. From there it settles the architecture and chains to `spec-write` and `spec-harden`.
 
 ---
 
@@ -581,7 +599,7 @@ Read the threat report carefully. The risk rating is a judgment call from the at
 | Situation | Skill |
 |-----------|-------|
 | Any creative work — a feature, behavior change, or extension | `design-small-task` |
-| You already have a design brief and just need a spec | `design-specify` (standalone) |
+| You already have a design brief and just need a spec | `spec-architect` (standalone, chains to spec-write → spec-harden) |
 
 ### Reviewing a plan from a previous session
 
@@ -610,7 +628,9 @@ Chester will identify which failures are independent, craft focused agent prompt
 | `setup-start` | Setup | Auto-loads every session |
 | `start-bootstrap` | Setup | Called internally by pipeline skills |
 | `design-small-task` | Design | Before any creative work — the entry-point design skill |
-| `design-specify` | Design | Formalize a brief into a reviewed spec |
+| `spec-architect` | Design | Settle the architecture for a FAC-incomplete design |
+| `spec-write` | Design | Author the spec from a FAC-complete design |
+| `spec-harden` | Design | Harden the spec — fidelity, adversarial, ground-truth, user gate |
 | `plan-build` | Plan | Break a spec into a TDD implementation plan |
 | `plan-attack` | Plan | Adversarial review — auto-runs in plan hardening |
 | `plan-smell` | Plan | Smell forecast — auto-runs in plan hardening |
