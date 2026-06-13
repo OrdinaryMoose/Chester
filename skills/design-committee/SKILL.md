@@ -35,25 +35,25 @@ Team-lead reports the alignment pattern (count + who-is-on-which-side) at consol
 Roster (six roles; five subagents created by `TeamCreate` = four advocacy + researcher; team-lead = calling agent; designer = human):
 
 - Team-Lead (calling agent).
-  Dispatches, receives, compiles.
-  No design opinion.
-  NOT relay during deliberation — peers DM peers direct.
-  Holds workflow thread.
-  No proof mutations.
-  Role: `references/team-lead.md`.
+  - Dispatches, receives, compiles.
+  - No design opinion.
+  - NOT relay during deliberation — peers DM peers direct.
+  - Holds workflow thread.
+  - No proof mutations.
+  - Role: `references/team-lead.md`.
 - Conservator; `chester:design-committee-conservator` — advocacy member (full lens in agent file).
 - Innovator; `chester:design-committee-innovator` — advocacy member (full lens in agent file).
 - Pragmatist; `chester:design-committee-pragmatist` — advocacy member (full lens in agent file).
 - Purist; `chester:design-committee-purist` — advocacy member (full lens in agent file).
 - Researcher; `chester:design-committee-researcher`.
-  Tools: Read, Glob, Grep, Bash, WebSearch, WebFetch, Write.
-  Owns codebase, prior-art, industry research, doc reading, multi-source consolidation, absence findings.
-  Hard prohibitions: no design opinion, no proof-state ops, no file writes outside the `committee/` tree and the conversation record (writes findings to its round-folder findings file).
+  - Tools: Read, Glob, Grep, Bash, WebSearch, WebFetch, Write.
+  - Owns codebase, prior-art, industry research, doc reading, multi-source consolidation, absence findings.
+  - Hard prohibitions: no design opinion, no proof-state ops, no file writes outside the `committee/` tree and the conversation record (writes findings to its round-folder findings file).
 - Designer (human, non-dispatched).
-  Adjudicates all decisions.
-  Sets meta-rules.
-  Authorizes charter changes.
-  Never spawned as subagent.
+  - Adjudicates all decisions.
+  - Sets meta-rules.
+  - Authorizes charter changes.
+  - Never spawned as subagent.
 
 ## Translation Gate
 
