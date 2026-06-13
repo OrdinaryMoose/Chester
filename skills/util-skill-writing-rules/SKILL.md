@@ -6,7 +6,7 @@ description: >
   SKILL.md, a references/*.md, an agents/*.md, or an artifact template. If you're about
   to wrap prose to a column width in an agent-read Markdown file, check here first. Also
   defines the companion authoring rule: one concept is one sentence.
-version: v0003
+version: v0004
 ---
 
 # Skill Writing Rules — Line Format
@@ -32,7 +32,10 @@ Never insert a newline mid-sentence to hit a column width.
 Never column-wrap prose to roughly 80 characters: an agent loads the whole file regardless of width, so wrapping buys nothing and splits sentences across lines for no gain.
 
 - One sentence per line. Split at semantic sentence boundaries; an abbreviation period such as `e.g.` or `i.e.` does not end a sentence.
-- One sentence per line inside list items too. A multi-sentence bullet puts each sentence on its own line, with continuation lines indented under the item text — never all sentences crammed onto one physical line. If the bullet is one concept fractured into stubs rather than several distinct facts, collapse it to a single sentence instead of splitting — see § The companion: one concept, one sentence.
+- One sentence per line inside list items too — but choose the continuation form by what the item holds:
+  - A single concept fractured into stubs → collapse to one sentence (see § The companion: one concept, one sentence).
+  - A single trailing elaboration of the item → one indented continuation line is acceptable; Markdown folds it into the item's paragraph.
+  - Several distinct, enumerable facts → nested sub-bullets, one fact per sub-bullet — never bare indented continuation lines, which Markdown collapses into one run-on paragraph and loses the enumeration.
 - One line per blockquote sentence. A one-or-two-sentence blockquote is one or two `>` lines, each a whole sentence; never break mid-sentence across two `>` lines.
 - Leave a list item alone when it holds a fenced code block — the fence is structural and owns its own lines.
 - Leave structural elements alone: frontmatter, headings, code fences, tables.
