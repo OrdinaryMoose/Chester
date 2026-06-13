@@ -15,7 +15,7 @@ Six-role deliberation primitive. Process-agnostic. Flexible skill — adapt roun
 
 ## When To Use
 
-Convene only when directed; "convene committee", "look at this with committee". Do NOT convene when other skill owns planning: `design-small-task`, `design-specify`.
+Convene only when directed; "convene committee", "look at this with committee". Do NOT convene when other skill owns planning: `design-small-task`. (The spec-* skills consume committee output downstream; they do not compete with committee for the planning role.)
 
 ## Six Members
 
