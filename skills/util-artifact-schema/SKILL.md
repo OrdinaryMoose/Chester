@@ -6,7 +6,7 @@ description: >
   find, or reference a Chester artifact — design briefs, specs, plans, summaries, audits,
   or any other sprint artifact. If you're about to write a file path or filename for a
   Chester artifact, check here first.
-version: v0003
+version: v0004
 ---
 
 # Artifact Schema
@@ -105,8 +105,8 @@ mkdir -p "{CHESTER_WORKING_DIR}/{sprint-subdir}/design" \
 | Artifact | Directory | Purpose | Produced by |
 |----------|-----------|---------|-------------|
 | `design` | `design/` | Design brief — proof envelope (goal, necessary conditions, rules, permissions, evidence, industry context, risks, acceptance criteria). Template lives in the design skill: `design-small-task/references/design-brief-small-template.md` (6-section lightweight). | `design-small-task` (6-section lightweight) |
-| `spec` | `spec/` | Specification document — architecture chosen from the brief's envelope, component structure, reuse profile, trade-off profile | `design-specify` |
-| `spec-ground-truth-report` | `spec/` | Ground-truth findings — codebase verification of spec claims about existing code (automatic review; skipped only for greenfield specs) | `design-specify` (ground-truth review stage) |
+| `spec` | `spec/` | Specification document — architecture chosen from the brief's envelope, component structure, reuse profile, trade-off profile | `spec-write` |
+| `spec-ground-truth-report` | `spec/` | Ground-truth findings — codebase verification of spec claims about existing code (automatic review; skipped only for greenfield specs) | `spec-harden` (ground-truth review stage) |
 | `plan` | `plan/` | Implementation plan — task-by-task build instructions | `plan-build` |
 | `plan-threat-report` | `plan/` | Combined plan-attack + plan-smell findings | `plan-build` (hardening phase) |
 | `deferred` | `plan/` | Items deferred during execution | `execute-write` |
@@ -202,7 +202,8 @@ The following skills invoke `stamp` at every artifact-write site they
 own:
 
 - `design-small-task` (design briefs)
-- `design-specify` (specs, ground-truth reports)
+- `spec-write` (specs)
+- `spec-harden` (ground-truth reports)
 - `plan-build` (plans, threat reports — `plan-build` writes the combined
   threat report during the Plan Hardening phase, so it owns that chain)
 - `execute-write` (plan amendments)

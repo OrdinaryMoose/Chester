@@ -21,7 +21,7 @@ grep -qF '<!-- created-at:' "$SCHEMA" || fail "trailer format missing created-at
 grep -qF '<!-- produced-by' "$SCHEMA" || fail "trailer format missing produced-by example"
 
 # 5. Stamping-skill list (D10 — corrected) present
-for skill in design-small-task design-specify plan-build execute-write finish-write-records; do
+for skill in design-small-task spec-write spec-harden plan-build execute-write finish-write-records; do
   grep -q "$skill" "$SCHEMA" || fail "stamping-skill list missing $skill"
 done
 
@@ -32,8 +32,8 @@ for nonstamp in 'plan-attack' 'plan-smell' 'finish-archive-artifacts' 'subagents
   grep -qi "$nonstamp" "$SCHEMA" || fail "non-stamping list missing $nonstamp"
 done
 
-# 7. version bumped to v0003
-grep -q '^version: v0003' "$SCHEMA" || fail "version not bumped to v0003"
+# 7. version bumped to v0004
+grep -q '^version: v0004' "$SCHEMA" || fail "version not bumped to v0004"
 
 if [ "$ERRORS" -gt 0 ]; then
   echo "FAIL: $ERRORS error(s) in provenance docs"
