@@ -1,7 +1,7 @@
 # Ground-Truth Reviewer Prompt Template
 
 Use this template when dispatching a ground-truth reviewer subagent during the
-optional ground-truth review step in design-specify.
+optional ground-truth review step in spec-harden.
 
 **Purpose:** Verify the spec's claims about existing code against the actual codebase.
 The spec fidelity reviewer checks whether the spec matches the *design brief*. This

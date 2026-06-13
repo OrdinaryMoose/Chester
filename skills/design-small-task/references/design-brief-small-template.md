@@ -2,7 +2,7 @@
 
 Lightweight design brief template for bounded tasks. Read this file when writing the
 design brief artifact from `design-small-task`. Six sections — optimized for
-design-specify consumption without multi-brief coordination overhead.
+spec-architect consumption without multi-brief coordination overhead.
 
 This document defines the structure for design brief artifacts produced by
 `design-small-task`.

@@ -1,7 +1,7 @@
 ---
 name: plan-build
 description: Use when you have a spec or requirements for a multi-step task, before touching code
-version: v0006
+version: v0007
 ---
 
 # Chester Build Plan
@@ -145,12 +145,12 @@ Add new triggers in the reference file, not here — this section owns the decis
 
 ## Ground-Truth Report Cascade
 
-`design-specify` runs ground-truth review automatically (skipped only for greenfield
+`spec-harden` runs ground-truth review automatically (skipped only for greenfield
 specs), so the `spec/` subdirectory normally contains a report verifying spec claims
 against the codebase. The report is a trusted input at the plan stage — `plan-attack`
-does not need to re-verify what design-specify already verified.
+does not need to re-verify what spec-harden already verified.
 
-The cascade reads only the spec-stage report (owned by `design-specify`) when present.
+The cascade reads only the spec-stage report (owned by `spec-harden`) when present.
 
 ### Input Contract
 
@@ -162,7 +162,7 @@ the ground-truth-reviewer confirmed exist as the spec describes. This list becom
 the **verified-anchor skip-list**.
 
 If no spec-stage ground-truth report exists (greenfield spec with no existing code
-references, or the spec was authored outside the standard design-specify flow), skip
+references, or the spec was authored outside the standard spec-harden flow), skip
 this cascade. `plan-attack` performs its own full codebase verification in that
 case.
 
@@ -302,9 +302,9 @@ Plan complete and hardened. The plan's `Execution mode:` header field carries th
 
 ## Integration
 
-- **Invoked by:** `design-specify` (primary — with spec input; cascades the spec-stage ground-truth report from `design-specify` when present, which is the default for non-greenfield specs), or user directly (standalone, when a spec already exists)
+- **Invoked by:** `spec-harden` (primary — with spec input; cascades the spec-stage ground-truth report from `spec-harden` when present, which is the default for non-greenfield specs), or user directly (standalone, when a spec already exists)
 - **Calls:** `chester:plan-build-plan-reviewer` (Plan Review Loop), `chester:plan-build-plan-attacker` (Plan Hardening, unconditional), `chester:plan-build-plan-smeller` (Plan Hardening, conditional — only when Smell Heuristic Pre-Check matches). All three reviewer subagents are named — none fork.
 - **Reads:** `util-artifact-schema` (naming/paths), the spec from upstream `spec/` subdirectory, the spec-stage ground-truth report from upstream `spec/` subdirectory (when present)
 - **Transitions to:** `execute-write` (subagent or inline mode)
 - **Does NOT call:** `start-bootstrap` (inherits sprint context from upstream design and spec stages)
-- **Spec compatibility:** reads spec documents written by `design-specify`, regardless of whether the upstream brief came from `design-small-task` or a human-authored spec — design-specify normalizes either into the spec contract
+- **Spec compatibility:** reads spec documents written by `spec-write`, or a human-authored spec — either is normalized into the spec contract

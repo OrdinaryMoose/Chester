@@ -5,7 +5,7 @@ description: >
   and reasoning audit. Use when: "summarize what we did", "write the summary",
   "session report", "reasoning audit", "document this session", or at natural
   session end points. Also trigger proactively.
-version: v0004
+version: v0005
 ---
 
 # Session Records

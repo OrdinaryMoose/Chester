@@ -4,7 +4,7 @@ set -euo pipefail
 SCHEMA="skills/util-artifact-schema/SKILL.md"
 ERRORS=0
 
-# design-specify is reinstated as a producer (spec artifact + spec-ground-truth-report).
+# spec-write and spec-harden are the producers (spec artifact + spec-ground-truth-report).
 # design-figure-out remains archived.
 for archived in "design-figure-out"; do
   if grep -q "$archived" "$SCHEMA"; then
@@ -14,7 +14,7 @@ for archived in "design-figure-out"; do
 done
 
 # Canonical sequence producers must all appear
-for producer in "design-small-task" "design-specify" "plan-build" "execute-write" "finish-write-records"; do
+for producer in "design-small-task" "spec-write" "spec-harden" "plan-build" "execute-write" "finish-write-records"; do
   if ! grep -q "$producer" "$SCHEMA"; then
     echo "FAIL: $SCHEMA does not list $producer as producer"
     ERRORS=$((ERRORS + 1))

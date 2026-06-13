@@ -1,6 +1,6 @@
 # Spec Template (Loop-Optimized)
 
-Canonical spec document format used by `design-specify`. Each acceptance criterion carries an observable boundary, a stable ID, and downstream placeholder fields populated by `plan-build` and `execute-write`.
+Canonical spec document format used by `spec-write`. Each acceptance criterion carries an observable boundary, a stable ID, and downstream placeholder fields populated by `plan-build` and `execute-write`.
 
 ## When to Use
 
@@ -15,7 +15,7 @@ Leave `Implementing tasks:` and `Decisions:` empty at spec-write time — those 
 
 **Sprint:** YYYYMMDD-##-verb-noun-noun
 **Parent brief:** {design brief path}
-**Architecture:** {architecture chosen from design-specify hybrid}
+**Architecture:** {chosen architectural direction + its FAC basis (feasibility/suitability/completeness evidence) + rejected alternatives and declared sacrifices. Producer-neutral: satisfied identically by a committee verdict or a spec-architect output. A one-line provenance note may name the producer for traceability but is not part of the read contract.}
 
 ## Goal
 {one paragraph}
