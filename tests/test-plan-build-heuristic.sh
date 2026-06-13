@@ -52,10 +52,10 @@ if ! grep -q -i "verified anchor\|skip-list\|plan-specific additions" "$SKILL"; 
   ERRORS=$((ERRORS + 1))
 fi
 
-# Must list design-specify as the primary invoker (canonical sequence:
-# design-small-task -> design-specify -> plan-build)
-if ! grep -q "Invoked by.*design-specify" "$SKILL"; then
-  echo "FAIL: $SKILL does not list design-specify as invoker"
+# Must list spec-harden as the primary invoker (canonical sequence:
+# design-small-task -> spec-architect -> spec-write -> spec-harden -> plan-build)
+if ! grep -q "Invoked by.*spec-harden" "$SKILL"; then
+  echo "FAIL: $SKILL does not list spec-harden as invoker"
   ERRORS=$((ERRORS + 1))
 fi
 
