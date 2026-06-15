@@ -73,7 +73,7 @@ Touch util-design-partner-role → audit committee impact.
 1. **Bootstrap** — read env + config.
 2. **Capture Question** — one-sentence question + round shape.
 3. **Convene** — team-lead Round 1 confirmation + `TeamCreate` + convening message.
-4. **Deliberation** — per-round flow: dispatch → members write + signal → consolidate → synthesize → converge → author → present.
+4. **Deliberation** — per-round flow: dispatch → member return → consolidate → synthesize → converge → author → present.
 5. **Tear Down** — team-lead closure flow + `TeamDelete`.
 
 ## Phase 1: Bootstrap
@@ -176,34 +176,15 @@ All members use caveman ultra for DMs and replies to team-lead.
 
 ### Per-Round Flow
 
-The canonical per-round sequence (spec §5).
-Steps 1–3 are member-side; steps 4–8 are team-lead-side (detail in `references/team-lead.md`).
-Each step writes its artifact to the round folder before the next begins — available to wrapping skills via reference.
-
-1. **Dispatch** — send the topic to the 4 advocacy members in parallel; the researcher serves on demand.
-2. **Members write** — each member writes its full position to its round-folder transcript, ending in a `## Final Position` (schema per `references/member-protocol.md` § Final Position).
-   Peer Q&A runs per the Peer-DM Protocol; a position may be revised post-Q&A or written as-is.
-3. **Members signal** — each member sends the team-lead a typed routing signal (per `references/member-protocol.md` § Routing signal) — not the full position, not a prose summary.
-   The full position text stays on disk; it is never sent via messaging.
-4. **Consolidate** — dispatch the ephemeral Consolidator; it reads only each transcript's `## Final Position` and writes `consolidator-output.md` (enumerate-only).
-5. **Synthesize** — the team-lead writes `committee/roundNN/alignment-map.md`, then evicts it from context.
-6. **Converge** — the team-lead reads the alignment map and writes `committee/roundNN/verdict.md`, then evicts it.
-7. **Author** — the team-lead dispatches the ephemeral scribe with the verdict, the artifact-template path, the consolidator output, and the alignment map; the scribe writes the round's designer-facing decision-packet.
-   The output-surface split governs format — see § `references/team-lead.md` Output Surfaces.
-8. **Present** — the team-lead reads the scribe's artifact once and presents it to the designer; the read IS the review.
-
-**Checkpoint between steps.**
-Each step's dispatch carries the prior step's artifact path as a required input; absence of that artifact blocks the next dispatch.
-Disk is the handoff — no step proceeds on in-context prose alone.
-
-No team-lead relay during step 2's peer Q&A — each exchange is private between asker and target.
+The team-lead executes the per-round flow per `references/team-lead.md` § Per-Round Flow — the single numbered checklist, and the sole authority for the step sequence.
+SKILL.md carries no numbered list of its own; the phase names appear once, in the Checklist above.
 
 ### Modes
 
 Modes are deliberation techniques within the interview-to-resolution loop — they shape a single round, not the loop's length.
 The loop runs until the designer declares the answer sufficient (§ `references/team-lead.md` Behavioral Constraints), regardless of per-round mode.
 
-- **one-round** (default, assumed when unspecified) — a single pass through the eight steps.
+- **one-round** (default, assumed when unspecified) — a single pass through the per-round flow.
 - **two-round** (opt-in Delphi escalation) — after Synthesize, the alignment map is fed back to the members for one revision pass; the round re-consolidates, then converges.
   Name the mode in the convening message.
 
