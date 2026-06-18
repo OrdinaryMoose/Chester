@@ -204,9 +204,9 @@ You do not call most of these manually — they chain automatically. The pipelin
 
 ### `chester:spec-write`
 
-**What it does:** Authors the spec from a FAC-complete design — either a committee verdict or the output of `spec-architect`. Extracts the eight-field FAC-complete-design contract, quotes the chosen architecture back to you for confirmation, and fills the spec template. It authors only; it runs no review passes.
+**What it does:** Authors the spec from a FAC-complete design — either a committee complete-design document or the output of `spec-architect`. Extracts the eight-field FAC-complete-design contract, quotes the chosen architecture back to you for confirmation, and fills the spec template. It authors only; it runs no review passes.
 
-**When to invoke:** Automatically after `spec-architect` (or directly after a committee verdict, which is already FAC-complete). Can also be invoked standalone with a FAC-complete design brief.
+**When to invoke:** Automatically after `spec-architect` (or directly after a committee complete-design document, which is already FAC-complete). Can also be invoked standalone with a FAC-complete design brief.
 
 **How to use:** It confirms the architecture it read by quoting it back, then writes the spec into the working directory. Once the spec is authored, it transitions to `spec-harden`.
 

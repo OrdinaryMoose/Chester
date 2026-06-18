@@ -55,7 +55,7 @@ grep -qi 'C1 audit' "$TL"; check "doctrine: C1 audit intact" $?
 grep -qi 'strict premise scope' "$TL"; check "doctrine: strict premise scope intact" $?
 # locked decision packet intact (AC-4.1)
 grep -q 'Information Package' "$TL" && grep -q 'Decision Package' "$TL" && grep -q 'Team-Lead Comments' "$TL"; check "locked four-block packet headings present" $?
-grep -q 'What a Good Decision Packet Sounds Like' "$TL"; check "locked decision-packet Style Exemplar intact (distinctive anchor)" $?
+grep -q 'What a Good Decision-Communication Packet Sounds Like' "$TL"; check "locked decision-communication-packet Style Exemplar intact (distinctive anchor)" $?
 # voice spec present/untouched anchor (AC-4.1)
 grep -qi 'Translation Gate' "$UDP"; check "util-design-partner-role intact (anchor present)" $?
 

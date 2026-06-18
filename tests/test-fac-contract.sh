@@ -10,7 +10,7 @@ fail() { echo "FAIL: $1" >&2; ERRORS=$((ERRORS + 1)); }
 for field in "Goal" "Chosen architecture" "Rejected alternatives" "Prior-art" "Ground-truth" "Constraints" "Acceptance-criteria seed" "Deferred"; do
   grep -qi -- "\*\*$field" "$REF" || fail "contract missing field: $field"
 done
-grep -qi 'committee verdict' "$REF" || fail "no committee-verdict mapping"
+grep -qi 'complete-design source' "$REF" || fail "no committee complete-design mapping"
 grep -qi 'spec-architect' "$REF" || fail "no spec-architect mapping"
 grep -qi 'quote.back\|quote back' "$REF" || fail "no quote-back requirement"
 

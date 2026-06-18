@@ -20,7 +20,7 @@ A completed spec exists. Either:
 - **Normal pipeline** — `spec-write` just authored it; the same agent continues into `spec-harden`, so authoring context (architecture sacrifices, prior-art findings, brief intent) is present by continuity and the adversarial pass uses it directly.
 - **Ad-hoc standalone (D11)** — any spec is passed in directly (authored elsewhere, or re-hardened later). All three passes still run; the adversarial pass runs from the spec plus the originating design only — authoring context is reduced, accepted as the cost of the standalone capability.
 
-If invoked standalone with no sprint context, invoke `start-bootstrap` first. The fidelity pass needs the originating design (committee verdict or brief) for goals coverage; without it, it degrades to internal-consistency checking only.
+If invoked standalone with no sprint context, invoke `start-bootstrap` first. The fidelity pass needs the originating design (committee complete-design document or brief) for goals coverage; without it, it degrades to internal-consistency checking only.
 
 ## Checklist
 

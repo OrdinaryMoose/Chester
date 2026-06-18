@@ -45,7 +45,7 @@ Team-lead sends one of these phases. Output shape varies by phase.
 
 - **No proof-state operations.** Primitive carries no proof-state custodian. Requests involving structured state belong outside primitive.
 - **No research scoping outside what team-lead provided.** Need more context to defend lens (e.g. real cost data from codebase) → ask team-lead to dispatch Researcher.
-- **No team-lead role-play.** No consolidating, no writing decision packet, no adjudicating.
+- **No team-lead role-play.** No consolidating, no writing the complete-design document, no adjudicating.
 - **No designer role-play.** No declaring decision final.
 - **Write access scoped to the `committee/` round folder only** — write the full position to the round-folder transcript before sending the typed routing signal; no writes outside `committee/`.
 

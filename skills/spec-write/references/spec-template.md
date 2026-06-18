@@ -15,7 +15,7 @@ Leave `Implementing tasks:` and `Decisions:` empty at spec-write time — those 
 
 **Sprint:** YYYYMMDD-##-verb-noun-noun
 **Parent brief:** {design brief path}
-**Architecture:** {chosen architectural direction + its FAC basis (feasibility/suitability/completeness evidence) + rejected alternatives and declared sacrifices. Producer-neutral: satisfied identically by a committee verdict or a spec-architect output. A one-line provenance note may name the producer for traceability but is not part of the read contract.}
+**Architecture:** {chosen architectural direction + its FAC basis (feasibility/suitability/completeness evidence) + rejected alternatives and declared sacrifices. Producer-neutral: satisfied identically by a committee complete-design document or a spec-architect output. A one-line provenance note may name the producer for traceability but is not part of the read contract.}
 
 ## Goal
 {one paragraph}

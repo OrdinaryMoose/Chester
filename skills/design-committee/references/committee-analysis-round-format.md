@@ -5,10 +5,10 @@ description: >
   `committee/roundNN/` folder holding per-member transcript files (each ending in
   a `## Final Position`), a researcher findings file, the enumerate-only
   Consolidator output, the team-lead's `alignment-map.md` and `verdict.md`, and
-  the scribe's designer-facing decision-packet artifact. A follow-up round opens
+  the scribe's designer-facing complete-design document. A follow-up round opens
   the next roundNN/. Copy the template block, fill the <…> placeholders, delete
   the (guidance) notes. Read when persisting a round.
-version: v0001
+version: v0002
 ---
 
 # Committee Round-Folder Format
@@ -36,7 +36,7 @@ disciplines:
 - **Verdict** (`verdict.md`) — the team-lead's risk-weighted decision, specific and
   one-sentence-minimum, written downstream of the alignment map. The decision of record and
   the scribe's primary source. Internal handoff.
-- **Scribe decision-packet** (the designer-facing artifact) — authored by the scribe from
+- **Scribe complete-design document** (the designer-facing artifact) — authored by the scribe from
   the verdict, alignment map, and Consolidator output, following
   `references/artifact-template.md` (which owns the artifact's section structure, including
   the mandatory `## Dissent Record`). The Translation Gate **APPLIES** here (designer-facing:
@@ -55,7 +55,7 @@ committee/
     ├── consolidator-output.md       # enumerate-only: counts, summaries, quotes
     ├── alignment-map.md             # team-lead: alignment pattern + option set + discards
     ├── verdict.md                   # team-lead: risk-weighted decision (one sentence min)
-    └── <decision-packet>.md         # scribe: designer-facing artifact, per references/artifact-template.md
+    └── <complete-design>.md         # scribe: designer-facing complete-design document, per references/artifact-template.md
 ```
 
 - **One folder per round.** The first consultation round is `round01/`. Each additional
@@ -67,7 +67,7 @@ committee/
 - **consolidator-output.md** is the Consolidator's enumeration over that round's `## Final
   Position` sections.
 - **alignment-map.md** and **verdict.md** are the team-lead's synthesis and decision.
-- the **scribe decision-packet** is the round's designer-facing artifact.
+- the **scribe complete-design document** is the round's designer-facing artifact.
 
 ## How To Use
 
@@ -81,7 +81,7 @@ committee/
    `consolidator-output.md` — enumeration only.
 4. The team-lead writes `alignment-map.md` (synthesis), then `verdict.md` (the risk-weighted
    decision), each downstream of the Consolidator output and evicted after writing.
-5. The scribe authors the designer-facing decision-packet from the verdict, alignment map, and
+5. The scribe authors the designer-facing complete-design document from the verdict, alignment map, and
    Consolidator output, following `references/artifact-template.md`.
 6. A follow-up deliberation opens the **next** `roundNN/` folder. Do not back-edit prior round
    folders — each round is a self-contained, immutable record.
@@ -98,13 +98,13 @@ committee/
 - **Consolidator enumerates; team-lead decides.** The Consolidator reports alignment count,
   per-member summaries, and verbatim notable quotes — nothing more. The risk-weighted call lives
   solely in the team-lead's `verdict.md`, downstream of the Consolidator output.
-- **Translation Gate boundary.** The Gate APPLIES to the scribe's designer-facing decision-packet.
+- **Translation Gate boundary.** The Gate APPLIES to the scribe's designer-facing complete-design document.
   It does NOT apply to transcripts, findings, the Consolidator output, the alignment map, or the
   verdict — those are internal and may carry code vocabulary.
 - **Answer shape + warrants on disk.** `alignment-map.md` and `verdict.md` carry an answer-shape
   marker (converged / preserved-split / partial) and a warrant record for the answer body. These
   ride the existing team-lead artifacts — no new per-round file is introduced. This is the
-  committee's **output-surface split**: the scribe's designer-facing decision-packet has a locked
+  committee's **output-surface split**: the scribe's designer-facing complete-design document has a locked
   format; the team-lead's on-disk answer record does not. (This output-surface split is a distinct
   concept from the "two-surface" usage in sprint `20260521-02-design-architect-committee` — do not
   conflate the two terms.)
@@ -217,10 +217,11 @@ and alignment-map.md. This is the scribe's primary source.>
 and source — the same record carried in alignment-map.md, restated so the verdict is auditable standalone.>
 ```
 
-### Scribe decision-packet (designer-facing — Translation Gate APPLIES)
+### Scribe complete-design document (designer-facing — Translation Gate APPLIES)
 
-The scribe authors the round's designer-facing artifact from `verdict.md`, `alignment-map.md`, and
-`consolidator-output.md`, following `references/artifact-template.md` — which owns the artifact's
-section structure (Summary, Verdict, Rationale, the mandatory `## Dissent Record`, Deferred / Open).
+The scribe authors the round's designer-facing complete-design document from `verdict.md`, `alignment-map.md`, and
+`consolidator-output.md`, following `references/artifact-template.md` — which owns the document's
+section structure (Summary, Verdict, Rationale, the mandatory `## Dissent Record`, Deferred / Open),
+with labeled sub-fields carrying the eight FAC-complete-design fields as content.
 Do not duplicate that template here; it is the single source for the artifact shape. The team-lead
 presents this artifact to the designer per `team-lead.md` § Visible Surface / Information Packet Format.
