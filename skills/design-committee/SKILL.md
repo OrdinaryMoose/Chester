@@ -1,7 +1,7 @@
 ---
 name: design-committee
 description: Convene six-role committee (team-lead + 4 members + researcher) for ad-hoc design consultations. Process-agnostic primitive. Use whenever designer wants independent multi-perspective review of meta-architecture, cross-cutting design choice, charter call, or any decision where framing bias risks outcome. Triggers on "convene the committee", "ask the committee", "committee deliberation", "four-member review", "/design-committee", and natural-language asks for structured multi-perspective consultation.
-version: v0023
+version: v0024
 ---
 
 # Design Committee
@@ -13,7 +13,6 @@ Flexible skill — adapt round shape and dispatch to question.
 - This SKILL.md owns orchestration: setup, dispatch, tear down, and common items every subagent needs. 
 - Team-lead role behavior (Round 1, conversation loop with designer, packet format, consolidation, presentation, closure) lives in `references/team-lead.md`. 
 - Member phase contracts are the registered `chester:design-committee-*` agents — defined in the plugin's top-level `agents/` directory per the repo agent convention, and loaded automatically as each member's system prompt on dispatch. 
-- Skill-author concerns live in `references/skill-contract.md`.
 
 ## When To Use
 
@@ -213,17 +212,12 @@ A single-round consult simply incurs one extra Consolidator spawn.
 
 ## For Skill Authors
 
-Modifying committee or writing wrapping skill → read `references/skill-contract.md`.
-Carries contract floor, three forbidden attach surfaces, member-agent rationale, deferred roadmap.
-NOT runtime reading.
-
 Generic base-skill role-contract edits to the member agent files — clarifications that apply to every invocation of the committee — are permitted.
-Only sprint-specific overlay is forbidden (see `references/skill-contract.md`).
 
 ## Integration
 
 - **Calls:** `TeamCreate`, `SendMessage`, `TeamDelete` (orchestration); `chester-config-read` (config); `chester:design-committee-*` agents (members + researcher); `chester:design-committee-consolidator` and `chester:design-committee-scribe` (ephemeral off-roster dispatches — see § Consolidator, § Scribe).
-- **Reads:** `util-design-partner-role` (voice — before convening), `references/team-lead.md` (team-lead role behavior), `references/member-protocol.md` (Final Position schema, routing-signal discipline, transcript/round-folder discipline, committee-root resolution), `references/committee-analysis-round-format.md` (round-folder record layout), `references/artifact-template.md` (scribe artifact structure), `references/skill-contract.md` (skill-author only).
+- **Reads:** `util-design-partner-role` (voice — before convening), `references/team-lead.md` (team-lead role behavior), `references/member-protocol.md` (Final Position schema, routing-signal discipline, transcript/round-folder discipline, committee-root resolution), `references/committee-analysis-round-format.md` (round-folder record layout), `references/artifact-template.md` (scribe artifact structure).
   Member phase contracts are not read here — they load as each `chester:design-committee-*` agent's own system prompt on dispatch.
 - **Transitions to:** none — committee = standalone consultation.
   Designer routes downstream work.
