@@ -8,6 +8,8 @@ Use this template when dispatching a code quality reviewer subagent.
 
 **Fork policy: isolated.** Dispatch via the named `chester:execute-write-quality-reviewer` subagent. Named subagents do not fork — quality review needs to evaluate the diff without inheriting the implementer's "we built it well" narrative.
 
+**Dispatch off-roster: no `team_name`.** One-shot worker — returns its result and auto-disposes; passing a `team_name` makes it a persistent teammate that strands until `TeamDelete`.
+
 ```
 Task tool (chester:execute-write-quality-reviewer):
   description: "Quality review for Task N"
