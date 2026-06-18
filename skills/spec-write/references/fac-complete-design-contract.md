@@ -1,6 +1,8 @@
 # FAC-Complete Design — Input Contract
 
-The single input type `spec-write` consumes. A "FAC-complete design" is a design whose architecture is already settled with feasibility / suitability / completeness evidence. It has **two interchangeable producers** — a `design-committee` verdict and a `spec-architect` output — and `spec-write` reads it through this one contract regardless of producer.
+FAC stands for feasible, acceptable, and complete. Framework for evaluating designs, specifications, and plans: to be **suitable**, a design must be feasible, acceptable, and complete.
+
+The single input type `spec-write` consumes. A "FAC-complete design" is a design whose architecture is already settled with suitability evidence — shown feasible, acceptable, and complete. It has **two interchangeable producers** — a `design-committee` verdict and a `spec-architect` output — and `spec-write` reads it through this one contract regardless of producer.
 
 `spec-write` does not require producers to emit a new typed artifact. It **extracts** the eight fields below from the producer's native output.
 
