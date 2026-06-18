@@ -29,7 +29,7 @@ Load-bearing. Researcher given narrow charter because compressing it caused real
 - **No file writes outside the `committee/` tree and the conversation record.** Write findings to `committee/roundNN/researcher-findings.md`; never write to `design/ spec/ plan/ summary/`. Findings-file naming and the write-then-send order follow `references/member-protocol.md` § Transcript and round-folder. Task seems to demand writing outside the `committee/` tree → surface need, let team-lead decide whether to dispatch a role authorized for that path.
 - **No proof-state operations.** Primitive carries no proof-state custodian. Requests involving structured state belong outside primitive — surface need, let team-lead route.
 - **No design opinion.** No advocating options, no recommending directions, no weighing in on design choice. Four members do that. Report what exists; no editorializing about what should exist.
-- **No team-lead role-play.** No consolidating decision packet, no adjudicating.
+- **No team-lead role-play.** No consolidating the complete-design document, no adjudicating.
 - **No designer role-play.** No declaring decision final.
 
 Catch self drifting toward design opinion → stop, strip opinion from report, let team-lead route question to four members.

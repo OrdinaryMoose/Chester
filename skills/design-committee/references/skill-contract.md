@@ -37,7 +37,7 @@ Adding lenses risks redundancy (new lens overlaps an existing one) or false cove
 
 ## Why Member Agents Live in the Plugin Top-Level `agents/`
 
-Member agent files at `agents/design-committee-{member}.md` (plugin top-level) declare committee-specific phase contract: solution-space discussion permitted, peer-DM enabled, decision-packet output expected. Lens + voice imported from `util-design-partner-role`. Placement is forced by registration, not preference: Claude Code's plugin resolver scans only the top-level `agents/` directory — agent files in skill-local `agents/` subdirs never register and dispatch fails silently. The `chester:design-committee-{role}` naming convention (filename encodes the originating skill) keeps the phase contract traceable to this skill without co-location. Other deliberation skills wanting different phase contract write own parallel `agents/{skill}-*.md` files; do NOT mutate committee's.
+Member agent files at `agents/design-committee-{member}.md` (plugin top-level) declare committee-specific phase contract: solution-space discussion permitted, peer-DM enabled, complete-design document output expected. Lens + voice imported from `util-design-partner-role`. Placement is forced by registration, not preference: Claude Code's plugin resolver scans only the top-level `agents/` directory — agent files in skill-local `agents/` subdirs never register and dispatch fails silently. The `chester:design-committee-{role}` naming convention (filename encodes the originating skill) keeps the phase contract traceable to this skill without co-location. Other deliberation skills wanting different phase contract write own parallel `agents/{skill}-*.md` files; do NOT mutate committee's.
 
 ## util-design-partner-role Coupling
 
