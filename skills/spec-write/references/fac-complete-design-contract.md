@@ -21,7 +21,7 @@ The two producers differ in how `spec-write` reads the eight fields. The **commi
 
 ## Mandatory architecture quote-back
 
-Before authoring **any** spec section, `spec-write` reads the **Chosen architecture** field and **quotes it back** to the user for confirmation. That field is the pivot every architecture-derived spec section (Architecture, Components, Data Flow, Acceptance Criteria) depends on. For the committee path this is now a structured read of a labeled sub-field rather than a mine of narrative prose — materially lower-risk, since the producer states the architecture in its own labeled slot. The quote-back is retained as the confirmation checkpoint (hardening verifies the spec against itself, not against design intent, so the designer's confirmation of the carried-forward architecture still matters); it is simpler than before, not eliminated.
+Before authoring **any** spec section, `spec-write` reads the **Chosen architecture** field and **quotes it back** to the user for confirmation. That field is the pivot every architecture-derived spec section (Architecture, Components, Data Flow, Acceptance Criteria) depends on. On the committee path the field is a labeled sub-field, so the read is a direct structured read of a stated value. The quote-back is the confirmation checkpoint: hardening verifies the spec against itself, not against design intent, so the designer's confirmation of the carried-forward architecture still matters.
 
 ## Why a structured committee document (D9 reversed)
 
