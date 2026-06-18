@@ -1,12 +1,12 @@
 ---
 name: spec-architect
 description: "Settle the architecture for a FAC-incomplete design before spec authoring. Use when a design brief from design-small-task exists but its architecture is not yet settled — runs competing-architecture review (two code-architect axes + prior-art explorer), F-A-C self-checks, and a user-selection gate, producing a FAC-complete design. Invoked only on the small-task path; the committee path skips it. Transitions to spec-write."
-version: v0001
+version: v0002
 ---
 
 # Settle Architecture
 
-Settle the architecture for a FAC-incomplete design: compare competing approaches, survey prior art, run feasibility/suitability/completeness checks, and take a user selection. Produces a FAC-complete design that `spec-write` authors into a spec.
+Settle the architecture for a FAC-incomplete design: compare competing approaches, survey prior art, run feasibility/acceptability/completeness checks, and take a user selection. Produces a FAC-complete design that `spec-write` authors into a spec.
 
 This is a **flexible** skill — adapt the axis selection and hybrid construction to the brief.
 
@@ -27,7 +27,7 @@ You MUST create a task for each of these items and complete them in order:
 
 1. **Setup** — if invoked standalone (no upstream design skill), invoke `start-bootstrap`; otherwise sprint context already exists
 2. **Read design brief** — read the design brief from disk or gather the design from conversation context
-3. **Competing architectures + prior art** — dispatcher reads the brief, names the two sharpest tensions, defines an axis for each, then dispatches 3 agents in parallel: 2 `feature-dev:code-architect` agents on dispatcher-assigned axes (each self-checking against F-A-C: feasibility / suitability / completeness) + 1 prior-art explorer. Dispatcher constructs a hybrid recommendation. Present three blocks to the user (Architect A / Architect B / Hybrid Recommendation) with prior-art context; user picks direction.
+3. **Competing architectures + prior art** — dispatcher reads the brief, names the two sharpest tensions, defines an axis for each, then dispatches 3 agents in parallel: 2 `feature-dev:code-architect` agents on dispatcher-assigned axes (each self-checking against F-A-C: feasibility / acceptability / completeness) + 1 prior-art explorer. Dispatcher constructs a hybrid recommendation. Present three blocks to the user (Architect A / Architect B / Hybrid Recommendation) with prior-art context; user picks direction.
 4. **Transition** — the user's selected direction completes the FAC-complete design. Invoke `spec-write` to author the spec.
 
 ## Standalone Invocation
@@ -42,8 +42,10 @@ After reading the design brief but before writing the spec, dispatch three agent
 
 Every architect option (and the dispatcher-built hybrid) must pass three preconditions. Architects self-check their designs against these before returning; the dispatcher re-checks the hybrid it constructs. Every option the user sees is therefore implementable by construction — no strawmen, no decoy extremes.
 
+A design is **suitable** exactly when it passes all three: suitability is the umbrella the F-A-C preconditions jointly establish, not a fourth sibling.
+
 - **Feasible** — the design can be performed within normal sprint constraints. Time, team capacity, ops tolerance, deployment windows. A design that requires a wave-front migration the sprint cannot absorb fails feasibility.
-- **Suitable** — the design solves the problem the brief specifies. Not a related problem, not a broader problem — the one stated. A design that solves something adjacent fails suitability.
+- **Acceptable** — the design solves the problem the brief specifies. Not a related problem, not a broader problem — the one stated. A design that solves something adjacent fails acceptability.
 - **Complete** — the design addresses the full scope of what the brief asks. A great solution to one of three tasks is not complete. Partial coverage fails completeness.
 
 Architects and the dispatcher must cite *specific* evidence for each precondition — concrete sprint-constraint values, concrete brief goals solved, concrete scope items covered. Vague claims do not count as passing.
@@ -70,7 +72,7 @@ Dispatch two `feature-dev:code-architect` agents in parallel, isolated, no cross
 - The full design brief
 - Codebase context for the relevant areas
 - **Assigned axis** — the dispatcher-defined axis with directive to optimize for one end and accept sacrifice at the other
-- **F-A-C definitions and self-check directive** — the architect must self-check its design against feasibility, suitability, and completeness before returning; iterate privately until pass; if the axis genuinely cannot satisfy all three, return a null result with reasoning rather than a weakened design claiming to pass
+- **F-A-C definitions and self-check directive** — the architect must self-check its design against feasibility, acceptability, and completeness before returning; iterate privately until pass; if the axis genuinely cannot satisfy all three, return a null result with reasoning rather than a weakened design claiming to pass
 
 **Architect output (each returns, structured bulleted format, no tables):**
 
@@ -81,7 +83,7 @@ Dispatch two `feature-dev:code-architect` agents in parallel, isolated, no cross
 - **Brief Compliance** — per-goal addressed-by, per-constraint respected-how, per-decision honored-where
 - **Risks Introduced** — bullets
 - **Feasibility Evidence** — specific reasoning showing the design fits normal sprint constraints (cite concrete constraints, not vague claims)
-- **Suitability Evidence** — specific reasoning showing the design solves the problem the brief asks (cite concrete brief goals)
+- **Acceptability Evidence** — specific reasoning showing the design solves the problem the brief asks (cite concrete brief goals)
 - **Completeness Evidence** — specific reasoning showing the full scope is covered (cite concrete scope items)
 
 Architects do NOT produce a per-architect "Alternatives Considered" section — hybrid construction across the two architects is the dispatcher's job.
