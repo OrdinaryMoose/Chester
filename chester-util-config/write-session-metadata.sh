@@ -32,10 +32,8 @@ fi
 
 # Best-effort skill versions (git rev-parse on the SKILL.md files)
 PARTNER_ROLE_VERSION="$(git -C "$REPO_ROOT" log -1 --format=%H -- skills/util-design-partner-role/SKILL.md 2>/dev/null || echo '')"
-LARGE_TASK_VERSION="$(git -C "$REPO_ROOT" log -1 --format=%H -- skills/design-large-task/SKILL.md 2>/dev/null || echo '')"
 
 PARTNER_JSON=$([ -n "$PARTNER_ROLE_VERSION" ] && echo "\"$PARTNER_ROLE_VERSION\"" || echo "null")
-LARGE_JSON=$([ -n "$LARGE_TASK_VERSION" ] && echo "\"$LARGE_TASK_VERSION\"" || echo "null")
 
 cat > "$META_FILE" <<EOF
 {
@@ -44,8 +42,7 @@ cat > "$META_FILE" <<EOF
   "sessionStartTimestamp": "$TIMESTAMP",
   "jsonlSessionId": $JSONL_SESSION_ID,
   "skillVersion": {
-    "utilDesignPartnerRole": $PARTNER_JSON,
-    "designLargeTask": $LARGE_JSON
+    "utilDesignPartnerRole": $PARTNER_JSON
   }
 }
 EOF

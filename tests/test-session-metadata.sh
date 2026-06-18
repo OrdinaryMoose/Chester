@@ -40,6 +40,6 @@ echo "$TIMESTAMP" | grep -qE '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9
 
 jq -e 'has("jsonlSessionId")' "$META_FILE" >/dev/null || { echo "FAIL AC-3.2: jsonlSessionId key missing"; exit 1; }
 
-jq -e '.skillVersion | has("utilDesignPartnerRole") and has("designLargeTask")' "$META_FILE" >/dev/null || { echo "FAIL AC-3.2: skillVersion shape wrong"; exit 1; }
+jq -e '.skillVersion | has("utilDesignPartnerRole")' "$META_FILE" >/dev/null || { echo "FAIL AC-3.2: skillVersion shape wrong"; exit 1; }
 
 echo "PASS: AC-3.1, AC-3.2"
