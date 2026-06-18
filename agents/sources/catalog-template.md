@@ -34,7 +34,7 @@ Design entry path decides if first runs.
 Two paths into plan:
 
 - Small-task → `design-small-task` → `spec-architect` → `spec-write` → `spec-harden` → `plan-build`.
-- Committee → `design-committee` → (designer routes verdict) → `spec-write` → `spec-harden` → `plan-build`.
+- Committee → `design-committee` → (designer routes complete-design document) → `spec-write` → `spec-harden` → `plan-build`.
 
 ## Skill Priority
 
@@ -50,7 +50,7 @@ Many skills apply → use this order.
 - "Quick design check for X" → `design-small-task` → small-task path → `plan-build`.
 - "Convene the committee on X" / "ask the committee" → `design-committee` standalone (not pipeline-staged).
 - "Grill me on this plan" / "stress-test this design" → `design-grillme`.
-- "Already have settled architecture or committee verdict" → skip to `spec-write`.
+- "Already have settled architecture or committee complete-design document" → skip to `spec-write`.
 
 ## Skill Catalog
 
