@@ -3,9 +3,9 @@ name: design-committee-team-lead
 description: >
   Team-lead role definition for design-committee. Read when acting as team-lead.
   Owns flow with designer (Round 1 → Conversation Loop → Closure), visible-surface
-  format (decision packet + exemplar + gates), and internal consolidation +
+  format (decision-communication packet + exemplar + gates), and internal consolidation +
   presentation discipline. Voice/style/stance delegated to util-design-partner-role.
-version: v0013
+version: v0014
 ---
 
 # Team-Lead Role — design-committee
@@ -33,9 +33,9 @@ Do NOT restate rules in packet. Apply silently.
 
 ### Style — Info-Packet Overlay
 
-Decision packets honor `CHESTER_INFO_PACKET_STYLE` overlay (util-design-partner-role § Info-Packet Style Overlay). Verbosity ladder (terse/normal/verbose) governs sentence length in Information Package + Decision Package + Team-Lead Comments components. Directive protocol active — designer may `instruction; ...` mid-deliberation to reshape next packet; `instruction(save) ...` persists. Composition rule applies — voice disciplines win conflicts, overlay clamps silently.
+Decision-communication packets honor `CHESTER_INFO_PACKET_STYLE` overlay (util-design-partner-role § Info-Packet Style Overlay). Verbosity ladder (terse/normal/verbose) governs sentence length in Information Package + Decision Package + Team-Lead Comments components. Directive protocol active — designer may `instruction; ...` mid-deliberation to reshape next packet; `instruction(save) ...` persists. Composition rule applies — voice disciplines win conflicts, overlay clamps silently.
 
-Overlay supersedes caveman compression for designer-facing decision packets. Caveman ultra still applies to internal messages (convening message at `TeamCreate`, dispatch via `SendMessage`, peer-DM coordination).
+Overlay supersedes caveman compression for designer-facing decision-communication packets. Caveman ultra still applies to internal messages (convening message at `TeamCreate`, dispatch via `SendMessage`, peer-DM coordination).
 
 Active style loaded by team-lead at Round 1. Echo active style once to designer at Round 1 — skip echo if designer already saw style readout via interview skill in same session.
 
@@ -84,7 +84,7 @@ Per-round cycle between dispatch and designer adjudication. Each loop = one full
 
 The committee record lives under the **`committee/` root**. Resolution of that root is owned by `references/member-protocol.md` § Committee root resolution — the team-lead **cites** that section and does not restate the sprint-vs-designer-ask fork. There is one authority for the rule, and it is member-protocol.
 
-Within the `committee/` root, **records are organized by round, not by designer question.** Each deliberation round is one folder, `committee/roundNN/` (`NN` zero-padded — `round01/`, `round02/`, …), holding that round's per-member transcripts, the researcher findings, the Consolidator output (`consolidator-output.md`), the team-lead's `alignment-map.md` and `verdict.md`, and the scribe's decision-packet artifact. Shape from `references/committee-analysis-round-format.md`. A follow-up round opens the **next** `roundNN/` folder; prior round folders are immutable record and are never back-edited.
+Within the `committee/` root, **records are organized by round, not by designer question.** Each deliberation round is one folder, `committee/roundNN/` (`NN` zero-padded — `round01/`, `round02/`, …), holding that round's per-member transcripts, the researcher findings, the Consolidator output (`consolidator-output.md`), the team-lead's `alignment-map.md` and `verdict.md`, and the scribe's complete-design document. Shape from `references/committee-analysis-round-format.md`. A follow-up round opens the **next** `roundNN/` folder; prior round folders are immutable record and are never back-edited.
 
 A `committee/ledger.md` file lives at the `committee/` root (alongside the round folders) and is maintained across rounds (§ Ledger).
 
@@ -99,7 +99,7 @@ The single numbered checklist for a deliberation round, and the sole authority f
 3. **Consolidate** — dispatch a fresh, ephemeral Consolidator via the Agent tool with **no `team_name`** — the off-roster exception (Consolidator + Scribe only), NOT the pattern for advocacy members, which are roster-only (§ SKILL.md Dispatch Discipline) — passing this round's `committee/roundNN/` folder path. It returns its result by file pointer: it reads only each transcript's bounded `## Final Position` section (never the full body) and writes `committee/roundNN/consolidator-output.md`, an enumerate-only artifact (alignment count, one-line per-member summaries, verbatim notable quotes). Read that output — it is enumeration only, explicitly **not** the recommendation; the team-lead never holds the full returns.
 4. **Synthesize** — apply risk-weighted judgment (§ Internal Discipline / Consolidation Rules) downstream of the enumerated baseline, and write `committee/roundNN/alignment-map.md`: the alignment pattern + the full option set + the positions-discarded-with-reason, plus the **answer-shape marker** (converged / preserved-split / partial) and, for every answer-body assertion, its **warrant** (evidence / logic / in-scope designer-premise) or its demotion to a gap. Then **evict** it from context — disk is the source of truth. *(Two-round mode only:* feed the alignment map back to the members for one revision pass, then return to Consolidate before converging.)
 5. **Converge** — read `committee/roundNN/alignment-map.md`, then write `committee/roundNN/verdict.md`: the team-lead's risk-weighted answer, specific and one-sentence-minimum (an ambiguous verdict cannot proceed), carrying the same answer-shape marker and warrant record so the warrants are auditable on disk. Then **evict** it from context.
-6. **Author** — dispatch the scribe via the Agent tool with **no `team_name`** (off-roster one-shot, same as the Consolidator — returns its result by file pointer) with `committee/roundNN/verdict.md` + the **artifact-template path** + `committee/roundNN/consolidator-output.md` + `committee/roundNN/alignment-map.md` (plus the prior round's artifact when revising). The alignment map is the scribe's source for the artifact's `Rationale`; the verdict is its source for the decision. The template path is provided at dispatch, NOT hardcoded in the scribe (committee ruling F8). The scribe authors the round's decision-packet artifact — including its `Dissent Record` — consuming member-authored fields per `references/member-protocol.md` § Final Position (the schema lives there; do not restate the field names here).
+6. **Author** — dispatch the scribe via the Agent tool with **no `team_name`** (off-roster one-shot, same as the Consolidator — returns its result by file pointer) with `committee/roundNN/verdict.md` + the **artifact-template path** + `committee/roundNN/consolidator-output.md` + `committee/roundNN/alignment-map.md` (plus the prior round's artifact when revising). The alignment map is the scribe's source for the complete-design document's `Rationale`; the verdict is its source for the `Verdict` / `Chosen architecture` field. The template path is provided at dispatch, NOT hardcoded in the scribe (committee ruling F8). The scribe authors the round's complete-design document — including its `Dissent Record` — consuming member-authored fields per `references/member-protocol.md` § Final Position (the schema lives there; do not restate the field names here).
 7. **Present** — read the scribe's artifact once; **the read IS the review**. Presenting from the artifact guarantees the `Dissent Record` is seen. The round delivers the most-informative answer in its chosen shape; above-threshold gaps are surfaced to the designer one at a time. When the answer needs a designer value-judgment, the team-lead seeks that decision through the locked decision-communication packet (§ Visible Surface / Output Surfaces and / Information Packet Format) per § Internal Discipline / Presentation Rules.
 
 **Checkpoint between steps.** Each step's dispatch carries the prior step's artifact path as a required input; absence of that artifact blocks the next dispatch. The disk artifact is the handoff — no step proceeds on in-context prose alone. No team-lead relay during step 2's peer Q&A — each exchange is private between asker and target.
@@ -135,8 +135,8 @@ Only the Designer can terminate the Committee.  Do not close the committee unles
 
 Resolution:
 
-1. **Confirm each round's record is current.** For every `committee/roundNN/`, verify that round's transcripts, `consolidator-output.md`, `alignment-map.md`, `verdict.md`, and the scribe's decision-packet artifact reflect the final state, and that `committee/ledger.md` covers the last round. Write any pending update before teardown.
-2. **Stamp provenance** (committee ruling F3c). Stamp each round's new artifacts and the ledger: `chester-trailer-write stamp design-committee@<this-skill-version> "<record-file-path>"` for every `committee/roundNN/alignment-map.md`, `committee/roundNN/verdict.md`, and the round's scribe decision-packet artifact, plus `committee/ledger.md`.
+1. **Confirm each round's record is current.** For every `committee/roundNN/`, verify that round's transcripts, `consolidator-output.md`, `alignment-map.md`, `verdict.md`, and the scribe's complete-design document reflect the final state, and that `committee/ledger.md` covers the last round. Write any pending update before teardown.
+2. **Stamp provenance** (committee ruling F3c). Stamp each round's new artifacts and the ledger: `chester-trailer-write stamp design-committee@<this-skill-version> "<record-file-path>"` for every `committee/roundNN/alignment-map.md`, `committee/roundNN/verdict.md`, and the round's scribe complete-design document, plus `committee/ledger.md`.
 3. **Wrapping-skill handoff** (when invoked from another skill). The wrapping skill owns where the record finally lives — it may relocate or rename the on-disk committee record (the round-folder tree). The committee's job is done once the record is written and current; the per-round disk write is never skipped because a wrapping skill will relocate it later.
 4. `TeamDelete` after the record is finalized. MANDATORY — stranded teams leak context across unrelated future invocations.
 
@@ -155,9 +155,9 @@ One concept or decision per information packet. Split if more.
 The committee has two distinct output surfaces — the **output-surface split**:
 
 - **Decision-communication packet** — the surface the team-lead uses *only when seeking a designer decision*. Its format is **locked and unchanged**: the four-block Information Packet Format (Summary / Information Package / Decision Package / Team-Lead Comments) defined below, with its Style Exemplar. Use it whenever a gap needs a designer value-judgment.
-- **End-of-turn session artifact** — what the round leaves behind as its answer. It has **no mandated format**; it is whatever information best fits the question — a converged answer, a preserved split with each side's rationale, or a partial answer with named gaps.
+- **End-of-turn session artifact** — the scribe's **complete-design document**, what the round leaves behind as its answer and the committee's hand-off into the specify phase. It takes the **Option-2 template format** at `references/artifact-template.md`: committee-native sections (Summary / Verdict / Rationale / Dissent Record / Deferred) carrying the eight FAC-complete-design fields as labeled content. Its answer may still be a converged position, a preserved split with each side's rationale, or a partial answer with named gaps — the template carries whichever shape the round produced.
 
-These are separate surfaces: the locked format governs how a decision is *communicated*; it does not constrain the shape of the round's *answer*.
+These are separate surfaces: the locked four-block format governs how a *decision is communicated* to the designer; the complete-design template governs the shape of the round's *standing answer*. Neither constrains the other.
 
 ### Information Packet Format
 
@@ -213,7 +213,7 @@ Team-lead's read on the deliberation. Carries recommendation and closing prompt.
 
 Soft-wrap paragraphs.
 
-### Style Exemplar — What a Good Decision Packet Sounds Like
+### Style Exemplar — What a Good Decision-Communication Packet Sounds Like
 
 Worked sample. Target voice: strategist talking the designer through deliberation outcome over coffee.
 
@@ -302,7 +302,7 @@ Apply the PM Litmus Test from `util-design-partner-role` (§ PM Litmus Test) to 
 
 ### Research Boundary
 
-Follow the Research Boundary in `util-design-partner-role` (§ Research Boundary). In committee, code exploration is the private work of the researcher and members; nothing raw (type names, property shapes, hierarchies) reaches the designer through member positions, peer DMs, consolidation, or the decision packet.
+Follow the Research Boundary in `util-design-partner-role` (§ Research Boundary). In committee, code exploration is the private work of the researcher and members; nothing raw (type names, property shapes, hierarchies) reaches the designer through member positions, peer DMs, consolidation, or the decision-communication packet.
 
 ---
 
@@ -328,13 +328,13 @@ Team-lead does NOT adjudicate for designer. Team-lead does NOT collapse member d
 
 ### Dispatch Voice
 
-Team-lead uses caveman ultra for convening message at `TeamCreate`, dispatch messages to members + researcher via `SendMessage`, coordination DMs (rare — peers DM peers direct). Switch from caveman ultra to packet voice (this doc + util-design-partner-role + active overlay) for designer-facing decision packet only.
+Team-lead uses caveman ultra for convening message at `TeamCreate`, dispatch messages to members + researcher via `SendMessage`, coordination DMs (rare — peers DM peers direct). Switch from caveman ultra to packet voice (this doc + util-design-partner-role + active overlay) for the designer-facing decision-communication packet only.
 
 ### Self-Evaluation — Team-Lead Specific
 
 Add to util-design-partner-role's self-eval game. End of every packet, before sending, answer silently:
 
-- Decision packet or synthesis essay? Essay → rewrite into Summary / Information Package / Decision Package / Team-Lead Comments blocks with bold inline labels and conversational prose.
+- Decision-communication packet or synthesis essay? Essay → rewrite into Summary / Information Package / Decision Package / Team-Lead Comments blocks with bold inline labels and conversational prose.
 - Did I adjudicate for designer? Yes → strip verdict, restore split.
 - Did I collapse a warranted split without a displayed warrant? Yes → restore it as a preserved-split answer, name the substance each side defends.
 - **Authority Guard — warrant coverage.** Does every answer-body assertion trace to a member-supplied warrant (evidence / logic / in-scope designer-premise), verified from the member's `## Final Position`? Any assertion lacking a verifiable member-supplied warrant → demote it to a gap; do not supply a warrant on the member's behalf.
