@@ -6,7 +6,7 @@ This repo contains Chester — a skill-based development workflow framework for 
 
 - `.claude-plugin/plugin.json` — Plugin manifest (name: `chester`).
 - `skills/{phase}-{name}/SKILL.md` — Skill definitions. Each directory is one skill. Invoked as `chester:{phase}-{name}`.
-- `agents/{skill}-{role}.md` — Named subagent definitions used by skills for review-side dispatches that must NOT inherit parent context (spec-fidelity, adversarial review, smell forecast, code-fit-isolated test generation, independent industry research). Filename encodes the originating skill. Invoked as `chester:{skill}-{role}`. Named subagents never fork even when `CLAUDE_CODE_FORK_SUBAGENT=1` is set, so independence is preserved by construction. See `docs/fork-policy.md` for the full per-dispatch policy.
+- `agents/{skill}-{role}.md` — Named subagent definitions used by skills for review-side dispatches that must NOT inherit parent context (spec-fidelity, adversarial review, smell forecast, code-fit-isolated test generation, independent industry research). Filename encodes the originating skill. Invoked as `chester:{skill}-{role}`. Named subagents never fork even when `CLAUDE_CODE_FORK_SUBAGENT=1` is set, so independence is preserved by construction. Each agent file carries a `version` frontmatter field bumped on meaningful contract changes — same rule as SKILL.md; see `agents/CLAUDE.md`. See `docs/fork-policy.md` for the full per-dispatch policy.
 - `chester-util-config/` — Claude Code session hooks and config scripts.
 - `bin/` — Executables added to PATH by the plugin system.
 - `hooks/` — Plugin hook definitions (SessionStart).
@@ -85,7 +85,7 @@ Tests are self-contained bash scripts. They validate hooks, config resolution, a
 
 When editing a SKILL.md, see **Skill File Conventions** above for the version-bump rule (including its carve-out). The skill catalog at `skills/setup-start/references/skill-index.md` is GENERATED from each skill's `description` frontmatter — after changing a `description`, regenerate it with `bin/chester-generate-agents` rather than hand-editing a list.
 
-Skill types: **rigid** (follow exactly — e.g., test-first, fix-bugs) vs **flexible** (adapt principles to context). The skill itself declares which.
+Skill types: **rigid** (follow exactly — e.g., execute-test, execute-prove) vs **flexible** (adapt principles to context). The skill itself declares which.
 
 **Filename case matters.** Claude Code auto-discovers `CLAUDE.md` (uppercase) — lowercase `claude.md` files are not loaded as context on case-sensitive filesystems. Always create as `CLAUDE.md`.
 

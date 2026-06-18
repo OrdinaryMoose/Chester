@@ -28,6 +28,10 @@ Examples:
 
 `chester:{skill}-{role}` — same plugin namespace prefix as skills.
 
+## Version field
+
+Every agent file carries a `version` frontmatter field: a four-digit zero-padded counter prefixed with `v` (e.g. `v0001`). Bump it on any meaningful change to the agent's behavior or contract — not on typo fixes or comment-only edits. New agents start at `v0001`. This mirrors the SKILL.md version rule.
+
 ## Authoring rules
 
 - Each agent file declares its scope, its inputs, and its non-goals. Subagents must not silently expand scope.
