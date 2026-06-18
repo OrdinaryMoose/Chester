@@ -4,7 +4,7 @@ Chester skill definitions. Each subdirectory is one skill.
 
 ## Naming
 
-`{phase}-{name}/` where phase is the workflow stage (`design-`, `plan-`, `execute-`, `finish-`, `setup-`, `util-`). Skill is invoked as `chester:{phase}-{name}` via the Skill tool (plugin namespace prefix).
+`{phase}-{name}/` where phase is the workflow stage (`design-`, `spec-`, `plan-`, `execute-`, `finish-`, `setup-`, `util-`). Skill is invoked as `chester:{phase}-{name}` via the Skill tool (plugin namespace prefix).
 
 ## Required layout
 
@@ -40,6 +40,7 @@ Each SKILL.md declares itself **rigid** (follow exactly — e.g. `execute-test`,
 
 - `setup-*` — session bootstrap
 - `design-*` — problem identification, interview, brief
+- `spec-*` — architecture settle (`spec-architect`), spec authoring (`spec-write`), three-pass hardening (`spec-harden`)
 - `plan-*` — implementation plan + adversarial review
 - `execute-*` — TDD task-by-task implementation
 - `finish-*` — session records, archive, worktree close
