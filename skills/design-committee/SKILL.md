@@ -1,7 +1,7 @@
 ---
 name: design-committee
 description: Convene six-role committee (team-lead + 4 members + researcher) for ad-hoc design consultations. Process-agnostic primitive. Use whenever designer wants independent multi-perspective review of meta-architecture, cross-cutting design choice, charter call, or any decision where framing bias risks outcome. Triggers on "convene the committee", "ask the committee", "committee deliberation", "four-member review", "/design-committee", and natural-language asks for structured multi-perspective consultation.
-version: v0023
+version: v0024
 ---
 
 # Design Committee
@@ -147,7 +147,7 @@ A single-round consult therefore incurs exactly one extra Consolidator spawn.
 
 ### Scribe
 
-`chester:design-committee-scribe` is an agent this skill uses, dispatched once per round after convergence to author the round's designer-facing decision-packet from the verdict, alignment map, and consolidator output — following `references/artifact-template.md`, whose path the team-lead provides at dispatch.
+`chester:design-committee-scribe` is an agent this skill uses, dispatched once per round after convergence to author the round's designer-facing complete-design document from the verdict, alignment map, and consolidator output — following `references/artifact-template.md`, whose path the team-lead provides at dispatch.
 Like the Consolidator, it is an EPHEMERAL per-round dispatch — NOT a member of the `TeamCreate` roster; never add it to the five-member team.
 
 ### Convening Message
@@ -196,7 +196,7 @@ SKILL.md owns the `TeamDelete` call after team-lead signals closure complete.
 
 `TeamDelete` on team-lead closure signal (after designer approval and artifact placement resolved).
 MANDATORY — stranded teams leak context across unrelated future invocations.
-Decision packet stays in conversation record independent of team lifecycle.
+The complete-design document stays in conversation record independent of team lifecycle.
 
 ## Standalone Invocability
 
@@ -223,9 +223,9 @@ Only sprint-specific overlay is forbidden (see `references/skill-contract.md`).
 ## Integration
 
 - **Calls:** `TeamCreate`, `SendMessage`, `TeamDelete` (orchestration); `chester-config-read` (config); `chester:design-committee-*` agents (members + researcher); `chester:design-committee-consolidator` and `chester:design-committee-scribe` (ephemeral off-roster dispatches — see § Consolidator, § Scribe).
-- **Reads:** `util-design-partner-role` (voice — before convening), `references/team-lead.md` (team-lead role behavior), `references/member-protocol.md` (Final Position schema, routing-signal discipline, transcript/round-folder discipline, committee-root resolution), `references/committee-analysis-round-format.md` (round-folder record layout), `references/artifact-template.md` (scribe artifact structure), `references/skill-contract.md` (skill-author only).
+- **Reads:** `util-design-partner-role` (voice — before convening), `references/team-lead.md` (team-lead role behavior), `references/member-protocol.md` (Final Position schema, routing-signal discipline, transcript/round-folder discipline, committee-root resolution), `references/committee-analysis-round-format.md` (round-folder record layout), `references/artifact-template.md` (the scribe's complete-design document structure), `references/skill-contract.md` (skill-author only).
   Member phase contracts are not read here — they load as each `chester:design-committee-*` agent's own system prompt on dispatch.
-- **Transitions to:** none — committee = standalone consultation.
+- **Transitions to:** `spec-write` → `spec-harden` → `plan-build` — the committee's complete-design document is FAC-complete, so it routes into the specify phase directly (skipping `spec-architect`, which the committee path does not need; D8). Standalone invocability is unchanged.
   Designer routes downstream work.
 - **Does NOT call:** `start-bootstrap`, `util-worktree`, any sprint-creating skill — see § Standalone Invocability.
 - **Does NOT use:** `capture_thought`, `get_thinking_summary`, proof MCP — no proof phase at this layer.
