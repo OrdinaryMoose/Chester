@@ -4,7 +4,6 @@ Top-level documentation for Chester. Distinct from per-sprint artifacts under `d
 
 ## Top-level files
 
-- `README.md` — public-facing project description.
 - `instructions.md` — full Chester workflow instructions (design → specify → plan → execute → finish).
 - `fork-policy.md` — per-dispatch fork policy for named subagents.
 

@@ -17,7 +17,7 @@ fi
 # 3. Current-state docs are clean (preflight existence so a moved file can't
 #    silently turn the grep into a no-op under set -e — grep exits 2 on a
 #    missing file and the && short-circuits without failing).
-for d in docs/instructions.md docs/README.md; do
+for d in docs/instructions.md; do
   [ -f "$d" ] || fail "$d missing — cannot check for design-specify references"
   grep -q "design-specify" "$d" && fail "$d still references design-specify"
 done
