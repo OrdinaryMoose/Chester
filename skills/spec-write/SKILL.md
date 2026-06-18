@@ -1,7 +1,7 @@
 ---
 name: spec-write
-description: "Author a spec document from a FAC-complete design. Use when the architecture is already settled — by a design-committee verdict or a spec-architect output. Extracts the eight-field FAC-complete-design contract, quotes back the chosen-architecture field for confirmation, fills the spec template, and emits the spec. Authors only — runs no review passes. Invoked by both entry paths; transitions to spec-harden."
-version: v0001
+description: "Author a spec document from a FAC-complete design. Use when the architecture is already settled — by a design-committee complete-design document or a spec-architect output. Reads the eight-field FAC-complete-design contract (labeled fields on the committee path, extraction on the spec-architect path), quotes back the chosen-architecture field for confirmation, fills the spec template, and emits the spec. Authors only — runs no review passes. Invoked by both entry paths; transitions to spec-harden."
+version: v0002
 ---
 
 # Write Spec
@@ -13,7 +13,7 @@ This is a **flexible** skill — scale each spec section to its complexity.
 ## Entry Condition
 
 A **FAC-complete design** exists (see `references/fac-complete-design-contract.md`) — one input type with two producers:
-- a `design-committee` verdict (FAC-complete by deliberation), or
+- a `design-committee` complete-design document (FAC-complete by deliberation), or
 - a `spec-architect` output (FAC-complete by its F-A-C step).
 
 Because there is no architecture stage inside `spec-write`, the committee path cannot trigger architecture re-derivation — the no-duplication invariant is satisfied by construction (D8).
@@ -22,7 +22,7 @@ Because there is no architecture stage inside `spec-write`, the committee path c
 
 You MUST create a task for each of these items and complete them in order:
 
-1. **Read the FAC-complete design** — extract the eight fields per `references/fac-complete-design-contract.md` from the producer's native output (committee verdict or spec-architect output).
+1. **Read the FAC-complete design** — obtain the eight fields per `references/fac-complete-design-contract.md`: on the **committee path** read them from the labeled sub-fields of the complete-design document (a structured read, not a narrative mine); on the **spec-architect path** extract them from its output.
 2. **Quote back the architecture** — read the chosen-architecture field and quote it back to the user for confirmation before authoring any spec section. This is mandatory; it is the only guard against silent architecture mis-extraction (hardening cannot catch a wrong-from-the-start architecture).
 3. **Write the spec document** — fill the template at `references/spec-template.md` from the eight fields.
 4. **Transition** — invoke `spec-harden` to run the three review passes. In the normal pipeline, continue directly so the adversarial pass inherits authoring context by agent continuity.
@@ -48,6 +48,6 @@ You MUST create a task for each of these items and complete them in order:
 ## Integration
 
 - **Reads:** `references/fac-complete-design-contract.md` (the eight-field input type), `references/spec-template.md` (output format), `util-artifact-schema` (naming/paths)
-- **Invoked by:** `spec-architect` (small-task path), the `design-committee` path (committee verdict), or user directly (standalone, with any FAC-complete design)
+- **Invoked by:** `spec-architect` (small-task path), the `design-committee` path (committee complete-design document), or user directly (standalone, with any FAC-complete design)
 - **Transitions to:** `spec-harden`
 - **Does NOT:** settle architecture (that is `spec-architect`), run any review pass (that is `spec-harden`), or branch on which producer supplied the design (one contract, two producers — D6)

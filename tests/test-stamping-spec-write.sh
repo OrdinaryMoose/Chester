@@ -10,7 +10,7 @@ grep -q 'spec-write@' "$SKILL" || fail "stamp does not use spec-write identity"
 grep -q 'util-artifact-schema' "$SKILL" || fail "does not cite util-artifact-schema"
 grep -qi 'Provenance Trailers' "$SKILL" || fail "does not reference Provenance Trailers"
 CUR_VER="$(awk '/^version:/ {print $2; exit}' "$SKILL")"
-[ "$CUR_VER" = "v0001" ] || fail "version not at v0001 (got $CUR_VER)"
+[ "$CUR_VER" = "v0002" ] || fail "version not at v0002 (got $CUR_VER)"
 
 if [ "$ERRORS" -gt 0 ]; then echo "FAIL: $ERRORS"; exit 1; fi
 echo "PASS: spec-write stamping wired"
