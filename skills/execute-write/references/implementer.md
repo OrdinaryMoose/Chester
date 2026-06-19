@@ -4,7 +4,7 @@ Use this template when dispatching an implementer subagent.
 
 **Fork policy: forked when `CLAUDE_CODE_FORK_SUBAGENT=1`.** Implementer keeps `general-purpose` so it auto-forks under fork mode and inherits the parent's plan + spec context via cache prefix. This is the primary fork beneficiary in Chester — context fidelity > independence here. When fork mode is off, the dispatch behaves as a normal subagent.
 
-**Dispatch off-roster: no `team_name`.** One-shot worker — returns its result and auto-disposes; passing a `team_name` makes it a persistent teammate that strands until `TeamDelete`.
+**Dispatch as a one-shot worker.** Returns its result and auto-disposes; do not spawn it as a teammate (named background agent), which would persist for the session with no benefit to a worker that is never messaged again.
 
 ```
 Task tool (general-purpose):

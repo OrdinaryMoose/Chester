@@ -8,7 +8,7 @@ Use this template when dispatching a code quality reviewer subagent.
 
 **Fork policy: isolated.** Dispatch via the named `chester:execute-write-quality-reviewer` subagent. Named subagents do not fork — quality review needs to evaluate the diff without inheriting the implementer's "we built it well" narrative.
 
-**Dispatch off-roster: no `team_name`.** One-shot worker — returns its result and auto-disposes; passing a `team_name` makes it a persistent teammate that strands until `TeamDelete`.
+**Dispatch as a one-shot worker.** Returns its result and auto-disposes; do not spawn it as a teammate (named background agent), which would persist for the session with no benefit to a worker that is never messaged again.
 
 ```
 Task tool (chester:execute-write-quality-reviewer):

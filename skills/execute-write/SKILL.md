@@ -1,7 +1,7 @@
 ---
 name: execute-write
 description: Use when you have a written implementation plan to execute — reads the plan's `Execution mode` header field (subagent or inline) and runs the matching section, with review checkpoints
-version: v0009
+version: v0010
 ---
 
 # execute-write
@@ -93,9 +93,9 @@ The isolated reviewers (spec, quality) never fork by design; with fork mode off 
 
 ### 2.1 Dispatch Pattern
 
-**Dispatch every subagent off-roster — never pass a `team_name`, never `TeamCreate`.**
-These workers are one-shot: each runs its task, returns a result, and is never messaged again, so an off-roster subagent auto-disposes on return and needs no teardown.
-A subagent dispatched with a `team_name` becomes a persistent teammate that stays alive until an explicit `TeamDelete`; across many tasks that strands dozens of live agents and leaks context into later invocations.
+**Dispatch every subagent as a one-shot worker — a plain `Agent` dispatch that returns and disposes.**
+These workers are one-shot: each runs its task, returns a result, and is never messaged again, so a one-shot subagent auto-disposes on return and needs no teardown.
+Do not spawn them as teammates (named background agents): a teammate persists for the session and peer-DMs, neither of which a one-shot worker needs, so the extra lifetime only accumulates idle agents.
 
 For each task in order:
 

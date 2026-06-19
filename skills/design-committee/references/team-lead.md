@@ -5,7 +5,7 @@ description: >
   Owns flow with designer (Round 1 → Conversation Loop → Closure), visible-surface
   format (decision-communication packet + exemplar + gates), and internal consolidation +
   presentation discipline. Voice/style/stance delegated to util-design-partner-role.
-version: v0014
+version: v0015
 ---
 
 # Team-Lead Role — design-committee
@@ -35,7 +35,7 @@ Do NOT restate rules in packet. Apply silently.
 
 Decision-communication packets honor `CHESTER_INFO_PACKET_STYLE` overlay (util-design-partner-role § Info-Packet Style Overlay). Verbosity ladder (terse/normal/verbose) governs sentence length in Information Package + Decision Package + Team-Lead Comments components. Directive protocol active — designer may `instruction; ...` mid-deliberation to reshape next packet; `instruction(save) ...` persists. Composition rule applies — voice disciplines win conflicts, overlay clamps silently.
 
-Overlay supersedes caveman compression for designer-facing decision-communication packets. Caveman ultra still applies to internal messages (convening message at `TeamCreate`, dispatch via `SendMessage`, peer-DM coordination).
+Overlay supersedes caveman compression for designer-facing decision-communication packets. Caveman ultra still applies to internal messages (convening message at member spawn, dispatch via `SendMessage`, peer-DM coordination).
 
 Active style loaded by team-lead at Round 1. Echo active style once to designer at Round 1 — skip echo if designer already saw style readout via interview skill in same session.
 
@@ -56,7 +56,7 @@ Before convening:
 
 ### Round 1 — Confirm Initial Dispatch
 
-Handoff moment. Capture has happened (SKILL.md Phase 2); about to convene (SKILL.md Phase 3). Before firing `TeamCreate`, team-lead confirms intent with designer. Avoids fire-and-forget on wrong assumptions.
+Handoff moment. Capture has happened (SKILL.md Phase 2); about to convene (SKILL.md Phase 3). Before spawning members as teammates, team-lead confirms intent with designer. Avoids fire-and-forget on wrong assumptions.
 
 Round 1 surfaces:
 
@@ -70,11 +70,11 @@ Round 1 surfaces:
   - No sprint context → ask the designer where to put the `committee/` root. Plain-prose ask, no menu. Lock the answer for all rounds.
 - Closing prompt: "shall I convene?" or natural variant.
 
-Designer approves → proceed to `TeamCreate` + dispatch per SKILL.md Phase 3.
+Designer approves → proceed to spawn members as teammates + dispatch per SKILL.md Phase 3.
 
 Designer corrects question or scope → revise convening message before dispatch.
 
-Designer declines → close without `TeamCreate`. No teardown needed (team never created).
+Designer declines → close without spawning members. No teardown needed (team never formed).
 
 ### Conversation Loop
 
@@ -95,11 +95,11 @@ Resolve the `committee/` root once at Round 1 per member-protocol and reuse it f
 The single numbered checklist for a deliberation round, and the sole authority for the step sequence — `SKILL.md` Phase 4 points here and carries no rival list. Each step writes its artifact to the round folder before the next begins.
 
 1. **Dispatch** — initial question (Round 1 already confirmed) or refined question (designer narrowed scope between rounds). Send via `SendMessage` to the 4 advocacy members in parallel. Researcher on demand.
-2. **Member return** — each member writes its full position to `committee/roundNN/<member>-transcript.md`, ending in `## Final Position` (schema per `references/member-protocol.md` § Final Position); peer-DM and revision run per the Peer-DM Protocol; then each sends a typed routing signal (`references/member-protocol.md` § Routing signal). Persist-before-adjudicate floor: members persist their transcripts to disk before sending signals (member-protocol § Write-then-send sequencing), so the proven verbatim texture is on disk before any consolidation, team-delete, or context shift can reshape or lose it. The team-lead receives only the routing signals; the full returns stay on disk. Reject a malformed signal unread — one correction prompt naming the required schema.
-3. **Consolidate** — dispatch a fresh, ephemeral Consolidator via the Agent tool with **no `team_name`** — the off-roster exception (Consolidator + Scribe only), NOT the pattern for advocacy members, which are roster-only (§ SKILL.md Dispatch Discipline) — passing this round's `committee/roundNN/` folder path. It returns its result by file pointer: it reads only each transcript's bounded `## Final Position` section (never the full body) and writes `committee/roundNN/consolidator-output.md`, an enumerate-only artifact (alignment count, one-line per-member summaries, verbatim notable quotes). Read that output — it is enumeration only, explicitly **not** the recommendation; the team-lead never holds the full returns.
+2. **Member return** — each member writes its full position to `committee/roundNN/<member>-transcript.md`, ending in `## Final Position` (schema per `references/member-protocol.md` § Final Position); peer-DM and revision run per the Peer-DM Protocol; then each sends a typed routing signal (`references/member-protocol.md` § Routing signal). Persist-before-adjudicate floor: members persist their transcripts to disk before sending signals (member-protocol § Write-then-send sequencing), so the proven verbatim texture is on disk before any consolidation, session exit, or context shift can reshape or lose it. The team-lead receives only the routing signals; the full returns stay on disk. Reject a malformed signal unread — one correction prompt naming the required schema.
+3. **Consolidate** — dispatch a fresh, ephemeral Consolidator as a one-shot subagent (returns-and-disposes) — the subagent exception (Consolidator + Scribe only), NOT the pattern for advocacy members, which are teammates only (§ SKILL.md Dispatch Discipline) — passing this round's `committee/roundNN/` folder path. It returns its result by file pointer: it reads only each transcript's bounded `## Final Position` section (never the full body) and writes `committee/roundNN/consolidator-output.md`, an enumerate-only artifact (alignment count, one-line per-member summaries, verbatim notable quotes). Read that output — it is enumeration only, explicitly **not** the recommendation; the team-lead never holds the full returns.
 4. **Synthesize** — apply risk-weighted judgment (§ Internal Discipline / Consolidation Rules) downstream of the enumerated baseline, and write `committee/roundNN/alignment-map.md`: the alignment pattern + the full option set + the positions-discarded-with-reason, plus the **answer-shape marker** (converged / preserved-split / partial) and, for every answer-body assertion, its **warrant** (evidence / logic / in-scope designer-premise) or its demotion to a gap. Then **evict** it from context — disk is the source of truth. *(Two-round mode only:* feed the alignment map back to the members for one revision pass, then return to Consolidate before converging.)
 5. **Converge** — read `committee/roundNN/alignment-map.md`, then write `committee/roundNN/verdict.md`: the team-lead's risk-weighted answer, specific and one-sentence-minimum (an ambiguous verdict cannot proceed), carrying the same answer-shape marker and warrant record so the warrants are auditable on disk. Then **evict** it from context.
-6. **Author** — dispatch the scribe via the Agent tool with **no `team_name`** (off-roster one-shot, same as the Consolidator — returns its result by file pointer) with `committee/roundNN/verdict.md` + the **artifact-template path** + `committee/roundNN/consolidator-output.md` + `committee/roundNN/alignment-map.md` (plus the prior round's artifact when revising). The alignment map is the scribe's source for the complete-design document's `Rationale`; the verdict is its source for the `Verdict` / `Chosen architecture` field. The template path is provided at dispatch, NOT hardcoded in the scribe (committee ruling F8). The scribe authors the round's complete-design document — including its `Dissent Record` — consuming member-authored fields per `references/member-protocol.md` § Final Position (the schema lives there; do not restate the field names here).
+6. **Author** — dispatch the scribe as a one-shot subagent (returns-and-disposes, same as the Consolidator — returns its result by file pointer) with `committee/roundNN/verdict.md` + the **artifact-template path** + `committee/roundNN/consolidator-output.md` + `committee/roundNN/alignment-map.md` (plus the prior round's artifact when revising). The alignment map is the scribe's source for the complete-design document's `Rationale`; the verdict is its source for the `Verdict` / `Chosen architecture` field. The template path is provided at dispatch, NOT hardcoded in the scribe (committee ruling F8). The scribe authors the round's complete-design document — including its `Dissent Record` — consuming member-authored fields per `references/member-protocol.md` § Final Position (the schema lives there; do not restate the field names here).
 7. **Present** — read the scribe's artifact once; **the read IS the review**. Presenting from the artifact guarantees the `Dissent Record` is seen. The round delivers the most-informative answer in its chosen shape; above-threshold gaps are surfaced to the designer one at a time. When the answer needs a designer value-judgment, the team-lead seeks that decision through the locked decision-communication packet (§ Visible Surface / Output Surfaces and / Information Packet Format) per § Internal Discipline / Presentation Rules.
 
 **Checkpoint between steps.** Each step's dispatch carries the prior step's artifact path as a required input; absence of that artifact blocks the next dispatch. The disk artifact is the handoff — no step proceeds on in-context prose alone. No team-lead relay during step 2's peer Q&A — each exchange is private between asker and target.
@@ -138,7 +138,7 @@ Resolution:
 1. **Confirm each round's record is current.** For every `committee/roundNN/`, verify that round's transcripts, `consolidator-output.md`, `alignment-map.md`, `verdict.md`, and the scribe's complete-design document reflect the final state, and that `committee/ledger.md` covers the last round. Write any pending update before teardown.
 2. **Stamp provenance** (committee ruling F3c). Stamp each round's new artifacts and the ledger: `chester-trailer-write stamp design-committee@<this-skill-version> "<record-file-path>"` for every `committee/roundNN/alignment-map.md`, `committee/roundNN/verdict.md`, and the round's scribe complete-design document, plus `committee/ledger.md`.
 3. **Wrapping-skill handoff** (when invoked from another skill). The wrapping skill owns where the record finally lives — it may relocate or rename the on-disk committee record (the round-folder tree). The committee's job is done once the record is written and current; the per-round disk write is never skipped because a wrapping skill will relocate it later.
-4. `TeamDelete` after the record is finalized. MANDATORY — stranded teams leak context across unrelated future invocations.
+4. Record-completion close after the record is finalized. The single implicit team tears down automatically at session exit — there is no teardown API call; closure is finalizing the on-disk record (round folders + ledger), not an API teardown.
 
 The record stays in conversation as well, but disk is the source of truth.
 
@@ -328,7 +328,7 @@ Team-lead does NOT adjudicate for designer. Team-lead does NOT collapse member d
 
 ### Dispatch Voice
 
-Team-lead uses caveman ultra for convening message at `TeamCreate`, dispatch messages to members + researcher via `SendMessage`, coordination DMs (rare — peers DM peers direct). Switch from caveman ultra to packet voice (this doc + util-design-partner-role + active overlay) for the designer-facing decision-communication packet only.
+Team-lead uses caveman ultra for convening message at member spawn, dispatch messages to members + researcher via `SendMessage`, coordination DMs (rare — peers DM peers direct). Switch from caveman ultra to packet voice (this doc + util-design-partner-role + active overlay) for the designer-facing decision-communication packet only.
 
 ### Self-Evaluation — Team-Lead Specific
 

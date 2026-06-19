@@ -2,7 +2,7 @@
 
 **Fork policy: forked when `CLAUDE_CODE_FORK_SUBAGENT=1`.** This full-codebase review (run after all tasks complete) keeps `general-purpose` so it auto-forks under fork mode. Cache-prefix reuse across BASE_SHA..HEAD_SHA range is high-value here, and the review reads the actual diff so bias risk from the parent's "we built it well" narrative is mitigated.
 
-**Dispatch off-roster: no `team_name`.** One-shot worker — returns its result and auto-disposes; passing a `team_name` makes it a persistent teammate that strands until `TeamDelete`.
+**Dispatch as a one-shot worker.** Returns its result and auto-disposes; do not spawn it as a teammate (named background agent), which would persist for the session with no benefit to a worker that is never messaged again.
 
 {PLAN_OR_REQUIREMENTS}
 
