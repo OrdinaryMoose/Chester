@@ -6,7 +6,7 @@ Use this template when dispatching a spec compliance reviewer subagent.
 
 **Fork policy: isolated.** Dispatch via the named `chester:execute-write-spec-reviewer` subagent so this review never inherits the implementer's framing — independence is the whole safeguard. Named subagents do not fork even when `CLAUDE_CODE_FORK_SUBAGENT=1` is set.
 
-**Dispatch off-roster: no `team_name`.** One-shot worker — returns its result and auto-disposes; passing a `team_name` makes it a persistent teammate that strands until `TeamDelete`.
+**Dispatch as a one-shot worker.** Returns its result and auto-disposes; do not spawn it as a teammate (named background agent), which would persist for the session with no benefit to a worker that is never messaged again.
 
 ```
 Task tool (chester:execute-write-spec-reviewer):
