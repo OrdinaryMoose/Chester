@@ -1,7 +1,7 @@
 ---
 name: design-committee
 description: Convene six-role committee (team-lead + 4 members + researcher) for ad-hoc design consultations. Process-agnostic primitive. Use whenever designer wants independent multi-perspective review of meta-architecture, cross-cutting design choice, charter call, or any decision where framing bias risks outcome. Triggers on "convene the committee", "ask the committee", "committee deliberation", "four-member review", "/design-committee", and natural-language asks for structured multi-perspective consultation.
-version: v0024
+version: v0025
 ---
 
 # Design Committee
@@ -31,7 +31,7 @@ The four advocacy members exist as distinct points in shared deliberation space 
 Any member may converge with or split from any other on any question.
 Team-lead reports the alignment pattern (count + who-is-on-which-side) at consolidation; no pre-defined dimensions structure the report.
 
-Roster (six roles; five subagents created by `TeamCreate` = four advocacy + researcher; team-lead = calling agent; designer = human):
+Roster (six roles; five subagents spawned as teammates = four advocacy + researcher; team-lead = calling agent; designer = human):
 
 - Team-Lead (calling agent).
   - Dispatches, receives, compiles.
@@ -71,9 +71,9 @@ Touch util-design-partner-role → audit committee impact.
 
 1. **Bootstrap** — read env + config.
 2. **Capture Question** — one-sentence question + round shape.
-3. **Convene** — team-lead Round 1 confirmation + `TeamCreate` + convening message.
+3. **Convene** — team-lead Round 1 confirmation + spawn members as teammates + convening message.
 4. **Deliberation** — per-round flow: dispatch → member return → consolidate → synthesize → converge → author → present.
-5. **Tear Down** — team-lead closure flow + `TeamDelete`.
+5. **Tear Down** — team-lead closure flow + record-completion close.
 
 ## Phase 1: Bootstrap
 
@@ -91,6 +91,8 @@ Preserves standalone invocability.
 4. Do NOT invoke `start-bootstrap`.
    Sprint mechanics violate standalone invocability when no sprint exists.
 
+**Precondition — main-session invocation.** Convene the committee from the main session (the fixed team lead), never nested inside another agent team — Claude Code forbids nested teams, so a nested committee cannot spawn its members. Every normal invocation path satisfies this; it is documented here as a precondition, not enforced at runtime (failure is detectable, not silent).
+
 ## Phase 2: Capture Question
 
 Question (one sentence).
@@ -100,12 +102,12 @@ State the starting mode in the convening message.
 
 ## Phase 3: Convene
 
-Team-lead runs Round 1 dispatch confirmation per `references/team-lead.md` before `TeamCreate` fires — confirms question, member roster, round shape, context packets with designer; echoes active info-packet style once.
+Team-lead runs Round 1 dispatch confirmation per `references/team-lead.md` before members are spawned as teammates — confirms question, member roster, round shape, context packets with designer; echoes active info-packet style once.
 SKILL.md owns the orchestration calls below.
 
-### TeamCreate
+### Spawn Members as Teammates
 
-`TeamCreate` with five members:
+Spawn five members as teammates (named background `Agent` dispatches; the single implicit team auto-forms on the first spawn):
 
 ```
 chester:design-committee-conservator
@@ -119,17 +121,17 @@ Team slug: `design-committee-<question-slug>`.
 
 ### Dispatch Discipline
 
-Two dispatch tools, one discriminator.
-Both take same `chester:design-committee-*` identifiers; neither errors on wrong choice — identifier loads either way.
-So this rule, not the tool, blocks correct dispatch from silently degrading to four parallel monologues consolidated after the fact.
+One dispatch tool, two spawn shapes, one discriminator.
+Both spawn shapes take the same `chester:design-committee-*` identifiers; neither errors on wrong choice — the identifier loads either way.
+So this rule, not the spawn shape alone, blocks correct dispatch from silently degrading to four parallel monologues consolidated after the fact.
 
-- **Roster dispatch** (`TeamCreate` + `SendMessage`) — four advocacy members + researcher.
-  WHY: they peer-DM, and peer-DM needs a shared roster + `team_name`; off-roster the deliberation grid cannot form.
-- **Off-roster dispatch** (Agent tool, no `team_name`) — Consolidator and Scribe only.
+- **Teammate dispatch** (named background `Agent` + `SendMessage`) — four advocacy members + researcher.
+  WHY: they peer-DM, and peer-DM needs teammates under the single implicit team; spawned as a one-shot subagent the deliberation grid cannot form.
+- **Subagent dispatch** (one-shot `Agent`, returns-and-disposes) — Consolidator and Scribe only.
   WHY: ephemeral one-shots that must NOT inherit context and never peer-DM.
-- **Discriminator** — role peer-DMs? yes → roster; context-isolated one-shot? → Agent tool.
-- **Guard, both directions** — never add Consolidator/Scribe to the `TeamCreate` roster, and never Agent-dispatch an advocacy member or the researcher.
-  A roster member spawned via Agent is silently severed from the grid: no error, no roster, no peer-DM.
+- **Discriminator** — role peer-DMs? yes → teammate; context-isolated one-shot? → subagent.
+- **Guard, both directions** — never spawn Consolidator/Scribe as teammates, and never spawn an advocacy member or the researcher as a one-shot subagent.
+  An advocacy member spawned as a one-shot subagent is silently severed from the grid: no error, no team, no peer-DM.
 
 ### Round Folders
 
@@ -141,13 +143,13 @@ Members and the researcher write their transcripts into the current round folder
 
 `chester:design-committee-consolidator` is an agent this skill uses, dispatched once per round to enumerate the round's positions.
 It is an EPHEMERAL per-round dispatch — spawned for the round and gone after.
-It is NOT a member of the `TeamCreate` roster; never add it to the five-member team.
+It is NOT spawned as a teammate; never add it to the five-member team.
 A single-round consult therefore incurs exactly one extra Consolidator spawn.
 
 ### Scribe
 
 `chester:design-committee-scribe` is an agent this skill uses, dispatched once per round after convergence to author the round's designer-facing complete-design document from the verdict, alignment map, and consolidator output — following `references/artifact-template.md`, whose path the team-lead provides at dispatch.
-Like the Consolidator, it is an EPHEMERAL per-round dispatch — NOT a member of the `TeamCreate` roster; never add it to the five-member team.
+Like the Consolidator, it is an EPHEMERAL per-round dispatch — NOT spawned as a teammate; never add it to the five-member team.
 
 ### Convening Message
 
@@ -161,14 +163,14 @@ Send topic to 4 advocacy members in parallel via `SendMessage`.
 Researcher on demand — not on deliberation clock unless team-lead routes.
 Member replies follow phase contract from agent file.
 
-Advocacy members and the researcher are roster-only — see § Dispatch Discipline.
+Advocacy members and the researcher are teammates only — see § Dispatch Discipline.
 Never reach for the Agent tool here.
 
 ### Peer-DM Protocol
 
 Members (advocacy + researcher) DM each other direct via `SendMessage`.
 No team-lead routing during deliberation.
-Team-lead creates team (`TeamCreate`), authorizes peer-DM scope in convening message, uses caveman ultra.
+Team-lead spawns members as teammates (the single implicit team auto-forms on the first spawn), authorizes peer-DM scope in convening message, uses caveman ultra.
 Team-lead compiles at end — NOT switchboard, packet voice + format per `references/team-lead.md`.
 Peer-DM ordering relative to dispatch reception, not absolute time — late-receiving member not penalized by earlier-arriving peer DM.
 All members use caveman ultra for DMs and replies to team-lead.
@@ -191,10 +193,10 @@ The loop runs until the designer declares the answer sufficient (§ `references/
 
 Team-lead runs consolidation, presentation, and artifact placement per `references/team-lead.md` Closure section.
 Designer owns the decision to terminate the Committee.
-SKILL.md owns the `TeamDelete` call after team-lead signals closure complete.
+SKILL.md owns the record-completion close after team-lead signals closure complete.
 
-`TeamDelete` on team-lead closure signal (after designer approval and artifact placement resolved).
-MANDATORY — stranded teams leak context across unrelated future invocations.
+Record-only close on team-lead closure signal (after designer approval and artifact placement resolved).
+The single implicit team auto-forms on the first teammate spawn and tears down automatically at session exit — there is no explicit teardown call; closure is finalizing the on-disk record, not an API call.
 The complete-design document stays in conversation record independent of team lifecycle.
 
 ## Standalone Invocability
@@ -216,10 +218,11 @@ Generic base-skill role-contract edits to the member agent files — clarificati
 
 ## Integration
 
-- **Calls:** `TeamCreate`, `SendMessage`, `TeamDelete` (orchestration); `chester-config-read` (config); `chester:design-committee-*` agents (members + researcher); `chester:design-committee-consolidator` and `chester:design-committee-scribe` (ephemeral off-roster dispatches — see § Consolidator, § Scribe).
+- **Calls:** `SendMessage` (orchestration; the single implicit team auto-forms on the first teammate spawn — no explicit team-create call — and tears down at session exit — no explicit team-delete call); `chester-config-read` (config); `chester:design-committee-*` agents (members + researcher); `chester:design-committee-consolidator` and `chester:design-committee-scribe` (ephemeral one-shot subagents — see § Consolidator, § Scribe).
 - **Reads:** `util-design-partner-role` (voice — before convening), `references/team-lead.md` (team-lead role behavior), `references/member-protocol.md` (Final Position schema, routing-signal discipline, transcript/round-folder discipline, committee-root resolution), `references/committee-analysis-round-format.md` (round-folder record layout), `references/artifact-template.md` (the scribe's complete-design document structure).
   Member phase contracts are not read here — they load as each `chester:design-committee-*` agent's own system prompt on dispatch.
 - **Transitions to:** `spec-write` → `spec-harden` → `plan-build` — the committee's complete-design document is FAC-complete, so it routes into the specify phase directly (skipping `spec-architect`, which the committee path does not need; D8). Standalone invocability is unchanged.
   Designer routes downstream work.
 - **Does NOT call:** `start-bootstrap`, `util-worktree`, any sprint-creating skill — see § Standalone Invocability.
 - **Does NOT use:** `capture_thought`, `get_thinking_summary`, proof MCP — no proof phase at this layer.
+- **Precondition:** convene from the main session, never nested inside another agent team — Claude Code forbids nested teams (documented, not runtime-enforced).

@@ -113,6 +113,17 @@ assert_scope_and_vocab() {
     _check "no stale digest-shape vocab in $(basename "$f")" "! grep -qi 'digest shape' '$f'"
   done
 }
+assert_team_tooling_skill() {
+  local f="$SK/SKILL.md"
+  _check "SKILL free of TeamCreate" "! grep -q 'TeamCreate' '$f'"
+  _check "SKILL free of TeamDelete" "! grep -q 'TeamDelete' '$f'"
+  _check "SKILL uses teammate-dispatch vocabulary" "grep -qi 'teammate' '$f'"
+  _check "SKILL uses subagent-dispatch vocabulary" "grep -qiE 'subagent dispatch|one-shot subagent|one-shot .Agent' '$f'"
+  _check "SKILL drops the roster/off-roster discriminator" "! grep -qiE 'roster dispatch|off-roster' '$f'"
+  _check "SKILL keeps the member-list 'Roster (six roles' heading" "grep -q 'Roster (six roles' '$f'"
+  _check "SKILL keeps the context-economy 'NOT switchboard' line" "grep -q 'NOT switchboard' '$f'"
+  _check "SKILL documents nested-teams precondition twice (Bootstrap + Integration)" "[ \"\$(grep -ci 'nested inside another agent team' '$f')\" -ge 2 ]"
+}
 assert_artifact_template() {
   local f="$SK/references/artifact-template.md"
   _check "artifact template exists" "[ -f '$f' ]"
@@ -132,6 +143,7 @@ assert_round_format
 assert_team_lead
 assert_skill_md
 assert_scope_and_vocab
+assert_team_tooling_skill
 assert_artifact_template
 # === END RUN ===
 
