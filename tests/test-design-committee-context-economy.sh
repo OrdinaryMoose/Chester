@@ -128,6 +128,7 @@ assert_team_tooling_team_lead() {
   local f="$SK/references/team-lead.md"
   _check "team-lead free of TeamCreate" "! grep -q 'TeamCreate' '$f'"
   _check "team-lead free of TeamDelete" "! grep -q 'TeamDelete' '$f'"
+  _check "team-lead free of dead-tool concept (any case/spelling of team-delete)" "! grep -qiE 'team[-_ ]?delete' '$f'"
   _check "team-lead free of team_name discriminator" "! grep -q 'team_name' '$f'"
   _check "team-lead drops off-roster discriminator" "! grep -qi 'off-roster' '$f'"
   _check "team-lead uses one-shot subagent vocabulary" "grep -qi 'one-shot subagent' '$f'"
