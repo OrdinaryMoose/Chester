@@ -124,6 +124,16 @@ assert_team_tooling_skill() {
   _check "SKILL keeps the context-economy 'NOT switchboard' line" "grep -q 'NOT switchboard' '$f'"
   _check "SKILL documents nested-teams precondition twice (Bootstrap + Integration)" "[ \"\$(grep -ci 'nested inside another agent team' '$f')\" -ge 2 ]"
 }
+assert_team_tooling_team_lead() {
+  local f="$SK/references/team-lead.md"
+  _check "team-lead free of TeamCreate" "! grep -q 'TeamCreate' '$f'"
+  _check "team-lead free of TeamDelete" "! grep -q 'TeamDelete' '$f'"
+  _check "team-lead free of team_name discriminator" "! grep -q 'team_name' '$f'"
+  _check "team-lead drops off-roster discriminator" "! grep -qi 'off-roster' '$f'"
+  _check "team-lead uses one-shot subagent vocabulary" "grep -qi 'one-shot subagent' '$f'"
+  _check "team-lead PRESERVES consolidator reads-only-Final-Position invariant" "grep -qiE 'reads only .*Final Position' '$f'"
+  _check "team-lead PRESERVES member-list 'Member roster'" "grep -q 'Member roster' '$f'"
+}
 assert_artifact_template() {
   local f="$SK/references/artifact-template.md"
   _check "artifact template exists" "[ -f '$f' ]"
@@ -144,6 +154,7 @@ assert_team_lead
 assert_skill_md
 assert_scope_and_vocab
 assert_team_tooling_skill
+assert_team_tooling_team_lead
 assert_artifact_template
 # === END RUN ===
 
