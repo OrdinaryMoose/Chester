@@ -57,6 +57,9 @@ assert_advocacy_agents() {
     _check "$m write scoped to committee/" "grep -q 'committee/' '$f'"
     _check "$m cites member-protocol" "grep -q 'member-protocol' '$f'"
     _check "$m no Mode A/B" "! grep -qE 'Mode [AB]' '$f'"
+    _check "$m defines Shutdown request handler" "grep -q '## Shutdown request' '$f'"
+    _check "$m states standing-teammate lifecycle" "grep -qiE 'standing teammate' '$f'"
+    _check "$m version bumped past v0001" "grep -qE '^version: v00(0[2-9]|[1-9][0-9])' '$f'"
   done
 }
 assert_researcher_agent() {
@@ -64,6 +67,9 @@ assert_researcher_agent() {
   _check "researcher grants Write" "grep -qE '^tools:.*Write' '$f'"
   _check "researcher prohibition narrowed to committee tree" "grep -qi 'committee/' '$f'"
   _check "researcher cites member-protocol" "grep -q 'member-protocol' '$f'"
+  _check "researcher defines Shutdown request handler" "grep -q '## Shutdown request' '$f'"
+  _check "researcher is standing and DM-addressable" "grep -qiE 'DM-addressable|remain alive' '$f'"
+  _check "researcher version bumped past v0001" "grep -qE '^version: v00(0[2-9]|[1-9][0-9])' '$f'"
 }
 assert_round_format() {
   local f="$SK/references/committee-analysis-round-format.md"
