@@ -1,7 +1,7 @@
 ---
 name: design-committee
 description: Convene six-role committee (team-lead + 4 members + researcher) for ad-hoc design consultations. Process-agnostic primitive. Use whenever designer wants independent multi-perspective review of meta-architecture, cross-cutting design choice, charter call, or any decision where framing bias risks outcome. Triggers on "convene the committee", "ask the committee", "committee deliberation", "four-member review", "/design-committee", and natural-language asks for structured multi-perspective consultation.
-version: v0025
+version: v0026
 ---
 
 # Design Committee
@@ -119,6 +119,8 @@ chester:design-committee-researcher
 
 Team slug: `design-committee-<question-slug>`.
 
+**One-time spawn.** These five named background `Agent` spawns are a one-time setup step performed once, before the first round dispatch. The five teammate names/agent-ids are fixed for the whole consult — members are **never re-spawned per round**; every later round advances by `SendMessage` to these same standing instances (see Phase 4).
+
 ### Dispatch Discipline
 
 One dispatch tool, two spawn shapes, one discriminator.
@@ -159,6 +161,8 @@ Convening message carries captured question, context packets (linked or briefly 
 
 ### Dispatch
 
+**A round is a message, not a spawn.** Each round = a `SendMessage` to the standing advocacy members spawned once in Phase 3 — never a new `Agent` dispatch. The members persist across rounds and revise in place from their own accumulated context; do not re-spawn members per round. In-round member-to-member peer-DM is self-organizing per `references/member-protocol.md` § Peer-DM. The numbered per-round sequence stays in `references/team-lead.md` — this phase introduces no rival numbered list.
+
 Send topic to 4 advocacy members in parallel via `SendMessage`.
 Researcher on demand — not on deliberation clock unless team-lead routes.
 Member replies follow phase contract from agent file.
@@ -195,8 +199,7 @@ Team-lead runs consolidation, presentation, and artifact placement per `referenc
 Designer owns the decision to terminate the Committee.
 SKILL.md owns the record-completion close after team-lead signals closure complete.
 
-Record-only close on team-lead closure signal (after designer approval and artifact placement resolved).
-The single implicit team auto-forms on the first teammate spawn and tears down automatically at session exit — there is no explicit teardown call; closure is finalizing the on-disk record, not an API call.
+At closure — after designer approval and artifact placement are resolved — the team-lead sends a `shutdown_request` `SendMessage` to each of the five standing teammates (per `references/member-protocol.md` § Shutdown request), waits a brief fixed period, and treats non-response as implicit acknowledgment; session-exit auto-dispose is the documented fallback if a teammate never acknowledges. The record-completion close then finalizes the on-disk record (round folders + ledger), independent of teammate teardown.
 The complete-design document stays in conversation record independent of team lifecycle.
 
 ## Standalone Invocability
@@ -218,7 +221,7 @@ Generic base-skill role-contract edits to the member agent files — clarificati
 
 ## Integration
 
-- **Calls:** `SendMessage` (orchestration; the single implicit team auto-forms on the first teammate spawn — no explicit team-create call — and tears down at session exit — no explicit team-delete call); `chester-config-read` (config); `chester:design-committee-*` agents (members + researcher); `chester:design-committee-consolidator` and `chester:design-committee-scribe` (ephemeral one-shot subagents — see § Consolidator, § Scribe).
+- **Calls:** `SendMessage` (orchestration; the single implicit team auto-forms on the first teammate spawn — no explicit team-create call — at closure the team-lead sends `shutdown_request` to each standing teammate per `references/member-protocol.md` § Shutdown request, with session-exit auto-dispose as the documented fallback); `chester-config-read` (config); `chester:design-committee-*` agents (members + researcher); `chester:design-committee-consolidator` and `chester:design-committee-scribe` (ephemeral one-shot subagents — see § Consolidator, § Scribe).
 - **Reads:** `util-design-partner-role` (voice — before convening), `references/team-lead.md` (team-lead role behavior), `references/member-protocol.md` (Final Position schema, routing-signal discipline, transcript/round-folder discipline, committee-root resolution), `references/committee-analysis-round-format.md` (round-folder record layout), `references/artifact-template.md` (the scribe's complete-design document structure).
   Member phase contracts are not read here — they load as each `chester:design-committee-*` agent's own system prompt on dispatch.
 - **Transitions to:** `spec-write` → `spec-harden` → `plan-build` — the committee's complete-design document is FAC-complete, so it routes into the specify phase directly (skipping `spec-architect`, which the committee path does not need; D8). Standalone invocability is unchanged.

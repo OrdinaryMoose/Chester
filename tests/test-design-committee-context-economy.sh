@@ -20,6 +20,11 @@ assert_member_protocol() {
   _check "member-protocol names round-folder transcript path" "grep -q 'committee/round' '$f'"
   _check "member-protocol owns committee-root resolution (M1)" "grep -qiE 'sprint-subdir|ask the designer' '$f'"
   _check "member-protocol has citable section headings" "grep -q '## Committee root resolution' '$f'"
+  _check "member-protocol defines Shutdown request section" "grep -q '## Shutdown request' '$f'"
+  _check "member-protocol shutdown flushes pending write and acks" "grep -qi 'flush' '$f' && grep -qi 'acknowledg' '$f'"
+  _check "member-protocol states standing membership" "grep -qiE 'standing teammate|persists across rounds|revises.*in place' '$f'"
+  _check "member-protocol marks peer-DM self-organizing" "grep -qi 'self-organizing' '$f'"
+  _check "member-protocol carries a version field" "grep -qE '^version: v00' '$f'"
 }
 assert_consolidator() {
   local f="$AG/design-committee-consolidator.md"
@@ -52,6 +57,9 @@ assert_advocacy_agents() {
     _check "$m write scoped to committee/" "grep -q 'committee/' '$f'"
     _check "$m cites member-protocol" "grep -q 'member-protocol' '$f'"
     _check "$m no Mode A/B" "! grep -qE 'Mode [AB]' '$f'"
+    _check "$m defines Shutdown request handler" "grep -q '## Shutdown request' '$f'"
+    _check "$m states standing-teammate lifecycle" "grep -qiE 'standing teammate' '$f'"
+    _check "$m version bumped past v0001" "grep -qE '^version: v00(0[2-9]|[1-9][0-9])' '$f'"
   done
 }
 assert_researcher_agent() {
@@ -59,6 +67,9 @@ assert_researcher_agent() {
   _check "researcher grants Write" "grep -qE '^tools:.*Write' '$f'"
   _check "researcher prohibition narrowed to committee tree" "grep -qi 'committee/' '$f'"
   _check "researcher cites member-protocol" "grep -q 'member-protocol' '$f'"
+  _check "researcher defines Shutdown request handler" "grep -q '## Shutdown request' '$f'"
+  _check "researcher is standing and DM-addressable" "grep -qiE 'DM-addressable|remain alive' '$f'"
+  _check "researcher version bumped past v0001" "grep -qE '^version: v00(0[2-9]|[1-9][0-9])' '$f'"
 }
 assert_round_format() {
   local f="$SK/references/committee-analysis-round-format.md"
@@ -87,6 +98,10 @@ assert_team_lead() {
   _check "team-lead closure stamps new artifacts" "grep -qiE 'stamp.*alignment-map|stamp.*verdict|alignment-map.*verdict' '$f'"
   _check "team-lead cites member-protocol for schema" "grep -qi 'member-protocol' '$f'"
   _check "team-lead version bumped past v0007" "grep -qE '^version: v00(0[8-9]|[1-9][0-9])' '$f'"
+  _check "team-lead advances round by message to standing members" "grep -qiE 'do not re-spawn|standing advocacy-member instances|round is a message' '$f'"
+  _check "team-lead teardown via shutdown_request" "grep -q 'shutdown_request' '$f'"
+  _check "team-lead documents session-exit auto-dispose fallback" "grep -qiE 'session-exit auto-dispose is the documented fallback|auto-dispose.*fallback' '$f'"
+  _check "team-lead researcher is standing/DM-addressable" "grep -qiE 'researcher.*(standing|DM-addressable)|it too is standing' '$f'"
 }
 assert_skill_md() {
   local f="$SK/SKILL.md"
@@ -102,6 +117,10 @@ assert_skill_md() {
   _check "SKILL Standalone Invocability no stale design/ record location" "! grep -qi 'lands in the sprint' '$f'"
   _check "SKILL no Mode A/B" "! grep -qE 'Mode [AB]' '$f'"
   _check "SKILL version bumped past v0017" "grep -qE '^version: v00(1[8-9]|[2-9][0-9])' '$f'"
+  _check "SKILL spawns members once before round 1" "grep -qiE 'one-time spawn|spawned once|never re-spawn' '$f'"
+  _check "SKILL a round is a message not a spawn" "grep -qiE 'round is a message, not a spawn|SendMessage to the standing' '$f'"
+  _check "SKILL teardown via shutdown_request" "grep -q 'shutdown_request' '$f'"
+  _check "SKILL documents session-exit auto-dispose as fallback" "grep -qiE 'session-exit auto-dispose is the documented fallback|auto-dispose.*fallback' '$f'"
 }
 assert_scope_and_vocab() {
   # design-architect-committee untouched by this sprint's commits
@@ -135,6 +154,21 @@ assert_team_tooling_team_lead() {
   _check "team-lead PRESERVES consolidator reads-only-Final-Position invariant" "grep -qiE 'reads only .*Final Position' '$f'"
   _check "team-lead PRESERVES member-list 'Member roster'" "grep -q 'Member roster' '$f'"
 }
+assert_standing_protocol() {
+  local tl="$SK/references/team-lead.md"
+  local sk="$SK/SKILL.md"
+  local raf="$SK/references/committee-analysis-round-format.md"
+  # AC-3.1 — consolidate step stays off the team-lead (preserved invariant).
+  _check "team-lead does NOT aggregate Final Positions onto itself" "! grep -qiE 'team-lead (compiles|aggregates).*(transcript|final position)' '$tl'"
+  _check "team-lead still reads only consolidator-output (bounded input)" "grep -qi 'consolidator-output' '$tl'"
+  # AC-4.1 — teardown vocabulary present in both orchestration docs, no dead tooling.
+  _check "shutdown_request present in SKILL and team-lead" "grep -q 'shutdown_request' '$sk' && grep -q 'shutdown_request' '$tl'"
+  # AC-5.2 — frozen round-format file untouched by this sprint's commits.
+  # NOTE: this is a SPRINT-LOCAL guard — after this branch merges to main it becomes
+  # vacuously green (main...HEAD diff is empty against itself). A future protocol sprint
+  # may drop it or re-scope it; it is not a long-lived invariant like the AC-3.1 check above.
+  _check "round-format file unchanged in this sprint" "! git -C \"$ROOT\" diff --name-only main...HEAD | grep -q 'committee-analysis-round-format'"
+}
 assert_artifact_template() {
   local f="$SK/references/artifact-template.md"
   _check "artifact template exists" "[ -f '$f' ]"
@@ -157,6 +191,7 @@ assert_scope_and_vocab
 assert_team_tooling_skill
 assert_team_tooling_team_lead
 assert_artifact_template
+assert_standing_protocol
 # === END RUN ===
 
 # --- final gate: nothing executable may be added below this line ---
