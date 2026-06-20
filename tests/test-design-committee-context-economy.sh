@@ -154,6 +154,21 @@ assert_team_tooling_team_lead() {
   _check "team-lead PRESERVES consolidator reads-only-Final-Position invariant" "grep -qiE 'reads only .*Final Position' '$f'"
   _check "team-lead PRESERVES member-list 'Member roster'" "grep -q 'Member roster' '$f'"
 }
+assert_standing_protocol() {
+  local tl="$SK/references/team-lead.md"
+  local sk="$SK/SKILL.md"
+  local raf="$SK/references/committee-analysis-round-format.md"
+  # AC-3.1 — consolidate step stays off the team-lead (preserved invariant).
+  _check "team-lead does NOT aggregate Final Positions onto itself" "! grep -qiE 'team-lead (compiles|aggregates).*(transcript|final position)' '$tl'"
+  _check "team-lead still reads only consolidator-output (bounded input)" "grep -qi 'consolidator-output' '$tl'"
+  # AC-4.1 — teardown vocabulary present in both orchestration docs, no dead tooling.
+  _check "shutdown_request present in SKILL and team-lead" "grep -q 'shutdown_request' '$sk' && grep -q 'shutdown_request' '$tl'"
+  # AC-5.2 — frozen round-format file untouched by this sprint's commits.
+  # NOTE: this is a SPRINT-LOCAL guard — after this branch merges to main it becomes
+  # vacuously green (main...HEAD diff is empty against itself). A future protocol sprint
+  # may drop it or re-scope it; it is not a long-lived invariant like the AC-3.1 check above.
+  _check "round-format file unchanged in this sprint" "! git -C \"$ROOT\" diff --name-only main...HEAD | grep -q 'committee-analysis-round-format'"
+}
 assert_artifact_template() {
   local f="$SK/references/artifact-template.md"
   _check "artifact template exists" "[ -f '$f' ]"
@@ -176,6 +191,7 @@ assert_scope_and_vocab
 assert_team_tooling_skill
 assert_team_tooling_team_lead
 assert_artifact_template
+assert_standing_protocol
 # === END RUN ===
 
 # --- final gate: nothing executable may be added below this line ---
