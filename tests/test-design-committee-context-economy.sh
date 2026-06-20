@@ -102,6 +102,10 @@ assert_skill_md() {
   _check "SKILL Standalone Invocability no stale design/ record location" "! grep -qi 'lands in the sprint' '$f'"
   _check "SKILL no Mode A/B" "! grep -qE 'Mode [AB]' '$f'"
   _check "SKILL version bumped past v0017" "grep -qE '^version: v00(1[8-9]|[2-9][0-9])' '$f'"
+  _check "SKILL spawns members once before round 1" "grep -qiE 'one-time spawn|spawned once|never re-spawn' '$f'"
+  _check "SKILL a round is a message not a spawn" "grep -qiE 'round is a message, not a spawn|SendMessage to the standing' '$f'"
+  _check "SKILL teardown via shutdown_request" "grep -q 'shutdown_request' '$f'"
+  _check "SKILL documents session-exit auto-dispose as fallback" "grep -qiE 'session-exit auto-dispose is the documented fallback|auto-dispose.*fallback' '$f'"
 }
 assert_scope_and_vocab() {
   # design-architect-committee untouched by this sprint's commits
