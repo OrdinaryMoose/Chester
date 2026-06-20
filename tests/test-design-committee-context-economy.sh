@@ -87,6 +87,10 @@ assert_team_lead() {
   _check "team-lead closure stamps new artifacts" "grep -qiE 'stamp.*alignment-map|stamp.*verdict|alignment-map.*verdict' '$f'"
   _check "team-lead cites member-protocol for schema" "grep -qi 'member-protocol' '$f'"
   _check "team-lead version bumped past v0007" "grep -qE '^version: v00(0[8-9]|[1-9][0-9])' '$f'"
+  _check "team-lead advances round by message to standing members" "grep -qiE 'do not re-spawn|standing advocacy-member instances|round is a message' '$f'"
+  _check "team-lead teardown via shutdown_request" "grep -q 'shutdown_request' '$f'"
+  _check "team-lead documents session-exit auto-dispose fallback" "grep -qiE 'session-exit auto-dispose is the documented fallback|auto-dispose.*fallback' '$f'"
+  _check "team-lead researcher is standing/DM-addressable" "grep -qiE 'researcher.*(standing|DM-addressable)|it too is standing' '$f'"
 }
 assert_skill_md() {
   local f="$SK/SKILL.md"
