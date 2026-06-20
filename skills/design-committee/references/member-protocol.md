@@ -6,6 +6,7 @@ description: >
   the Final Position schema (sole authority), the peer-DM shape, write-then-send
   sequencing, and the single authority for committee-root resolution. Cited by
   SKILL.md and team-lead.md; not restated by them.
+version: v0001
 ---
 
 # Committee member protocol
@@ -115,6 +116,8 @@ No other file restates these fields. Downstream steps read this section directly
 
 ## Peer-DM
 
+Members are **standing teammates** for the whole consult: a member is spawned once, persists across rounds, and revises its position in place from its own accumulated context — it is **not re-spawned per round**. Peer-DM is **self-organizing**: members address one another directly via `SendMessage`, with no team-lead relay.
+
 A member may challenge a peer directly during a multi-round deliberation. A
 peer-DM exchange has this shape:
 
@@ -145,6 +148,18 @@ Never send a routing signal whose transcript is not yet on disk. The
 `transcript` field is a promise that the file already exists and carries a
 `## Final Position`; sending a signal ahead of its transcript breaks that
 promise and leaves the team-lead with a dangling reference.
+
+## Shutdown request
+
+At consult end the team-lead sends each standing teammate a `shutdown_request` message to bound its lifetime to the consult. On receiving `shutdown_request`, a member:
+
+1. **Flushes** any pending transcript write to its round-folder path (write-then-send sequencing still holds — nothing is left unwritten).
+2. Sends a **one-field acknowledgment** (`{ack}`) to the team-lead.
+3. **Stops** — no further peer-DM, no further work.
+
+`shutdown_request` is the primary teardown path; **session-exit auto-dispose is the documented fallback** if a member never acknowledges. A member mid-exchange that has not yet answered is not penalized: the team-lead waits a brief fixed period, then treats non-response as implicit acknowledgment.
+
+This section is the **single authority** for shutdown behavior; `SKILL.md` and `team-lead.md` and the member agent files cite it rather than restating the steps.
 
 ## Committee root resolution
 

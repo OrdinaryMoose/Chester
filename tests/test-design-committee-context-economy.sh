@@ -20,6 +20,11 @@ assert_member_protocol() {
   _check "member-protocol names round-folder transcript path" "grep -q 'committee/round' '$f'"
   _check "member-protocol owns committee-root resolution (M1)" "grep -qiE 'sprint-subdir|ask the designer' '$f'"
   _check "member-protocol has citable section headings" "grep -q '## Committee root resolution' '$f'"
+  _check "member-protocol defines Shutdown request section" "grep -q '## Shutdown request' '$f'"
+  _check "member-protocol shutdown flushes pending write and acks" "grep -qi 'flush' '$f' && grep -qi 'acknowledg' '$f'"
+  _check "member-protocol states standing membership" "grep -qiE 'standing teammate|persists across rounds|revises.*in place' '$f'"
+  _check "member-protocol marks peer-DM self-organizing" "grep -qi 'self-organizing' '$f'"
+  _check "member-protocol carries a version field" "grep -qE '^version: v00' '$f'"
 }
 assert_consolidator() {
   local f="$AG/design-committee-consolidator.md"
