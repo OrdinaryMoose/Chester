@@ -1,7 +1,7 @@
 ---
 name: execute-write
 description: Use when you have a written implementation plan to execute — reads the plan's `Execution mode` header field (subagent or inline) and runs the matching section, with review checkpoints
-version: v0010
+version: v0011
 ---
 
 # execute-write
