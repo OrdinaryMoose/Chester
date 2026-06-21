@@ -1,7 +1,7 @@
 ---
 name: design-committee
 description: Convene six-role committee (team-lead + 4 members + researcher) for ad-hoc design consultations. Process-agnostic primitive. Use whenever designer wants independent multi-perspective review of meta-architecture, cross-cutting design choice, charter call, or any decision where framing bias risks outcome. Triggers on "convene the committee", "ask the committee", "committee deliberation", "four-member review", "/design-committee", and natural-language asks for structured multi-perspective consultation.
-version: v0026
+version: v0027
 ---
 
 # Design Committee
@@ -107,7 +107,7 @@ SKILL.md owns the orchestration calls below.
 
 ### Spawn Members as Teammates
 
-Spawn five members as teammates (named background `Agent` dispatches; the single implicit team auto-forms on the first spawn):
+Spawn five members as teammates — each via the `Agent` tool with **both** `name: "<role-slug>"` **and** `run_in_background: true` (the single implicit team auto-forms on the first background spawn):
 
 ```
 chester:design-committee-conservator
@@ -117,9 +117,16 @@ chester:design-committee-purist
 chester:design-committee-researcher
 ```
 
+Set `name:` to the bare role slug — `conservator`, `innovator`, `pragmatist`, `purist`, `researcher` — so peers and the team-lead address each member by that exact handle in `SendMessage`.
+`run_in_background: true` is the load-bearing parameter: it forms the team and makes the member a standing, DM-addressable teammate.
+Omit it and the `Agent` call silently degrades to a one-shot subagent — it runs, returns its monologue, and disposes; no team forms, no peer-DM is possible, and `SendMessage` is never reached.
+A named one-shot is still a one-shot: `name:` without `run_in_background: true` does not form the grid.
+
 Team slug: `design-committee-<question-slug>`.
 
 **One-time spawn.** These five named background `Agent` spawns are a one-time setup step performed once, before the first round dispatch. The five teammate names/agent-ids are fixed for the whole consult — members are **never re-spawned per round**; every later round advances by `SendMessage` to these same standing instances (see Phase 4).
+
+**Verify the team formed before Round 1 dispatch.** Immediately after the five background spawns, confirm each member is a live teammate — the spawn results return teammate agent-ids, and the first-round `SendMessage` to each role-slug name must resolve. If a member is not addressable (no teammate id, or `SendMessage` reports an unknown recipient), it was spawned one-shot: re-spawn it with `run_in_background: true` before proceeding. A `SendMessage` count of zero across a completed deliberation round is the diagnostic signature of this failure — members ran as isolated monologues and never peer-DM'd.
 
 ### Dispatch Discipline
 
@@ -127,9 +134,9 @@ One dispatch tool, two spawn shapes, one discriminator.
 Both spawn shapes take the same `chester:design-committee-*` identifiers; neither errors on wrong choice — the identifier loads either way.
 So this rule, not the spawn shape alone, blocks correct dispatch from silently degrading to four parallel monologues consolidated after the fact.
 
-- **Teammate dispatch** (named background `Agent` + `SendMessage`) — four advocacy members + researcher.
-  WHY: they peer-DM, and peer-DM needs teammates under the single implicit team; spawned as a one-shot subagent the deliberation grid cannot form.
-- **Subagent dispatch** (one-shot `Agent`, returns-and-disposes) — Consolidator and Scribe only.
+- **Teammate dispatch** (`Agent` with `name:` **and** `run_in_background: true`, then `SendMessage`) — four advocacy members + researcher.
+  WHY: they peer-DM, and peer-DM needs teammates under the single implicit team; with `run_in_background: true` omitted the call is a one-shot subagent and the deliberation grid cannot form.
+- **Subagent dispatch** (one-shot `Agent` — no `run_in_background` flag, returns-and-disposes) — Consolidator and Scribe only.
   WHY: ephemeral one-shots that must NOT inherit context and never peer-DM.
 - **Discriminator** — role peer-DMs? yes → teammate; context-isolated one-shot? → subagent.
 - **Guard, both directions** — never spawn Consolidator/Scribe as teammates, and never spawn an advocacy member or the researcher as a one-shot subagent.
