@@ -1,0 +1,21 @@
+--- Test 1: NO open tx — runCounterfactual succeeds (baseline) ---
+  succeeded: {"stillCloses":true,"failureReasons":[]} — PASS
+
+--- Test 2: OPEN tx — runCounterfactual throws COUNTERFACTUAL_REFUSED_DURING_TX ---
+  threw: COUNTERFACTUAL_REFUSED_DURING_TX (op=collapseTest)
+  message: COUNTERFACTUAL_REFUSED_DURING_TX: collapseTest cannot run while an external transaction is open (see bridge.runCounterfactual JSDoc — the snapshot/restore bracket would invalidate the tx handle)
+  code correct? true, op set? true, error cites JSDoc? true
+  result: PASS
+  tx still rollable after refusal — PASS (tx preserved)
+
+--- Test 3: createReadOnlyAudit inherits the same guard ---
+  audit.runCounterfactual no-tx: {"stillCloses":true,"failureReasons":[]} — PASS
+  audit refused: COUNTERFACTUAL_REFUSED_DURING_TX — PASS
+
+--- Test 4: refusal fires at call site (cause), not at next tx op (effect) ---
+  refused at call site? true
+  tx still valid after? true
+  result: PASS
+
+--- Test 5: non-regression — stress simulation still passes ---
+  20 sequential counterfactuals (no tx) — PASS

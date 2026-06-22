@@ -1,0 +1,158 @@
+
+===== Phase 1: bootstrap =====
+[01] OK   createDomainBridge => {}
+
+===== Phase 2: DEFINITIONs =====
+[02] OK   addDefinition: Calculator => {"id":"definition_1"}
+[03] OK   addDefinition: Operand => {"id":"definition_2"}
+[04] OK   addDefinition: Operator => {"id":"definition_3"}
+[05] OK   addDefinition: Expression => {"id":"definition_4"}
+
+===== Phase 3: EVIDENCE =====
+[06] OK   addElement (EVIDENCE): user-input model => {"id":"evidence_5"}
+[07] OK   addElement (EVIDENCE): output model => {"id":"evidence_6"}
+[08] OK   addElement (EVIDENCE): number domain => {"id":"evidence_7"}
+[09] OK   addElement (EVIDENCE): memory feature requested => {"id":"evidence_8"}
+
+===== Phase 4: RULEs =====
+[10] OK   addElement (RULE): operator precedence => {"id":"rule_9"}
+[11] OK   addElement (RULE): left-associativity for arithmetic => {"id":"rule_10"}
+[12] OK   addElement (RULE): no implicit coercion => {"id":"rule_11"}
+
+===== Phase 5: PERMISSIONs =====
+[13] OK   addElement (PERMISSION): clear-all at any time => {"id":"permission_12"}
+[14] OK   addElement (PERMISSION): keyboard entry => {"id":"permission_13"}
+[15] OK   addElement (PERMISSION): parentheses => {"id":"permission_14"}
+
+===== Phase 6: PROPOSITIONs =====
+[16] OK   addElement (PROPOSITION): six operations supported => {"id":"proposition_15"}
+[17] OK   addElement (PROPOSITION): operations are deterministic => {"id":"proposition_16"}
+[18] OK   addElement (PROPOSITION): memory persists across clears => {"id":"proposition_17"}
+
+===== Phase 7: RISKs =====
+[19] OK   addElement (RISK): division by zero => {"id":"risk_18"}
+[20] OK   addElement (RISK): numeric overflow => {"id":"risk_19"}
+[21] OK   addElement (RISK): malformed expression => {"id":"risk_20"}
+
+===== Phase 8: RESOLUTIONs =====
+[22] OK   addElement (RESOLUTION): handle div-by-zero => {"id":"resolution_21"}
+[23] OK   addElement (RESOLUTION): handle overflow => {"id":"resolution_22"}
+[24] OK   addElement (RESOLUTION): reject malformed input => {"id":"resolution_23"}
+
+===== Phase 9: CONCERNs =====
+[25] OK   addElement (CONCERN): accessibility => {"id":"concern_24"}
+[26] OK   addElement (CONCERN): mobile touch targets => {"id":"concern_25"}
+
+===== Phase 10: FRICTIONs =====
+[27] OK   addElement (FRICTION): coverage_gap on % semantics => {"id":"friction_26"}
+[28] FAIL addElement (FRICTION) under SYSTEM consent (probe)
+         message: CONSENT_INVALID: source system does not match required designer
+         code:    CONSENT_INVALID
+
+===== Phase 11: ratifications =====
+[29] OK   ratifyElement: definition_1 => {}
+[30] OK   ratifyElement: definition_2 => {}
+[31] OK   ratifyElement: definition_3 => {}
+[32] OK   ratifyElement: definition_4 => {}
+[33] OK   ratifyElement: proposition_15 => {}
+[34] OK   ratifyElement: proposition_16 => {}
+[35] OK   ratifyElement: proposition_17 => {}
+[36] OK   ratifyElement: resolution_21 => {}
+[37] OK   ratifyElement: resolution_22 => {}
+[38] OK   ratifyElement: resolution_23 => {}
+[39] OK   ratifyElement: concern_24 => {}
+[40] OK   ratifyElement: concern_25 => {}
+
+===== Phase 12: friction disposition =====
+[41] OK   overrideFrictionDisposition: ADDRESS the % friction => {}
+
+===== Phase 13: pre-closure inspection =====
+[42] OK   getProofState => {"evidence":[{"I":"evidence_5","S":"user-research","C":"Users enter operands via numeric keys and operators via dedicated buttons; multi-dig
+         proofState keys: evidence, propositions, resolutions, closurePermitted
+[43] OK   renderDatalogProjection => {"facts":[["evidence",["evidence_5","user-research","Users enter operands via numeric keys and operators via dedicated buttons; multi-digit 
+         datalog.facts.length = 34
+         datalog.rules.length = 0
+[44] OK   queryProof: closure_permitted => []
+[45] OK   queryProof: unresolved_friction => []
+[46] OK   queryProof: unaddressed_concern => [{"C":"concern_24"},{"C":"concern_25"}]
+         closure_permitted rows: 0
+         unresolved_friction rows: 0
+         unaddressed_concern rows: 2
+[47] OK   queryProof: inventory all categories => {"evidence":4,"rule_decl":3,"permission_decl":3,"proposition_decl":3,"proposition_derived":3,"risk":3,"resolution_decl":3,"resolution_derive
+         per-category EDB inventory:
+           evidence             4
+           rule_decl            3
+           permission_decl      3
+           proposition_decl     3
+           proposition_derived  3
+           risk                 3
+           resolution_decl      3
+           resolution_derived   3
+           friction             1
+           concern              2
+           definition_decl      4
+           definition_derived   4
+
+===== Phase 14: presentClosingArgument =====
+[48] FAIL presentClosingArgument
+         message: Closure failed: concern_24, concern_25
+         code:    CLOSURE_NOT_PERMITTED
+
+===== Phase 15: confirmClosureGo + final renders =====
+[49] FAIL confirmClosureGo
+         message: Closure failed: concern_24, concern_25
+         code:    CLOSURE_NOT_PERMITTED
+[50] OK   renderStructuredProof => "# Proof\n\n## Givens (Evidence)\n- evidence_5: Users enter operands via numeric keys and operators via dedicated buttons; multi-digit opera
+--- Rendered proof (first 1200 chars) ---
+# Proof
+
+## Givens (Evidence)
+- evidence_5: Users enter operands via numeric keys and operators via dedicated buttons; multi-digit operands accumulate until an operator is pressed.
+- evidence_6: The calculator displays one numeric result at a time on a single-line readout, plus a secondary line for the in-progress expression.
+- evidence_7: All operands and intermediate results are IEEE-754 double-precision floating-point numbers.
+- evidence_8: Power users requested four memory operations: M+, M-, MR, MC.
+
+## Lemmas (Propositions)
+- proposition_15: The calculator supports exactly six binary operations: +, -, *, /, ^, %.
+- proposition_16: For any fixed operand sequence and operator sequence, the calculator produces a single deterministic result.
+- proposition_17: The memory register persists across AC (all-clear) and is only emptied by MC (memory-clear).
+
+## Theorems (Resolutions)
+- resolution_21: When the divisor is zero, display "Error: ÷0" on the readout and require AC before any further input.
+- resolution_22: When |result| ≥ 1e16, switch the display to scientific notation (e.g. 1.23e17); on actual Infinity, display "Overflow".
+- resolution_23: A keypress that would produce a syn
+--- end render preview ---
+[51] OK   renderClosingArgument => {"permitted":false,"asOf":1778890587047}
+         closingArgument: {"permitted":false,"asOf":1778890587047}
+[52] OK   renderElementDeep: definition_1 => {"id":"definition_1","predicate":"definition_decl"}
+[53] OK   renderElementDeep: proposition_15 => {"id":"proposition_15","predicate":"proposition_decl"}
+[54] OK   runCounterfactual: proposition_15 => {"stillCloses":false,"failureReasons":["concern_24","concern_25"]}
+
+===== Findings summary =====
+Total attempts: 54
+Failures:       3
+
+--- failures (JSON) ---
+[
+  {
+    "attempt": "28",
+    "label": "addElement (FRICTION) under SYSTEM consent (probe)",
+    "message": "CONSENT_INVALID: source system does not match required designer",
+    "code": "CONSENT_INVALID",
+    "stack": "Error: CONSENT_INVALID: source system does not match required designer\n    at verifyConsent (file:///home/mike/Documents/CodeProjects/Chester/skills/design-proof-system/references/domain/authority.js:14:25)\n    at runOperation (file:///home/mike/Documents/CodeProjects/Chester/skills/design-proof-system/references/domain/mutations.js:123:3)\n    at Object.addElement (file:///home/mike/Documents/CodeProjects/Chester/skills/design-proof-system/references/domain/domain-bridge.js:73:36)\n    at file:///home/mike/Documents/CodeProjects/Chester/docs/chester/working/stress-tests/calculator-proof-design-proof-system/calculator-fully-featured-simulation.mjs:351:10"
+  },
+  {
+    "attempt": "48",
+    "label": "presentClosingArgument",
+    "message": "Closure failed: concern_24, concern_25",
+    "code": "CLOSURE_NOT_PERMITTED",
+    "stack": "DomainError: Closure failed: concern_24, concern_25\n    at runOperation (file:///home/mike/Documents/CodeProjects/Chester/skills/design-proof-system/references/domain/mutations.js:169:22)\n    at Object.presentClosingArgument (file:///home/mike/Documents/CodeProjects/Chester/skills/design-proof-system/references/domain/domain-bridge.js:107:48)\n    at file:///home/mike/Documents/CodeProjects/Chester/docs/chester/working/stress-tests/calculator-proof-design-proof-system/calculator-fully-featured-simulation.mjs:454:48\n    at attempt (file:///home/mike/Documents/CodeProjects/Chester/docs/chester/working/stress-tests/calculator-proof-design-proof-system/calculator-fully-featured-simulation.mjs:46:20)"
+  },
+  {
+    "attempt": "49",
+    "label": "confirmClosureGo",
+    "message": "Closure failed: concern_24, concern_25",
+    "code": "CLOSURE_NOT_PERMITTED",
+    "stack": "DomainError: Closure failed: concern_24, concern_25\n    at runOperation (file:///home/mike/Documents/CodeProjects/Chester/skills/design-proof-system/references/domain/mutations.js:169:22)\n    at Object.confirmClosureGo (file:///home/mike/Documents/CodeProjects/Chester/skills/design-proof-system/references/domain/domain-bridge.js:109:42)\n    at file:///home/mike/Documents/CodeProjects/Chester/docs/chester/working/stress-tests/calculator-proof-design-proof-system/calculator-fully-featured-simulation.mjs:463:42\n    at attempt (file:///home/mike/Documents/CodeProjects/Chester/docs/chester/working/stress-tests/calculator-proof-design-proof-system/calculator-fully-featured-simulation.mjs:46:20)"
+  }
+]

@@ -1,0 +1,15 @@
+--- Test 1: REVISE without idShape — error message mentions idShape, not "evidence" ---
+  THROW: SHAPE_INVALID - SHAPE_INVALID: REVISE requires args.idShape (one of ELEMENT_CATEGORIES) so the shape-check resolves to the correct per-category schema
+  result: PASS (clear, actionable, no misleading EVIDENCE mention)
+
+--- Test 2: REVISE with idShape but missing supersedes — Issue #1 message still correct ---
+  THROW: SHAPE_INVALID - SHAPE_INVALID: REVISE requires args.supersedes (string) naming the element being revised
+  result: PASS
+
+--- Test 3: REVISE with idShape + per-category fields missing — per-category error fires ---
+  THROW: SHAPE_INVALID - SHAPE_INVALID: missing required field "statement" for proposition
+  result: PASS (per-category shape-check fires correctly)
+
+--- Test 4: complete REVISE call still succeeds ---
+  REVISE succeeded with new id: proposition_3
+  superseded link present? PASS

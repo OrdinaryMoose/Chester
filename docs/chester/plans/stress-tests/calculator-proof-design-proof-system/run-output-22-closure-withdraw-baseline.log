@@ -1,0 +1,23 @@
+--- Scenario A: withdraw the resolution that addresses a risk ---
+--- Expected: coverage_gap_detected(risk) returns to firing; closure permitted = false ---
+  coverage_gap_detected (before withdraw)            []
+  closure_permitted (before withdraw)                [{}]
+  coverage_gap_detected (after withdraw)             []
+  closure_permitted (after withdraw)                 [{}]
+  expected: coverage_gap_detected=[risk_2], closure_permitted=[] — FAIL (bug confirmed/fix incomplete)
+
+--- Scenario B: withdraw an undispositioned friction ---
+--- Expected: unresolved_friction(friction) clears; closure permitted = true ---
+  unresolved_friction (before withdraw)              [{"F":"friction_2"}]
+  closure_permitted (before withdraw)                []
+  unresolved_friction (after withdraw)               [{"F":"friction_2"}]
+  closure_permitted (after withdraw)                 []
+  expected: unresolved_friction=[], closure_permitted=[{}] — FAIL (bug confirmed/fix incomplete)
+
+--- Scenario C: withdraw a ratified-but-uncovered concern ---
+--- Expected: unaddressed_concern(concern) clears; closure permitted = true ---
+  unaddressed_concern (before withdraw)              [{"C":"concern_2"}]
+  closure_permitted (before withdraw)                []
+  unaddressed_concern (after withdraw)               [{"C":"concern_2"}]
+  closure_permitted (after withdraw)                 []
+  expected: unaddressed_concern=[], closure_permitted=[{}] — FAIL (bug confirmed/fix incomplete)

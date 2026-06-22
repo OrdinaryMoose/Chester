@@ -1,0 +1,21 @@
+--- Test 1: clean proof — permitted:true, empty detectedFrictions ---
+  render                                         {"permitted":true,"asOf":1778932419350,"detectedFrictions":[]}
+  result: PASS
+
+--- Test 2: coverage_gap present — permitted:false, detectedFrictions contains it ---
+  render                                         {"permitted":false,"asOf":1778932419352,"detectedFrictions":[{"shape":"coverage_gap","args":["risk_2"]}]}
+  result: PASS
+
+--- Test 3: multiple detection shapes coexist in detectedFrictions ---
+  render                                         {"permitted":false,"asOf":1778932419357,"detectedFrictions":[{"shape":"ungrounded","args":["proposition_5"]},{"shape":"coverage_gap","args":["risk_2"]},{"shape":"overlap","args":["definition_3","definition_4"]}]}
+  expected all 3 shapes + permitted:false — PASS
+
+--- Test 4: overlap is canonical (no reflexive, no symmetric duplicates) ---
+  overlaps in render                             [{"shape":"overlap","args":["definition_2","definition_3"]},{"shape":"overlap","args":["definition_2","definition_4"]},{"shape":"overlap","args":["definition_3","definition_4"]}]
+  3 canonical, 0 reflexive — PASS
+
+--- Test 5: backward compat — existing callers reading .permitted unaffected ---
+  .permitted=true, .asOf=number — PASS
+
+--- Test 6: read-only audit adapter inherits the same behavior ---
+  render shape consistent (detectedFrictions present): PASS

@@ -1,0 +1,32 @@
+--- raw overlap_detected rows (via queryProof) ---
+count: 14
+  definition_1 ↔ definition_1
+  definition_1 ↔ definition_2
+  definition_2 ↔ definition_1
+  definition_2 ↔ definition_2
+  definition_3 ↔ definition_3
+  definition_3 ↔ definition_4
+  definition_3 ↔ definition_5
+  definition_4 ↔ definition_3
+  definition_4 ↔ definition_4
+  definition_4 ↔ definition_5
+  definition_5 ↔ definition_3
+  definition_5 ↔ definition_4
+  definition_5 ↔ definition_5
+  definition_6 ↔ definition_6
+
+--- canonicalized via detectFrictions(readPorts) ---
+count: 4
+  definition_1 ↔ definition_2
+  definition_3 ↔ definition_4
+  definition_3 ↔ definition_5
+  definition_4 ↔ definition_5
+
+--- expected ---
+count: 4   (1 Session-pair + 3 Token-pairs)
+  no reflexive matches (T1===T2)
+  no symmetric duplicates (only one of (A,B) / (B,A) per pair)
+
+result: PASS
+
+raw query still noisy? yes (expected)

@@ -1,0 +1,16 @@
+--- Test 1: minimal {id} args succeed for EVIDENCE withdrawal ---
+  PASS withdrawElement({id:'evidence_1'}) => {}
+  withdrew(E) = [{"E":"evidence_1"}] — should contain evidence_1
+
+--- Test 2: minimal {id} args succeed for PROPOSITION withdrawal ---
+  PASS withdrawElement({id:'proposition_2'}) => {}
+
+--- Test 3: minimal {id} args succeed for FRICTION withdrawal ---
+  PASS withdrawElement({id:'friction_1'}) => {}
+
+--- Test 4: filler-args call still works (back-compat for prior callers) ---
+  PASS withdrawElement({id, source, claim}) => {}
+
+--- Test 5: missing id is still correctly rejected ---
+  THROW withdrawElement({}) — should THROW => SHAPE_INVALID - SHAPE_INVALID: missing required field "id" for withdraw
+  expected THROW; got THROW (correct)

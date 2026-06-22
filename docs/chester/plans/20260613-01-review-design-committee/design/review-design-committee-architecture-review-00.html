@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Architecture Review — design-committee skill</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: 'base', themeVariables: {
+    primaryColor: '#1e293b', primaryTextColor: '#e2e8f0', primaryBorderColor: '#475569',
+    lineColor: '#64748b', fontSize: '14px'
+  }});
+</script>
+<style>
+  body { background:#0b1120; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .quote { border-left:3px solid #475569; }
+  .card { background:#0f172a; }
+</style>
+</head>
+<body class="text-slate-200">
+
+<!-- ============ HEADER ============ -->
+<header class="max-w-6xl mx-auto px-6 pt-12 pb-8">
+  <p class="text-sky-400 mono text-sm tracking-widest uppercase">Architecture Review · Deepening Opportunities</p>
+  <h1 class="text-4xl font-bold text-white mt-2">The <span class="text-sky-400 mono">design-committee</span> skill</h1>
+  <p class="text-slate-400 mt-4 max-w-3xl leading-relaxed">
+    A documentation module surveyed as code. Each Markdown file is a <strong class="text-slate-200">module</strong>
+    whose <strong class="text-slate-200">interface</strong> is "everything a reader agent must know to act correctly"
+    and whose <strong class="text-slate-200">implementation</strong> is the prose. We look for
+    <strong class="text-slate-200">shallow</strong> modules — interface nearly as costly as the implementation —
+    and propose <strong class="text-slate-200">deepening</strong> moves: more behaviour behind a smaller "read this" surface.
+  </p>
+  <div class="flex flex-wrap gap-3 mt-6 text-sm">
+    <span class="card px-3 py-1 rounded-full border border-slate-700">13 files surveyed</span>
+    <span class="card px-3 py-1 rounded-full border border-slate-700">SKILL.md v0022</span>
+    <span class="card px-3 py-1 rounded-full border border-slate-700">team-lead.md v0012</span>
+    <span class="card px-3 py-1 rounded-full border border-slate-700">2026-06-13</span>
+  </div>
+</header>
+
+<!-- ============ MAP ============ -->
+<section class="max-w-6xl mx-auto px-6 py-8">
+  <h2 class="text-2xl font-bold text-white mb-4">The module map</h2>
+  <p class="text-slate-400 mb-6 max-w-3xl">Where leverage lives today. <span class="text-emerald-400">Green</span> = deep (a lot of behaviour behind a small interface). <span class="text-amber-400">Amber</span> = shallow or duplicated. Edges are citations.</p>
+  <div class="card rounded-xl border border-slate-800 p-6">
+  <div class="mermaid">
+graph TD
+    SKILL["SKILL.md<br/><i>orchestration floor</i>"]:::deep
+    TL["team-lead.md<br/><i>flow + consolidation</i>"]:::deep
+    MP["member-protocol.md<br/><i>shared member contract</i>"]:::deep
+    UDP["util-design-partner-role<br/><i>voice authority</i>"]:::ext
+    RF["round-format.md"]:::mid
+    AT["artifact-template.md"]:::shallow
+    SC["skill-contract.md<br/><i>author-only</i>"]:::shallow
+    CON["conservator.md"]:::dup
+    INN["innovator.md"]:::dup
+    PRA["pragmatist.md"]:::dup
+    PUR["purist.md"]:::dup
+    RES["researcher.md"]:::dup
+    COZ["consolidator.md"]:::deep
+    SCR["scribe.md"]:::shallow
+
+    SKILL --> TL
+    SKILL --> MP
+    SKILL --> UDP
+    SKILL --> SC
+    TL --> MP
+    TL --> UDP
+    TL --> RF
+    TL --> AT
+    CON --> MP
+    CON --> UDP
+    INN --> MP
+    INN --> UDP
+    PRA --> MP
+    PRA --> UDP
+    PUR --> MP
+    PUR --> UDP
+    RES --> MP
+    RES --> UDP
+    COZ --> MP
+    SCR --> AT
+
+    classDef deep fill:#064e3b,stroke:#10b981,color:#d1fae5;
+    classDef mid fill:#1e293b,stroke:#64748b,color:#e2e8f0;
+    classDef shallow fill:#3f2d10,stroke:#b45309,color:#fde68a;
+    classDef dup fill:#3f1d2e,stroke:#be123c,color:#fecdd3;
+    classDef ext fill:#172554,stroke:#3b82f6,color:#dbeafe;
+  </div>
+  <p class="text-slate-500 text-sm mt-4 mono">The five <span class="text-rose-300">rose</span> nodes (conservator / innovator / pragmatist / purist / researcher) all cite the same two authorities — yet each inlines ~70–75% of the same prose instead of reading it through the seam they already point at.</p>
+  </div>
+</section>
+
+<!-- ============ CANDIDATES ============ -->
+<section class="max-w-6xl mx-auto px-6 py-8">
+  <h2 class="text-2xl font-bold text-white mb-6">Deepening candidates</h2>
+
+  <!-- ===== CANDIDATE 1 ===== -->
+  <article class="card rounded-xl border border-slate-800 p-7 mb-8">
+    <div class="flex items-start justify-between gap-4 flex-wrap">
+      <h3 class="text-xl font-bold text-white">1 · Collapse the four advocacy-member files onto the protocol seam</h3>
+      <span class="bg-emerald-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">Strong</span>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6 mt-5">
+      <div>
+        <h4 class="text-sky-400 font-semibold text-sm uppercase tracking-wide mb-2">Files</h4>
+        <ul class="text-slate-300 text-sm space-y-1 mono">
+          <li>agents/design-committee-conservator.md (106 L)</li>
+          <li>agents/design-committee-innovator.md (106 L)</li>
+          <li>agents/design-committee-pragmatist.md (105 L)</li>
+          <li>agents/design-committee-purist.md (105 L)</li>
+          <li class="text-slate-500">+ researcher.md (123 L) — partial overlap</li>
+          <li class="text-emerald-300">→ references/member-protocol.md (the seam)</li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-sky-400 font-semibold text-sm uppercase tracking-wide mb-2">Problem</h4>
+        <p class="text-slate-300 text-sm leading-relaxed">
+          Each advocacy file is ~70–75% word-for-word identical to the other three. The shared mass:
+          <span class="mono text-rose-300">Scope</span>, <span class="mono text-rose-300">Hard Prohibitions</span>,
+          <span class="mono text-rose-300">Voice Discipline</span>, and the <span class="mono text-rose-300">Output Format</span>
+          templates. Only <span class="text-emerald-300 mono">Lens Position</span> and the persona/phase-contract
+          gloss are genuinely lens-specific. A change to a prohibition or a voice rule is a four-file (five with researcher)
+          hand-edit with no enforcement that they stay in sync.
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-5 quote pl-4 py-1">
+      <p class="text-amber-300 text-sm mono">skill-contract.md:23 — the charter the files have already drifted from</p>
+      <p class="text-slate-400 text-sm italic mt-1">"Agent files carry lens, voice, phase contract <strong>only</strong>. No sprint refs, no schemas, no product names, no gating conditions."</p>
+      <p class="text-slate-500 text-sm mt-2">Yet conservator.md:43–49 (Hard Prohibitions), :51–62 (full Voice Discipline), :64–105 (full Output Format) are reproduced identically in all four. The charter says "voice" belongs here — but identical voice in four files is duplication, and a citation satisfies "carry voice" without the copy.</p>
+    </div>
+
+    <div class="mt-5">
+      <h4 class="text-sky-400 font-semibold text-sm uppercase tracking-wide mb-2">Solution</h4>
+      <p class="text-slate-300 text-sm leading-relaxed">
+        Move the shared blocks into <span class="mono">member-protocol.md</span> — already the single authority every
+        advocacy file cites, already loaded on demand via the member's Read tool. Add three citable <span class="mono">##</span>
+        sections there (<span class="mono">Hard Prohibitions</span>, <span class="mono">Voice Discipline</span>,
+        <span class="mono">Output Format</span>), the same way <span class="mono">## Final Position</span> already lives there
+        as sole authority. Each agent file shrinks to its lens: <em>Lens Position</em>, the persona gloss, the phase-contract
+        gloss, and a one-line "shared protocol per member-protocol.md §…" pointer. No <span class="mono">@include</span> needed —
+        these files load as system prompts, so the mechanism is citation, exactly as committee-root resolution already works.
+      </p>
+    </div>
+
+    <!-- BEFORE/AFTER -->
+    <div class="grid md:grid-cols-2 gap-6 mt-6">
+      <div class="card border border-rose-900/50 rounded-lg p-4">
+        <p class="text-rose-400 text-xs uppercase tracking-widest font-bold mb-3">Before — four fat adapters</p>
+        <div class="space-y-2">
+          <div class="flex gap-2 items-stretch" >
+            <div class="flex-1 bg-rose-950/40 border border-rose-800 rounded p-2 text-xs">
+              <div class="text-emerald-300 mono">Lens (25%)</div>
+              <div class="text-rose-300 mono mt-1">Prohibitions</div>
+              <div class="text-rose-300 mono">Voice rules</div>
+              <div class="text-rose-300 mono">Output fmt</div>
+            </div>
+            <div class="flex-1 bg-rose-950/40 border border-rose-800 rounded p-2 text-xs">
+              <div class="text-emerald-300 mono">Lens (25%)</div>
+              <div class="text-rose-300 mono mt-1">Prohibitions</div>
+              <div class="text-rose-300 mono">Voice rules</div>
+              <div class="text-rose-300 mono">Output fmt</div>
+            </div>
+            <div class="flex-1 bg-rose-950/40 border border-rose-800 rounded p-2 text-xs">
+              <div class="text-emerald-300 mono">Lens (25%)</div>
+              <div class="text-rose-300 mono mt-1">Prohibitions</div>
+              <div class="text-rose-300 mono">Voice rules</div>
+              <div class="text-rose-300 mono">Output fmt</div>
+            </div>
+            <div class="flex-1 bg-rose-950/40 border border-rose-800 rounded p-2 text-xs">
+              <div class="text-emerald-300 mono">Lens (25%)</div>
+              <div class="text-rose-300 mono mt-1">Prohibitions</div>
+              <div class="text-rose-300 mono">Voice rules</div>
+              <div class="text-rose-300 mono">Output fmt</div>
+            </div>
+          </div>
+          <p class="text-rose-300/70 text-xs mt-2">Red mass repeated ×4. Edit one → drift risk in three.</p>
+        </div>
+      </div>
+      <div class="card border border-emerald-900/50 rounded-lg p-4">
+        <p class="text-emerald-400 text-xs uppercase tracking-widest font-bold mb-3">After — thin adapters, one deep seam</p>
+        <div class="space-y-2">
+          <div class="flex gap-2">
+            <div class="flex-1 bg-emerald-950/30 border border-emerald-800 rounded p-2 text-xs"><div class="text-emerald-300 mono">Lens</div><div class="text-slate-500 mono text-[10px] mt-1">→ §protocol</div></div>
+            <div class="flex-1 bg-emerald-950/30 border border-emerald-800 rounded p-2 text-xs"><div class="text-emerald-300 mono">Lens</div><div class="text-slate-500 mono text-[10px] mt-1">→ §protocol</div></div>
+            <div class="flex-1 bg-emerald-950/30 border border-emerald-800 rounded p-2 text-xs"><div class="text-emerald-300 mono">Lens</div><div class="text-slate-500 mono text-[10px] mt-1">→ §protocol</div></div>
+            <div class="flex-1 bg-emerald-950/30 border border-emerald-800 rounded p-2 text-xs"><div class="text-emerald-300 mono">Lens</div><div class="text-slate-500 mono text-[10px] mt-1">→ §protocol</div></div>
+          </div>
+          <div class="bg-sky-950/40 border border-sky-700 rounded p-2 text-xs mt-1">
+            <div class="text-sky-300 mono">member-protocol.md</div>
+            <div class="text-slate-400 mono text-[11px] mt-1">Prohibitions · Voice · Output fmt — stated once</div>
+          </div>
+          <p class="text-emerald-300/70 text-xs mt-2">One edit, one place. Lens files read like lenses.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-6">
+      <h4 class="text-sky-400 font-semibold text-sm uppercase tracking-wide mb-2">Benefits — locality &amp; leverage</h4>
+      <ul class="text-slate-300 text-sm space-y-1 list-disc list-inside">
+        <li><strong>Locality:</strong> a prohibition or voice-rule change concentrates in one file instead of fanning across five.</li>
+        <li><strong>Leverage:</strong> <span class="mono">member-protocol.md</span> already carries the routing-signal and Final-Position authority; this raises its behaviour-per-line without widening its interface.</li>
+        <li><strong>The interface becomes the test surface:</strong> "is a new member lens correct?" reduces to reading one short lens file, not diffing 106 lines against three siblings.</li>
+        <li><strong>Charter realignment:</strong> brings the agent files back to skill-contract.md:23's stated intent — lens-only, schema-free.</li>
+      </ul>
+    </div>
+
+    <div class="mt-5 bg-amber-950/30 border border-amber-800/60 rounded-lg p-3">
+      <p class="text-amber-300 text-sm"><strong>Deletion test.</strong> Delete the shared blocks from three of the four files: the complexity does not vanish — it reappears the moment any of the four must be reconstructed or kept consistent. That "reappears across N callers" is the signal the prose was earning its keep and belongs behind one seam.</p>
+    </div>
+  </article>
+
+  <!-- ===== CANDIDATE 2 ===== -->
+  <article class="card rounded-xl border border-slate-800 p-7 mb-8">
+    <div class="flex items-start justify-between gap-4 flex-wrap">
+      <h3 class="text-xl font-bold text-white">2 · One canonical per-round sequence, not two numbered copies</h3>
+      <span class="bg-sky-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">Worth exploring</span>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6 mt-5">
+      <div>
+        <h4 class="text-sky-400 font-semibold text-sm uppercase tracking-wide mb-2">Files</h4>
+        <ul class="text-slate-300 text-sm space-y-1 mono">
+          <li>SKILL.md:177–198 — Phase 4 Per-Round Flow (<span class="text-amber-300">8 steps</span>)</li>
+          <li>team-lead.md:93–106 — Conversation Loop Per-Round Flow (<span class="text-amber-300">11 steps</span>)</li>
+        </ul>
+        <h4 class="text-sky-400 font-semibold text-sm uppercase tracking-wide mb-2 mt-4">Problem</h4>
+        <p class="text-slate-300 text-sm leading-relaxed">
+          The same round is numbered twice with incompatible boundaries. SKILL.md's step&nbsp;4 (Consolidate) is split into
+          team-lead's steps&nbsp;4–5; SKILL.md folds members-write + members-signal into one region, team-lead splits them and
+          inserts a ledger step. "After step&nbsp;4" is ambiguous about which list. A wrapping skill citing one inherits a number
+          that means something else in the other.
+        </p>
+      </div>
+      <div>
+        <h4 class="text-sky-400 font-semibold text-sm uppercase tracking-wide mb-2">Step alignment drift</h4>
+        <div class="text-xs mono space-y-1">
+          <div class="grid grid-cols-2 gap-2 text-slate-500 border-b border-slate-700 pb-1"><span>SKILL.md (8)</span><span>team-lead.md (11)</span></div>
+          <div class="grid grid-cols-2 gap-2"><span class="text-emerald-300">1 Dispatch</span><span class="text-emerald-300">1 Dispatch q.</span></div>
+          <div class="grid grid-cols-2 gap-2"><span class="text-amber-300">2 Members write</span><span class="text-amber-300">2 Flow runs</span></div>
+          <div class="grid grid-cols-2 gap-2"><span class="text-amber-300">3 Members signal</span><span class="text-rose-300">3 Update ledger ⟵ added</span></div>
+          <div class="grid grid-cols-2 gap-2"><span class="text-amber-300">4 Consolidate</span><span class="text-amber-300">4 Dispatch consol.</span></div>
+          <div class="grid grid-cols-2 gap-2"><span class="text-slate-600">—</span><span class="text-rose-300">5 Read output ⟵ split</span></div>
+          <div class="grid grid-cols-2 gap-2"><span class="text-emerald-300">5 Synthesize</span><span class="text-emerald-300">6 Synthesize</span></div>
+          <div class="grid grid-cols-2 gap-2"><span class="text-emerald-300">6 Converge</span><span class="text-emerald-300">7 Converge</span></div>
+          <div class="grid grid-cols-2 gap-2"><span class="text-emerald-300">7 Author</span><span class="text-emerald-300">8 Dispatch scribe</span></div>
+          <div class="grid grid-cols-2 gap-2"><span class="text-emerald-300">8 Present</span><span class="text-emerald-300">9 Present</span></div>
+          <div class="grid grid-cols-2 gap-2"><span class="text-slate-600">—</span><span class="text-rose-300">10–11 chkpt+resp ⟵ added</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-5">
+      <h4 class="text-sky-400 font-semibold text-sm uppercase tracking-wide mb-2">Solution</h4>
+      <p class="text-slate-300 text-sm leading-relaxed">
+        Pick one owner of the numbered sequence. team-lead.md is the natural home — it carries the surrounding flow (ledger,
+        designer response, checkpoint) that SKILL.md's eight steps omit. SKILL.md keeps a one-line pointer
+        ("the per-round sequence is owned by team-lead.md § Per-Round Flow") and its prose role-split note, but drops its own
+        rival numbering. Same pattern already used successfully for committee-root resolution.
+      </p>
+    </div>
+
+    <div class="mt-5 grid md:grid-cols-2 gap-6">
+      <div class="card border border-rose-900/50 rounded-lg p-4">
+        <p class="text-rose-400 text-xs uppercase tracking-widest font-bold mb-2">Before</p>
+        <div class="mermaid">
+graph LR
+   A["SKILL.md<br/>steps 1–8"]:::d
+   B["team-lead.md<br/>steps 1–11"]:::d
+   A -. "drift" .-> B
+   classDef d fill:#3f1d2e,stroke:#be123c,color:#fecdd3;
+        </div>
+        <p class="text-rose-300/70 text-xs">Two sources, no owner. Citation "step N" is ambiguous.</p>
+      </div>
+      <div class="card border border-emerald-900/50 rounded-lg p-4">
+        <p class="text-emerald-400 text-xs uppercase tracking-widest font-bold mb-2">After</p>
+        <div class="mermaid">
+graph LR
+   A["SKILL.md<br/>role-split + pointer"]:::s
+   B["team-lead.md<br/>steps 1–N (sole)"]:::dp
+   A --> B
+   classDef s fill:#3f2d10,stroke:#b45309,color:#fde68a;
+   classDef dp fill:#064e3b,stroke:#10b981,color:#d1fae5;
+        </div>
+        <p class="text-emerald-300/70 text-xs">One numbered sequence. SKILL.md cites it.</p>
+      </div>
+    </div>
+
+    <div class="mt-5">
+      <h4 class="text-sky-400 font-semibold text-sm uppercase tracking-wide mb-2">Benefits</h4>
+      <ul class="text-slate-300 text-sm space-y-1 list-disc list-inside">
+        <li><strong>Locality:</strong> the round procedure changes in one numbered list; the other file can't fall out of step because it has no step numbers to drift.</li>
+        <li><strong>Leverage:</strong> wrapping skills get one unambiguous "step N" to cite.</li>
+        <li>Removes a standing contradiction the next editor would otherwise have to reconcile by hand.</li>
+      </ul>
+    </div>
+  </article>
+
+  <!-- ===== CANDIDATE 3 ===== -->
+  <article class="card rounded-xl border border-slate-800 p-7 mb-8">
+    <div class="flex items-start justify-between gap-4 flex-wrap">
+      <h3 class="text-xl font-bold text-white">3 · Stop re-deriving the C1/C2 voice rules in seven files</h3>
+      <span class="bg-sky-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">Worth exploring</span>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6 mt-5">
+      <div>
+        <h4 class="text-sky-400 font-semibold text-sm uppercase tracking-wide mb-2">Files</h4>
+        <p class="text-slate-300 text-sm">Authority: <span class="mono">util-design-partner-role/SKILL.md</span>. Restated in: SKILL.md:58–68, team-lead.md:28–40 &amp; :288–296, and the Voice Discipline block of conservator / innovator / pragmatist / purist / researcher (lines ~51–62 each).</p>
+        <h4 class="text-sky-400 font-semibold text-sm uppercase tracking-wide mb-2 mt-4">Problem</h4>
+        <p class="text-slate-300 text-sm leading-relaxed">
+          The Translation Gate, Option-naming, C1 (Externalized Coverage) and C2 (Fact Default) rules are named as
+          load-bearing and cited correctly — then spelled out again, in full, in seven downstream files. The single
+          authority exists; the copies undercut it. Any change to the voice contract is a seven-file audit.
+        </p>
+      </div>
+      <div>
+        <h4 class="text-sky-400 font-semibold text-sm uppercase tracking-wide mb-2">Note — overlaps candidate 1</h4>
+        <p class="text-slate-300 text-sm leading-relaxed">
+          Five of the seven restatements live in the member/researcher agent files. If candidate&nbsp;1 lands, the member-side
+          Voice Discipline collapses into <span class="mono">member-protocol.md</span> automatically — and member-protocol can itself
+          carry a single citation to <span class="mono">util-design-partner-role</span> rather than reproducing C1/C2. That leaves only
+          team-lead.md's two restatements to reduce to pointers.
+        </p>
+        <p class="text-slate-400 text-xs mt-3 italic">Caveat: a deliberate amount of redundancy here is defensible — voice is the floor and a member dispatched cold benefits from seeing it inline. The recommendation is to reduce the <em>full restatement</em> to a tight cited summary, not to delete the reminder.</p>
+      </div>
+    </div>
+
+    <div class="mt-5">
+      <h4 class="text-sky-400 font-semibold text-sm uppercase tracking-wide mb-2">Solution</h4>
+      <p class="text-slate-300 text-sm leading-relaxed">
+        Designate <span class="mono">util-design-partner-role</span> the sole prose owner of C1/C2/Translation-Gate.
+        Downstream files keep a one-line named pointer plus only the <em>lens-specific</em> deviation (e.g. purist's "say
+        kind, not tagged-union"). The enforcement checklist (team-lead's self-eval) stays — it references rules by name, it
+        does not re-teach them.
+      </p>
+    </div>
+
+    <div class="mt-5">
+      <h4 class="text-sky-400 font-semibold text-sm uppercase tracking-wide mb-2">Benefits</h4>
+      <ul class="text-slate-300 text-sm space-y-1 list-disc list-inside">
+        <li><strong>Locality:</strong> the voice contract has one home; a change there propagates by reference.</li>
+        <li><strong>Leverage:</strong> the LOAD-BEARING citation stops competing with seven near-copies that can silently diverge from it.</li>
+        <li>Reader bounce on "what are the voice rules?" drops from 5+ files to one.</li>
+      </ul>
+    </div>
+  </article>
+
+  <!-- ===== CANDIDATE 4 ===== -->
+  <article class="card rounded-xl border border-slate-800 p-7 mb-8">
+    <div class="flex items-start justify-between gap-4 flex-wrap">
+      <h3 class="text-xl font-bold text-white">4 · Fold the researcher into the same member base</h3>
+      <span class="bg-slate-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">Speculative</span>
+    </div>
+    <div class="grid md:grid-cols-2 gap-6 mt-5">
+      <div>
+        <h4 class="text-sky-400 font-semibold text-sm uppercase tracking-wide mb-2">Files</h4>
+        <p class="text-slate-300 text-sm mono">agents/design-committee-researcher.md (123 L)</p>
+        <h4 class="text-sky-400 font-semibold text-sm uppercase tracking-wide mb-2 mt-4">Problem</h4>
+        <p class="text-slate-300 text-sm leading-relaxed">
+          The researcher shares the same Scope / Voice Discipline / write-then-send / Final-Position boilerplate as the four
+          advocacy files, but is <em>not</em> an advocacy lens — it holds no design opinion. It rides along in the duplication
+          set without being part of the four-lens grid.
+        </p>
+      </div>
+      <div>
+        <h4 class="text-sky-400 font-semibold text-sm uppercase tracking-wide mb-2">Why speculative</h4>
+        <p class="text-slate-300 text-sm leading-relaxed">
+          The researcher's Final Position is a degenerate case (<span class="mono">position = "no design opinion"</span>) and its
+          prohibitions differ (no advocacy, owns absence findings). Folding it into the shared base is correct for the
+          <em>mechanics</em> sections but risks blurring the no-opinion boundary if done carelessly. Worth doing only as a
+          follow-on to candidate&nbsp;1, with the opinion-boundary kept explicit in the researcher's thin file.
+        </p>
+      </div>
+    </div>
+    <div class="mt-5">
+      <h4 class="text-sky-400 font-semibold text-sm uppercase tracking-wide mb-2">Benefits</h4>
+      <ul class="text-slate-300 text-sm space-y-1 list-disc list-inside">
+        <li>One shared mechanics seam for all five dispatched roles instead of two near-identical copies (advocacy base + researcher).</li>
+        <li>Keeps the researcher file focused on what is actually unique: its research scope and the no-opinion contract.</li>
+      </ul>
+    </div>
+  </article>
+
+</section>
+
+<!-- ============ ALSO NOTED ============ -->
+<section class="max-w-6xl mx-auto px-6 py-8">
+  <h2 class="text-2xl font-bold text-white mb-4">Also noted — handled well, leave alone</h2>
+  <div class="grid md:grid-cols-3 gap-4">
+    <div class="card border border-emerald-900/40 rounded-lg p-4">
+      <p class="text-emerald-400 font-semibold text-sm">Committee-root resolution</p>
+      <p class="text-slate-400 text-sm mt-1">Single authority in member-protocol.md:149–161; cited (not restated) from SKILL.md, team-lead.md, round-format. This is the pattern candidates 1–3 should imitate.</p>
+    </div>
+    <div class="card border border-emerald-900/40 rounded-lg p-4">
+      <p class="text-emerald-400 font-semibold text-sm">Final Position schema</p>
+      <p class="text-slate-400 text-sm mt-1">Sole authority in member-protocol.md:71–114; downstream files cite by heading. Correct.</p>
+    </div>
+    <div class="card border border-emerald-900/40 rounded-lg p-4">
+      <p class="text-emerald-400 font-semibold text-sm">Consolidator depth</p>
+      <p class="text-slate-400 text-sm mt-1">consolidator.md is a genuinely deep module — a hard enumerate-only ceiling behind a tiny interface. No change.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TOP REC ============ -->
+<section class="max-w-6xl mx-auto px-6 py-10">
+  <div class="bg-gradient-to-br from-emerald-950 to-slate-900 border border-emerald-700 rounded-2xl p-8">
+    <p class="text-emerald-400 mono text-sm uppercase tracking-widest">Top recommendation</p>
+    <h2 class="text-2xl font-bold text-white mt-2">Tackle candidate 1 first — collapse the advocacy files onto the protocol seam.</h2>
+    <p class="text-slate-300 mt-4 max-w-3xl leading-relaxed">
+      It is the highest-leverage move and the lowest-risk: the seam already exists, the files already cite it, and the
+      target file is already the established authority for member mechanics. It is the only candidate backed cleanly by the
+      <strong>deletion test</strong> — ~70–75% of four (soon five) files is duplicated prose whose complexity reappears across
+      every caller. It also <em>subsumes</em> most of candidate&nbsp;3: folding the members' Voice Discipline into
+      member-protocol removes five of the seven voice restatements for free. Land it, then candidate&nbsp;2 (one numbered
+      round sequence) as an independent cleanup, with candidates&nbsp;3–4 as follow-ons.
+    </p>
+    <p class="text-slate-400 mt-4 text-sm">
+      One guard worth honouring during the work: skill-contract.md:23 forbids sprint-specific overlay on agent files. This
+      refactor moves <em>shared invariant</em> prose to a shared file — it does not add anything sprint-specific anywhere — so it
+      is consistent with the contract, and in fact restores the agent files to the "lens, voice, phase-contract only" shape
+      the contract already prescribes.
+    </p>
+  </div>
+</section>
+
+<footer class="max-w-6xl mx-auto px-6 py-8 text-slate-600 text-xs mono border-t border-slate-800">
+  Architecture review · design-committee · generated for sprint 20260613-01-review-design-committee · vocabulary: module / interface / depth / seam / adapter / deletion-test
+</footer>
+
+</body>
+</html>

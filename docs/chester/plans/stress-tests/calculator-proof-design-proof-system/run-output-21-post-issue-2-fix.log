@@ -1,0 +1,130 @@
+
+===== Phase 1: bootstrap + baseline =====
+[01] OK   createDomainBridge => {}
+  [immediately after boot — expected round 0/1, two_yes/superseded/withdrew empty]
+    round:        []
+    phase:        []
+    two_yes:      []
+    superseded:   []
+    withdrew:     []
+    facts.length: 0
+    rules.length: 0
+
+===== Phase 2: v1 design — token-bucket, global =====
+[02] OK   addDefinition: RateLimiter => {"id":"definition_1"}
+[03] OK   addDefinition: TokenBucket => {"id":"definition_2"}
+[04] OK   addElement (EVIDENCE): traffic patterns => {"id":"evidence_3"}
+[05] OK   addElement (PROPOSITION v1): global token-bucket => {"id":"proposition_4"}
+[06] OK   addElement (RISK): single-user flood => {"id":"risk_5"}
+[07] OK   addElement (RESOLUTION v1): per-IP secondary cap => {"id":"resolution_6"}
+  [after v1 adds — round should have advanced ~6 times]
+    round:        [{"N":6}]
+    phase:        []
+    two_yes:      []
+    superseded:   []
+    withdrew:     []
+    facts.length: 5
+    rules.length: 0
+
+===== Phase 3: ratify v1 =====
+[08] OK   ratifyElement: definition_1 => {}
+[09] OK   ratifyElement: definition_2 => {}
+[10] OK   ratifyElement: proposition_4 => {}
+[11] OK   ratifyElement: resolution_6 => {}
+[12] OK   queryProof: proposition (derived) => [{"I":"proposition_4","S":"A single global token-bucket at 1000 req/sec capped at 10000 burst protects the API."}]
+[13] OK   queryProof: resolution (derived) => [{"I":"resolution_6","S":"In addition to the global bucket, enforce a per-client-IP cap of 100 req/sec."}]
+  [after v1 ratify]
+    round:        [{"N":10}]
+    phase:        []
+    two_yes:      []
+    superseded:   []
+    withdrew:     []
+    facts.length: 9
+    rules.length: 0
+
+===== Phase 4: probe REVISE shape-check =====
+[14] FAIL reviseElement({id: propV1.id}) — expect SHAPE_INVALID without idShape
+         message: SHAPE_INVALID: missing required field "source" for evidence
+         code:    SHAPE_INVALID
+[15] OK   reviseElement(PROPOSITION, supersedes: propV1.id) — produces a NEW id linked via superseded => {"id":"proposition_11"}
+
+  REVISE result: {"id":"proposition_11"}
+  v1 proposition id: proposition_4
+  v2 (revised) id:   proposition_11
+  Same id?           NO — REVISE generated a fresh id
+
+===== Phase 5: inspect REVISE state =====
+[16] OK   queryProof: ALL proposition_decl rows (do v1 AND v2 coexist?) => [{"I":"proposition_4","S":"A single global token-bucket at 1000 req/sec capped at 10000 burst protects the API.","P":"grounds_imply_conclusi
+[17] OK   queryProof: superseded predicate (was anything emitted?) => [{"A":"proposition_11","B":"proposition_4"}]
+[18] OK   queryProof: grounding rows (does v2 have its own grounding fact?) => [{"P":"proposition_4","E":"evidence_3"},{"P":"proposition_11","E":"evidence_3"}]
+
+===== Phase 6: ratify v2 and check derivation =====
+[19] OK   ratifyElement: proposition_11 (the revised proposition) => {}
+[20] OK   queryProof: proposition (derived) — does v2 appear? => [{"I":"proposition_4","S":"A single global token-bucket at 1000 req/sec capped at 10000 burst protects the API."},{"I":"proposition_11","S":
+[21] OK   queryProof: approved(proposition_11, _, _) => [{"S":"designer","T":1700000000}]
+
+  KEY QUESTION: if v2 is in proposition_decl AND approved, does proposition(v2_id, ...) derive?
+  Answer: see "proposition (derived)" above — should contain v2_id only if instantiateTemplate fired on REVISE.
+  [after revising + ratifying v2]
+    round:        [{"N":12}]
+    phase:        []
+    two_yes:      []
+    superseded:   [{"A":"proposition_11","B":"proposition_4"}]
+    withdrew:     []
+    facts.length: 11
+    rules.length: 0
+
+===== Phase 7: v3 — withdraw v1 and v2, replace with sliding-window =====
+[22] OK   withdrawElement: proposition_4 (v1) => {}
+[23] OK   withdrawElement: proposition_11 (v2) => {}
+[24] OK   addDefinition: SlidingWindow => {"id":"definition_15"}
+[25] OK   addElement (PROPOSITION v3): sliding-window => {"id":"proposition_16"}
+[26] OK   ratifyElement: definition_15 => {}
+[27] OK   ratifyElement: proposition_16 => {}
+  [after withdraw v1+v2 and add+ratify v3]
+    round:        [{"N":18}]
+    phase:        []
+    two_yes:      []
+    superseded:   [{"A":"proposition_11","B":"proposition_4"}]
+    withdrew:     [{"I":"proposition_4"},{"I":"proposition_11"}]
+    facts.length: 15
+    rules.length: 0
+
+===== Phase 8: end-state inventory =====
+[28] OK   queryProof: ALL proposition_decl => [{"I":"proposition_4","S":"A single global token-bucket at 1000 req/sec capped at 10000 burst protects the API.","P":"grounds_imply_conclusi
+[29] OK   queryProof: derived proposition (only ratified+derivable) => [{"I":"proposition_4","S":"A single global token-bucket at 1000 req/sec capped at 10000 burst protects the API."},{"I":"proposition_11","S":
+[30] OK   queryProof: withdrew (which ids are marked withdrawn?) => [{"I":"proposition_4"},{"I":"proposition_11"}]
+[31] OK   queryProof: approved (which ids have approval?) => [{"I":"definition_1","S":"designer","T":1700000000},{"I":"definition_2","S":"designer","T":1700000000},{"I":"proposition_4","S":"designer","
+[32] OK   detectFrictions (any new ones from the evolution?) => []
+
+===== Phase 9: final render =====
+[33] OK   renderStructuredProof => "# Proof\n\n## Givens (Evidence)\n- evidence_3: Peak traffic shows bursts up to 10x average for sub-second windows; sustained over-rate is r
+--- Rendered proof (first 1600 chars) ---
+# Proof
+
+## Givens (Evidence)
+- evidence_3: Peak traffic shows bursts up to 10x average for sub-second windows; sustained over-rate is rare.
+
+## Lemmas (Propositions)
+- proposition_16: A 60-second sliding-window log per user-id (max 6000 entries) with 100 req/sec ceiling.
+
+## Theorems (Resolutions)
+- resolution_6: In addition to the global bucket, enforce a per-client-IP cap of 100 req/sec.
+
+--- end render preview ---
+[34] OK   renderClosingArgument => {"permitted":true,"asOf":1778895408551}
+
+===== Findings summary =====
+Total attempts: 34
+Failures:       1
+
+--- failures (JSON) ---
+[
+  {
+    "attempt": "14",
+    "label": "reviseElement({id: propV1.id}) — expect SHAPE_INVALID without idShape",
+    "message": "SHAPE_INVALID: missing required field \"source\" for evidence",
+    "code": "SHAPE_INVALID",
+    "stack": "Error: SHAPE_INVALID: missing required field \"source\" for evidence\n    at verifyArgsShape (file:///home/mike/Documents/CodeProjects/Chester/skills/design-proof-system/references/domain/schema.js:100:43)\n    at runOperation (file:///home/mike/Documents/CodeProjects/Chester/skills/design-proof-system/references/domain/mutations.js:166:3)\n    at Object.reviseElement (file:///home/mike/Documents/CodeProjects/Chester/skills/design-proof-system/references/domain/domain-bridge.js:75:39)"
+  }
+]

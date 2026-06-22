@@ -1,0 +1,16 @@
+Created friction: friction_1
+
+--- Test A: minimal args (frictionId + disposition only) ---
+Test A FAIL: SHAPE_INVALID - SHAPE_INVALID: missing required field "shape" for friction
+
+--- Test B: with filler shape + description ---
+Test B SUCCESS: {}
+
+--- Test C: did friction_disposition fact land? ---
+friction_disposition rows: [{"F":"friction_1","D":"address"}]
+
+--- Test D: did unresolved_friction clear? ---
+unresolved_friction rows: []
+
+--- Test E: raw friction fact ---
+friction rows: [{"I":"friction_1","Sh":"coverage_gap","D":"test friction for disposition probe","Di":"unset"}]

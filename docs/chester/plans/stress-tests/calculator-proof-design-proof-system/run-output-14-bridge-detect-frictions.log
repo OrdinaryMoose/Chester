@@ -1,0 +1,21 @@
+--- Test 1: bridge.detectFrictions is a function ---
+  typeof bridge.detectFrictions = 'function' — PASS
+
+--- Test 2: empty proof yields empty findings list ---
+  detectFrictions()                                []
+  expected []; got length 0 — PASS
+
+--- Test 3: detects coverage_gap, overlap, ungrounded — across all reachable shapes ---
+  detectFrictions()                                [{"shape":"ungrounded","args":["proposition_5"]},{"shape":"coverage_gap","args":["risk_3"]},{"shape":"overlap","args":["definition_1","definition_2"]}]
+  shape histogram: {"ungrounded":1,"coverage_gap":1,"overlap":1}
+  expected: {overlap:1, coverage_gap:1, ungrounded:1}, no conflict —  PASS
+
+--- Test 4: overlap output is canonical (no reflexive, no symmetric dup) ---
+  overlaps                                         [{"shape":"overlap","args":["definition_1","definition_2"]},{"shape":"overlap","args":["definition_1","definition_3"]},{"shape":"overlap","args":["definition_2","definition_3"]}]
+  reflexive: 0, distinct pairs: 3, total: 3
+  expected: 3 distinct, 0 reflexive — PASS
+
+--- Test 5: read-only audit adapter also exposes detectFrictions ---
+  typeof audit.detectFrictions = 'function'
+  audit.detectFrictions()                          [{"shape":"coverage_gap","args":["risk_1"]}]
+  finds the coverage_gap from the audit-side too — PASS

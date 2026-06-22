@@ -1,0 +1,25 @@
+--- Test 1: REVISE without args.supersedes is rejected ---
+  THROW (correct): SHAPE_INVALID - SHAPE_INVALID: REVISE requires args.supersedes (string) naming the element being revised
+  result: PASS
+
+--- Test 2: REVISE with supersedes succeeds + emits superseded fact ---
+  p1.id                                          "proposition_2"
+  p2.id                                          "proposition_3"
+  ids differ?  YES (correct — REVISE creates a new element)
+  superseded(A,B)                                [{"A":"proposition_3","B":"proposition_2"}]
+  superseded link new→old correct? PASS
+
+--- Test 3: ratifying the revised element derives the public predicate ---
+  proposition (derived)                          [{"I":"proposition_2","S":"original"},{"I":"proposition_3","S":"revised"}]
+  both p1 (proposition_2) and p2 (proposition_3) derive? PASS
+
+--- Test 4: REVISE works for all four approval-gated categories ---
+  definition (derived)                           [{"I":"definition_2","T":"X","D":"original"},{"I":"definition_3","T":"X","D":"revised"}]
+  concern_status (ratified)                      [{"I":"concern_6"},{"I":"concern_7"}]
+  superseded(A,B)                                [{"A":"definition_3","B":"definition_2"},{"A":"concern_7","B":"concern_6"}]
+  derived definitions=2, ratified concerns=2, supersession links=2? PASS
+
+--- Test 5: REVISE chain (a → b → c) produces 2 supersession links ---
+  superseded chain                               [{"A":"proposition_3","B":"proposition_2"},{"A":"proposition_4","B":"proposition_3"}]
+  expected p2→p1 and p3→p2; got proposition_3|proposition_2, proposition_4|proposition_3
+  result: PASS

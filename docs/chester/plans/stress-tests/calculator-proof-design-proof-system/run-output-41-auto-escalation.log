@@ -1,0 +1,39 @@
+--- Test 1: bare bridge with no elements permits closure ---
+  closure_permitted                                [{}]
+  result: PASS
+
+--- Test 2: coverage_gap (risk with no resolution) blocks closure ---
+  coverage_gap_detected                            [{"C":"risk_2"}]
+  closure_permitted                                []
+  closure_failure_reason                           [{"R":"risk_2"}]
+  closure blocked? true, failure list contains risk_2? true
+  result: PASS
+
+--- Test 3: ungrounded_proposition (evidence withdrawn) blocks closure ---
+  ungrounded_proposition                           [{"P":"proposition_2"}]
+  closure_permitted                                []
+  closure_failure_reason                           [{"R":"proposition_2"}]
+  closure blocked? true, failure list contains proposition_2? true
+  result: PASS
+
+--- Test 4: overlap_detected (same scope) blocks closure ---
+  overlap_detected                                 [{"T1":"definition_1","T2":"definition_1"},{"T1":"definition_1","T2":"definition_2"},{"T1":"definition_2","T2":"definition_1"},{"T1":"definition_2","T2":"definition_2"}]
+  closure_permitted                                []
+  closure_failure_reason                           [{"R":"definition_1"},{"R":"definition_2"}]
+  closure blocked? true, failure list contains both d1 and d2? true
+  result: PASS
+
+--- Test 5: ESCAPE VALVE — elevate coverage_gap to FRICTION + DEFER → closure restored ---
+  closure_permitted (before elevation)             []
+  coverage_gap_detected (after addressing)         []
+  closure_permitted (after addressing)             [{}]
+  closure restored after addressing risk? PASS
+
+--- Test 6: ESCAPE VALVE for overlap — different scopes restore closure ---
+  overlap_detected                                 [{"T1":"definition_1","T2":"definition_1"},{"T1":"definition_2","T2":"definition_2"}]
+  closure_permitted                                []
+  result: FAIL
+
+--- Test 7: full closing argument flow with auto-escalated block ---
+  presentClosingArgument threw: CLOSURE_NOT_PERMITTED — PASS
+  message: Closure failed: risk_2

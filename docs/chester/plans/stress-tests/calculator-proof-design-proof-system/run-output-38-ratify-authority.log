@@ -1,0 +1,17 @@
+--- Test 1: ratify PROPOSITION as DESIGN_PARTNER (was blocked, now allowed) ---
+  PASS — ratifyElement accepted DESIGN_PARTNER consent
+  approved                                           [{"I":"proposition_2","S":"design_partner","T":1700000000}]
+
+--- Test 2: ratify EVIDENCE as DESIGN_PARTNER (must STILL be rejected — schema disallows) ---
+  PASS — rejected: CONSENT_INVALID CONSENT_INVALID: source design_partner does not match required designer
+
+--- Test 3: end-to-end two_yes_complete via PUBLIC API (no engine.assertFact hack needed) ---
+  two_yes_complete after DESIGNER ratify             []
+  two_yes_complete after DESIGN_PARTNER ratify       [{"I":"proposition_2"}]
+  result: PASS — full multi-author closure path reachable through public API
+
+--- Test 4: ratify with non-existent elementId — falls back to spec.consentCategory ---
+  PASS — rejected (fallback path): CONSENT_INVALID
+
+--- Test 5: ratify FRICTION as DESIGNER — works (FRICTION.authority.ratify=[DESIGNER]) ---
+  PASS

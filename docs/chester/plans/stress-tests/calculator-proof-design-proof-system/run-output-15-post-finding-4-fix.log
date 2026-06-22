@@ -1,0 +1,125 @@
+
+===== Phase 1: bootstrap =====
+[01] OK   createDomainBridge => {}
+
+===== Phase 2: DEFINITIONs (deliberate term overlap) =====
+[02] OK   addDefinition: Session (server-tracked) => {"id":"definition_1"}
+[03] OK   addDefinition: Session (self-contained) => {"id":"definition_2"}
+[04] OK   addDefinition: Token (opaque) => {"id":"definition_3"}
+[05] OK   addDefinition: Token (claims-bearing) => {"id":"definition_4"}
+[06] OK   addDefinition: XSS => {"id":"definition_5"}
+
+===== Phase 3: EVIDENCE =====
+[07] OK   addElement (EVIDENCE): user session behavior => {"id":"evidence_6"}
+[08] OK   addElement (EVIDENCE): industry timeout norms => {"id":"evidence_7"}
+[09] OK   addElement (EVIDENCE): compliance requirement => {"id":"evidence_8"}
+
+===== Phase 4: PROPOSITIONs =====
+[10] OK   addElement (PROPOSITION): timeout must be configurable => {"id":"proposition_9"}
+[11] OK   addElement (PROPOSITION): sessions must be server-revocable => {"id":"proposition_10"}
+
+===== Phase 5: RISKs =====
+[12] OK   addElement (RISK): session theft via XSS => {"id":"risk_11"}
+[13] OK   addElement (RISK): session fixation => {"id":"risk_12"}
+[14] OK   addElement (RISK): token leak via logs (UNADDRESSED) => {"id":"risk_13"}
+[15] OK   addElement (RISK): server-side store exhaustion (UNADDRESSED) => {"id":"risk_14"}
+
+===== Phase 6: RESOLUTIONs (partial — leaves coverage gaps) =====
+[16] OK   addElement (RESOLUTION): httpOnly + SameSite cookies => {"id":"resolution_15"}
+[17] OK   addElement (RESOLUTION): regenerate id on auth boundary => {"id":"resolution_16"}
+
+===== Phase 7: ratifications =====
+[18] OK   ratifyElement: definition_1 => {}
+[19] OK   ratifyElement: definition_2 => {}
+[20] OK   ratifyElement: definition_3 => {}
+[21] OK   ratifyElement: definition_4 => {}
+[22] OK   ratifyElement: definition_5 => {}
+[23] OK   ratifyElement: proposition_9 => {}
+[24] OK   ratifyElement: proposition_10 => {}
+[25] OK   ratifyElement: resolution_15 => {}
+[26] OK   ratifyElement: resolution_16 => {}
+
+===== Phase 8: probe auto-detection predicates =====
+[27] OK   queryProof: ungrounded_proposition => []
+[28] OK   queryProof: coverage_gap_detected => [{"C":"risk_13"},{"C":"risk_14"}]
+[29] OK   queryProof: overlap_detected => [{"T1":"definition_1","T2":"definition_1"},{"T1":"definition_1","T2":"definition_2"},{"T1":"definition_2","T2":"definition_1"},{"T1":"defini
+[30] OK   queryProof: conflict_detected => []
+         summary:
+           ungrounded_proposition rows: 0
+           coverage_gap_detected rows:  2
+           overlap_detected rows:       9
+           conflict_detected rows:      0
+
+===== Phase 9: probe ungrounded_proposition reachability =====
+[31] FAIL addElement (PROPOSITION) without grounding (probe)
+         message: SHAPE_INVALID: missing required field "grounding" for proposition
+         code:    SHAPE_INVALID
+[32] OK   withdrawElement: evidence_6 (probe — does this surface its grounded prop as ungrounded?) => {}
+[33] OK   queryProof: ungrounded_proposition AFTER evidence withdrawal => [{"P":"proposition_9"}]
+[34] OK   queryProof: grounding fact still present? => [{"P":"proposition_9","E":"evidence_6"},{"P":"proposition_10","E":"evidence_8"}]
+
+===== Phase 10: probe friction-policy helper exposure =====
+[35] OK   bridge.detectFrictions (probe — should be undefined) => [{"shape":"ungrounded","args":["proposition_9"]},{"shape":"coverage_gap","args":["risk_13"]},{"shape":"coverage_gap","args":["risk_14"]},{"s
+
+===== Phase 11: promote detected → real FRICTION elements (SYSTEM consent) =====
+[36] OK   addElement (FRICTION) for coverage_gap on risk_13 => {"id":"friction_27"}
+[37] OK   addElement (FRICTION) for coverage_gap on risk_14 => {"id":"friction_28"}
+[38] OK   addElement (FRICTION) for overlap on (definition_1, definition_2) => {"id":"friction_29"}
+[39] OK   addElement (FRICTION) for overlap on (definition_3, definition_4) => {"id":"friction_30"}
+         promoted 4 FRICTION element(s):
+           friction_27 (coverage_gap:risk_13)
+           friction_28 (coverage_gap:risk_14)
+           friction_29 (overlap:definition_1|definition_2)
+           friction_30 (overlap:definition_3|definition_4)
+
+===== Phase 12: disposition promoted frictions =====
+[40] OK   overrideFrictionDisposition: friction_27 → DEFER => {}
+[41] OK   overrideFrictionDisposition: friction_28 → DEFER => {}
+[42] OK   overrideFrictionDisposition: friction_29 → DEFER => {}
+[43] OK   overrideFrictionDisposition: friction_30 → DEFER => {}
+
+===== Phase 13: closure attempt =====
+         closure-state inventory:
+           unresolved_friction          []
+           unaddressed_concern          []
+           closure_failure_reason       []
+           closure_permitted            [{}]
+[44] OK   presentClosingArgument => {}
+[45] OK   confirmClosureGo => {}
+
+===== Phase 14: final renders =====
+[46] OK   renderStructuredProof => "# Proof\n\n## Givens (Evidence)\n- evidence_6: Users authenticate once and expect to stay signed in for 14–30 days on trusted devices.\n- e
+--- Rendered proof (first 1400 chars) ---
+# Proof
+
+## Givens (Evidence)
+- evidence_6: Users authenticate once and expect to stay signed in for 14–30 days on trusted devices.
+- evidence_7: Industry-standard session timeouts span 15 minutes (banking) to 30 days (social).
+- evidence_8: SOC2 audit requires session revocation within 60 seconds of a credential-compromise event.
+
+## Lemmas (Propositions)
+- proposition_9: Session timeout must be configurable per-deployment in the range [15min, 30days].
+- proposition_10: Sessions must be revocable server-side within 60 seconds.
+
+## Theorems (Resolutions)
+- resolution_15: Store the session token in an httpOnly, Secure, SameSite=Lax cookie; never expose to JavaScript.
+- resolution_16: Regenerate the session id immediately after successful authentication and after any privilege change.
+
+--- end render preview ---
+[47] OK   renderClosingArgument => {"permitted":true,"asOf":1778894490572}
+
+===== Findings summary =====
+Total attempts: 47
+Failures:       1
+
+--- failures (JSON) ---
+[
+  {
+    "attempt": "31",
+    "label": "addElement (PROPOSITION) without grounding (probe)",
+    "message": "SHAPE_INVALID: missing required field \"grounding\" for proposition",
+    "code": "SHAPE_INVALID",
+    "stack": "Error: SHAPE_INVALID: missing required field \"grounding\" for proposition\n    at verifyArgsShape (file:///home/mike/Documents/CodeProjects/Chester/skills/design-proof-system/references/domain/schema.js:100:43)\n    at runOperation (file:///home/mike/Documents/CodeProjects/Chester/skills/design-proof-system/references/domain/mutations.js:154:3)\n    at Object.addElement (file:///home/mike/Documents/CodeProjects/Chester/skills/design-proof-system/references/domain/domain-bridge.js:73:36)\n    at file:///home/mike/Documents/CodeProjects/Chester/docs/chester/working/stress-tests/calculator-proof-design-proof-system/adversarial-session-design-simulation.mjs:281:10",
+    "field": "grounding"
+  }
+]

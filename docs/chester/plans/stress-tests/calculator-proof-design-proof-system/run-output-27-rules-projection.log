@@ -1,0 +1,29 @@
+--- Test 1: empty bridge has zero facts; rules.length matches boot count ---
+  facts.length = 0 (expected 0)
+  rules.length = 16 (expected > 0 — boot installed closure-policy + friction-policy rules + 4 anchor templates)
+  result: PASS
+
+--- Test 2: each projected rule has the tuple-format shape defineRule consumes ---
+  sample rule (first installed):
+    ruleId:    "effective_addresses_rule"
+    headAtom:  ["effective_addresses",["R","C"]]
+    bodyAtoms: [["addresses",["R","C"]],["not",["withdrew",["R"]]]]
+    metadata:  {"domain_concept":"effective_addresses","module":"closure-policy"}
+  all 16 rules well-shaped? PASS
+
+--- Test 3: per-element rule appears after addElement(PROPOSITION) ---
+  baseline rules: 16
+  after add:      17
+  expected new rule: proposition_2_approved_implies_proposition
+  found?            true
+  body uses approved literal? true
+  result: PASS
+
+--- Test 4: REPLAY — a second engine ingesting the projection produces the same derived facts ---
+  engine #1 derived proposition: [{"I":"proposition_2","S":"x"}]
+  engine #2 derived proposition: [{"I":"proposition_2","S":"x"}]
+  identical derivations? PASS
+
+--- Test 5: rule count grows monotonically with each approval-gated add ---
+  rule counts: [16,16,17,18]
+  expected stable on EVIDENCE add, +1 on each DEFINITION — PASS

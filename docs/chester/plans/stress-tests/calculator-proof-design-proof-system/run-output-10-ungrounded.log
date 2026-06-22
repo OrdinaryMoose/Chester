@@ -1,0 +1,28 @@
+--- Test 1: bridge boots with effective_grounding_rule registered ---
+  PASS — no DomainBootError
+
+--- Test 2: baseline — grounded proposition is NOT flagged ---
+  grounding(P, E)                                    [{"P":"proposition_2","E":"evidence_1"}]
+  effective_grounding(P)                             [{"P":"proposition_2"}]
+  ungrounded_proposition(P)                          []
+  expected: grounding=1, effective_grounding=1, ungrounded_proposition=[]
+
+--- Test 3: withdraw evidence; proposition becomes ungrounded ---
+  withdrew(E)                                        [{"E":"evidence_1"}]
+  grounding(P, E) — still in EDB                     [{"P":"proposition_2","E":"evidence_1"}]
+  effective_grounding(P) — should be []              []
+  ungrounded_proposition(P) — should be [P1]         [{"P":"proposition_2"}]
+  detected proposition matches prop1.id (proposition_2)? YES — PASS
+
+--- Test 4: independently-grounded proposition is unaffected ---
+  ungrounded_proposition(P)                          [{"P":"proposition_2"}]
+  expected only prop1 (proposition_2); prop2 (proposition_5) stays grounded
+  result: PASS
+--- Test 5: detectFrictions helper surfaces it as a typed UNGROUNDED finding ---
+  detectFrictions ungrounded findings                [{"shape":"ungrounded","args":["proposition_2"]}]
+  result: PASS
+--- Summary ---
+  Test 3: PASS (withdrawal triggers ungrounded detection)
+  Test 4: PASS (unaffected props stay grounded)
+  Test 5: PASS (helper aggregation)
+  Overall: PASS

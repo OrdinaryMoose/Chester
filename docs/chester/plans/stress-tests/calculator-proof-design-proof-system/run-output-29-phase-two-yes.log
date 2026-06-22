@@ -1,0 +1,30 @@
+--- Test 1: phase derives ESTABLISHMENT at boot (no closure_pending, no closure_committed) ---
+  phase (boot)                                   [{"P":"establishment"}]
+  lifecycle.getPhase = establishment
+  result: PASS
+
+--- Test 2: phase transitions to PRESENTATION on presentClosingArgument ---
+  phase (after present)                          [{"P":"presentation"}]
+  result: PASS
+
+--- Test 3: phase transitions to CONFIRMATION on confirmClosureGo ---
+  phase (after confirm)                          [{"P":"confirmation"}]
+  result: PASS
+
+--- Test 4: ratify writes two_yes(id, source) ---
+  two_yes(I, S)                                  [{"I":"proposition_2","S":"designer"}]
+  two_yes_complete(I)                            []
+  expected: 1 two_yes row (designer), 0 two_yes_complete rows — PASS
+
+--- Test 5: two_yes_complete fires when both DESIGNER and DESIGN_PARTNER ratify ---
+--- (drives the second yes via engine.assertFact since bridge.ratifyElement still ---
+--- requires DESIGNER consent — RATIFY per-category authority is deferred TODO) ---
+  two_yes_complete after 1 ratify                []
+  two_yes_complete after 2 yes facts             [{"I":"proposition_2"}]
+  expected 1 two_yes_complete row for proposition_2 — PASS
+
+--- Test 6: full lifecycle — boot ESTABLISHMENT, after present PRESENTATION, after confirm CONFIRMATION ---
+  [boot                ] phase = [{"P":"establishment"}]
+  [after present       ] phase = [{"P":"presentation"}]
+  [after confirm       ] phase = [{"P":"confirmation"}]
+  monotonic transition? PASS

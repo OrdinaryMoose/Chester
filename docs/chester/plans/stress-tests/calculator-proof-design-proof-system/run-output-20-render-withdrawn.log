@@ -1,0 +1,33 @@
+--- Test 1: renderStructuredProof excludes withdrawn elements from all sections ---
+--- rendered output ---
+# Proof
+
+## Givens (Evidence)
+- evidence_1: live evidence #1
+
+## Lemmas (Propositions)
+- proposition_3: live proposition
+
+## Theorems (Resolutions)
+- resolution_6: live resolution
+
+--- end ---
+  evidence:    live=evidence_1 present=true, withdrawn=evidence_2 absent=true — PASS
+  proposition: live=proposition_3 present=true, withdrawn=proposition_4 absent=true — PASS
+  resolution:  live=resolution_6 present=true, withdrawn=resolution_7 absent=true — PASS
+
+--- Test 2: getProofState filters withdrawn elements from inventories ---
+  evidence ids                                   ["evidence_1"]
+  proposition ids                                ["proposition_3"]
+  resolution ids                                 ["resolution_6"]
+  result: PASS
+
+--- Test 3: renderElementDeep returns withdrawn:true flag (not null) ---
+  live element                                   {"id":"proposition_3","predicate":"proposition_decl","withdrawn":false}
+  withdrawn element                              {"id":"proposition_4","predicate":"proposition_decl","withdrawn":true}
+  missing element                                null
+  expected: live.withdrawn=false, withdrawn.withdrawn=true, missing=null — PASS
+
+--- Test 4: renderDatalogProjection STAYS COMPLETE (must include withdrawn) ---
+  proposition_decl(proposition_4)                [["proposition_decl",["proposition_4","proposition to withdraw","structural"]]]
+  expected 1 row (verification path is faithful) — PASS

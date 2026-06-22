@@ -1,0 +1,21 @@
+--- Test 1: pre-ratify CONCERN has only ("draft") row ---
+  concern_status (pre-ratify)                        [{"S":"draft"}]
+  result: PASS
+
+--- Test 2: post-ratify CONCERN has only ("ratified") row, no ("draft") ---
+  concern_status (post-ratify)                       [{"S":"ratified"}]
+  expected exactly one ratified row, no draft — PASS
+
+--- Test 3: ratifying a non-CONCERN element does not throw on missing concern_status ---
+  PASS — no throw on non-CONCERN ratify
+
+--- Test 4: renderDatalogProjection no longer includes obsolete draft row ---
+  projection concern_status rows                     [["concern_status",["concern_2","draft"]],["concern_status",["concern_3","ratified"]]]
+  c1 has only 'draft' (pre-ratify): true
+  c2 has only 'ratified' (post-ratify): true
+  result: PASS
+
+--- Test 5: ratified concern coverage still works (closure-policy non-regression) ---
+  covered                                            [{"C":"concern_2"}]
+  unaddressed_concern                                []
+  covered correctly fires; unaddressed_concern empty — PASS

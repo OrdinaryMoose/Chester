@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deep Dive — Candidate 2 · design-committee per-round flow</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: 'base', themeVariables: {
+    primaryColor: '#1e293b', primaryTextColor: '#e2e8f0', primaryBorderColor: '#475569',
+    lineColor: '#64748b', fontSize: '14px'
+  }});
+</script>
+<style>
+  body { background:#0b1120; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .quote { border-left:3px solid #475569; }
+  .card { background:#0f172a; }
+</style>
+</head>
+<body class="text-slate-200">
+
+<!-- ============ HEADER ============ -->
+<header class="max-w-6xl mx-auto px-6 pt-12 pb-6">
+  <p class="text-sky-400 mono text-sm tracking-widest uppercase">Deep Dive · Candidate 2</p>
+  <h1 class="text-4xl font-bold text-white mt-2">One canonical per-round sequence,<br>not two numbered copies</h1>
+  <p class="text-slate-400 mt-4 max-w-3xl leading-relaxed">
+    The same deliberation round is numbered twice — eight steps in <span class="mono">SKILL.md</span>, eleven in
+    <span class="mono">team-lead.md</span> — with incompatible boundaries. This page walks the design tree for the fix:
+    who owns the numbering, what the other file becomes, and why the migration risk is zero.
+  </p>
+</header>
+
+<!-- ============ STATUS STRIP ============ -->
+<section class="max-w-6xl mx-auto px-6 pb-6">
+  <div class="grid sm:grid-cols-4 gap-3 text-sm">
+    <div class="card border border-rose-800/60 rounded-lg p-3">
+      <p class="text-rose-400 font-bold text-xs uppercase">Candidate 1</p>
+      <p class="text-slate-400 mt-1">Rejected — reviewed &amp; rejected in a prior pass. Not re-litigated. ADR offered.</p>
+    </div>
+    <div class="card border border-emerald-700 rounded-lg p-3 ring-1 ring-emerald-600/40">
+      <p class="text-emerald-400 font-bold text-xs uppercase">Candidate 2 — this page</p>
+      <p class="text-slate-400 mt-1">Explored deep. Fix direction settled by existing-intent evidence.</p>
+    </div>
+    <div class="card border border-slate-700 rounded-lg p-3">
+      <p class="text-slate-400 font-bold text-xs uppercase">Candidate 3</p>
+      <p class="text-slate-500 mt-1">Deferred.</p>
+    </div>
+    <div class="card border border-slate-700 rounded-lg p-3">
+      <p class="text-slate-400 font-bold text-xs uppercase">Candidate 4</p>
+      <p class="text-slate-500 mt-1">Deferred.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ THE CONTRADICTION ============ -->
+<section class="max-w-6xl mx-auto px-6 py-8">
+  <h2 class="text-2xl font-bold text-white mb-4">The finding, made precise</h2>
+  <p class="text-slate-400 mb-6 max-w-3xl">This is not "two files happen to overlap." One file <em>cites the other as the authority</em> and then overrides it in the same section.</p>
+
+  <div class="grid md:grid-cols-2 gap-6">
+    <div class="card border border-sky-800/50 rounded-lg p-5">
+      <p class="text-sky-400 text-xs uppercase tracking-widest font-bold mb-2">SKILL.md claims canonical</p>
+      <div class="quote pl-4 py-1">
+        <p class="text-slate-300 text-sm italic">"The canonical per-round sequence <span class="text-amber-300">(spec §5)</span>. Steps 1–3 are member-side; steps 4–8 are team-lead-side <strong class="text-emerald-300">(detail in references/team-lead.md)</strong>."</p>
+        <p class="text-slate-500 text-xs mono mt-2">SKILL.md:179–180</p>
+      </div>
+      <p class="text-slate-400 text-sm mt-3">SKILL.md owns the 8-step skeleton and explicitly <strong>delegates the team-lead-side detail downward</strong>.</p>
+    </div>
+
+    <div class="card border border-rose-800/50 rounded-lg p-5">
+      <p class="text-rose-400 text-xs uppercase tracking-widest font-bold mb-2">team-lead.md defers — then overrides</p>
+      <div class="quote pl-4 py-1">
+        <p class="text-slate-300 text-sm italic">"<strong class="text-emerald-300">Per-round flow runs — per SKILL.md Phase 4 § Per-Round Flow.</strong> Members write their full positions…"</p>
+        <p class="text-slate-500 text-xs mono mt-2">team-lead.md:96 — its own step 2</p>
+      </div>
+      <p class="text-slate-400 text-sm mt-3">team-lead.md's <em>own step 2</em> names SKILL.md Phase 4 as the authority — yet team-lead.md:93–106 re-numbers the entire round <strong class="text-rose-300">1 through 11</strong>, re-skeletoning the very thing step 2 just delegated upward.</p>
+    </div>
+  </div>
+
+  <div class="card border border-amber-800/60 rounded-lg p-4 mt-5 bg-amber-950/20">
+    <p class="text-amber-300 text-sm"><strong>So the fix direction is not a coin-flip.</strong> Both files already agree, in writing, that SKILL.md Phase 4 is the owner. The drift is purely that team-lead.md re-expanded a rival numbered list instead of elaborating SKILL's steps by name. The fix is to make the prose match the deference both files already declare.</p>
+  </div>
+
+  <div class="card border border-slate-700 rounded-lg p-4 mt-4">
+    <p class="text-slate-400 text-sm"><strong class="text-amber-300">Bonus finding — dangling citation.</strong> SKILL.md:179 attributes the sequence to <span class="mono">"(spec §5)"</span>, but no spec document exists anywhere under <span class="mono">skills/design-committee/</span> (grep-confirmed). It is a vestigial pointer to an original design spec that was never carried into the tree. Either drop the parenthetical or repoint it at the real owner once that's decided.</p>
+  </div>
+</section>
+
+<!-- ============ THE MAPPING ============ -->
+<section class="max-w-6xl mx-auto px-6 py-8">
+  <h2 class="text-2xl font-bold text-white mb-4">Where the 11 steps actually go</h2>
+  <p class="text-slate-400 mb-6 max-w-3xl">team-lead's extra steps aren't missing deliberation steps. Each maps onto one of SKILL's 8, or onto the <em>outer</em> Conversation Loop, or onto bookkeeping that already has its own section. Nothing is lost by dropping the rival numbering.</p>
+
+  <div class="card border border-slate-800 rounded-xl overflow-hidden">
+    <div class="grid grid-cols-12 gap-0 text-xs mono bg-slate-800/60 text-slate-400 px-4 py-2 font-bold uppercase tracking-wide">
+      <div class="col-span-4">team-lead.md step (1–11)</div>
+      <div class="col-span-4">maps to</div>
+      <div class="col-span-4">true home</div>
+    </div>
+    <div class="divide-y divide-slate-800 text-sm">
+      <div class="grid grid-cols-12 px-4 py-2"><div class="col-span-4 text-slate-300">1 Dispatch question</div><div class="col-span-4 text-emerald-300 mono">SKILL step 1</div><div class="col-span-4 text-slate-400">inner sequence</div></div>
+      <div class="grid grid-cols-12 px-4 py-2"><div class="col-span-4 text-slate-300">2 Per-round flow runs</div><div class="col-span-4 text-emerald-300 mono">SKILL steps 2–3</div><div class="col-span-4 text-slate-400">already cites SKILL Phase 4</div></div>
+      <div class="grid grid-cols-12 px-4 py-2 bg-rose-950/20"><div class="col-span-4 text-rose-300">3 Update the ledger</div><div class="col-span-4 text-amber-300 mono">— not a deliberation step</div><div class="col-span-4 text-slate-400">team-lead § Ledger (round-boundary bookkeeping)</div></div>
+      <div class="grid grid-cols-12 px-4 py-2"><div class="col-span-4 text-slate-300">4 Dispatch the Consolidator</div><div class="col-span-4 text-emerald-300 mono">SKILL step 4</div><div class="col-span-4 text-slate-400">inner sequence</div></div>
+      <div class="grid grid-cols-12 px-4 py-2 bg-rose-950/20"><div class="col-span-4 text-rose-300">5 Read the Consolidator output</div><div class="col-span-4 text-amber-300 mono">sub-part of SKILL step 4</div><div class="col-span-4 text-slate-400">team-lead detail under step 4</div></div>
+      <div class="grid grid-cols-12 px-4 py-2"><div class="col-span-4 text-slate-300">6 Synthesize</div><div class="col-span-4 text-emerald-300 mono">SKILL step 5</div><div class="col-span-4 text-slate-400">inner sequence</div></div>
+      <div class="grid grid-cols-12 px-4 py-2"><div class="col-span-4 text-slate-300">7 Converge</div><div class="col-span-4 text-emerald-300 mono">SKILL step 6</div><div class="col-span-4 text-slate-400">inner sequence</div></div>
+      <div class="grid grid-cols-12 px-4 py-2"><div class="col-span-4 text-slate-300">8 Dispatch the scribe</div><div class="col-span-4 text-emerald-300 mono">SKILL step 7 (Author)</div><div class="col-span-4 text-slate-400">inner sequence</div></div>
+      <div class="grid grid-cols-12 px-4 py-2"><div class="col-span-4 text-slate-300">9 Present to designer</div><div class="col-span-4 text-emerald-300 mono">SKILL step 8</div><div class="col-span-4 text-slate-400">inner sequence</div></div>
+      <div class="grid grid-cols-12 px-4 py-2 bg-rose-950/20"><div class="col-span-4 text-rose-300">10 Checkpoint between steps</div><div class="col-span-4 text-amber-300 mono">cross-cutting invariant</div><div class="col-span-4 text-slate-400">already a SKILL principle @195–198</div></div>
+      <div class="grid grid-cols-12 px-4 py-2 bg-rose-950/20"><div class="col-span-4 text-rose-300">11 Designer response</div><div class="col-span-4 text-amber-300 mono">— outer loop, not inner round</div><div class="col-span-4 text-slate-400">team-lead § Conversation Loop cycle</div></div>
+    </div>
+  </div>
+  <p class="text-slate-500 text-sm mt-3">Rose rows are the four "extra" steps. None is a deliberation step SKILL's 8 lack — they are bookkeeping (3), a sub-part (5), an invariant already stated elsewhere (10), and the outer loop-back (11).</p>
+</section>
+
+<!-- ============ DIRECTION FORK ============ -->
+<section class="max-w-6xl mx-auto px-6 py-8">
+  <h2 class="text-2xl font-bold text-white mb-4">The design fork — who owns the numbered list</h2>
+
+  <div class="grid md:grid-cols-2 gap-6">
+    <!-- 2A rejected -->
+    <div class="card border border-slate-700 rounded-xl p-5 opacity-90">
+      <div class="flex items-center justify-between">
+        <p class="text-slate-300 font-bold">Direction A — team-lead.md owns the full numbered list; SKILL.md cites it</p>
+        <span class="bg-rose-900 text-rose-200 text-[10px] font-bold px-2 py-1 rounded uppercase">Not recommended</span>
+      </div>
+      <p class="text-slate-400 text-sm mt-3 leading-relaxed">Gives the executing agent one complete list in the file it already reads for role behaviour. But:</p>
+      <ul class="text-slate-400 text-sm mt-2 space-y-1 list-disc list-inside">
+        <li><strong>Inverts a deference already in writing.</strong> team-lead.md:96 names SKILL.md Phase 4 the authority — A would flip that.</li>
+        <li><strong>Demotes the floor.</strong> SKILL.md is the contract surface wrapping skills compare against (skill-contract.md). Moving the canonical sequence into a reference thins the floor.</li>
+        <li><strong>Members never read team-lead.md.</strong> Steps 1–3 are member-side; members read member-protocol, not team-lead. The member-visible skeleton belongs in the floor doc, not a team-lead-only file.</li>
+      </ul>
+    </div>
+
+    <!-- 2B recommended -->
+    <div class="card border border-emerald-700 rounded-xl p-5 ring-1 ring-emerald-600/40">
+      <div class="flex items-center justify-between">
+        <p class="text-white font-bold">Direction B — SKILL.md Phase 4 owns the 8 steps; team-lead.md elaborates by name</p>
+        <span class="bg-emerald-700 text-white text-[10px] font-bold px-2 py-1 rounded uppercase">Recommended</span>
+      </div>
+      <p class="text-slate-300 text-sm mt-3 leading-relaxed">SKILL.md keeps the single numbered skeleton. team-lead.md drops its 1–11 list and instead attaches its operational detail to SKILL's step <em>names</em>, with ledger and designer-response living in the surrounding Conversation Loop / § Ledger where they already sit.</p>
+      <ul class="text-slate-300 text-sm mt-2 space-y-1 list-disc list-inside">
+        <li><strong>Honors existing intent.</strong> Matches both team-lead.md:96 (defers up) and SKILL.md:180 (delegates detail down).</li>
+        <li><strong>Floor stays canonical.</strong> One numbered sequence, in the contract doc.</li>
+        <li><strong>No rival numbers to drift.</strong> team-lead.md has no step integers left to fall out of sync.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BEFORE / AFTER ============ -->
+<section class="max-w-6xl mx-auto px-6 py-8">
+  <h2 class="text-2xl font-bold text-white mb-6">Before / after — what each file owns</h2>
+  <div class="grid md:grid-cols-2 gap-6">
+    <div class="card border border-rose-900/50 rounded-xl p-5">
+      <p class="text-rose-400 text-xs uppercase tracking-widest font-bold mb-3">Before — two skeletons</p>
+      <div class="mermaid">
+graph TD
+   S["SKILL.md Phase 4<br/>numbered 1–8<br/><i>'canonical (spec §5)'</i>"]:::dup
+   T["team-lead.md Per-Round Flow<br/>numbered 1–11<br/><i>step 2: 'per SKILL Phase 4'</i>"]:::dup
+   T -. "defers to…" .-> S
+   T == "…but re-numbers anyway" ==> T
+   classDef dup fill:#3f1d2e,stroke:#be123c,color:#fecdd3;
+      </div>
+      <p class="text-rose-300/70 text-xs mt-2">"After step 4" is ambiguous. Edit one list, the other silently drifts.</p>
+    </div>
+
+    <div class="card border border-emerald-900/50 rounded-xl p-5">
+      <p class="text-emerald-400 text-xs uppercase tracking-widest font-bold mb-3">After — one skeleton, keyed elaboration</p>
+      <div class="mermaid">
+graph TD
+   S["SKILL.md Phase 4<br/>numbered 1–8 (SOLE)<br/><i>the floor skeleton</i>"]:::deep
+   T["team-lead.md Per-Round Flow<br/>per-step detail, keyed by NAME<br/><i>no rival integers</i>"]:::mid
+   L["team-lead § Ledger<br/>+ § Conversation Loop<br/><i>bookkeeping + outer loop</i>"]:::mid
+   T --> S
+   L -.-> S
+   classDef deep fill:#064e3b,stroke:#10b981,color:#d1fae5;
+   classDef mid fill:#1e293b,stroke:#64748b,color:#e2e8f0;
+      </div>
+      <p class="text-emerald-300/70 text-xs mt-2">One numbered sequence. Detail and bookkeeping hang off it by name.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ INTERFACE DESIGN ============ -->
+<section class="max-w-6xl mx-auto px-6 py-8">
+  <h2 class="text-2xl font-bold text-white mb-4">The deepened interface</h2>
+  <p class="text-slate-400 mb-6 max-w-3xl">What "read this" buys a reader after the fix, per file.</p>
+  <div class="space-y-4">
+    <div class="card border border-emerald-800/40 rounded-lg p-4">
+      <p class="text-emerald-300 font-semibold mono text-sm">SKILL.md § Phase 4 — Per-Round Flow</p>
+      <p class="text-slate-300 text-sm mt-1"><strong>Owns:</strong> the 8 numbered steps (1 Dispatch → 8 Present) as the sole canonical sequence; the member-side / team-lead-side split note; the checkpoint invariant. <strong>Keeps delegating:</strong> "team-lead-side detail in team-lead.md" (already there, line 180). <strong>Cleanup:</strong> drop or repoint the dangling "(spec §5)".</p>
+    </div>
+    <div class="card border border-slate-700 rounded-lg p-4">
+      <p class="text-slate-200 font-semibold mono text-sm">team-lead.md § Per-Round Flow</p>
+      <p class="text-slate-300 text-sm mt-1"><strong>Becomes:</strong> per-step operational elaboration keyed to SKILL's step <em>names</em> — which Consolidator to dispatch (under Consolidate), evict-from-context discipline (under Synthesize/Converge), warrant record (under Converge), off-roster scribe dispatch (under Author). <strong>Loses:</strong> the 1–11 integers. <strong>No information lost</strong> — the detail stays, it just stops carrying rival step numbers.</p>
+    </div>
+    <div class="card border border-slate-700 rounded-lg p-4">
+      <p class="text-slate-200 font-semibold mono text-sm">team-lead.md § Ledger &amp; § Conversation Loop</p>
+      <p class="text-slate-300 text-sm mt-1"><strong>Absorbs:</strong> the ledger-update (old step 3) as the round-boundary bookkeeping it already describes, and the designer-response branch (old step 11) as the outer loop cycle it already frames. Neither was ever an inner-round deliberation step.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RISK ============ -->
+<section class="max-w-6xl mx-auto px-6 py-8">
+  <h2 class="text-2xl font-bold text-white mb-4">Migration risk &amp; the deletion test</h2>
+  <div class="grid md:grid-cols-2 gap-6">
+    <div class="card border border-emerald-800/40 rounded-lg p-5">
+      <p class="text-emerald-300 font-semibold text-sm">Risk = zero external breakage</p>
+      <ul class="text-slate-300 text-sm mt-2 space-y-1 list-disc list-inside">
+        <li>Grep across <span class="mono">skills/ agents/ docs/</span>: no file cites "step N" of either committee per-round flow. The only references are the two internal ones being reconciled.</li>
+        <li>No wrapping skill exists yet (<span class="mono">design-architect-committee</span> is a future example in skill-contract.md, not a live file). Nothing downstream pins the numbering.</li>
+        <li>This is documentation-internal coherence — no runtime code path changes.</li>
+      </ul>
+    </div>
+    <div class="card border border-slate-700 rounded-lg p-5">
+      <p class="text-slate-200 font-semibold text-sm">Deletion test on team-lead's 1–11 list</p>
+      <p class="text-slate-300 text-sm mt-2">Delete team-lead.md's numbered list. Does complexity vanish or relocate? It <strong>relocates cleanly</strong>: the deliberation steps were already owned by SKILL.md (team-lead's own step 2 says so); the detail re-attaches by name; bookkeeping and the outer loop already have homes. Complexity does not reappear across callers — there are none. That "deletes without reappearing" is the signal the rival list was redundant scaffolding, not load-bearing.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DECISION ASKS ============ -->
+<section class="max-w-6xl mx-auto px-6 py-10">
+  <div class="bg-gradient-to-br from-sky-950 to-slate-900 border border-sky-700 rounded-2xl p-8">
+    <p class="text-sky-400 mono text-sm uppercase tracking-widest">Open questions for you</p>
+    <h2 class="text-2xl font-bold text-white mt-2">Three decisions before this becomes a plan</h2>
+    <ol class="text-slate-300 mt-4 space-y-3 list-decimal list-inside max-w-3xl">
+      <li><strong>Direction.</strong> Confirm Direction&nbsp;B (SKILL.md owns the 8 steps; team-lead.md elaborates by name) over Direction&nbsp;A (team-lead owns the full list). The existing-intent evidence points to B — is there a reason you'd want the executor's single-file convenience of A instead?</li>
+      <li><strong>The ledger &amp; designer-response steps.</strong> Confirm they leave the inner numbered sequence entirely and live only in § Ledger / § Conversation Loop — or do you want them kept visible as explicit "between-round" steps adjacent to the 8, just un-numbered?</li>
+      <li><strong>The dangling "(spec §5)".</strong> Drop the parenthetical, or is there an original design spec it should be repointed at (and carried into the tree)?</li>
+    </ol>
+    <p class="text-slate-400 mt-5 text-sm">Answer these and the change is a tight, single-purpose edit to two files with no code and no external migration.</p>
+  </div>
+</section>
+
+<footer class="max-w-6xl mx-auto px-6 py-8 text-slate-600 text-xs mono border-t border-slate-800">
+  Architecture review · design-committee · candidate-2 deep dive · sprint 20260613-01-review-design-committee · supersedes review-00 for candidate 2 · vocabulary: module / interface / depth / seam / deletion-test
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,23 @@
+--- Test 1: same term, no scope (default "global") — overlap fires (back-compat) ---
+  overlaps                                           [{"shape":"overlap","args":["definition_1","definition_2"]}]
+  expected 1 canonical overlap — PASS
+
+--- Test 2: same term, DIFFERENT explicit scopes — no overlap (legitimate dual-use) ---
+  overlaps                                           []
+  expected 0 overlaps — PASS
+
+--- Test 3: same term, one scoped + one default — no overlap (different scopes) ---
+  overlaps                                           []
+  expected 0 overlaps (different scopes) — PASS
+
+--- Test 4: three same-term-same-scope definitions — 3 canonical pairs ---
+  overlaps                                           [{"shape":"overlap","args":["definition_1","definition_2"]},{"shape":"overlap","args":["definition_1","definition_3"]},{"shape":"overlap","args":["definition_2","definition_3"]}]
+  expected C(3,2)=3 canonical pairs — PASS
+
+--- Test 5: mixed scope partition — only intra-scope pairs detected ---
+  overlaps                                           [{"shape":"overlap","args":["definition_1","definition_2"]},{"shape":"overlap","args":["definition_3","definition_4"]}]
+  expected 2 overlaps (web×web, os×os) — PASS
+
+--- Test 6: definition_scope fact landed in EDB for projection completeness ---
+  definition_scope                                   [{"I":"definition_1","S":"custom"}]
+  result: PASS

@@ -1,0 +1,66 @@
+
+===== Phase 1: bootstrap + build coherent proof =====
+[01] OK   createDomainBridge => {}
+closure_permitted at start: [{}]
+fingerprint parts at start: {"factsCount":46,"rulesCount":27}
+
+===== Phase 2: baseline fingerprint =====
+baseline length: 10810 chars
+
+===== Phase 3: single counterfactual against p1 =====
+[02] OK   runCounterfactual(proposition_3) => {"stillCloses":true,"failureReasons":[]}
+fingerprint equals baseline? YES (snapshot/restore is bit-equal)
+
+===== Phase 4: counterfactual against every ratified proposition =====
+[03] OK   runCounterfactual(proposition_3) => {"stillCloses":true,"failureReasons":[]}
+  result: stillCloses=true, reasons=[]; fingerprint match=YES
+[04] OK   runCounterfactual(proposition_4) => {"stillCloses":true,"failureReasons":[]}
+  result: stillCloses=true, reasons=[]; fingerprint match=YES
+[05] OK   runCounterfactual(proposition_5) => {"stillCloses":true,"failureReasons":[]}
+  result: stillCloses=true, reasons=[]; fingerprint match=YES
+
+===== Phase 5: counterfactual against non-existent propId =====
+[06] OK   runCounterfactual({propId: 'no_such_prop'}) => {"stillCloses":true,"failureReasons":[]}
+fingerprint match? YES
+
+===== Phase 6: 20 repeated counterfactuals on p1 =====
+  20/20 iterations: fingerprint identical to baseline
+
+===== Phase 7: state mutations + counterfactual =====
+  after withdraw, fingerprint differs from baseline? YES (expected)
+[07] OK   runCounterfactual(proposition_20) after revise+ratify => {"stillCloses":true,"failureReasons":[]}
+  fingerprint match against new-baseline? YES
+
+===== Phase 8: counterfactual with open transaction (probe) =====
+  opened external tx: Symbol(tx)
+[08] FAIL runCounterfactual(proposition_5) with open external tx
+         message: COUNTERFACTUAL_REFUSED_DURING_TX: collapseTest cannot run while an external transaction is open (see bridge.runCounterfactual JSDoc — the snapshot/restore bracket would invalidate the tx handle)
+         code:    COUNTERFACTUAL_REFUSED_DURING_TX
+  fingerprint match against new-baseline? YES
+  rollback succeeded — UNEXPECTED, contradicts engine restore() invalidation contract
+
+===== Phase 9: rule-store stability across many counterfactuals =====
+  before: {"factsCount":54,"rulesCount":28}
+  after 50 counterfactuals: {"factsCount":54,"rulesCount":28}
+  rule + fact counts stable? YES
+
+===== Findings summary =====
+Total attempts:    8
+Attempt failures:  1
+Drift findings:    1
+Total findings:    2
+
+--- findings (JSON) ---
+[
+  {
+    "attempt": "08",
+    "label": "runCounterfactual(proposition_5) with open external tx",
+    "message": "COUNTERFACTUAL_REFUSED_DURING_TX: collapseTest cannot run while an external transaction is open (see bridge.runCounterfactual JSDoc — the snapshot/restore bracket would invalidate the tx handle)",
+    "code": "COUNTERFACTUAL_REFUSED_DURING_TX",
+    "stack": "Error: COUNTERFACTUAL_REFUSED_DURING_TX: collapseTest cannot run while an external transaction is open (see bridge.runCounterfactual JSDoc — the snapshot/restore bracket would invalidate the tx handle)\n    at _assertNoOpenTransaction (file:///home/mike/Documents/CodeProjects/Chester/skills/design-proof-system/references/domain/counterfactual.js:27:25)\n    at Module.collapseTest (file:///home/mike/Documents/CodeProjects/Chester/skills/design-proof-system/references/domain/counterfactual.js:37:3)\n    at Object.runCounterfactual (file:///home/mike/Documents/CodeProjects/Chester/skills/design-proof-system/references/domain/domain-bridge.js:152:49)"
+  },
+  {
+    "phase": "P8",
+    "anomaly": "rollback succeeded after counterfactual; tx survived restore"
+  }
+]

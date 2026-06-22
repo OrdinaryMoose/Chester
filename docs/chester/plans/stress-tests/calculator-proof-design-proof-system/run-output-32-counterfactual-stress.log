@@ -1,0 +1,54 @@
+
+===== Phase 1: bootstrap + build coherent proof =====
+[01] OK   createDomainBridge => {}
+closure_permitted at start: [{}]
+fingerprint parts at start: {"factsCount":15,"rulesCount":27}
+
+===== Phase 2: baseline fingerprint =====
+baseline length: 9304 chars
+
+===== Phase 3: single counterfactual against p1 =====
+[02] OK   runCounterfactual(proposition_3) => {"stillCloses":true,"failureReasons":[]}
+fingerprint equals baseline? YES (snapshot/restore is bit-equal)
+
+===== Phase 4: counterfactual against every ratified proposition =====
+[03] OK   runCounterfactual(proposition_3) => {"stillCloses":true,"failureReasons":[]}
+  result: stillCloses=true, reasons=[]; fingerprint match=YES
+[04] OK   runCounterfactual(proposition_4) => {"stillCloses":true,"failureReasons":[]}
+  result: stillCloses=true, reasons=[]; fingerprint match=YES
+[05] OK   runCounterfactual(proposition_5) => {"stillCloses":true,"failureReasons":[]}
+  result: stillCloses=true, reasons=[]; fingerprint match=YES
+
+===== Phase 5: counterfactual against non-existent propId =====
+[06] OK   runCounterfactual({propId: 'no_such_prop'}) => {"stillCloses":true,"failureReasons":[]}
+fingerprint match? YES
+
+===== Phase 6: 20 repeated counterfactuals on p1 =====
+  20/20 iterations: fingerprint identical to baseline
+
+===== Phase 7: state mutations + counterfactual =====
+  after withdraw, fingerprint differs from baseline? NO (suspicious)
+[07] OK   runCounterfactual(proposition_20) after revise+ratify => {"stillCloses":true,"failureReasons":[]}
+  fingerprint match against new-baseline? YES
+
+===== Phase 8: counterfactual with open transaction (probe) =====
+  tx probe threw:  Cannot read properties of undefined (reading 'slice')
+
+===== Phase 9: rule-store stability across many counterfactuals =====
+  before: {"factsCount":17,"rulesCount":28}
+  after 50 counterfactuals: {"factsCount":17,"rulesCount":28}
+  rule + fact counts stable? YES
+
+===== Findings summary =====
+Total attempts:    7
+Attempt failures:  0
+Drift findings:    1
+Total findings:    1
+
+--- findings (JSON) ---
+[
+  {
+    "phase": "P8",
+    "error": "Cannot read properties of undefined (reading 'slice')"
+  }
+]

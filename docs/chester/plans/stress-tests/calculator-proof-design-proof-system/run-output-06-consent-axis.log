@@ -1,0 +1,25 @@
+--- Test 1: FRICTION + SYSTEM consent (was Finding #3 failure) ---
+  PASS addElement(FRICTION, SYSTEM) => {"id":"friction_1"}
+
+--- Test 2: FRICTION + DESIGNER consent (should still work) ---
+  PASS addElement(FRICTION, DESIGNER) => {"id":"friction_1"}
+
+--- Test 3: EVIDENCE + SYSTEM consent (must STILL be rejected) ---
+  THROW addElement(EVIDENCE, SYSTEM) => CONSENT_INVALID - CONSENT_INVALID: source system does not match required designer
+
+--- Test 4: EVIDENCE + DESIGNER consent (should still work) ---
+  PASS addElement(EVIDENCE, DESIGNER) => {"id":"evidence_1"}
+
+--- Test 5: FRICTION + DESIGN_PARTNER consent (not in allowlist — must reject) ---
+  THROW addElement(FRICTION, DESIGN_PARTNER) => CONSENT_INVALID - CONSENT_INVALID: source design_partner does not match required one of [system, designer]
+
+--- Test 6: presentClosingArgument under SYSTEM consent (no per-action authority — must use spec.consentCategory=DESIGNER) ---
+  THROW presentClosingArgument(SYSTEM) => CONSENT_INVALID - CONSENT_INVALID: source system does not match required designer
+
+Expected outcomes:
+  Test 1: PASS (was failing pre-fix)
+  Test 2: PASS
+  Test 3: THROW CONSENT_INVALID
+  Test 4: PASS
+  Test 5: THROW CONSENT_INVALID
+  Test 6: THROW CONSENT_INVALID
