@@ -5,7 +5,7 @@ description: >
   and reasoning audit. Use when: "summarize what we did", "write the summary",
   "session report", "reasoning audit", "document this session", or at natural
   session end points. Also trigger proactively.
-version: v0005
+version: v0006
 ---
 
 # Session Records
@@ -97,23 +97,6 @@ Stamp after writing:
 ```bash
 chester-trailer-write stamp finish-write-records@v0004 "<audit-path>"
 ```
-
-## Step 4: Copy Plan
-
-Find plan in `{CHESTER_WORKING_DIR}/{sprint-subdir}/plan/`. Copy most recent file into summary dir.
-
-No plan found → reconstruct from conversation and note. No plan at all → skip and note.
-
-Authoritative plan stays in `plan/`. Convenience copy only.
-
-## Step 5: Offer State Update
-
-Strategy doc or session state file exists → offer:
-
-> "I can also update the Session State section in [filename] to reflect what was
-> completed this session. Would you like me to do that?"
-
-Don't update automatically.
 
 ## Principles
 
