@@ -27,9 +27,9 @@ grep -q 'Session Skill Versions' "$FORMATS" || fail "record-formats.md missing S
 # 5. Skill mentions Session Skill Versions in summary-write step
 grep -q 'Session Skill Versions' "$SKILL" || fail "skill text missing Session Skill Versions"
 
-# 6. Version is at v0005 (post summary+audit-only simplification)
+# 6. Version is at v0006 (post plan-copy + state-update step removal)
 CUR_VER="$(awk '/^version:/ {print $2; exit}' "$SKILL")"
-[ "$CUR_VER" = "v0005" ] || fail "version not at v0005 (got $CUR_VER)"
+[ "$CUR_VER" = "v0006" ] || fail "version not at v0006 (got $CUR_VER)"
 
 if [ "$ERRORS" -gt 0 ]; then echo "FAIL: $ERRORS"; exit 1; fi
 echo "PASS: finish-write-records wired with harvest"
