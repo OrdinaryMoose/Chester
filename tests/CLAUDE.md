@@ -19,7 +19,7 @@ for t in tests/test-*.sh; do bash "$t" || echo "FAIL: $t"; done
 - `test-ac-N-M-*.sh` — acceptance criteria tests tied to a numbered spec requirement (cluster N, AC M).
 - `test-stamping-*.sh` — skill-stamping discipline (info-packet stamping, version bumps).
 - `test-artifact-*.sh` — artifact schema, naming, provenance.
-- `test-decision-record-*.sh` — decision-record emission, supersession, revert hygiene.
+- `test-decision-record-revert-clean.sh` — revert hygiene: guards that the removed decision-record system (MCP server, filter reference, emission/supersession tests) leaves no dangling references.
 - `test-trailer-*.sh` — commit-message trailer harvest/write.
 - `test-partner-role-*.sh` — design-partner-role overlay discipline.
 - `test-finish-*.sh` — finish-phase skills (record writing, archive).

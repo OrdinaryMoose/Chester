@@ -44,6 +44,9 @@ done
 # Also verify the explicit file-level deletions.
 DELETED_PATHS=(
   "$ROOT/mcp/chester-decision-record"
+  "$ROOT/skills/finish-write-records/references/decision-record-filter.md"
+  "$ROOT/tests/test-decision-record-emission.sh"
+  "$ROOT/tests/test-decision-record-supersession.sh"
   "$ROOT/skills/design-specify/references/skeleton-generator.md"
   "$ROOT/skills/execute-write/references/propagation-procedure.md"
   "$ROOT/skills/execute-write/references/test-generator.md"
